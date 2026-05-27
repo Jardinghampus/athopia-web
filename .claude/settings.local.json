@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 \"C:/Users/jardi/.claude/skills/ui-ux-pro-max/scripts/search.py\" \"football sports news media dark premium\" --design-system -p \"Athopia\" -f markdown)",
+      "Bash(python \"C:/Users/jardi/.claude/skills/ui-ux-pro-max/scripts/search.py\" \"football sports news media dark premium\" --design-system -p \"Athopia\" -f markdown)"
+    ]
+  }
+}
