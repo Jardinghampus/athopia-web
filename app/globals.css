@@ -1,26 +1,178 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ─── Athopia Design System ──────────────────────────────────────────────────
+ * Dark-first fotbollsmediaapp.
+ * Primärfärg: #1D9E75 (pitch green) – används för CTAs, highlights, accenter.
+ * Typografi: Bebas Neue (rubriker) + DM Sans (brödtext) via next/font/google.
+ * Tokenerna nedan mappar Tailwinds semantiska klasser till Athopias palett.
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* Semantiska Tailwind-mappningar */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card:            var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover:            var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary:            var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary:            var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted:            var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent:            var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring:  var(--ring);
+
+  /* Athopia-specifika färger tillgängliga via bg-pitch, text-pitch-light, osv */
+  --color-pitch:       #1D9E75;
+  --color-pitch-dark:  #14724f;
+  --color-pitch-light: #25c48e;
+  --color-pitch-muted: rgba(29, 158, 117, 0.15);
+
+  /* Chart-tokens */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* Radii */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+
+  /* Font-stack — variabler sätts av next/font i layout.tsx */
+  --font-sans:    var(--font-dm-sans);
+  --font-heading: var(--font-bebas-neue);
+  --font-mono:    ui-monospace, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ─── Mörkt tema (default) ─────────────────────────────────────────────────── */
+:root {
+  --background: #0b100e;
+  --foreground: #eef2f0;
+
+  --card: #121a17;
+  --card-foreground: #eef2f0;
+
+  --popover: #1a2420;
+  --popover-foreground: #eef2f0;
+
+  /* Primär = pitch green */
+  --primary: #1D9E75;
+  --primary-foreground: #ffffff;
+
+  --secondary: #1e2d28;
+  --secondary-foreground: #b0c4bc;
+
+  --muted: #1a2420;
+  --muted-foreground: #7a9690;
+
+  --accent: #1D9E75;
+  --accent-foreground: #ffffff;
+
+  --destructive: oklch(0.65 0.22 25);
+
+  --border: rgba(255, 255, 255, 0.07);
+  --input: rgba(255, 255, 255, 0.07);
+  --ring: #1D9E75;
+
+  --radius: 0.625rem;
+
+  /* Athopia-specifika chartfärger */
+  --chart-1: #1D9E75;
+  --chart-2: #25c48e;
+  --chart-3: #14724f;
+  --chart-4: #7fdbc0;
+  --chart-5: #0d4f38;
+}
+
+/* Ljust tema (opt-in via .light class) */
+.light {
+  --background: #f5f9f7;
+  --foreground: #0d1a16;
+
+  --card: #ffffff;
+  --card-foreground: #0d1a16;
+
+  --popover: #ffffff;
+  --popover-foreground: #0d1a16;
+
+  --primary: #1D9E75;
+  --primary-foreground: #ffffff;
+
+  --secondary: #e8f5f0;
+  --secondary-foreground: #0d1a16;
+
+  --muted: #f0f7f4;
+  --muted-foreground: #4f7066;
+
+  --accent: #e8f5f0;
+  --accent-foreground: #0d1a16;
+
+  --destructive: oklch(0.577 0.245 27.325);
+
+  --border: rgba(0, 0, 0, 0.08);
+  --input: rgba(0, 0, 0, 0.08);
+  --ring: #1D9E75;
+}
+
+/* ─── Base styles ──────────────────────────────────────────────────────────── */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    @apply font-sans antialiased;
+    /* Dark-first: alltid dark class på html */
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-background text-foreground min-h-dvh;
+  }
+
+  /* Bebas Neue appliceras automatiskt via font-heading */
+  h1, h2, h3 {
+    @apply font-heading tracking-wide;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ─── Utility-klasser ─────────────────────────────────────────────────────── */
+@layer utilities {
+  /* Pitch-green gradient för hero-element */
+  .pitch-gradient {
+    background: linear-gradient(135deg, #1D9E75 0%, #14724f 100%);
+  }
+
+  /* Subtil glow för live-indikatorer */
+  .pitch-glow {
+    box-shadow: 0 0 12px rgba(29, 158, 117, 0.4);
+  }
+
+  /* Glassmorfism-kort */
+  .glass-card {
+    @apply backdrop-blur-md bg-white/5 border border-white/10;
+  }
+
+  /* Trend-pil animering */
+  @keyframes pulse-live {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.4; }
+  }
+  .live-dot {
+    @apply w-2 h-2 rounded-full bg-red-500;
+    animation: pulse-live 1.5s ease-in-out infinite;
+  }
 }
