@@ -1,0 +1,63 @@
+/**
+ * app/sitemap.ts — Dynamisk sitemap
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Inkluderar:
+ *  - Statiska sidor (/, /podcast, /prenumerera)
+ *  - Dynamiska artiklar (articles-tabellen)
+ *  - Lag (teams-tabellen)
+ *  - Spelare (players-tabellen, om den finns)
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+
+import type { MetadataRoute } from "next";
+import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+
+const BASE = "https://athopia.se";
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // Statiska sidor
+  const staticRoutes: MetadataRoute.Sitemap = [
+    { url: BASE, lastModified: new Date(), changeFrequency: "daily", priority: 1 },
+    { url: `${BASE}/podcast`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
+    { url: `${BASE}/prenumerera`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.6 },
+  ];
+
+  let articleRoutes: MetadataRoute.Sitemap = [];
+  let teamRoutes: MetadataRoute.Sitemap = [];
+
+  if (!isSupabaseConfigured()) return staticRoutes;
+
+  try {
+    const supabase = createServerClient();
+
+    // Artiklar
+    const { data: articles } = await supabase
+      .from("articles")
+      .select("slug, published_at")
+      .order("published_at", { ascending: false })
+      .limit(1000);
+
+    articleRoutes = (articles ?? []).map((a) => ({
+      url: `${BASE}/artikel/${a.slug}`,
+      lastModified: new Date(a.published_at),
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    }));
+
+    // Lag
+    const { data: teams } = await supabase
+      .from("teams")
+      .select("slug, updated_at");
+
+    teamRoutes = (teams ?? []).map((t) => ({
+      url: `${BASE}/lag/${t.slug}`,
+      lastModified: t.updated_at ? new Date(t.updated_at) : new Date(),
+      changeFrequency: "daily" as const,
+      priority: 0.6,
+    }));
+  } catch {
+    // Om DB är nere – returnera bara statiska routes
+  }
+
+  return [...staticRoutes, ...articleRoutes, ...teamRoutes];
+}

@@ -1,37 +1,53 @@
 /**
  * PodcastCard
- * Visar en podcast-episod med:
+ * Visar en podcast med:
  *  - show-namn + episodtitel
- *  - duration (mm:ss)
- *  - badge om transkript finns (PRO)
- *  - klickbar till /podcast/[id]
+ *  - duration (1h 23min)
+ *  - transkript-badge om transkript finns
+ *  - entiteter (top 3)
  */
 
 import Link from "next/link";
-import { Mic, FileText, Clock } from "lucide-react";
+import { Mic, FileText, Clock, Play } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { EntityChip } from "./EntityChip";
-import type { PodcastEpisode } from "@/lib/supabase";
+import type { Podcast } from "@/lib/types";
+import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 interface PodcastCardProps {
-  episode: PodcastEpisode;
+  podcast: Podcast;
 }
 
 function formatDuration(seconds: number) {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${m}:${s.toString().padStart(2, "0")}`;
+  const s = Math.max(0, Math.floor(seconds));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  if (h > 0) return `${h}h ${m}min`;
+  return `${m}min`;
 }
 
-export function PodcastCard({ episode }: PodcastCardProps) {
+export function PodcastCard({ podcast }: PodcastCardProps) {
   return (
     <Link
-      href={`/podcast/${episode.id}`}
-      className="group flex gap-4 p-4 rounded-xl border border-border bg-card hover:border-pitch/40 transition-all duration-200 hover:shadow-[0_0_16px_rgba(29,158,117,0.08)]"
+      href={`/podcast/${podcast.id}`}
+      className="group relative flex gap-4 p-4 rounded-2xl border border-border bg-card hover:border-pitch/40 transition-all duration-200 hover:shadow-[0_0_16px_rgba(29,158,117,0.08)] overflow-hidden"
     >
-      {/* Ikon-thumbnail */}
-      <div className="w-12 h-12 rounded-xl pitch-gradient flex items-center justify-center shrink-0">
-        <Mic className="w-5 h-5 text-white" />
+      {/* Thumbnail */}
+      <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-secondary shrink-0">
+        {podcast.imageUrl ? (
+          <Image src={podcast.imageUrl} alt={podcast.title} fill className="object-cover" sizes="64px" />
+        ) : (
+          <div className="absolute inset-0 pitch-gradient opacity-60" />
+        )}
+        <div
+          className={cn(
+            "absolute inset-0 grid place-items-center opacity-0 group-hover:opacity-100 transition-opacity",
+            "bg-black/30"
+          )}
+        >
+          <Play className="w-5 h-5 text-white" />
+        </div>
       </div>
 
       {/* Innehåll */}
@@ -39,21 +55,21 @@ export function PodcastCard({ episode }: PodcastCardProps) {
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             <p className="text-xs text-pitch font-medium mb-0.5 truncate">
-              {episode.show_name}
+              {podcast.showName}
             </p>
-            <h3 className="font-medium text-sm text-foreground line-clamp-2 group-hover:text-pitch-light transition-colors">
-              {episode.title}
+            <h3 className="font-heading text-lg text-foreground line-clamp-2 group-hover:text-pitch-light transition-colors leading-tight">
+              {podcast.title}
             </h3>
           </div>
 
           {/* Transkript-badge */}
-          {episode.transcript_html && (
+          {podcast.hasTranscript && (
             <Badge
               variant="outline"
               className="text-xs border-pitch/40 text-pitch-light shrink-0 gap-1"
             >
               <FileText className="w-3 h-3" />
-              PRO
+              Transkript
             </Badge>
           )}
         </div>
@@ -61,15 +77,15 @@ export function PodcastCard({ episode }: PodcastCardProps) {
         <div className="flex items-center justify-between">
           {/* Entiteter */}
           <div className="flex flex-wrap gap-1">
-            {episode.entities?.slice(0, 2).map((e) => (
-              <EntityChip key={e.id} entity={e} static />
+            {podcast.entities?.slice(0, 3).map((e) => (
+              <EntityChip key={e.id} entity={e} size="sm" linked={false} />
             ))}
           </div>
 
           {/* Duration */}
           <span className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
             <Clock className="w-3 h-3" />
-            {formatDuration(episode.duration_seconds)}
+            {formatDuration(podcast.durationSeconds)}
           </span>
         </div>
       </div>

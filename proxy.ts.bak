@@ -1,5 +1,5 @@
 /**
- * middleware.ts
+ * proxy.ts (f.d. middleware.ts — byt namn i Next.js 16)
  * ─────────────────────────────────────────────────────────────────────────────
  * Clerk-baserad route-skydd för Athopia.
  *

@@ -19,15 +19,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ArticleCard } from "@/components/ui/ArticleCard";
 import { NarrativeCard } from "@/components/ui/NarrativeCard";
 import { ScoreWidget } from "@/components/ui/ScoreWidget";
-import { createServerClient } from "@/lib/supabase";
-import { getLiveFixtures, getTodayFixtures } from "@/lib/sportsmonks";
-import type { Article, Narrative } from "@/lib/supabase";
+import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import { fetchAllsvenskanFixtures, fetchLiveScores } from "@/lib/sportsmonks";
+import type { Article, Narrative } from "@/lib/types";
 import type { SMFixture } from "@/lib/sportsmonks";
 
 export const revalidate = 60;
 
 // ─── Data-hämtning ─────────────────────────────────────────────────────────────
 async function getTopArticles(): Promise<Article[]> {
+  if (!isSupabaseConfigured()) return [];
   try {
     const supabase = createServerClient();
     const { data } = await supabase
@@ -42,6 +43,7 @@ async function getTopArticles(): Promise<Article[]> {
 }
 
 async function getTrendingNarratives(): Promise<Narrative[]> {
+  if (!isSupabaseConfigured()) return [];
   try {
     const supabase = createServerClient();
     const { data } = await supabase
@@ -49,18 +51,19 @@ async function getTrendingNarratives(): Promise<Narrative[]> {
       .select("*")
       .order("score", { ascending: false })
       .limit(3);
-    return (data as Narrative[]) ?? [];
+    return (data as any as Narrative[]) ?? [];
   } catch {
     return [];
   }
 }
 
 async function getFixtures(): Promise<SMFixture[]> {
+  if (!process.env.SPORTSMONKS_API_TOKEN || process.env.SPORTSMONKS_API_TOKEN === "placeholder_token") return [];
   try {
-    const live = await getLiveFixtures();
+    const live = await fetchLiveScores();
     if (live.length > 0) return live.slice(0, 6);
-    const today = await getTodayFixtures();
-    return today.slice(0, 6);
+    const allsv = await fetchAllsvenskanFixtures();
+    return allsv.slice(0, 6);
   } catch {
     return [];
   }
@@ -84,7 +87,7 @@ function HeroNarrative({ narrative }: { narrative: Narrative }) {
           {narrative.topic}
         </h1>
         <div className="flex items-center gap-6 text-sm text-muted-foreground">
-          <span>{narrative.source_count} källor</span>
+          <span>{narrative.sourceCount} källor</span>
           <span className="flex items-center gap-1">
             Poäng <strong className="text-pitch">{narrative.score}</strong>
           </span>
@@ -158,8 +161,8 @@ export default async function HomePage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {articles.map((article) => (
-                <ArticleCard key={article.id} article={article} />
+              {articles.map((article, i) => (
+                <ArticleCard key={article.id} article={article} priority={i === 0} />
               ))}
             </div>
           )}
@@ -191,9 +194,7 @@ export default async function HomePage() {
                   <Skeleton key={i} className="h-24 rounded-xl" />
                 ))
               ) : (
-                narratives.map((n, i) => (
-                  <NarrativeCard key={n.id} narrative={n} rank={i + 1} />
-                ))
+                narratives.map((n) => <NarrativeCard key={n.id} narrative={n} />)
               )}
             </div>
           </div>

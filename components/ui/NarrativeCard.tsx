@@ -1,89 +1,84 @@
 /**
  * NarrativeCard
- * Visar ett narrativ (trendande berättelse) med:
- *  - ämnesrubrik
- *  - score-bar (0–100)
- *  - antal källor
- *  - trend-pil (up/down/stable)
+ * Props:
+ * - narrative: Narrative
+ * - compact?: boolean
+ *
+ * Klickbar → /narrativ/[id]
  */
 
 import Link from "next/link";
-import { TrendingUp, TrendingDown, Minus } from "lucide-react";
-import type { Narrative } from "@/lib/supabase";
-import { EntityChip } from "./EntityChip";
+import { TrendingUp, TrendingDown, Minus, Newspaper } from "lucide-react";
+import type { Narrative } from "@/lib/types";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 interface NarrativeCardProps {
   narrative: Narrative;
-  rank?: number;
+  compact?: boolean;
 }
 
 function TrendIcon({ trend }: { trend: Narrative["trend"] }) {
-  if (trend === "up")
-    return <TrendingUp className="w-4 h-4 text-pitch-light" aria-label="Stigande trend" />;
-  if (trend === "down")
-    return <TrendingDown className="w-4 h-4 text-red-400" aria-label="Sjunkande trend" />;
+  if (trend === "rising")
+    return <TrendingUp className="w-4 h-4 text-pitch-light animate-slide-up" aria-label="Stigande trend" />;
+  if (trend === "falling")
+    return <TrendingDown className="w-4 h-4 text-red-400 animate-slide-up" aria-label="Sjunkande trend" />;
   return <Minus className="w-4 h-4 text-muted-foreground" aria-label="Stabil trend" />;
 }
 
-export function NarrativeCard({ narrative, rank }: NarrativeCardProps) {
-  const scoreBarWidth = `${Math.min(narrative.score, 100)}%`;
+function scoreToPercent(score: number) {
+  const s = Number.isFinite(score) ? score : 0;
+  return Math.max(0, Math.min(100, Math.round(s * 100)));
+}
+
+function scoreColor(score: number) {
+  // 0..1 → röd→gul→grön
+  if (score >= 0.67) return "bg-pitch";
+  if (score >= 0.34) return "bg-amber-500";
+  return "bg-red-500";
+}
+
+export function NarrativeCard({ narrative, compact = false }: NarrativeCardProps) {
+  const percent = scoreToPercent(narrative.score);
 
   return (
-    <div className="flex gap-4 p-4 rounded-xl border border-border bg-card hover:border-pitch/30 transition-colors">
-      {/* Ranknummer */}
-      {rank !== undefined && (
-        <span className="font-heading text-3xl text-pitch/40 tabular-nums shrink-0 w-8 mt-1">
-          {rank}
-        </span>
+    <Link
+      href={`/narrativ/${narrative.id}`}
+      className="group block rounded-2xl border border-border bg-card p-4 hover:border-pitch/30 transition-colors"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <h3 className="font-heading text-xl text-foreground leading-tight line-clamp-2">
+          {narrative.topic}
+        </h3>
+        <TrendIcon trend={narrative.trend} />
+      </div>
+
+      {!compact && (
+        <div className="mt-4 space-y-2">
+          <div className="relative">
+            <div className="h-2 rounded-full bg-secondary overflow-hidden" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent}>
+              <div className={cn("h-full rounded-full transition-all duration-700", scoreColor(narrative.score))} style={{ width: `${percent}%` }} />
+            </div>
+          </div>
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <Newspaper className="w-3 h-3" />
+              {narrative.sourceCount} källor
+            </span>
+            <Badge variant="outline" className="border-white/10 text-foreground/80">
+              {percent}%
+            </Badge>
+          </div>
+        </div>
       )}
 
-      <div className="flex flex-col gap-3 flex-1 min-w-0">
-        {/* Rubrik + trend */}
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="font-heading text-lg text-foreground leading-tight line-clamp-2">
-            {narrative.topic}
-          </h3>
-          <TrendIcon trend={narrative.trend} />
+      {compact && (
+        <div className="mt-2 text-xs text-muted-foreground flex items-center gap-2">
+          <span>{narrative.sourceCount} källor</span>
+          <span>•</span>
+          <span>{percent}%</span>
         </div>
-
-        {/* Score-bar */}
-        <div className="space-y-1">
-          <div
-            className="h-1.5 rounded-full bg-secondary overflow-hidden"
-            role="progressbar"
-            aria-valuenow={narrative.score}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-label={`Narrativ styrka: ${narrative.score}/100`}
-          >
-            <div
-              className={cn(
-                "h-full rounded-full transition-all duration-700",
-                narrative.score >= 70
-                  ? "bg-pitch"
-                  : narrative.score >= 40
-                  ? "bg-pitch/60"
-                  : "bg-pitch/30"
-              )}
-              style={{ width: scoreBarWidth }}
-            />
-          </div>
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>{narrative.source_count} källor</span>
-            <span>{narrative.score}/100</span>
-          </div>
-        </div>
-
-        {/* Entiteter */}
-        {narrative.entities?.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {narrative.entities.slice(0, 4).map((e) => (
-              <EntityChip key={e.id} entity={e} />
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+      )}
+    </Link>
   );
 }

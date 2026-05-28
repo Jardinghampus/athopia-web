@@ -20,6 +20,10 @@ import { NextResponse } from "next/server";
 const isPublicRoute = createRouteMatcher([
   "/",
   "/artikel(.*)",
+  "/nyheter(.*)",
+  "/allsvenskan(.*)",
+  "/narrativ(.*)",
+  "/analys(.*)",
   "/lag(.*)",
   "/spelare(.*)",
   "/liga(.*)",
@@ -31,6 +35,7 @@ const isPublicRoute = createRouteMatcher([
 // ─── PRO-skyddade routes ───────────────────────────────────────────────────────
 const isProRoute = createRouteMatcher([
   "/konto(.*)",
+  "/api/pro(.*)",
 ]);
 
 // ─── Middleware ────────────────────────────────────────────────────────────────

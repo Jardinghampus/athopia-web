@@ -10,7 +10,7 @@
  */
 
 const BASE_URL = "https://api.sportmonks.com/v3/football";
-const API_TOKEN = process.env.SPORTSMONKS_API_TOKEN!;
+const API_TOKEN = process.env.SPORTSMONKS_API_TOKEN ?? "";
 
 // ─── Fetch-helper med ISR-cache ────────────────────────────────────────────────
 async function smFetch<T>(
@@ -18,6 +18,9 @@ async function smFetch<T>(
   params: Record<string, string> = {},
   revalidate = 60
 ): Promise<T> {
+  if (!API_TOKEN || API_TOKEN === "placeholder_token") {
+    throw new Error("SPORTSMONKS_API_TOKEN saknas eller är placeholder.");
+  }
   const url = new URL(`${BASE_URL}${path}`);
   url.searchParams.set("api_token", API_TOKEN);
   for (const [k, v] of Object.entries(params)) {
@@ -96,66 +99,106 @@ export interface SMTeamStats {
  * Hämta live och kommande matcher (ISR 60s).
  * Inkluderar poäng, lag, ligainfo.
  */
-export async function getLiveFixtures(): Promise<SMFixture[]> {
-  return smFetch<SMFixture[]>(
-    "/livescores/inplay",
-    { include: "participants;scores;state;league;periods" },
-    60
-  );
+export async function fetchLiveScores(): Promise<SMFixture[]> {
+  try {
+    return await smFetch<SMFixture[]>(
+      "/livescores/inplay",
+      { include: "participants;scores;state;league;periods" },
+      60
+    );
+  } catch (e) {
+    console.error("Sportsmonks fetchLiveScores fel", e);
+    return [];
+  }
 }
 
 /**
  * Hämtar dagens matcher (ISR 60s).
  */
-export async function getTodayFixtures(): Promise<SMFixture[]> {
-  return smFetch<SMFixture[]>(
-    "/fixtures/date/today",
-    { include: "participants;scores;state;league" },
-    60
-  );
+export async function fetchAllsvenskanFixtures(): Promise<SMFixture[]> {
+  // Kräver att season/league sätts i env för exakt Allsvenskan. Faller tillbaka till "today".
+  const seasonId = process.env.SPORTSMONKS_ALLSVENSKAN_SEASON_ID;
+  try {
+    if (seasonId) {
+      return await smFetch<SMFixture[]>(
+        `/fixtures/seasons/${seasonId}`,
+        { include: "participants;scores;state;league;periods" },
+        60
+      );
+    }
+    return await smFetch<SMFixture[]>(
+      "/fixtures/date/today",
+      { include: "participants;scores;state;league" },
+      60
+    );
+  } catch (e) {
+    console.error("Sportsmonks fetchAllsvenskanFixtures fel", e);
+    return [];
+  }
 }
 
 /**
  * Hämta lagprofil med statistik (ISR 3600s).
  */
-export async function getTeamById(teamId: number): Promise<SMTeam> {
-  return smFetch<SMTeam>(
-    `/teams/${teamId}`,
-    { include: "players;country" },
-    3600
-  );
+export async function fetchTeamStats(teamId: number): Promise<SMTeamStats | null> {
+  try {
+    // Placeholder: Sportsmonks har flera endpoints för stats; vi tar standings + form när säsong finns.
+    const seasonId = process.env.SPORTSMONKS_ALLSVENSKAN_SEASON_ID;
+    if (seasonId) {
+      const standings = await fetchStandings();
+      const row = standings.find((s) => s.team.id === teamId) ?? null;
+      if (row) return row;
+    }
+    const team = await smFetch<SMTeam>(`/teams/${teamId}`, {}, 60);
+    return {
+      team,
+      position: null,
+      goals_for: 0,
+      goals_against: 0,
+      wins: 0,
+      draws: 0,
+      losses: 0,
+      form: [],
+    };
+  } catch (e) {
+    console.error("Sportsmonks fetchTeamStats fel", e);
+    return null;
+  }
 }
 
 /**
  * Hämta stående i en liga (ISR 3600s).
  */
-export async function getStandings(seasonId: number): Promise<SMTeamStats[]> {
-  const raw = await smFetch<
-    Array<{
-      participant: SMTeam;
-      position: number;
-      goals: { scored: number; conceded: number };
-      won: number;
-      draw: number;
-      lost: number;
-      form: string[];
-    }>
-  >(
-    `/standings/seasons/${seasonId}`,
-    {},
-    3600
-  );
+export async function fetchStandings(): Promise<SMTeamStats[]> {
+  const seasonId = process.env.SPORTSMONKS_ALLSVENSKAN_SEASON_ID;
+  if (!seasonId) return [];
+  try {
+    const raw = await smFetch<
+      Array<{
+        participant: SMTeam;
+        position: number;
+        goals: { scored: number; conceded: number };
+        won: number;
+        draw: number;
+        lost: number;
+        form: string[];
+      }>
+    >(`/standings/seasons/${seasonId}`, {}, 60);
 
-  return raw.map((row) => ({
-    team: row.participant,
-    position: row.position,
-    goals_for: row.goals.scored,
-    goals_against: row.goals.conceded,
-    wins: row.won,
-    draws: row.draw,
-    losses: row.lost,
-    form: row.form ?? [],
-  }));
+    return raw.map((row) => ({
+      team: row.participant,
+      position: row.position,
+      goals_for: row.goals.scored,
+      goals_against: row.goals.conceded,
+      wins: row.won,
+      draws: row.draw,
+      losses: row.lost,
+      form: row.form ?? [],
+    }));
+  } catch (e) {
+    console.error("Sportsmonks fetchStandings fel", e);
+    return [];
+  }
 }
 
 /**
@@ -167,6 +210,17 @@ export async function searchTeams(query: string): Promise<SMTeam[]> {
     {},
     3600
   );
+}
+
+export async function fetchPlayerStats(playerId: number): Promise<any | null> {
+  try {
+    // Placeholder tills vi definierar Sportsmonks player-stats mapping fullt ut.
+    const player = await smFetch<any>(`/players/${playerId}`, {}, 60);
+    return player ?? null;
+  } catch (e) {
+    console.error("Sportsmonks fetchPlayerStats fel", e);
+    return null;
+  }
 }
 
 // ─── Helper: omvandla fixture till visningsvänlig form ────────────────────────

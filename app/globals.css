@@ -5,7 +5,7 @@
 /* ─── Athopia Design System ──────────────────────────────────────────────────
  * Dark-first fotbollsmediaapp.
  * Primärfärg: #1D9E75 (pitch green) – används för CTAs, highlights, accenter.
- * Typografi: Bebas Neue (rubriker) + DM Sans (brödtext) via next/font/google.
+ * Typografi: Bebas Neue (rubriker) + DM Sans (brödtext).
  * Tokenerna nedan mappar Tailwinds semantiska klasser till Athopias palett.
  * ─────────────────────────────────────────────────────────────────────────── */
 
@@ -34,8 +34,8 @@
 
   /* Athopia-specifika färger tillgängliga via bg-pitch, text-pitch-light, osv */
   --color-pitch:       #1D9E75;
-  --color-pitch-dark:  #14724f;
-  --color-pitch-light: #25c48e;
+  --color-pitch-dark:  #158A63;
+  --color-pitch-light: #25C48F;
   --color-pitch-muted: rgba(29, 158, 117, 0.15);
 
   /* Chart-tokens */
@@ -59,40 +59,53 @@
 
 /* ─── Mörkt tema (default) ─────────────────────────────────────────────────── */
 :root {
-  --background: #0b100e;
-  --foreground: #eef2f0;
+  /* Exakt Athopia-palett */
+  --background: #0A0A0A;
+  --surface: #111111;
+  --surface-2: #1A1A1A;
+  --surface-3: #222222;
+  --border-strong: #2A2A2A;
+  --border-strong-2: #333333;
+  --text-primary: #F5F5F5;
+  --text-secondary: #A0A0A0;
+  --text-tertiary: #666666;
+  --accent-red: #E85555;
+  --accent-blue: #5599E8;
+  --accent-yellow: #E8B955;
 
-  --card: #121a17;
-  --card-foreground: #eef2f0;
+  /* Shadcn-semantik */
+  --foreground: var(--text-primary);
+  --card: var(--surface);
+  --card-foreground: var(--text-primary);
 
-  --popover: #1a2420;
-  --popover-foreground: #eef2f0;
+  --popover: var(--surface-2);
+  --popover-foreground: var(--text-primary);
 
   /* Primär = pitch green */
   --primary: #1D9E75;
   --primary-foreground: #ffffff;
 
-  --secondary: #1e2d28;
-  --secondary-foreground: #b0c4bc;
+  --secondary: var(--surface-2);
+  --secondary-foreground: var(--text-secondary);
 
-  --muted: #1a2420;
-  --muted-foreground: #7a9690;
+  --muted: var(--surface-2);
+  --muted-foreground: var(--text-secondary);
 
   --accent: #1D9E75;
   --accent-foreground: #ffffff;
 
   --destructive: oklch(0.65 0.22 25);
 
-  --border: rgba(255, 255, 255, 0.07);
-  --input: rgba(255, 255, 255, 0.07);
+  --border: var(--border-strong);
+  --input: var(--border-strong);
   --ring: #1D9E75;
 
   --radius: 0.625rem;
 
   /* Athopia-specifika chartfärger */
   --chart-1: #1D9E75;
-  --chart-2: #25c48e;
-  --chart-3: #14724f;
+  --chart-2: #25C48F;
+  --chart-3: #158A63;
   --chart-4: #7fdbc0;
   --chart-5: #0d4f38;
 }
@@ -153,17 +166,26 @@
 @layer utilities {
   /* Pitch-green gradient för hero-element */
   .pitch-gradient {
-    background: linear-gradient(135deg, #1D9E75 0%, #14724f 100%);
+    background: linear-gradient(135deg, #1D9E75 0%, #158A63 100%);
+  }
+
+  /* Text-gradient: primärgrön */
+  .text-gradient {
+    background: linear-gradient(135deg, #25C48F 0%, #1D9E75 55%, #158A63 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Glassmorphism */
+  .glass,
+  .glass-card {
+    @apply backdrop-blur-xl bg-white/5 border border-white/10;
   }
 
   /* Subtil glow för live-indikatorer */
   .pitch-glow {
     box-shadow: 0 0 12px rgba(29, 158, 117, 0.4);
-  }
-
-  /* Glassmorfism-kort */
-  .glass-card {
-    @apply backdrop-blur-md bg-white/5 border border-white/10;
   }
 
   /* Trend-pil animering */
@@ -175,4 +197,64 @@
     @apply w-2 h-2 rounded-full bg-red-500;
     animation: pulse-live 1.5s ease-in-out infinite;
   }
+}
+
+/* ─── Scrollbar + selection ───────────────────────────────────────────────── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.22);
+  background-clip: padding-box;
+}
+
+::selection {
+  background: rgba(29, 158, 117, 0.35);
+  color: var(--text-primary);
+}
+
+/* ─── Prose (artikel-innehåll) ─────────────────────────────────────────────── */
+.prose-athopia {
+  @apply text-foreground/90 leading-relaxed;
+}
+.prose-athopia h1,
+.prose-athopia h2,
+.prose-athopia h3 {
+  @apply text-foreground;
+}
+.prose-athopia a {
+  @apply text-pitch-light underline underline-offset-4 hover:text-pitch transition-colors;
+}
+.prose-athopia p {
+  @apply text-foreground/85;
+}
+.prose-athopia blockquote {
+  @apply border-l-2 border-pitch/40 pl-4 text-foreground/80;
+}
+.prose-athopia ul {
+  @apply list-disc pl-5;
+}
+.prose-athopia ol {
+  @apply list-decimal pl-5;
+}
+.prose-athopia code {
+  @apply rounded bg-white/5 px-1 py-0.5;
 }
