@@ -42,4 +42,4 @@ Jobb körs i ordning. Markera ✅ när klart.
 - [x] **J-17** — generateMetadata() på alla sidor (verifiera lag, podcast, konto)
 - [x] **J-18** — next/image på alla bilder (verifiera lag, podcast)
 - [x] **J-19** — Lighthouse-audit: Core Web Vitals ≥ 90
-- [ ] **J-20** — Vercel deploy + env-variabler i produktion
+- [x] **J-20** — Vercel deploy + env-variabler i produktion
