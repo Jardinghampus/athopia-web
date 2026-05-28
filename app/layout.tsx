@@ -18,6 +18,7 @@ import { Bebas_Neue, DM_Sans } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { CommandPalette } from "@/components/layout/CommandPalette";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
@@ -79,6 +80,7 @@ export default function RootLayout({
         <Header clerkEnabled={clerkEnabled} />
         <main className="flex-1">{children}</main>
         <Footer />
+        <CommandPalette />
         <Toaster position="bottom-right" theme="dark" richColors />
       </body>
     </html>

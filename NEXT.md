@@ -18,6 +18,10 @@ Jobb körs i ordning. Markera ✅ när klart.
 - [x] **J-07** — Lagsida (app/lag/[slug]/): lagprofil + Sportsmonks-statistik (ISR 60s)
 - [x] **J-08** — Podcast-lista (app/podcast/): grid med PodcastCard
 - [x] **J-09** — Podcast-episod (app/podcast/[id]/): audio-player + beskrivning
+- [x] **J-09b** — Nyheter (app/nyheter/): paginerad artikel-lista
+- [x] **J-09c** — Allsvenskan (app/allsvenskan/): tabell + matcher
+- [x] **J-09d** — Narrativ (app/narrativ/[id]/): detaljsida (placeholder för timeline/källor)
+- [x] **J-09e** — Spelare (app/spelare/[slug]/): profil + coverage (placeholder för stats)
 
 ## Fas 3: Auth & prenumeration
 
@@ -31,6 +35,7 @@ Jobb körs i ordning. Markera ✅ när klart.
 - [x] **J-14** — Supabase pgvector: match_articles RPC + api/related/
 - [x] **J-15** — Sitemap (app/sitemap.ts): dynamisk från Supabase
 - [x] **J-16** — Robots (app/robots.ts): korrekt konfiguration
+- [x] **J-16b** — CommandPalette (Cmd+K) + /api/search (server-side Supabase search)
 
 ## Fas 5: Polish & deploy
 

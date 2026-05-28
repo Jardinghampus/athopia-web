@@ -18,12 +18,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Statiska sidor
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: BASE, lastModified: new Date(), changeFrequency: "daily", priority: 1 },
+    { url: `${BASE}/nyheter`, lastModified: new Date(), changeFrequency: "daily", priority: 0.9 },
+    { url: `${BASE}/allsvenskan`, lastModified: new Date(), changeFrequency: "hourly", priority: 0.85 },
     { url: `${BASE}/podcast`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
     { url: `${BASE}/prenumerera`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.6 },
   ];
 
   let articleRoutes: MetadataRoute.Sitemap = [];
   let teamRoutes: MetadataRoute.Sitemap = [];
+  let playerRoutes: MetadataRoute.Sitemap = [];
+  let podcastRoutes: MetadataRoute.Sitemap = [];
 
   if (!isSupabaseConfigured()) return staticRoutes;
 
@@ -55,9 +59,33 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily" as const,
       priority: 0.6,
     }));
+
+    // Spelare
+    const { data: players } = await supabase
+      .from("players")
+      .select("slug, updated_at");
+    playerRoutes = (players ?? []).map((p) => ({
+      url: `${BASE}/spelare/${p.slug}`,
+      lastModified: p.updated_at ? new Date(p.updated_at) : new Date(),
+      changeFrequency: "weekly" as const,
+      priority: 0.55,
+    }));
+
+    // Podcasts
+    const { data: podcasts } = await supabase
+      .from("podcast_episodes")
+      .select("id, published_at")
+      .order("published_at", { ascending: false })
+      .limit(2000);
+    podcastRoutes = (podcasts ?? []).map((p) => ({
+      url: `${BASE}/podcast/${p.id}`,
+      lastModified: new Date(p.published_at),
+      changeFrequency: "monthly" as const,
+      priority: 0.5,
+    }));
   } catch {
     // Om DB är nere – returnera bara statiska routes
   }
 
-  return [...staticRoutes, ...articleRoutes, ...teamRoutes];
+  return [...staticRoutes, ...articleRoutes, ...teamRoutes, ...playerRoutes, ...podcastRoutes];
 }

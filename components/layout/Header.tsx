@@ -4,8 +4,10 @@ import Link from "next/link";
 import { Search, Menu } from "lucide-react";
 import { NavAuth } from "@/components/ui/NavAuth";
 import { Button } from "@/components/ui/button";
+import { useCommandPalette } from "@/hooks/useCommandPalette";
 
 export function Header({ clerkEnabled }: { clerkEnabled: boolean }) {
+  const { openPalette } = useCommandPalette();
   return (
     <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
@@ -31,7 +33,13 @@ export function Header({ clerkEnabled }: { clerkEnabled: boolean }) {
         </nav>
 
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" aria-label="Sök (Cmd+K)" title="Sök (Cmd+K)">
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Sök (Cmd+K)"
+            title="Sök (Cmd+K)"
+            onClick={openPalette}
+          >
             <Search className="w-4 h-4" />
           </Button>
           <div className="hidden sm:block">
