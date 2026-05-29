@@ -2,17 +2,9 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-/* ─── Athopia Design System ──────────────────────────────────────────────────
- * Dark-first fotbollsmediaapp.
- * Primärfärg: #1D9E75 (pitch green) – används för CTAs, highlights, accenter.
- * Typografi: Bebas Neue (rubriker) + DM Sans (brödtext).
- * Tokenerna nedan mappar Tailwinds semantiska klasser till Athopias palett.
- * ─────────────────────────────────────────────────────────────────────────── */
-
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* Semantiska Tailwind-mappningar */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card:            var(--card);
@@ -32,77 +24,62 @@
   --color-input: var(--input);
   --color-ring:  var(--ring);
 
-  /* Athopia-specifika färger tillgängliga via bg-pitch, text-pitch-light, osv */
   --color-pitch:       #1D9E75;
   --color-pitch-dark:  #158A63;
   --color-pitch-light: #25C48F;
   --color-pitch-muted: rgba(29, 158, 117, 0.15);
 
-  /* Chart-tokens */
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
 
-  /* Radii */
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) * 1.4);
 
-  /* Font-stack — variabler sätts av next/font i layout.tsx */
   --font-sans:    var(--font-dm-sans);
   --font-heading: var(--font-bebas-neue);
   --font-mono:    ui-monospace, monospace;
+
+  /* Emil Kowalski easing tokens */
+  --ease-out-smooth: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-smooth: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
-/* ─── Mörkt tema (default) ─────────────────────────────────────────────────── */
+/* ── Light mode (default) ──────────────────────────────────────────────────── */
 :root {
-  /* Exakt Athopia-palett */
-  --background: #0A0A0A;
-  --surface: #111111;
-  --surface-2: #1A1A1A;
-  --surface-3: #222222;
-  --border-strong: #2A2A2A;
-  --border-strong-2: #333333;
-  --text-primary: #F5F5F5;
-  --text-secondary: #A0A0A0;
-  --text-tertiary: #666666;
-  --accent-red: #E85555;
-  --accent-blue: #5599E8;
-  --accent-yellow: #E8B955;
+  --background: #ffffff;
+  --foreground: #000000;
 
-  /* Shadcn-semantik */
-  --foreground: var(--text-primary);
-  --card: var(--surface);
-  --card-foreground: var(--text-primary);
+  --card: #fafafa;
+  --card-foreground: #000000;
 
-  --popover: var(--surface-2);
-  --popover-foreground: var(--text-primary);
+  --popover: #ffffff;
+  --popover-foreground: #000000;
 
-  /* Primär = pitch green */
   --primary: #1D9E75;
   --primary-foreground: #ffffff;
 
-  --secondary: var(--surface-2);
-  --secondary-foreground: var(--text-secondary);
+  --secondary: #f5f5f5;
+  --secondary-foreground: #000000;
 
-  --muted: var(--surface-2);
-  --muted-foreground: var(--text-secondary);
+  --muted: #f5f5f5;
+  --muted-foreground: #71717a;
 
-  --accent: #1D9E75;
-  --accent-foreground: #ffffff;
+  --accent: #f0fdf8;
+  --accent-foreground: #000000;
 
-  --destructive: oklch(0.65 0.22 25);
+  --destructive: #ef4444;
 
-  --border: var(--border-strong);
-  --input: var(--border-strong);
+  --border: rgba(0, 0, 0, 0.08);
+  --input: rgba(0, 0, 0, 0.08);
   --ring: #1D9E75;
-
   --radius: 0.625rem;
 
-  /* Athopia-specifika chartfärger */
   --chart-1: #1D9E75;
   --chart-2: #25C48F;
   --chart-3: #158A63;
@@ -110,37 +87,37 @@
   --chart-5: #0d4f38;
 }
 
-/* Ljust tema (opt-in via .light class) */
-.light {
-  --background: #f5f9f7;
-  --foreground: #0d1a16;
+/* ── Dark mode — true black ───────────────────────────────────────────────── */
+.dark {
+  --background: #000000;
+  --foreground: #fafafa;
 
-  --card: #ffffff;
-  --card-foreground: #0d1a16;
+  --card: #0a0a0a;
+  --card-foreground: #fafafa;
 
-  --popover: #ffffff;
-  --popover-foreground: #0d1a16;
+  --popover: #111111;
+  --popover-foreground: #fafafa;
 
   --primary: #1D9E75;
   --primary-foreground: #ffffff;
 
-  --secondary: #e8f5f0;
-  --secondary-foreground: #0d1a16;
+  --secondary: #141414;
+  --secondary-foreground: #fafafa;
 
-  --muted: #f0f7f4;
-  --muted-foreground: #4f7066;
+  --muted: #111111;
+  --muted-foreground: #a1a1aa;
 
-  --accent: #e8f5f0;
-  --accent-foreground: #0d1a16;
+  --accent: #1D9E75;
+  --accent-foreground: #ffffff;
 
-  --destructive: oklch(0.577 0.245 27.325);
+  --destructive: oklch(0.65 0.22 25);
 
-  --border: rgba(0, 0, 0, 0.08);
-  --input: rgba(0, 0, 0, 0.08);
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.08);
   --ring: #1D9E75;
 }
 
-/* ─── Base styles ──────────────────────────────────────────────────────────── */
+/* ── Base ─────────────────────────────────────────────────────────────────── */
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -148,66 +125,93 @@
 
   html {
     @apply font-sans antialiased;
-    /* Dark-first: alltid dark class på html */
+    color-scheme: light;
+  }
+
+  html.dark {
     color-scheme: dark;
   }
 
   body {
     @apply bg-background text-foreground min-h-dvh;
+    transition: background-color 200ms ease;
   }
 
-  /* Bebas Neue appliceras automatiskt via font-heading */
   h1, h2, h3 {
     @apply font-heading tracking-wide;
   }
 }
 
-/* ─── Utility-klasser ─────────────────────────────────────────────────────── */
+/* ── Utilities ───────────────────────────────────────────────────────────── */
 @layer utilities {
-  /* Pitch-green gradient för hero-element */
+  /* Background gradient for hero/CTA */
   .pitch-gradient {
     background: linear-gradient(135deg, #1D9E75 0%, #158A63 100%);
   }
 
-  /* Text-gradient: primärgrön */
-  .text-gradient {
-    background: linear-gradient(135deg, #25C48F 0%, #1D9E75 55%, #158A63 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-
-  /* Glassmorphism */
+  /* Glass effect */
   .glass,
   .glass-card {
-    @apply backdrop-blur-xl bg-white/5 border border-white/10;
+    backdrop-filter: blur(20px);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
-  /* Subtil glow för live-indikatorer */
+  /* Pitch glow for live indicators */
   .pitch-glow {
-    box-shadow: 0 0 12px rgba(29, 158, 117, 0.4);
+    box-shadow: 0 0 16px rgba(29, 158, 117, 0.35);
   }
 
-  /* Trend-pil animering */
+  /* Live dot */
   @keyframes pulse-live {
     0%, 100% { opacity: 1; }
-    50%       { opacity: 0.4; }
+    50%       { opacity: 0.35; }
   }
   .live-dot {
     @apply w-2 h-2 rounded-full bg-red-500;
     animation: pulse-live 1.5s ease-in-out infinite;
   }
+
+  /* Stagger fade-up for lists */
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-up {
+    animation: fade-up 280ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  }
+
+  .stagger-1 { animation-delay: 30ms; }
+  .stagger-2 { animation-delay: 60ms; }
+  .stagger-3 { animation-delay: 90ms; }
+  .stagger-4 { animation-delay: 120ms; }
+
+  /* Hide scrollbar while keeping functionality */
+  .scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
 }
 
-/* ─── Scrollbar + selection ───────────────────────────────────────────────── */
+/* ── Scrollbar ────────────────────────────────────────────────────────────── */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+  scrollbar-color: rgba(128, 128, 128, 0.2) transparent;
 }
 
 *::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 6px;
+  height: 6px;
 }
 
 *::-webkit-scrollbar-track {
@@ -215,23 +219,21 @@
 }
 
 *::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.14);
+  background: rgba(128, 128, 128, 0.2);
   border-radius: 999px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.22);
-  background-clip: padding-box;
+  background: rgba(128, 128, 128, 0.35);
 }
 
+/* ── Selection ────────────────────────────────────────────────────────────── */
 ::selection {
-  background: rgba(29, 158, 117, 0.35);
-  color: var(--text-primary);
+  background: rgba(29, 158, 117, 0.25);
+  color: inherit;
 }
 
-/* ─── Prose (artikel-innehåll) ─────────────────────────────────────────────── */
+/* ── Prose ────────────────────────────────────────────────────────────────── */
 .prose-athopia {
   @apply text-foreground/90 leading-relaxed;
 }
@@ -241,20 +243,20 @@
   @apply text-foreground;
 }
 .prose-athopia a {
-  @apply text-pitch-light underline underline-offset-4 hover:text-pitch transition-colors;
+  @apply text-pitch underline underline-offset-4;
+  transition: color 150ms ease;
+}
+.prose-athopia a:hover {
+  @apply text-pitch-light;
 }
 .prose-athopia p {
   @apply text-foreground/85;
 }
 .prose-athopia blockquote {
-  @apply border-l-2 border-pitch/40 pl-4 text-foreground/80;
+  @apply border-l-2 border-pitch/40 pl-4 text-foreground/75;
 }
-.prose-athopia ul {
-  @apply list-disc pl-5;
-}
-.prose-athopia ol {
-  @apply list-decimal pl-5;
-}
+.prose-athopia ul { @apply list-disc pl-5; }
+.prose-athopia ol { @apply list-decimal pl-5; }
 .prose-athopia code {
-  @apply rounded bg-white/5 px-1 py-0.5;
+  @apply rounded bg-muted px-1.5 py-0.5 text-xs font-mono;
 }

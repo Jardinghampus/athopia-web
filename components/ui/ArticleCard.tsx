@@ -20,7 +20,7 @@ interface ArticleCardProps {
 
 function SourceBadge({ sourceName }: { sourceName: string }) {
   return (
-    <Badge variant="secondary" className="text-[11px] px-2 py-0.5 bg-white/5 text-foreground/80 border border-white/10">
+    <Badge variant="secondary" className="text-[11px] px-2 py-0.5 bg-foreground/5 text-foreground/70 border border-border">
       {sourceName}
     </Badge>
   );
@@ -33,8 +33,9 @@ export function ArticleCard({ article, size = "md", priority = false }: ArticleC
   const readTime = calculateReadTime(article.content ?? article.summary);
 
   const base =
-    "group rounded-2xl border border-border bg-card overflow-hidden transition-all duration-200 " +
-    "hover:scale-[1.01] hover:border-pitch/40 hover:shadow-[0_0_24px_rgba(29,158,117,0.12)]";
+    "group rounded-2xl border border-border bg-card overflow-hidden " +
+    "transition-[transform,box-shadow,border-color] duration-200 [transition-timing-function:cubic-bezier(0.23,1,0.32,1)] " +
+    "hover:-translate-y-0.5 hover:border-border/80 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_4px_20px_rgba(0,0,0,0.4)]";
 
   const imageAspect =
     size === "featured" || size === "lg" ? "aspect-video" : size === "md" ? "aspect-[4/3]" : "aspect-video";
@@ -77,7 +78,7 @@ export function ArticleCard({ article, size = "md", priority = false }: ArticleC
             alt={article.title}
             fill
             priority={priority}
-            className="object-cover group-hover:scale-105 transition-transform duration-500"
+            className="object-cover transition-transform duration-500 [transition-timing-function:cubic-bezier(0.23,1,0.32,1)] group-hover:scale-[1.03]"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
         </div>
