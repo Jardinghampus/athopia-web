@@ -63,9 +63,12 @@ Alla routes byggda och kompilerade rent (`pnpm build` → 0 fel).
 
 ---
 
-## Nästa features (ej implementerade)
+## Fas 6 — Lag-hub & Global nav (2026-05-29)
 
-1. **Forum** — spec i master CLAUDE.md, kräver DB-migration i OS
-2. **Lag-hub flikar** — app/lag/[slug]/layout.tsx med nyheter/statistik/podcasts/forum/sammanfattning
-3. **Nyhetsfilter** — spec i master CLAUDE.md (filter-panel med lag, källfilter, eventtyp)
-4. **Statistik (full spec)** — 7 flikar: standings, skytteliga, assistligan, xG, form, press, H2H
+| Jobb | Beskrivning | Status |
+|------|-------------|--------|
+| WEB-LH1 | app/lag/[slug]/nyheter/page.tsx | ✅ |
+| WEB-LH2 | app/lag/[slug]/statistik/page.tsx (standings + team card) | ✅ |
+| WEB-LH3 | app/lag/[slug]/podcasts/page.tsx | ✅ |
+| WEB-LH4 | app/lag/[slug]/sammanfattning/page.tsx (AI digest + narrativ) | ✅ |
+| WEB-LH5 | components/layout/AllsvenskanNav.tsx (global lag-badges) | ✅ |

@@ -5,7 +5,9 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CommandPalette } from "@/components/layout/CommandPalette";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
+import { AllsvenskanNav } from "@/components/layout/AllsvenskanNav";
 import { Toaster } from "@/components/ui/sonner";
+import { Suspense } from "react";
 import "./globals.css";
 
 const bebasNeue = Bebas_Neue({
@@ -57,6 +59,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-dvh flex flex-col">
         <ThemeProvider>
           <Header clerkEnabled={clerkEnabled} />
+          <Suspense fallback={null}>
+            <AllsvenskanNav />
+          </Suspense>
           <main className="flex-1">{children}</main>
           <Footer />
           <CommandPalette />
