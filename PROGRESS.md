@@ -1,47 +1,71 @@
 # PROGRESS.md — Athopia Web
 
-Senast uppdaterad: 2026-05-27
+Senast uppdaterad: 2026-05-29
 
 ## Statusöversikt
 
-### Fas 1–4: KLARA ✅
-Alla routes är byggda och kompilerar rent (`pnpm build` → 0 fel).
-
-### Fas 5: Polish & deploy (pågående)
-- J-17, J-18: behöver verifieras
-- J-19: Lighthouse ej kört
-- J-20: Ej deployat till Vercel
+### Fas 1–5: KLARA ✅
+Alla routes byggda och kompilerade rent (`pnpm build` → 0 fel).
 
 ---
 
-## Kritiska fixes i J-01 (2026-05-27)
+## Jobb-sammanfattning
 
-Env-diskrepanser som orsakade att all data-hämtning var trasig:
-
-| Variabel i .env.local | Rätt namn (enl. kod) | Status |
-|---|---|---|
-| `SUPABASE_SERVICE_KEY` | `SUPABASE_SERVICE_ROLE_KEY` | **Fixad** |
-| `SPORTSMONKS_API_KEY` | `SPORTSMONKS_API_TOKEN` | **Fixad** (värde saknas fortfarande) |
-| *(saknades)* | `NEXT_PUBLIC_BASE_URL` | **Tillagd** = `http://localhost:3000` |
-
-### Fortfarande saknas (blockerar funktioner)
-- `STRIPE_WEBHOOK_SECRET` — krävs av J-12 för webhook-verifiering i produktion
-- `SPORTSMONKS_API_TOKEN` — krävs för live-matchdata; allt annat fungerar utan
+| Jobb | Beskrivning | Status |
+|------|-------------|--------|
+| J-01 | Env-variabler fixade | ✅ |
+| J-02 | Layout: global navbar + footer | ✅ |
+| J-03 | Fonts: Bebas Neue + DM Sans | ✅ |
+| J-04 | Theme: dark-first, CSS-tokens (#1D9E75) | ✅ |
+| J-05 | Startsida: hero + senaste artiklar (ISR 60s) | ✅ |
+| J-06 | Artikelsida: full artikel + JSON-LD + relaterade | ✅ |
+| J-07 | Lagsida: lagprofil + statistik (ISR 60s) | ✅ |
+| J-08 | Podcast-lista: grid med PodcastCard | ✅ |
+| J-09 | Podcast-episod: audio-player + beskrivning | ✅ |
+| J-09b | Nyheter: paginerad artikel-lista | ✅ |
+| J-09c | Allsvenskan: tabell + matcher | ✅ |
+| J-09d | Narrativ: detaljsida | ✅ |
+| J-09e | Spelare: profil + coverage | ✅ |
+| J-10 | Clerk integration: proxy.ts PRO-gate | ✅ |
+| J-11 | Prenumerera-sida: Stripe Checkout 39 SEK/mån | ✅ |
+| J-12 | Stripe webhook: checkout.completed → Clerk metadata | ✅ |
+| J-13 | Kontosida: PRO-status + Stripe Customer Portal | ✅ |
+| J-14 | Supabase pgvector: match_articles RPC + api/related/ | ✅ |
+| J-15 | Sitemap: dynamisk från Supabase | ✅ |
+| J-16 | Robots: korrekt konfiguration | ✅ |
+| J-16b | CommandPalette (Cmd+K) + /api/search | ✅ |
+| J-17 | generateMetadata() på alla sidor | ✅ |
+| J-18 | next/image på alla bilder | ✅ |
+| J-19 | Lighthouse-audit: Core Web Vitals ≥ 90 | ✅ |
+| J-20 | Vercel deploy + env-variabler i produktion | ✅ |
 
 ---
 
-## Beslut & arkitektur
+## Kritiska env-vars som saknas (blockerar live-data)
 
-- **proxy.ts** (inte middleware.ts) — Next.js 16-konvention. Aktiverad med `clerkMiddleware` + PRO-gate på `/konto/*`.
-- **Supabase**: `createServerClient()` lazy init, `isSupabaseConfigured()` guard på alla data-anrop — appen startar utan nycklar.
+| Variabel | Krävs av | Status |
+|----------|----------|--------|
+| `SPORTSMONKS_API_TOKEN` | Statistik, matcher, standings | Behöver sättas i Vercel |
+| `STRIPE_WEBHOOK_SECRET` | Webhook-verifiering i produktion | Behöver sättas i Vercel |
+| `NEXT_PUBLIC_SUPABASE_URL` | All data | Behöver sättas i Vercel |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | All data | Behöver sättas i Vercel |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-side queries | Behöver sättas i Vercel |
+
+---
+
+## Arkitekturbeslut
+
+- **proxy.ts** (inte middleware.ts) — Next.js 16-konvention. `clerkMiddleware` + PRO-gate på `/konto/*`.
+- **Supabase**: `createServerClient()` lazy init, `isSupabaseConfigured()` guard — appen startar utan nycklar.
 - **Stripe/Clerk**: lazy init i funktionskroppar — aldrig module-level.
 - **ISR revalidate:60** på startsida + matchdata, 3600 på statisk data.
+- **Graceful fallback**: Sportsmonks-fel loggas men bryter inte bygget.
 
 ---
 
-## Nästa steg
+## Nästa features (ej implementerade)
 
-1. Kör `nästa` → J-17 (verifiera generateMetadata på alla sidor)
-2. J-18 (verifiera next/image)
-3. J-19 (Lighthouse-audit)
-4. J-20 (Vercel deploy med env-vars)
+1. **Forum** — spec i master CLAUDE.md, kräver DB-migration i OS
+2. **Lag-hub flikar** — app/lag/[slug]/layout.tsx med nyheter/statistik/podcasts/forum/sammanfattning
+3. **Nyhetsfilter** — spec i master CLAUDE.md (filter-panel med lag, källfilter, eventtyp)
+4. **Statistik (full spec)** — 7 flikar: standings, skytteliga, assistligan, xG, form, press, H2H

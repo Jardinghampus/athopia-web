@@ -223,6 +223,131 @@ export async function fetchPlayerStats(playerId: number): Promise<any | null> {
   }
 }
 
+// ─── Utökade typer för statistik-sidan ────────────────────────────────────────
+
+export interface SMStandingRow {
+  team: SMTeam;
+  position: number;
+  played: number;
+  wins: number;
+  draws: number;
+  losses: number;
+  goals_for: number;
+  goals_against: number;
+  goal_diff: number;
+  points: number;
+  form: string[]; // ["W","D","L","W","W"] — senaste 5
+}
+
+export interface SMTopScorer {
+  rank: number;
+  player_id: number;
+  player_name: string;
+  team_name: string;
+  team_image: string;
+  goals: number;
+  penalties: number;
+}
+
+export interface SMTopAssist {
+  rank: number;
+  player_id: number;
+  player_name: string;
+  team_name: string;
+  team_image: string;
+  assists: number;
+}
+
+/** Standings med alla fält (points, played, goal_diff). ISR 3600s. */
+export async function fetchStandingsFull(seasonId?: string): Promise<SMStandingRow[]> {
+  const sid = seasonId ?? process.env.SPORTSMONKS_ALLSVENSKAN_SEASON_ID;
+  if (!sid) return [];
+  try {
+    const raw = await smFetch<any[]>(
+      `/standings/seasons/${sid}`,
+      { include: "participant" },
+      3600
+    );
+    return raw
+      .map((row, i) => {
+        const w = Number(row.won ?? row.wins ?? 0);
+        const d = Number(row.draw ?? row.draws ?? 0);
+        const l = Number(row.lost ?? row.losses ?? 0);
+        const gf = Number(row.goals_scored ?? row.goals?.scored ?? 0);
+        const ga = Number(row.goals_against ?? row.goals?.conceded ?? 0);
+        const rawForm: string[] = typeof row.form === "string"
+          ? row.form.split("").filter((c: string) => ["W", "D", "L"].includes(c))
+          : Array.isArray(row.form) ? row.form : [];
+        return {
+          team: row.participant ?? row.team ?? { id: i, name: "Okänt lag", short_code: null, image_path: "" },
+          position: Number(row.position ?? i + 1),
+          played: w + d + l,
+          wins: w,
+          draws: d,
+          losses: l,
+          goals_for: gf,
+          goals_against: ga,
+          goal_diff: gf - ga,
+          points: Number(row.points ?? w * 3 + d),
+          form: rawForm.slice(-5),
+        };
+      })
+      .sort((a, b) => a.position - b.position);
+  } catch (e) {
+    console.error("Sportsmonks fetchStandingsFull fel", e);
+    return [];
+  }
+}
+
+/** Toppskytt för en säsong. ISR 3600s. */
+export async function fetchTopScorers(seasonId?: string): Promise<SMTopScorer[]> {
+  const sid = seasonId ?? process.env.SPORTSMONKS_ALLSVENSKAN_SEASON_ID;
+  if (!sid) return [];
+  try {
+    const raw = await smFetch<any[]>(
+      `/topscorers/seasons/${sid}`,
+      { include: "player;team", per_page: "50" },
+      3600
+    );
+    return raw.map((row, i) => ({
+      rank: i + 1,
+      player_id: Number(row.player_id ?? row.player?.id ?? 0),
+      player_name: String(row.player?.display_name ?? row.player?.name ?? `Spelare ${i + 1}`),
+      team_name: String(row.team?.name ?? "Okänt"),
+      team_image: String(row.team?.image_path ?? ""),
+      goals: Number(row.goals ?? row.total ?? 0),
+      penalties: Number(row.penalties ?? 0),
+    }));
+  } catch (e) {
+    console.error("Sportsmonks fetchTopScorers fel", e);
+    return [];
+  }
+}
+
+/** Toppassisters för en säsong. ISR 3600s. */
+export async function fetchTopAssists(seasonId?: string): Promise<SMTopAssist[]> {
+  const sid = seasonId ?? process.env.SPORTSMONKS_ALLSVENSKAN_SEASON_ID;
+  if (!sid) return [];
+  try {
+    const raw = await smFetch<any[]>(
+      `/topassists/seasons/${sid}`,
+      { include: "player;team", per_page: "50" },
+      3600
+    );
+    return raw.map((row, i) => ({
+      rank: i + 1,
+      player_id: Number(row.player_id ?? row.player?.id ?? 0),
+      player_name: String(row.player?.display_name ?? row.player?.name ?? `Spelare ${i + 1}`),
+      team_name: String(row.team?.name ?? "Okänt"),
+      team_image: String(row.team?.image_path ?? ""),
+      assists: Number(row.assists ?? row.total ?? 0),
+    }));
+  } catch (e) {
+    console.error("Sportsmonks fetchTopAssists fel", e);
+    return [];
+  }
+}
+
 // ─── Helper: omvandla fixture till visningsvänlig form ────────────────────────
 export function parseFixtureScore(fixture: SMFixture) {
   const home = fixture.participants?.find((p) => p.meta.location === "home");

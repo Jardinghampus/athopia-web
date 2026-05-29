@@ -1,0 +1,361 @@
+import type { Metadata } from "next";
+import { Suspense } from "react";
+import Image from "next/image";
+import { StatistikTabs } from "./StatistikTabs";
+import { H2HSearch } from "./H2HSearch";
+import type { H2HFixture } from "./H2HSearch";
+import {
+  fetchStandingsFull,
+  fetchTopScorers,
+  fetchTopAssists,
+  fetchAllsvenskanFixtures,
+  parseFixtureScore,
+} from "@/lib/sportsmonks";
+
+export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "Statistik | Athopia",
+  description:
+    "Allsvenskan-statistik — tabell, skytteliga, assistligan, xG, form, press och H2H.",
+};
+
+type TabId = "tabell" | "skytteliga" | "assistligan" | "xg" | "form" | "press" | "h2h";
+const VALID_TABS: TabId[] = ["tabell", "skytteliga", "assistligan", "xg", "form", "press", "h2h"];
+
+// ── Delade komponenter ────────────────────────────────────────────────────────
+
+function EmptyState({ message = "Data ej tillgänglig." }: { message?: string }) {
+  return (
+    <div className="text-center py-20 text-muted-foreground">
+      <p className="text-sm">{message}</p>
+      <p className="text-xs mt-1 opacity-60">
+        Kontrollera att SPORTSMONKS_API_TOKEN är satt i .env.local.
+      </p>
+    </div>
+  );
+}
+
+function FormBadge({ result }: { result: string }) {
+  const colorMap: Record<string, string> = {
+    W: "bg-pitch text-white",
+    D: "bg-muted text-muted-foreground",
+    L: "bg-red-500/20 text-red-400",
+  };
+  return (
+    <span
+      className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold ${
+        colorMap[result] ?? "bg-muted text-muted-foreground"
+      }`}
+    >
+      {result}
+    </span>
+  );
+}
+
+function TeamCell({ name, image }: { name: string; image?: string }) {
+  return (
+    <div className="flex items-center gap-2">
+      {image ? (
+        <Image
+          src={image}
+          alt={name}
+          width={20}
+          height={20}
+          className="rounded-full shrink-0"
+          unoptimized
+        />
+      ) : (
+        <div className="w-5 h-5 rounded-full bg-muted shrink-0" />
+      )}
+      <span className="truncate max-w-[110px] sm:max-w-[180px]">{name}</span>
+    </div>
+  );
+}
+
+// ── Tabell ────────────────────────────────────────────────────────────────────
+
+async function TabelTab() {
+  const rows = await fetchStandingsFull();
+  if (rows.length === 0) return <EmptyState />;
+  return (
+    <div className="overflow-x-auto -mx-4 sm:mx-0">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-border text-muted-foreground text-xs uppercase tracking-wider">
+            <th className="py-2 px-3 text-left w-8">#</th>
+            <th className="py-2 px-3 text-left min-w-[140px]">Lag</th>
+            <th className="py-2 px-3 text-center">S</th>
+            <th className="py-2 px-3 text-center">V</th>
+            <th className="py-2 px-3 text-center">O</th>
+            <th className="py-2 px-3 text-center">F</th>
+            <th className="py-2 px-3 text-center hidden sm:table-cell">Mål</th>
+            <th className="py-2 px-3 text-center">+/-</th>
+            <th className="py-2 px-3 text-center font-bold text-foreground">P</th>
+            <th className="py-2 px-3 text-center hidden md:table-cell">Form</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, i) => (
+            <tr
+              key={row.team.id}
+              className={`border-b border-border/40 hover:bg-card/50 transition-colors ${
+                i < 3 ? "text-foreground" : ""
+              }`}
+            >
+              <td className="py-3 px-3">
+                <span
+                  className={`text-xs font-semibold ${
+                    i < 3 ? "text-pitch" : "text-muted-foreground"
+                  }`}
+                >
+                  {row.position}
+                </span>
+              </td>
+              <td className="py-3 px-3 font-medium">
+                <TeamCell name={row.team.name} image={row.team.image_path || undefined} />
+              </td>
+              <td className="py-3 px-3 text-center text-muted-foreground">{row.played}</td>
+              <td className="py-3 px-3 text-center">{row.wins}</td>
+              <td className="py-3 px-3 text-center">{row.draws}</td>
+              <td className="py-3 px-3 text-center">{row.losses}</td>
+              <td className="py-3 px-3 text-center text-muted-foreground hidden sm:table-cell">
+                {row.goals_for}–{row.goals_against}
+              </td>
+              <td
+                className={`py-3 px-3 text-center font-medium ${
+                  row.goal_diff > 0
+                    ? "text-pitch"
+                    : row.goal_diff < 0
+                    ? "text-red-400"
+                    : "text-muted-foreground"
+                }`}
+              >
+                {row.goal_diff > 0 ? "+" : ""}
+                {row.goal_diff}
+              </td>
+              <td className="py-3 px-3 text-center font-bold">{row.points}</td>
+              <td className="py-3 px-3 hidden md:table-cell">
+                <div className="flex items-center gap-0.5">
+                  {row.form.map((r, idx) => (
+                    <FormBadge key={idx} result={r} />
+                  ))}
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// ── Skytteliga ────────────────────────────────────────────────────────────────
+
+async function SkytteligaTab() {
+  const scorers = await fetchTopScorers();
+  if (scorers.length === 0) return <EmptyState />;
+  return (
+    <div className="space-y-0.5">
+      {scorers.slice(0, 30).map((s, i) => (
+        <div
+          key={s.player_id || i}
+          className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-card/50 transition-colors"
+        >
+          <span className="text-xs text-muted-foreground w-6 text-right shrink-0">{s.rank}</span>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-foreground truncate">{s.player_name}</p>
+            <p className="text-xs text-muted-foreground truncate">{s.team_name}</p>
+          </div>
+          <div className="text-right shrink-0">
+            <p className="text-xl font-heading text-foreground leading-none">{s.goals}</p>
+            <p className="text-[10px] text-muted-foreground">mål</p>
+          </div>
+          {s.penalties > 0 && (
+            <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded shrink-0">
+              {s.penalties}P
+            </span>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── Assistligan ───────────────────────────────────────────────────────────────
+
+async function AssistliganTab() {
+  const assists = await fetchTopAssists();
+  if (assists.length === 0) return <EmptyState />;
+  return (
+    <div className="space-y-0.5">
+      {assists.slice(0, 30).map((a, i) => (
+        <div
+          key={a.player_id || i}
+          className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-card/50 transition-colors"
+        >
+          <span className="text-xs text-muted-foreground w-6 text-right shrink-0">{a.rank}</span>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-foreground truncate">{a.player_name}</p>
+            <p className="text-xs text-muted-foreground truncate">{a.team_name}</p>
+          </div>
+          <div className="text-right shrink-0">
+            <p className="text-xl font-heading text-foreground leading-none">{a.assists}</p>
+            <p className="text-[10px] text-muted-foreground">assist</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── xG-tabell ─────────────────────────────────────────────────────────────────
+
+function XGTab() {
+  return (
+    <div className="text-center py-20 text-muted-foreground">
+      <p className="text-sm">xG-data kräver premium-tillgång via Sportsmonks.</p>
+      <p className="text-xs mt-1 opacity-60">
+        Uppgradera Sportsmonks-abonnemanget för att aktivera xG-statistik.
+      </p>
+    </div>
+  );
+}
+
+// ── Form ──────────────────────────────────────────────────────────────────────
+
+async function FormTab() {
+  const rows = await fetchStandingsFull();
+  if (rows.length === 0) return <EmptyState />;
+  const withForm = rows.filter((r) => r.form.length > 0);
+  if (withForm.length === 0)
+    return <EmptyState message="Formdata ej tillgänglig för säsongen." />;
+
+  const sorted = [...withForm].sort((a, b) => {
+    const ptsA = a.form
+      .slice(-5)
+      .reduce((s, r) => s + (r === "W" ? 3 : r === "D" ? 1 : 0), 0);
+    const ptsB = b.form
+      .slice(-5)
+      .reduce((s, r) => s + (r === "W" ? 3 : r === "D" ? 1 : 0), 0);
+    return ptsB - ptsA;
+  });
+
+  return (
+    <div className="space-y-2">
+      {sorted.map((row) => {
+        const last5 = row.form.slice(-5);
+        const pts = last5.reduce(
+          (sum, r) => sum + (r === "W" ? 3 : r === "D" ? 1 : 0),
+          0
+        );
+        return (
+          <div
+            key={row.team.id}
+            className="flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-xl"
+          >
+            <TeamCell name={row.team.name} image={row.team.image_path || undefined} />
+            <div className="flex items-center gap-1 ml-auto">
+              {last5.map((r, i) => (
+                <FormBadge key={i} result={r} />
+              ))}
+            </div>
+            <span className="text-xs text-muted-foreground w-14 text-right shrink-0">
+              {pts}/15 p
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Press ─────────────────────────────────────────────────────────────────────
+
+function PressTab() {
+  return (
+    <div className="text-center py-20 text-muted-foreground">
+      <p className="text-sm">Press-statistik kräver data från Opta eller StatsBomb.</p>
+      <p className="text-xs mt-1 opacity-60">
+        Inte tillgänglig via Sportsmonks. Planerat för framtida integration.
+      </p>
+    </div>
+  );
+}
+
+// ── H2H ───────────────────────────────────────────────────────────────────────
+
+async function H2HTab() {
+  const fixtures = await fetchAllsvenskanFixtures();
+  const h2hFixtures: H2HFixture[] = fixtures.map((f) => {
+    const { home, away, homeGoals, awayGoals } = parseFixtureScore(f);
+    return {
+      id: f.id,
+      date: f.starting_at,
+      home_team: home?.name ?? "Okänt",
+      away_team: away?.name ?? "Okänt",
+      home_goals: homeGoals,
+      away_goals: awayGoals,
+      name: f.name ?? "",
+      state: f.state?.state ?? "",
+    };
+  });
+  return <H2HSearch fixtures={h2hFixtures} />;
+}
+
+// ── Skeleton ──────────────────────────────────────────────────────────────────
+
+function TabSkeleton() {
+  return (
+    <div className="space-y-2">
+      {Array.from({ length: 10 }).map((_, i) => (
+        <div key={i} className="h-12 bg-card rounded-xl animate-pulse" />
+      ))}
+    </div>
+  );
+}
+
+// ── Page ──────────────────────────────────────────────────────────────────────
+
+export default async function StatistikPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string>>;
+}) {
+  const sp = await searchParams;
+  const tab = (VALID_TABS.includes(sp.tab as TabId) ? sp.tab : "tabell") as TabId;
+  const sasong = sp.sasong ?? "2025";
+
+  let tabContent: React.ReactNode;
+  switch (tab) {
+    case "tabell":      tabContent = <TabelTab />;       break;
+    case "skytteliga":  tabContent = <SkytteligaTab />;  break;
+    case "assistligan": tabContent = <AssistliganTab />; break;
+    case "xg":          tabContent = <XGTab />;          break;
+    case "form":        tabContent = <FormTab />;        break;
+    case "press":       tabContent = <PressTab />;       break;
+    case "h2h":         tabContent = <H2HTab />;         break;
+  }
+
+  return (
+    <div>
+      {/* Sticky tab-nav + filter */}
+      <Suspense
+        fallback={
+          <div className="sticky top-[57px] z-30 border-b border-border bg-background/95 h-[88px]" />
+        }
+      >
+        <StatistikTabs />
+      </Suspense>
+
+      {/* Innehåll */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        <div className="mb-6">
+          <h1 className="font-heading text-5xl text-foreground">STATISTIK</h1>
+          <p className="text-muted-foreground mt-1 text-sm">Allsvenskan {sasong}</p>
+        </div>
+        <Suspense fallback={<TabSkeleton />}>{tabContent}</Suspense>
+      </div>
+    </div>
+  );
+}
