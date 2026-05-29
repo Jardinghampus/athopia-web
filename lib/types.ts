@@ -132,6 +132,32 @@ export interface Match {
   };
 }
 
+export interface ForumThread {
+  id: string;
+  team_id: string;
+  title: string;
+  content: string;
+  author_id: string;
+  author_name: string;
+  pinned: boolean;
+  locked: boolean;
+  reply_count: number;
+  view_count: number;
+  last_reply_at: string;
+  created_at: string;
+}
+
+export interface ForumReply {
+  id: string;
+  thread_id: string;
+  content: string;
+  author_id: string;
+  author_name: string;
+  likes: number;
+  flagged: boolean;
+  created_at: string;
+}
+
 export interface Standing {
   team: Team;
   position: number;
