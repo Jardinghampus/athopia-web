@@ -159,9 +159,74 @@ export async function getArticles(
       .select("*")
       .order("published_at", { ascending: false })
       .range(offset, offset + limit - 1);
-    if (teamSlug) q = q.contains("entities", [{ slug: teamSlug } as any]);
+    if (teamSlug) q = q.ilike("title", `%${teamSlug}%`);
     const { data } = await q;
     return (data ?? []).map(mapArticle);
+  } catch {
+    return [];
+  }
+}
+
+export interface ArticleFilters {
+  visa?: "all" | "ai" | "source";
+  teams?: string[];
+  sources?: string[];
+  events?: string[];
+  page?: number;
+  limit?: number;
+}
+
+export async function getFilteredArticles(filters: ArticleFilters = {}): Promise<{ articles: Article[]; total: number }> {
+  if (!isSupabaseConfigured()) return { articles: [], total: 0 };
+  try {
+    const supabase = createServerClient();
+    const limit = filters.limit ?? 12;
+    const offset = ((filters.page ?? 1) - 1) * limit;
+
+    let q = supabase
+      .from("articles")
+      .select("*", { count: "exact" })
+      .order("published_at", { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (filters.visa === "ai") {
+      q = q.eq("is_processed", true).not("summary", "is", null);
+    } else if (filters.visa === "source") {
+      q = q.not("source_name", "is", null);
+    }
+
+    if (filters.events && filters.events.length > 0) {
+      q = q.in("event_type", filters.events);
+    }
+
+    if (filters.sources && filters.sources.length > 0) {
+      q = q.in("source_name", filters.sources);
+    }
+
+    if (filters.teams && filters.teams.length > 0) {
+      const orClauses = filters.teams.map(t => `title.ilike.%${t}%`).join(",");
+      q = (q as any).or(orClauses);
+    }
+
+    const { data, count } = await q;
+    return { articles: (data ?? []).map(mapArticle), total: count ?? 0 };
+  } catch {
+    return { articles: [], total: 0 };
+  }
+}
+
+export async function getActiveSources(): Promise<{ name: string; id: string }[]> {
+  if (!isSupabaseConfigured()) return [];
+  try {
+    const supabase = createServerClient();
+    const { data } = await supabase
+      .from("rss_sources")
+      .select("id, name")
+      .eq("active", true)
+      .in("category", ["news"])
+      .order("name", { ascending: true })
+      .limit(100);
+    return (data as { id: string; name: string }[]) ?? [];
   } catch {
     return [];
   }
