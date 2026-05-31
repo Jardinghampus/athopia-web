@@ -63,6 +63,38 @@ Alla routes byggda och kompilerade rent (`pnpm build` → 0 fel).
 
 ---
 
+## Fas 8 — The Athletic v2 ✅ KLAR (2026-05-31)
+
+| Jobb | Beskrivning | Status |
+|------|-------------|--------|
+| WEB-30 | Enhanced nyheter feed — NyheterRealtimeBanner (Supabase Realtime) | ✅ 2026-05-31 |
+| WEB-31 | Podcast filterview — team/show/visa-filter + entity chips | ✅ 2026-05-31 |
+| WEB-32 | Lag-sammanfattning AI-hero — hämtar från articles WHERE source_name='Athopia AI' | ✅ 2026-05-31 |
+| WEB-33 | PWA setup — manifest.json + sw.js + PwaInstallBanner (redan klar från WEB-26) | ✅ 2026-05-31 |
+
+Nya filer:
+- `components/NyheterRealtimeBanner.tsx` — realtime-banner med Supabase channel
+Uppdaterade filer:
+- `app/nyheter/page.tsx` — NyheterRealtimeBanner importerad
+- `app/podcast/page.tsx` — komplett rebuild med filter + entity chips
+- `app/lag/[slug]/sammanfattning/page.tsx` — hämtar AI-artiklar + prominentvisning
+- `app/page.tsx` — getAllsvenskanDailySummary() + AI-hero sektion
+
+## Fas 7 — The Athletic-vision ⬜ PÅGÅENDE (2026-05-31)
+
+| Jobb | Beskrivning | Status |
+|------|-------------|--------|
+| WEB-25 | Lag-val onboarding (Clerk metadata, localStorage-fallback) | ⬜ |
+| WEB-26 | PWA-setup (manifest, service worker, push permission flow) | ⬜ |
+| WEB-27 | Statistik-jämförelse (sida-vid-sida lag/spelare + AI-analys) | ⬜ |
+| WEB-28 | Match-center (/match/[id], live xG, forum live) | ⬜ |
+| WEB-29 | Personaliserad feed (useFavoriteTeam, Supabase team_id filter) | ⬜ |
+
+**Vision:** Allsvenskan one-stop platform → Web → PWA → React Native
+**Beroenden:** WEB-25 måste vara klar innan WEB-29 (feed kräver lag-val)
+**Beroenden:** OS-16 (push pipeline) måste vara klar innan WEB-26 (push permission)
+**Prioritet:** WEB-25 → WEB-29 → WEB-27 → WEB-28 → WEB-26
+
 ## Fas 6 — Lag-hub & Global nav (2026-05-29)
 
 | Jobb | Beskrivning | Status |

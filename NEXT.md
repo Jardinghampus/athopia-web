@@ -54,6 +54,28 @@ Jobb körs i ordning. Markera ✅ när klart.
 
 ---
 
+## Fas 5: The Athletic v2 (WEB-30–WEB-33, 2026-05-31)
+
+- [x] **WEB-30** — Enhanced nyheter feed (2026-05-31)
+  - NyheterRealtimeBanner: Supabase Realtime → "X nya artiklar" utan reload
+  - Homepage visar bara status='published' artiklar
+  - Klart: app/nyheter/page.tsx + NyheterRealtimeBanner.tsx
+
+- [x] **WEB-31** — Podcast filterview (2026-05-31)
+  - Rebuild podcast/page.tsx: team filter (mentioned_teams), show filter, visa-filter
+  - Entity chips (mentioned_teams) under varje PodcastCard
+  - Klart: app/podcast/page.tsx
+
+- [x] **WEB-32** — Lag-sammanfattningssida + homepage AI-hero (2026-05-31)
+  - lag/[slug]/sammanfattning/page.tsx hämtar från articles WHERE source_name='Athopia AI'
+  - Homepage visar "Allsvenskan idag" AI-artikel som hero (Brain-ikon, pitch/5 bg)
+  - Klart: app/lag/[slug]/sammanfattning/page.tsx + app/page.tsx
+
+- [x] **WEB-33** — PWA setup (2026-05-31)
+  - manifest.json + sw.js + PwaInstallBanner.tsx redan klara från WEB-26
+  - app/api/push/subscribe/route.ts redan klar från WEB-26
+  - Klart: public/manifest.json + public/sw.js + components/PwaInstallBanner.tsx
+
 ## Fas 4: The Athletic-vision (WEB-25–WEB-29)
 
 - [x] **WEB-25** — Lag-val onboarding (2026-05-31)

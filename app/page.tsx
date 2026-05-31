@@ -14,7 +14,7 @@
 
 import { Suspense } from "react";
 import Link from "next/link";
-import { ArrowRight, Zap } from "lucide-react";
+import { ArrowRight, Zap, Brain } from "lucide-react";
 import { PersonalizedFeed } from "@/components/PersonalizedFeed";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArticleCard } from "@/components/ui/ArticleCard";
@@ -35,11 +35,32 @@ async function getTopArticles(): Promise<Article[]> {
     const { data } = await supabase
       .from("articles")
       .select("*")
+      .eq("status", "published")
+      .eq("is_processed", true)
       .order("published_at", { ascending: false })
       .limit(6);
     return (data as Article[]) ?? [];
   } catch {
     return [];
+  }
+}
+
+async function getAllsvenskanDailySummary(): Promise<Article | null> {
+  if (!isSupabaseConfigured()) return null;
+  try {
+    const supabase = createServerClient();
+    const { data } = await supabase
+      .from("articles")
+      .select("*")
+      .eq("source_name", "Athopia AI")
+      .eq("status", "published")
+      .filter("metadata->>type", "eq", "allsvenskan_daily")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    return (data as Article) ?? null;
+  } catch {
+    return null;
   }
 }
 
@@ -119,17 +140,42 @@ function ScoreSection({ fixtures }: { fixtures: SMFixture[] }) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default async function HomePage() {
-  const [articles, narratives, fixtures] = await Promise.all([
+  const [articles, narratives, fixtures, dailySummary] = await Promise.all([
     getTopArticles(),
     getTrendingNarratives(),
     getFixtures(),
+    getAllsvenskanDailySummary(),
   ]);
 
   const heroNarrative = narratives[0] ?? null;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-      {/* Hero */}
+      {/* WEB-32: Allsvenskan idag — AI-hero (visas om AI-artikel finns) */}
+      {dailySummary && (
+        <section className="relative overflow-hidden rounded-2xl border border-pitch/30 bg-pitch/5 mb-8 p-6 sm:p-8">
+          <div className="absolute inset-0 pitch-gradient opacity-5 pointer-events-none" />
+          <div className="relative">
+            <div className="flex items-center gap-2 mb-3">
+              <Brain className="w-4 h-4 text-pitch" />
+              <span className="text-xs font-semibold text-pitch uppercase tracking-widest">Athopia AI</span>
+              <span className="text-xs text-muted-foreground ml-2">
+                {new Date(dailySummary.publishedAt ?? "").toLocaleDateString("sv-SE", {
+                  weekday: "long", day: "numeric", month: "long"
+                })}
+              </span>
+            </div>
+            <h2 className="font-heading text-3xl sm:text-4xl text-foreground mb-3 leading-tight">
+              {dailySummary.title}
+            </h2>
+            <p className="text-sm text-muted-foreground line-clamp-3 max-w-2xl">
+              {dailySummary.summary ?? dailySummary.content?.slice(0, 250)}
+            </p>
+          </div>
+        </section>
+      )}
+
+      {/* Hero narrativ */}
       {heroNarrative && <HeroNarrative narrative={heroNarrative} />}
 
       {/* Personaliserad feed (client-side, favorit-lag) */}

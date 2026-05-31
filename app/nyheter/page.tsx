@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { ArticleCard, ArticleCardSkeleton } from "@/components/ui/ArticleCard";
 import { NewsFilterPanel } from "@/components/ui/NewsFilterPanel";
+import { NyheterRealtimeBanner } from "@/components/NyheterRealtimeBanner";
 import { getFilteredArticles, getActiveSources } from "@/lib/supabase";
 
 export const revalidate = 60;
@@ -101,6 +102,9 @@ export default async function NyheterPage({
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+      {/* WEB-30: Realtime-banner — dyker upp när nya artiklar publiceras */}
+      <NyheterRealtimeBanner />
+
       <div className="mb-8">
         <h1 className="font-heading text-5xl text-foreground">NYHETER</h1>
         <p className="text-muted-foreground mt-2 text-sm">
