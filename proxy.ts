@@ -29,7 +29,17 @@ const isPublicRoute = createRouteMatcher([
   "/liga(.*)",
   "/podcast(.*)",
   "/prenumerera",
-  "/api/webhooks(.*)",  // Stripe webhooks är publika (verifieras med signatur)
+  "/app/nyheter(.*)",
+  "/app/allsvenskan(.*)",
+  "/app/podcast(.*)",
+  "/app/statistik(.*)",
+  "/app/lag(.*)",
+  "/app/forum(.*)",
+  "/app/sammanfattning(.*)",
+  "/app/artikel(.*)",
+  "/app/narrativ(.*)",
+  "/app/spelare(.*)",
+  "/api/webhooks(.*)",
 ]);
 
 // ─── PRO-skyddade routes ───────────────────────────────────────────────────────
@@ -37,6 +47,9 @@ const isProRoute = createRouteMatcher([
   "/konto(.*)",
   "/api/pro(.*)",
 ]);
+
+const isOnboardingRoute = createRouteMatcher(["/app/onboarding"]);
+const isAppRoute = createRouteMatcher(["/app(.*)"]);
 
 // ─── Middleware ────────────────────────────────────────────────────────────────
 export default clerkMiddleware(async (auth, req) => {
@@ -56,6 +69,18 @@ export default clerkMiddleware(async (auth, req) => {
       ?.subscriptionTier;
     if (tier !== "pro") {
       return NextResponse.redirect(new URL("/prenumerera", req.url));
+    }
+  }
+
+  // Onboarding-redirect: inloggad app-användare utan favoriteTeam → /app/onboarding
+  // Använder unsafeMetadata från sessionClaims — om det saknas skippas redirect (fail-open)
+  if (isAppRoute(req) && !isOnboardingRoute(req)) {
+    const { userId, sessionClaims } = await auth();
+    if (userId && sessionClaims?.unsafeMetadata !== undefined) {
+      const meta = sessionClaims.unsafeMetadata as Record<string, unknown>;
+      if (!meta["favoriteTeam"]) {
+        return NextResponse.redirect(new URL("/app/onboarding", req.url));
+      }
     }
   }
 

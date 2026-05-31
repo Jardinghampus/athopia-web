@@ -63,6 +63,25 @@ Alla routes byggda och kompilerade rent (`pnpm build` → 0 fel).
 
 ---
 
+## Fas 9 — Personalisering & Forum ✅ KLAR (2026-05-31)
+
+| Jobb | Beskrivning | Status |
+|------|-------------|--------|
+| WEB-F1 | MITT FEED — FeedClient med FeedItem (4 varianter), Realtime + infinite scroll | ✅ 2026-05-31 |
+| WEB-F2 | Forum top-level — /app/forum + /app/forum/[teamSlug] med AI-box + Hetast-sort | ✅ 2026-05-31 |
+| WEB-F3 | RSS Allsvenskan-filter — /api/admin/classify-article + /app/admin/content | ✅ 2026-05-31 |
+| WEB-F4 | Dagliga sammanfattningar — /app/sammanfattning + AI-sektion i lag-hub | ✅ 2026-05-31 |
+| WEB-F5 | Full-width layout — Header full-width, Feed + Forum i nav | ✅ 2026-05-31 |
+| WEB-F6 | MobileNav — sticky bottom nav (Feed/Nyheter/Statistik/Forum/Profil) | ✅ 2026-05-31 |
+| WEB-F7 | Onboarding — Dedikerad sida med lag-grid, redirect via proxy.ts | ✅ 2026-05-31 |
+
+Manuella SQL-migrations som behöver köras i Supabase SQL Editor:
+```sql
+ALTER TABLE articles ADD COLUMN IF NOT EXISTS team_tags text[] DEFAULT '{}';
+ALTER TABLE articles ADD COLUMN IF NOT EXISTS manually_reviewed bool DEFAULT false;
+ALTER TABLE forum_threads ADD COLUMN IF NOT EXISTS hot_score float DEFAULT 0;
+```
+
 ## Fas 8 — The Athletic v2 ✅ KLAR (2026-05-31)
 
 | Jobb | Beskrivning | Status |

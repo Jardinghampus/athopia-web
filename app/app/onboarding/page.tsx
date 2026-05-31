@@ -1,16 +1,12 @@
 import type { Metadata } from "next";
-import { TeamSelectionModal } from "@/components/ui/TeamSelectionModal";
+import { OnboardingClient } from "./OnboardingClient";
 
 export const metadata: Metadata = {
-  title: "Välj ditt lag",
+  title: "Välj ditt lag | Athopia",
   description: "Välj vilket Allsvenskan-lag du följer för personaliserade nyheter och notiser.",
   robots: { index: false, follow: false },
 };
 
 export default function OnboardingPage() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <TeamSelectionModal forceVisible />
-    </div>
-  );
+  return <OnboardingClient />;
 }

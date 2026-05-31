@@ -4,6 +4,7 @@ import { Footer } from "@/components/layout/Footer";
 import { CommandPalette } from "@/components/layout/CommandPalette";
 import { AllsvenskanNav } from "@/components/layout/AllsvenskanNav";
 import { AppSidebar } from "@/components/layout/AppSidebar";
+import { MobileNav } from "@/components/layout/MobileNav";
 import { TeamSelectionModal } from "@/components/ui/TeamSelectionModal";
 import { PwaInstallBanner } from "@/components/PwaInstallBanner";
 
@@ -22,6 +23,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <main className="flex-1 min-w-0">{children}</main>
       </div>
       <Footer />
+      <MobileNav />
       <CommandPalette />
       <TeamSelectionModal />
       <PwaInstallBanner />

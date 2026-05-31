@@ -1,0 +1,42 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Rss, Newspaper, BarChart3, MessageSquare, User } from "lucide-react";
+
+const ITEMS = [
+  { href: "/app/feed", label: "Feed", icon: Rss },
+  { href: "/app/nyheter", label: "Nyheter", icon: Newspaper },
+  { href: "/app/statistik", label: "Statistik", icon: BarChart3 },
+  { href: "/app/forum", label: "Forum", icon: MessageSquare },
+  { href: "/app/konto", label: "Profil", icon: User },
+] as const;
+
+export function MobileNav() {
+  const pathname = usePathname();
+
+  return (
+    <nav
+      className="md:hidden sticky bottom-0 z-50 border-t border-border/50 bg-[#0f0f0f]"
+      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+    >
+      <div className="flex items-stretch h-14">
+        {ITEMS.map(({ href, label, icon: Icon }) => {
+          const active = pathname === href || pathname.startsWith(href + "/");
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={`flex-1 flex flex-col items-center justify-center gap-0.5 text-[10px] font-medium transition-colors ${
+                active ? "text-[#1D9E75]" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Icon className="w-5 h-5" />
+              {label}
+            </Link>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}

@@ -9,11 +9,12 @@ import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useCommandPalette } from "@/hooks/useCommandPalette";
 
 const NAV_LINKS = [
+  { href: "/app/feed", label: "Feed" },
   { href: "/app/nyheter", label: "Nyheter" },
   { href: "/app/allsvenskan", label: "Allsvenskan" },
   { href: "/app/podcast", label: "Podcasts" },
   { href: "/app/statistik", label: "Statistik" },
-  { href: "/app/analys", label: "Analys" },
+  { href: "/app/forum", label: "Forum" },
 ];
 
 export function Header({ clerkEnabled }: { clerkEnabled: boolean }) {

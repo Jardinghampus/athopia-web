@@ -135,7 +135,8 @@ export interface Match {
 
 export interface ForumThread {
   id: string;
-  team_id: string;
+  team_id?: string | null;
+  team_slug?: string | null;
   title: string;
   content: string;
   author_id: string;
@@ -144,8 +145,21 @@ export interface ForumThread {
   locked: boolean;
   reply_count: number;
   view_count: number;
+  hot_score?: number;
   last_reply_at: string;
   created_at: string;
+}
+
+export type FeedItemType = "news" | "forum" | "summary" | "podcast";
+
+export interface FeedItem {
+  id: string;
+  type: FeedItemType;
+  title: string;
+  subtitle?: string | null;
+  source?: string | null;
+  time: string;
+  href: string;
 }
 
 export interface ForumReply {

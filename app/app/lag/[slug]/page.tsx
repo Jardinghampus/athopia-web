@@ -12,7 +12,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, Brain } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { ArticleCard } from "@/components/ui/ArticleCard";
 import { NarrativeCard } from "@/components/ui/NarrativeCard";
@@ -59,6 +59,24 @@ async function getTeamArticles(teamSlug: string): Promise<Article[]> {
     return (data as Article[]) ?? [];
   } catch {
     return [];
+  }
+}
+
+async function getTeamAISummary(teamSlug: string): Promise<Article | null> {
+  try {
+    const supabase = createServerClient();
+    const { data } = await supabase
+      .from("articles")
+      .select("*")
+      .eq("source_name", "Athopia AI")
+      .eq("status", "published")
+      .filter("metadata->>team", "eq", teamSlug)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    return (data as Article) ?? null;
+  } catch {
+    return null;
   }
 }
 
@@ -178,9 +196,10 @@ export default async function LagPage({
 
   if (!team) notFound();
 
-  const [articles, narratives] = await Promise.all([
+  const [articles, narratives, aiSummary] = await Promise.all([
     getTeamArticles(slug),
     getTeamNarratives(slug),
+    getTeamAISummary(slug),
   ]);
 
   return (
@@ -212,6 +231,24 @@ export default async function LagPage({
             )}
           </div>
         </div>
+
+        {/* AI-sammanfattning */}
+        {aiSummary && (
+          <section className="relative overflow-hidden rounded-xl border border-amber-500/30 bg-amber-500/5 p-5 mb-8">
+            <div className="flex items-start gap-3">
+              <Brain className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-semibold text-amber-500 uppercase tracking-wide mb-1.5">
+                  Athopia AI · {new Date(aiSummary.publishedAt ?? "").toLocaleDateString("sv-SE", { day: "numeric", month: "short" })}
+                </p>
+                <h2 className="font-heading text-xl text-foreground mb-2">{aiSummary.title}</h2>
+                <p className="text-sm text-foreground/80 leading-relaxed">
+                  {aiSummary.summary ?? aiSummary.content?.slice(0, 300)}
+                </p>
+              </div>
+            </div>
+          </section>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8">
           {/* Artiklar */}
