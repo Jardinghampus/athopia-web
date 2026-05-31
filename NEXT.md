@@ -78,12 +78,11 @@ Jobb körs i ordning. Markera ✅ när klart.
   - AI-analys-sektion (hämtar från content_queue subtype=comparison)
   - "Jämför lag →" länk på /statistik
 
-- [ ] **WEB-28** — Match-center
-  - /match/[id] — live-sida under match, statisk efter slutsignal
-  - Minute-by-minute events (Sportsmonks live feed, poll var 30s med SWR)
-  - Live xG-graf (uppdateras via Supabase Realtime)
-  - Forum-aktivitet för båda lagen live bredvid (Supabase Realtime)
-  - app/match/[id]/page.tsx + components/match/LiveXgChart.tsx
+- [x] **WEB-28** — Match-center (2026-05-31)
+  - /match/[id] — live-sida under match (SWR poll 30s), statisk efter slutsignal
+  - Live xG Area Chart (Recharts), statistik-staplar med färgkodning
+  - Forum-aktivitet för båda lagen via Supabase Realtime (INSERT-subscribe)
+  - app/match/[id]/page.tsx + LiveMatchClient.tsx + api/match/[fixtureId]/route.ts
 
 - [ ] **WEB-29** — Personaliserad feed
   - Startsidan respekterar useFavoriteTeam → "Senaste om [ditt lag]" sektion
