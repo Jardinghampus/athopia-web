@@ -43,7 +43,7 @@ export function NarrativeCard({ narrative, compact = false }: NarrativeCardProps
 
   return (
     <Link
-      href={`/narrativ/${narrative.id}`}
+      href={`/app/narrativ/${narrative.id}`}
       className="group block rounded-2xl border border-border bg-card p-4 hover:border-pitch/30 transition-colors"
     >
       <div className="flex items-start justify-between gap-3">

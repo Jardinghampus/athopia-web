@@ -13,7 +13,7 @@ import { useAuth, SignInButton, UserButton } from "@clerk/nextjs";
 function FallbackAuth() {
   return (
     <Link
-      href="/prenumerera"
+      href="/app/prenumerera"
       className="text-sm px-4 py-1.5 rounded-full pitch-gradient text-white font-medium hover:opacity-90 transition-opacity"
     >
       PRO
@@ -38,7 +38,7 @@ function ClerkAuth() {
           </button>
         </SignInButton>
         <Link
-          href="/prenumerera"
+          href="/app/prenumerera"
           className="text-sm px-4 py-1.5 rounded-full pitch-gradient text-white font-medium hover:opacity-90 transition-opacity"
         >
           PRO
@@ -49,7 +49,7 @@ function ClerkAuth() {
 
   return (
     <div className="flex items-center gap-3">
-      <Link href="/konto" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+      <Link href="/app/konto" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
         Konto
       </Link>
       <UserButton />

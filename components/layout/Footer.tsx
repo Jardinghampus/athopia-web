@@ -19,17 +19,17 @@ export function Footer() {
           <div className="font-medium text-foreground mb-3">Innehåll</div>
           <ul className="space-y-2 text-muted-foreground">
             <li>
-              <Link href="/nyheter" className="hover:text-foreground transition-colors">
+              <Link href="/app/nyheter" className="hover:text-foreground transition-colors">
                 Nyheter
               </Link>
             </li>
             <li>
-              <Link href="/allsvenskan" className="hover:text-foreground transition-colors">
+              <Link href="/app/allsvenskan" className="hover:text-foreground transition-colors">
                 Allsvenskan
               </Link>
             </li>
             <li>
-              <Link href="/podcast" className="hover:text-foreground transition-colors">
+              <Link href="/app/podcast" className="hover:text-foreground transition-colors">
                 Podcasts
               </Link>
             </li>
@@ -40,17 +40,17 @@ export function Footer() {
           <div className="font-medium text-foreground mb-3">Lag</div>
           <ul className="space-y-2 text-muted-foreground">
             <li>
-              <Link href="/lag/aik" className="hover:text-foreground transition-colors">
+              <Link href="/app/lag/aik" className="hover:text-foreground transition-colors">
                 AIK
               </Link>
             </li>
             <li>
-              <Link href="/lag/djurgarden" className="hover:text-foreground transition-colors">
+              <Link href="/app/lag/djurgarden" className="hover:text-foreground transition-colors">
                 DIF
               </Link>
             </li>
             <li>
-              <Link href="/lag/malmo" className="hover:text-foreground transition-colors">
+              <Link href="/app/lag/malmo" className="hover:text-foreground transition-colors">
                 Malmö
               </Link>
             </li>
@@ -61,7 +61,7 @@ export function Footer() {
           <div className="font-medium text-foreground mb-3">Om</div>
           <ul className="space-y-2 text-muted-foreground">
             <li>
-              <Link href="/prenumerera" className="hover:text-foreground transition-colors">
+              <Link href="/app/prenumerera" className="hover:text-foreground transition-colors">
                 Bli PRO
               </Link>
             </li>
@@ -79,4 +79,3 @@ export function Footer() {
     </footer>
   );
 }
-

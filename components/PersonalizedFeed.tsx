@@ -82,7 +82,7 @@ export function PersonalizedFeed() {
       ) : (
         <p className="text-muted-foreground text-sm py-6 text-center">
           Inga nyheter hittade.{" "}
-          <Link href="/nyheter" className="text-[#1D9E75] hover:underline">
+          <Link href="/app/nyheter" className="text-[#1D9E75] hover:underline">
             Bläddra alla nyheter →
           </Link>
         </p>
@@ -92,10 +92,10 @@ export function PersonalizedFeed() {
       {slug && (
         <div className="mt-4 flex items-center gap-2">
           <span className="text-xs text-muted-foreground">Utforska:</span>
-          <Link href="/nyheter" className="text-xs text-[#1D9E75] hover:underline">
+          <Link href="/app/nyheter" className="text-xs text-[#1D9E75] hover:underline">
             Alla lag →
           </Link>
-          <Link href="/onboarding" className="text-xs text-muted-foreground hover:text-foreground">
+          <Link href="/app/onboarding" className="text-xs text-muted-foreground hover:text-foreground">
             Byt lag
           </Link>
         </div>

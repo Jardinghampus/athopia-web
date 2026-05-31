@@ -1,16 +1,8 @@
 import type { Metadata } from "next";
 import { Bebas_Neue, DM_Sans } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { CommandPalette } from "@/components/layout/CommandPalette";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
-import { AllsvenskanNav } from "@/components/layout/AllsvenskanNav";
-import { AppSidebar } from "@/components/layout/AppSidebar";
 import { Toaster } from "@/components/ui/sonner";
-import { TeamSelectionModal } from "@/components/ui/TeamSelectionModal";
-import { PwaInstallBanner } from "@/components/PwaInstallBanner";
-import { Suspense } from "react";
 import "./globals.css";
 
 const bebasNeue = Bebas_Neue({
@@ -30,11 +22,11 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://athopia.se"),
   manifest: "/manifest.json",
   title: {
-    default: "Athopia — Fotbollsjournalistik & Live",
+    default: "Athopia — Allsvenskans hemma på nätet",
     template: "%s | Athopia",
   },
   description:
-    "Athopia samlar fotbollsnyheter, live-matchdata, narrativ och podcasts på ett ställe. Följ spelet djupare.",
+    "Realtidsnyheter, AI-analys, djupstatistik och ditt lags forum — allt på ett ställe. Allsvenskan-versionen av The Athletic.",
   keywords: ["fotboll", "allsvenskan", "premier league", "live scores", "fotbollspodcast"],
   openGraph: {
     type: "website",
@@ -62,18 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <body className="min-h-dvh flex flex-col">
         <ThemeProvider>
-          <Header clerkEnabled={clerkEnabled} />
-          <Suspense fallback={null}>
-            <AllsvenskanNav />
-          </Suspense>
-          <div className="flex flex-1 min-h-0">
-            <AppSidebar />
-            <main className="flex-1 min-w-0">{children}</main>
-          </div>
-          <Footer />
-          <CommandPalette />
-          <TeamSelectionModal />
-          <PwaInstallBanner />
+          {children}
           <Toaster position="bottom-right" richColors />
         </ThemeProvider>
       </body>
