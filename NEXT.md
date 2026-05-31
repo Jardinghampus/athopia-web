@@ -63,12 +63,13 @@ Jobb körs i ordning. Markera ✅ när klart.
   - localStorage-fallback för ej inloggade
   - app/onboarding/page.tsx + hook useFavoriteTeam.ts
 
-- [ ] **WEB-26** — PWA-setup
+- [x] **WEB-26** — PWA-setup (2026-05-31)
   - public/manifest.json med app-ikon, theme_color, display: standalone
-  - app/sw.ts → service worker (next-pwa eller custom)
-  - Push-notis permission flow: prompt efter 3 besök (IndexedDB counter)
+  - public/sw.js → service worker (Network First + push handler)
+  - Push-notis permission flow: prompt efter 3 besök (localStorage counter)
   - "Lägg till på hemskärm" banner (beforeinstallprompt)
-  - components/PwaInstallBanner.tsx
+  - components/PwaInstallBanner.tsx + hooks/usePwa.ts
+  - app/api/push/subscribe/route.ts → sparar subscription i Supabase
 
 - [ ] **WEB-27** — Statistik-jämförelse
   - /statistik/jamfor?a=[slug]&b=[slug] → sida-vid-sida

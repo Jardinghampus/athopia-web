@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { AllsvenskanNav } from "@/components/layout/AllsvenskanNav";
 import { Toaster } from "@/components/ui/sonner";
 import { TeamSelectionModal } from "@/components/ui/TeamSelectionModal";
+import { PwaInstallBanner } from "@/components/PwaInstallBanner";
 import { Suspense } from "react";
 import "./globals.css";
 
@@ -26,6 +27,7 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://athopia.se"),
+  manifest: "/manifest.json",
   title: {
     default: "Athopia — Fotbollsjournalistik & Live",
     template: "%s | Athopia",
@@ -67,6 +69,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Footer />
           <CommandPalette />
           <TeamSelectionModal />
+          <PwaInstallBanner />
           <Toaster position="bottom-right" richColors />
         </ThemeProvider>
       </body>

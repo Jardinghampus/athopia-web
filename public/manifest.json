@@ -1,0 +1,46 @@
+{
+  "name": "Athopia — Allsvenskan",
+  "short_name": "Athopia",
+  "description": "Allsvenskan-versionen av The Athletic. Nyheter, statistik, forum och AI-analys.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0a0a0a",
+  "theme_color": "#1D9E75",
+  "lang": "sv",
+  "categories": ["sports", "news"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/home.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nyheter",
+      "url": "/nyheter",
+      "description": "Senaste Allsvenskan-nyheter"
+    },
+    {
+      "name": "Statistik",
+      "url": "/statistik",
+      "description": "Allsvenskan-tabell och statistik"
+    }
+  ]
+}
