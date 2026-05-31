@@ -1,5 +1,13 @@
 # NEXT.md — Athopia Web jobblista
 
+## VISION: Allsvenskan one-stop platform
+Allsvenskan-versionen av The Athletic. Web → PWA → React Native.
+- Varje supporter väljer sitt lag → personaliserad feed + push-notiser
+- AI-sammanfattningar dagligen (The Athletic-stil på svenska)
+- Statistikdatabas byggs match för match
+- Forum per lag med timmes-sammanfattning
+- PWA-ready som nästa steg efter web
+
 Jobb körs i ordning. Markera ✅ när klart.
 
 ---
@@ -43,3 +51,42 @@ Jobb körs i ordning. Markera ✅ när klart.
 - [x] **J-18** — next/image på alla bilder (verifiera lag, podcast)
 - [x] **J-19** — Lighthouse-audit: Core Web Vitals ≥ 90
 - [x] **J-20** — Vercel deploy + env-variabler i produktion
+
+---
+
+## Fas 4: The Athletic-vision (WEB-25–WEB-29)
+
+- [x] **WEB-25** — Lag-val onboarding (2026-05-31)
+  - Första besöket: modal "Välj ditt lag" (ett steg, Allsvenskan-grid)
+  - Sparas i Clerk user metadata: `{ favoriteTeam: slug }`
+  - Påverkar: feed-prioritering, push-prenumeration, färgschema (team primary color)
+  - localStorage-fallback för ej inloggade
+  - app/onboarding/page.tsx + hook useFavoriteTeam.ts
+
+- [ ] **WEB-26** — PWA-setup
+  - public/manifest.json med app-ikon, theme_color, display: standalone
+  - app/sw.ts → service worker (next-pwa eller custom)
+  - Push-notis permission flow: prompt efter 3 besök (IndexedDB counter)
+  - "Lägg till på hemskärm" banner (beforeinstallprompt)
+  - components/PwaInstallBanner.tsx
+
+- [ ] **WEB-27** — Statistik-jämförelse
+  - /statistik/jamfor?a=[slug]&b=[slug] → sida-vid-sida
+  - Lag-jämförelse: xG, form, H2H, poäng, mål
+  - Spelare-jämförelse: mål, assist, minuter, rating
+  - Recharts-grafer för xG-trend
+  - "Vår AI-analys: ..." sektion (hämta från content_queue type='comparison')
+
+- [ ] **WEB-28** — Match-center
+  - /match/[id] — live-sida under match, statisk efter slutsignal
+  - Minute-by-minute events (Sportsmonks live feed, poll var 30s med SWR)
+  - Live xG-graf (uppdateras via Supabase Realtime)
+  - Forum-aktivitet för båda lagen live bredvid (Supabase Realtime)
+  - app/match/[id]/page.tsx + components/match/LiveXgChart.tsx
+
+- [ ] **WEB-29** — Personaliserad feed
+  - Startsidan respekterar useFavoriteTeam → "Senaste om [ditt lag]" sektion
+  - Supabase query filtrerar på team_id från entities
+  - Fallback: senaste 10 artiklar oavsett lag om inget lag valt
+  - "Utforska andra lag"-sektion under personaliserad sektion
+  - Påverkar app/page.tsx + ny komponent PersonalizedFeed.tsx

@@ -7,6 +7,7 @@ import { CommandPalette } from "@/components/layout/CommandPalette";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { AllsvenskanNav } from "@/components/layout/AllsvenskanNav";
 import { Toaster } from "@/components/ui/sonner";
+import { TeamSelectionModal } from "@/components/ui/TeamSelectionModal";
 import { Suspense } from "react";
 import "./globals.css";
 
@@ -65,6 +66,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main className="flex-1">{children}</main>
           <Footer />
           <CommandPalette />
+          <TeamSelectionModal />
           <Toaster position="bottom-right" richColors />
         </ThemeProvider>
       </body>
