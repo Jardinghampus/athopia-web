@@ -27,6 +27,7 @@ export interface Article {
   summary: string;
   content: string | null;
   sourceUrl?: string | null;
+  url?: string | null;
   sourceName: string;
   sourceType?: string | null;
   imageUrl: string | null;

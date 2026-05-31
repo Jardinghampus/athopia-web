@@ -27,7 +27,11 @@ function SourceBadge({ sourceName }: { sourceName: string }) {
 }
 
 export function ArticleCard({ article, size = "md", priority = false }: ArticleCardProps) {
-  const href = `/artikel/${article.slug}`;
+  const externalUrl = article.sourceUrl ?? article.url;
+  const isExternal = !article.slug && !!externalUrl;
+  const href = article.slug
+    ? `/artikel/${article.slug}`
+    : (externalUrl ?? "#");
   const hasImage = !!article.imageUrl;
   const relativeDate = formatDateRelative(article.publishedAt);
   const readTime = calculateReadTime(article.content ?? article.summary);
@@ -53,7 +57,7 @@ export function ArticleCard({ article, size = "md", priority = false }: ArticleC
 
   if (size === "sm") {
     return (
-      <Link href={href} className={cn(base, "p-4")}>
+      <Link href={href} className={cn(base, "p-4")} {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
         <div className="flex items-start justify-between gap-3">
           <h3 className={cn("font-heading leading-tight text-foreground group-hover:text-pitch-light transition-colors", titleClass)}>
             {truncate(article.title, 90)}
@@ -69,7 +73,7 @@ export function ArticleCard({ article, size = "md", priority = false }: ArticleC
   }
 
   return (
-    <Link href={href} className={cn(base, "flex flex-col")}>
+    <Link href={href} className={cn(base, "flex flex-col")} {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
       {/* Bild */}
       {hasImage ? (
         <div className={cn("relative w-full overflow-hidden bg-muted", imageAspect)}>
