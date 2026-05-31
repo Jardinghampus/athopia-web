@@ -15,6 +15,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowRight, Zap } from "lucide-react";
+import { PersonalizedFeed } from "@/components/PersonalizedFeed";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArticleCard } from "@/components/ui/ArticleCard";
 import { NarrativeCard } from "@/components/ui/NarrativeCard";
@@ -130,6 +131,9 @@ export default async function HomePage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
       {/* Hero */}
       {heroNarrative && <HeroNarrative narrative={heroNarrative} />}
+
+      {/* Personaliserad feed (client-side, favorit-lag) */}
+      <PersonalizedFeed />
 
       {/* Huvudinnehåll: artiklar + sidebar */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8">

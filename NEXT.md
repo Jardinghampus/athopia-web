@@ -84,7 +84,7 @@ Jobb körs i ordning. Markera ✅ när klart.
   - Forum-aktivitet för båda lagen via Supabase Realtime (INSERT-subscribe)
   - app/match/[id]/page.tsx + LiveMatchClient.tsx + api/match/[fixtureId]/route.ts
 
-- [ ] **WEB-29** — Personaliserad feed
+- [x] **WEB-29** — Personaliserad feed (2026-05-31)
   - Startsidan respekterar useFavoriteTeam → "Senaste om [ditt lag]" sektion
   - Supabase query filtrerar på team_id från entities
   - Fallback: senaste 10 artiklar oavsett lag om inget lag valt
