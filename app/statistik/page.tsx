@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { StatistikTabs } from "./StatistikTabs";
 import { H2HSearch } from "./H2HSearch";
 import type { H2HFixture } from "./H2HSearch";
@@ -350,9 +351,17 @@ export default async function StatistikPage({
 
       {/* Innehåll */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        <div className="mb-6">
-          <h1 className="font-heading text-5xl text-foreground">STATISTIK</h1>
-          <p className="text-muted-foreground mt-1 text-sm">Allsvenskan {sasong}</p>
+        <div className="mb-6 flex items-end justify-between">
+          <div>
+            <h1 className="font-heading text-5xl text-foreground">STATISTIK</h1>
+            <p className="text-muted-foreground mt-1 text-sm">Allsvenskan {sasong}</p>
+          </div>
+          <Link
+            href="/statistik/jamfor"
+            className="px-4 py-2 rounded-lg border border-[#1D9E75] text-[#1D9E75] text-sm font-medium hover:bg-[#1D9E75]/10 transition-colors"
+          >
+            Jämför lag →
+          </Link>
         </div>
         <Suspense fallback={<TabSkeleton />}>{tabContent}</Suspense>
       </div>

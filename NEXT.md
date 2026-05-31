@@ -71,12 +71,12 @@ Jobb körs i ordning. Markera ✅ när klart.
   - components/PwaInstallBanner.tsx + hooks/usePwa.ts
   - app/api/push/subscribe/route.ts → sparar subscription i Supabase
 
-- [ ] **WEB-27** — Statistik-jämförelse
+- [x] **WEB-27** — Statistik-jämförelse (2026-05-31)
   - /statistik/jamfor?a=[slug]&b=[slug] → sida-vid-sida
-  - Lag-jämförelse: xG, form, H2H, poäng, mål
-  - Spelare-jämförelse: mål, assist, minuter, rating
-  - Recharts-grafer för xG-trend
-  - "Vår AI-analys: ..." sektion (hämta från content_queue type='comparison')
+  - Lag-jämförelse: xG, form, poäng, mål (10 nyckeltal + form-badges)
+  - Recharts LineChart för xG-trend per match
+  - AI-analys-sektion (hämtar från content_queue subtype=comparison)
+  - "Jämför lag →" länk på /statistik
 
 - [ ] **WEB-28** — Match-center
   - /match/[id] — live-sida under match, statisk efter slutsignal
