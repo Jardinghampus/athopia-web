@@ -39,7 +39,7 @@ const TIERS = [
       "10 push-notiser per dag",
     ],
     cta: "Prova PRO",
-    href: "/app/prenumerera",
+    href: "/prenumerera",
     highlight: true,
   },
   {
@@ -54,7 +54,7 @@ const TIERS = [
       "Tidig tillgång till nya features",
     ],
     cta: "Bli Elite",
-    href: "/app/prenumerera?tier=elite",
+    href: "/prenumerera?tier=elite",
     highlight: false,
   },
 ];
@@ -126,13 +126,13 @@ export default function LandingPage() {
           </Link>
           <div className="flex items-center gap-3">
             <Link
-              href="/app/nyheter"
+              href="/nyheter"
               className="hidden sm:block text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Utforska
             </Link>
             <Link
-              href="/app/prenumerera"
+              href="/prenumerera"
               className="px-4 py-2 rounded-full pitch-gradient text-white text-sm font-medium hover:-translate-y-0.5 transition-all duration-200 shadow-sm shadow-pitch/20"
             >
               Prova PRO
@@ -167,14 +167,14 @@ export default function LandingPage() {
 
             <div className="flex flex-wrap items-center justify-center gap-3">
               <Link
-                href="/app/prenumerera"
+                href="/prenumerera"
                 className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full pitch-gradient text-white font-medium text-sm shadow-lg shadow-pitch/20 hover:shadow-pitch/30 hover:-translate-y-0.5 transition-all duration-200"
               >
                 Prova PRO gratis i 7 dagar
                 <ChevronRight className="w-4 h-4" />
               </Link>
               <Link
-                href="/app/nyheter"
+                href="/nyheter"
                 className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full border border-border bg-card text-foreground font-medium text-sm hover:border-pitch/40 hover:-translate-y-0.5 transition-all duration-200"
               >
                 Se senaste nytt
@@ -193,7 +193,7 @@ export default function LandingPage() {
             {ALLSVENSKAN_TEAMS.map((team) => (
               <Link
                 key={team.slug}
-                href={`/app/lag/${team.slug}`}
+                href={`/lag/${team.slug}`}
                 className="flex-none text-xs font-medium text-muted-foreground hover:text-pitch transition-colors whitespace-nowrap"
               >
                 {team.name}
@@ -256,7 +256,7 @@ export default function LandingPage() {
                   ))}
                 </ul>
                 <Link
-                  href="/app/prenumerera"
+                  href="/prenumerera"
                   className="inline-flex items-center gap-2 text-sm text-pitch hover:text-pitch-light font-medium transition-colors"
                 >
                   Prova PRO <ArrowRight className="w-4 h-4" />
@@ -390,14 +390,14 @@ export default function LandingPage() {
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3">
             <Link
-              href="/app/prenumerera"
+              href="/prenumerera"
               className="inline-flex items-center gap-2 px-8 py-4 rounded-full pitch-gradient text-white font-medium shadow-xl shadow-pitch/20 hover:shadow-pitch/30 hover:-translate-y-1 transition-all duration-200"
             >
               Kom igång — 7 dagar gratis
               <ChevronRight className="w-4 h-4" />
             </Link>
             <Link
-              href="/app/nyheter"
+              href="/nyheter"
               className="inline-flex items-center gap-2 px-8 py-4 rounded-full border border-border text-foreground hover:border-pitch/40 hover:-translate-y-1 transition-all duration-200"
             >
               Se nyhetsflödet
@@ -413,9 +413,9 @@ export default function LandingPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
             <span className="font-heading text-xl text-foreground">ATHOPIA</span>
             <div className="flex items-center gap-6">
-              <Link href="/app/nyheter" className="hover:text-foreground transition-colors">Nyheter</Link>
-              <Link href="/app/allsvenskan" className="hover:text-foreground transition-colors">Allsvenskan</Link>
-              <Link href="/app/prenumerera" className="hover:text-foreground transition-colors">PRO</Link>
+              <Link href="/nyheter" className="hover:text-foreground transition-colors">Nyheter</Link>
+              <Link href="/allsvenskan" className="hover:text-foreground transition-colors">Allsvenskan</Link>
+              <Link href="/prenumerera" className="hover:text-foreground transition-colors">PRO</Link>
             </div>
             <span>© {new Date().getFullYear()} Athopia</span>
           </div>

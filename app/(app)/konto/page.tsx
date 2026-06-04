@@ -123,7 +123,7 @@ export default async function KontoPage({
             </a>
           ) : (
             <a
-              href="/app/prenumerera"
+              href="/prenumerera"
               className="text-sm px-4 py-2 rounded-xl pitch-gradient text-white font-medium hover:opacity-90 transition-opacity"
             >
               Uppgradera till PRO

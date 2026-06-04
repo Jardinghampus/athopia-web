@@ -36,10 +36,10 @@ export function EntityChip({
 
   const href =
     entity.type === "team"
-      ? `/app/lag/${entity.slug}`
+      ? `/lag/${entity.slug}`
       : entity.type === "player"
-      ? `/app/spelare/${entity.slug}`
-      : `/app/coach/${entity.slug}`;
+      ? `/spelare/${entity.slug}`
+      : `/coach/${entity.slug}`;
 
   if (!linked) return <span className={classes}>{entity.name}</span>;
 

@@ -55,7 +55,7 @@ export function OnboardingClient() {
     } else {
       markOnboardingDone();
     }
-    router.push("/app/feed");
+    router.push("/feed");
   };
 
   return (

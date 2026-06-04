@@ -91,7 +91,7 @@ export default async function ForumIndexPage() {
           {teams.map((team) => (
             <Link
               key={team.id}
-              href={`/app/forum/${team.slug}`}
+              href={`/forum/${team.slug}`}
               className="group flex items-center gap-4 bg-card hover:bg-card/80 border border-border rounded-xl p-4 transition-colors"
             >
               <div className="w-10 h-10 rounded-full bg-pitch/10 border border-pitch/20 flex items-center justify-center shrink-0">

@@ -12,7 +12,7 @@ export async function AllsvenskanNav() {
           {teams.map((team) => (
             <Link
               key={team.id}
-              href={`/app/lag/${team.slug}`}
+              href={`/lag/${team.slug}`}
               className="shrink-0 text-xs px-3 py-1 rounded-full border border-border/60 text-muted-foreground
                 hover:border-pitch hover:text-pitch hover:bg-pitch/5
                 transition-[border-color,color,background-color] duration-150"

@@ -18,12 +18,12 @@ import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
   { href: "/app", label: "Hem", Icon: IconHome, exact: true },
-  { href: "/app/nyheter", label: "Nyheter", Icon: IconNews, exact: false },
-  { href: "/app/allsvenskan", label: "Allsvenskan", Icon: IconTrophy, exact: false },
-  { href: "/app/match", label: "Matcher", Icon: IconCalendarEvent, exact: false },
-  { href: "/app/podcast", label: "Podcasts", Icon: IconHeadphones, exact: false },
-  { href: "/app/statistik", label: "Statistik", Icon: IconChartBar, exact: false },
-  { href: "/app/analys", label: "Analys", Icon: IconFlame, exact: false },
+  { href: "/nyheter", label: "Nyheter", Icon: IconNews, exact: false },
+  { href: "/allsvenskan", label: "Allsvenskan", Icon: IconTrophy, exact: false },
+  { href: "/match", label: "Matcher", Icon: IconCalendarEvent, exact: false },
+  { href: "/podcast", label: "Podcasts", Icon: IconHeadphones, exact: false },
+  { href: "/statistik", label: "Statistik", Icon: IconChartBar, exact: false },
+  { href: "/analys", label: "Analys", Icon: IconFlame, exact: false },
 ];
 
 function NavItem({

@@ -30,7 +30,7 @@ function formatDuration(seconds: number) {
 export function PodcastCard({ podcast }: PodcastCardProps) {
   return (
     <Link
-      href={`/app/podcast/${podcast.id}`}
+      href={`/podcast/${podcast.id}`}
       className="group relative flex gap-4 p-4 rounded-2xl border border-border bg-card hover:border-pitch/40 transition-all duration-200 hover:shadow-[0_0_16px_rgba(29,158,117,0.08)] overflow-hidden"
     >
       {/* Thumbnail */}

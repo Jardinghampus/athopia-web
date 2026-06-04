@@ -29,7 +29,7 @@ export default async function ProGate({
           <p className="text-sm text-muted-foreground mb-5">
             Uppgradera för att läsa {feature}.
           </p>
-          <Link href="/app/prenumerera" className="block">
+          <Link href="/prenumerera" className="block">
             <Button className="w-full">Uppgradera</Button>
           </Link>
         </div>

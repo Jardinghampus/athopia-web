@@ -5,11 +5,11 @@ import { usePathname } from "next/navigation";
 import { Rss, Newspaper, BarChart3, MessageSquare, User } from "lucide-react";
 
 const ITEMS = [
-  { href: "/app/feed", label: "Feed", icon: Rss },
-  { href: "/app/nyheter", label: "Nyheter", icon: Newspaper },
-  { href: "/app/statistik", label: "Statistik", icon: BarChart3 },
-  { href: "/app/forum", label: "Forum", icon: MessageSquare },
-  { href: "/app/konto", label: "Profil", icon: User },
+  { href: "/feed", label: "Feed", icon: Rss },
+  { href: "/nyheter", label: "Nyheter", icon: Newspaper },
+  { href: "/statistik", label: "Statistik", icon: BarChart3 },
+  { href: "/forum", label: "Forum", icon: MessageSquare },
+  { href: "/konto", label: "Profil", icon: User },
 ] as const;
 
 export function MobileNav() {

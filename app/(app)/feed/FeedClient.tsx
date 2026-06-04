@@ -112,7 +112,7 @@ async function fetchFeedPage(db: any, teamSlug: string | null, offset: number): 
       subtitle: a.summary,
       source: a.source_name,
       time: a.published_at,
-      href: `/app/artikel/${a.slug}`,
+      href: `/artikel/${a.slug}`,
     });
   }
 
@@ -124,7 +124,7 @@ async function fetchFeedPage(db: any, teamSlug: string | null, offset: number): 
       subtitle: t.content?.slice(0, 80),
       source: t.author_name,
       time: t.created_at,
-      href: `/app/forum/${t.team_id ?? ""}`,
+      href: `/forum/${t.team_id ?? ""}`,
     });
   }
 
@@ -135,7 +135,7 @@ async function fetchFeedPage(db: any, teamSlug: string | null, offset: number): 
       title: p.title,
       source: p.show_name,
       time: p.published_at,
-      href: `/app/podcast/${p.id}`,
+      href: `/podcast/${p.id}`,
     });
   }
 
@@ -231,7 +231,7 @@ export function FeedClient() {
         </div>
         {!needsOnboarding && (
           <Link
-            href="/app/onboarding"
+            href="/onboarding"
             className="text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
             Byt lag

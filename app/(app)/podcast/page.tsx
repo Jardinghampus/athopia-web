@@ -192,7 +192,7 @@ function FilterSection({
 
       {(selected.lag || selected.show || selected.visa) && (
         <Link
-          href="/app/podcast"
+          href="/podcast"
           className="block text-xs text-muted-foreground hover:text-foreground transition-colors"
         >
           ↺ Återställ filter

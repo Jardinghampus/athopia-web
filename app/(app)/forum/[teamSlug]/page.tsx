@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { MessageSquare, Pin, Lock, Plus, Brain } from "lucide-react";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
@@ -125,7 +125,7 @@ export default async function ForumTeamPage({
     teamId ? getAISummary(teamId) : Promise.resolve<string | null>(null),
   ]);
 
-  const base = `/app/forum/${teamSlug}`;
+  const base = `/forum/${teamSlug}`;
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
@@ -134,7 +134,7 @@ export default async function ForumTeamPage({
         {ALL_TEAMS.map((t) => (
           <Link
             key={t.slug}
-            href={`/app/forum/${t.slug}`}
+            href={`/forum/${t.slug}`}
             className={`shrink-0 px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
               t.slug === teamSlug
                 ? "bg-pitch text-white border-pitch"
@@ -168,7 +168,7 @@ export default async function ForumTeamPage({
         </h1>
         {user ? (
           <Link
-            href={`/app/lag/${teamSlug}/forum/ny`}
+            href={`/lag/${teamSlug}/forum/ny`}
             className="flex items-center gap-2 bg-pitch text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-pitch/90 transition-colors"
           >
             <Plus className="w-4 h-4" />
@@ -212,7 +212,7 @@ export default async function ForumTeamPage({
           {threads.map((thread) => (
             <Link
               key={thread.id}
-              href={`/app/lag/${teamSlug}/forum/${thread.id}`}
+              href={`/lag/${teamSlug}/forum/${thread.id}`}
               className="group flex items-start gap-4 bg-card hover:bg-card/80 border border-border rounded-lg p-4 transition-colors"
             >
               <div className="flex-1 min-w-0">
@@ -247,7 +247,7 @@ export default async function ForumTeamPage({
       {/* Länk tillbaka till lag-forumet */}
       <div className="mt-8 pt-6 border-t border-border">
         <Link
-          href={`/app/lag/${teamSlug}/forum`}
+          href={`/lag/${teamSlug}/forum`}
           className="text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           Gå till lag-hubben →

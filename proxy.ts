@@ -29,16 +29,16 @@ const isPublicRoute = createRouteMatcher([
   "/liga(.*)",
   "/podcast(.*)",
   "/prenumerera",
-  "/app/nyheter(.*)",
-  "/app/allsvenskan(.*)",
-  "/app/podcast(.*)",
-  "/app/statistik(.*)",
-  "/app/lag(.*)",
-  "/app/forum(.*)",
-  "/app/sammanfattning(.*)",
-  "/app/artikel(.*)",
-  "/app/narrativ(.*)",
-  "/app/spelare(.*)",
+  "/nyheter(.*)",
+  "/allsvenskan(.*)",
+  "/podcast(.*)",
+  "/statistik(.*)",
+  "/lag(.*)",
+  "/forum(.*)",
+  "/sammanfattning(.*)",
+  "/artikel(.*)",
+  "/narrativ(.*)",
+  "/spelare(.*)",
   "/api/webhooks(.*)",
 ]);
 
@@ -48,8 +48,13 @@ const isProRoute = createRouteMatcher([
   "/api/pro(.*)",
 ]);
 
-const isOnboardingRoute = createRouteMatcher(["/app/onboarding"]);
-const isAppRoute = createRouteMatcher(["/app(.*)"]);
+const isOnboardingRoute = createRouteMatcher(["/onboarding"]);
+const isAppRoute = createRouteMatcher([
+  "/feed(.*)", "/lag(.*)", "/nyheter(.*)", "/statistik(.*)",
+  "/podcast(.*)", "/forum(.*)", "/artikel(.*)", "/analys(.*)",
+  "/narrativ(.*)", "/allsvenskan(.*)", "/match(.*)", "/spelare(.*)",
+  "/sammanfattning(.*)", "/konto(.*)", "/prenumerera", "/admin(.*)",
+]);
 
 // ─── Middleware ────────────────────────────────────────────────────────────────
 export default clerkMiddleware(async (auth, req) => {
@@ -72,14 +77,14 @@ export default clerkMiddleware(async (auth, req) => {
     }
   }
 
-  // Onboarding-redirect: inloggad app-användare utan favoriteTeam → /app/onboarding
+  // Onboarding-redirect: inloggad användare utan favoriteTeam → /onboarding
   // Använder unsafeMetadata från sessionClaims — om det saknas skippas redirect (fail-open)
   if (isAppRoute(req) && !isOnboardingRoute(req)) {
     const { userId, sessionClaims } = await auth();
     if (userId && sessionClaims?.unsafeMetadata !== undefined) {
       const meta = sessionClaims.unsafeMetadata as Record<string, unknown>;
       if (!meta["favoriteTeam"]) {
-        return NextResponse.redirect(new URL("/app/onboarding", req.url));
+        return NextResponse.redirect(new URL("/onboarding", req.url));
       }
     }
   }

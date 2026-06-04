@@ -357,7 +357,7 @@ export default async function StatistikPage({
             <p className="text-muted-foreground mt-1 text-sm">Allsvenskan {sasong}</p>
           </div>
           <Link
-            href="/app/statistik/jamfor"
+            href="/statistik/jamfor"
             className="px-4 py-2 rounded-lg border border-[#1D9E75] text-[#1D9E75] text-sm font-medium hover:bg-[#1D9E75]/10 transition-colors"
           >
             Jämför lag →

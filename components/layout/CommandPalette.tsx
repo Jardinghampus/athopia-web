@@ -118,7 +118,7 @@ export function CommandPalette() {
                     loading={loading}
                     empty="Inga artiklar matchade."
                     render={(a) => (
-                      <Link href={`/app/artikel/${a.slug}`} onClick={close} className={itemClass}>
+                      <Link href={`/artikel/${a.slug}`} onClick={close} className={itemClass}>
                         {a.title}
                       </Link>
                     )}
@@ -131,7 +131,7 @@ export function CommandPalette() {
                     loading={loading}
                     empty="Inga lag matchade."
                     render={(t) => (
-                      <Link href={`/app/lag/${t.slug}`} onClick={close} className={itemClass}>
+                      <Link href={`/lag/${t.slug}`} onClick={close} className={itemClass}>
                         {t.name}
                       </Link>
                     )}
@@ -144,7 +144,7 @@ export function CommandPalette() {
                     loading={loading}
                     empty="Inga spelare matchade."
                     render={(p) => (
-                      <Link href={`/app/spelare/${p.slug}`} onClick={close} className={itemClass}>
+                      <Link href={`/spelare/${p.slug}`} onClick={close} className={itemClass}>
                         {p.name}
                       </Link>
                     )}
@@ -157,7 +157,7 @@ export function CommandPalette() {
                     loading={loading}
                     empty="Inga podcasts matchade."
                     render={(p) => (
-                      <Link href={`/app/podcast/${p.id}`} onClick={close} className={itemClass}>
+                      <Link href={`/podcast/${p.id}`} onClick={close} className={itemClass}>
                         {p.title}
                       </Link>
                     )}
