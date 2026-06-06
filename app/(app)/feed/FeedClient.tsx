@@ -80,12 +80,18 @@ function buildSupabaseClient() {
 async function fetchFeedPage(db: any, teamSlug: string | null, offset: number): Promise<FeedItem[]> {
   const items: FeedItem[] = [];
 
-  const articlesQ = db
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let articlesQ: any = db
     .from("articles")
-    .select("id, title, summary, source_name, published_at, slug, source_name, entity_ids")
+    .select("id, title, summary, source_name, published_at, slug, url_hash, is_athopia_generated")
     .eq("status", "published")
+    .eq("sport", "football")
     .order("published_at", { ascending: false })
     .range(offset, offset + PAGE_SIZE - 1);
+
+  if (teamSlug) {
+    articlesQ = articlesQ.contains("team_tags", [teamSlug]);
+  }
 
   const threadsQ = db
     .from("forum_threads")
@@ -102,17 +108,15 @@ async function fetchFeedPage(db: any, teamSlug: string | null, offset: number): 
   const [artRes, thrRes, podRes] = await Promise.all([articlesQ, threadsQ, podcastsQ]);
 
   for (const a of (artRes.data ?? []) as any[]) {
-    const entityIds: string[] = a.entity_ids ?? [];
-    if (teamSlug && entityIds.length > 0 && !entityIds.includes(teamSlug)) continue;
-    const isAI = (a.source_name ?? "").toLowerCase().includes("athopia");
+    const articleSlug = (a.slug as string | null) ?? (a.url_hash as string | null) ?? (a.id as string);
     items.push({
-      id: `article-${a.id}`,
-      type: isAI ? "summary" : "news",
-      title: a.title,
-      subtitle: a.summary,
-      source: a.source_name,
-      time: a.published_at,
-      href: `/artikel/${a.slug}`,
+      id: `article-${a.id as string}`,
+      type: (a.is_athopia_generated as boolean) ? "summary" : "news",
+      title: a.title as string,
+      subtitle: a.summary as string | undefined,
+      source: a.source_name as string | undefined,
+      time: a.published_at as string,
+      href: `/artikel/${articleSlug}`,
     });
   }
 
