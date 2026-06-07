@@ -7,6 +7,7 @@ import { AppSidebar } from "@/components/layout/AppSidebar";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { TeamSelectionModal } from "@/components/ui/TeamSelectionModal";
 import { PwaInstallBanner } from "@/components/PwaInstallBanner";
+import { ForumSummaryPopup } from "@/components/ForumSummaryPopup";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const clerkEnabled =
@@ -27,6 +28,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <CommandPalette />
       <TeamSelectionModal />
       <PwaInstallBanner />
+      <ForumSummaryPopup />
     </>
   );
 }
