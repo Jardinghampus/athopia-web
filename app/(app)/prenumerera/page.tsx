@@ -11,6 +11,8 @@ import type { Metadata } from "next";
 import { Check, Zap } from "lucide-react";
 import { CheckoutButton } from "./CheckoutButton";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "PRO — Athopia",
   description: "Uppgradera till Athopia PRO för 39 kr/mån och få tillgång till fullständiga transkript, djupanalys och exklusivt innehåll.",

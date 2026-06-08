@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Analys",
   description: "Djupanalys och AI-insikter (kommer snart) på Athopia.",

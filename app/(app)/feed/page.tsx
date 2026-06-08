@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { FeedClient } from "./FeedClient";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Mitt feed",
   description: "Personaliserad feed med nyheter, forum och podcasts för ditt lag.",
