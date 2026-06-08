@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: "AI-genererade sammanfattningar för alla Allsvenskan-lag.",
 };
 
-export const revalidate = 300;
+export const dynamic = 'force-dynamic';
 
 async function getAllsvenskanDigest(): Promise<Article | null> {
   if (!isSupabaseConfigured()) return null;
