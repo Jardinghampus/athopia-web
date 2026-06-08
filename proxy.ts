@@ -13,13 +13,13 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-import { clerkMiddleware } from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-// ─── Middleware ────────────────────────────────────────────────────────────────
-// TEMP: auth avaktiverat — alla kan surfa utan login
-// Återaktivera: git checkout proxy.ts
-export default clerkMiddleware(async () => {
-  // pass-through: inga redirects, inga skydd
+// /dashboard kräver login — allt annat är öppet (Clerk temp semi-disabled)
+const isDashboard = createRouteMatcher(['/dashboard(.*)']);
+
+export default clerkMiddleware(async (auth, req) => {
+  if (isDashboard(req)) await auth.protect();
 });
 
 export const config = {
