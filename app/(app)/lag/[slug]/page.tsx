@@ -17,8 +17,8 @@ import { Separator } from "@/components/ui/separator";
 import { ArticleCard } from "@/components/ui/ArticleCard";
 import { NarrativeCard } from "@/components/ui/NarrativeCard";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
-import { auth } from "@clerk/nextjs/server";
 import { FollowButton } from "@/components/dashboard/follow-button";
+import { isFollowing } from "@/app/actions/follows";
 import type { Article, Narrative } from "@/lib/types";
 
 export const dynamic = 'force-dynamic';
@@ -74,19 +74,6 @@ async function getTeamArticles(teamSlug: string): Promise<Article[]> {
   }
 }
 
-async function getIsFollowing(userId: string | null, entityId: string): Promise<boolean> {
-  if (!userId || !isSupabaseConfigured()) return false
-  try {
-    const supabase = createServerClient()
-    const { data } = await supabase
-      .from('user_follows')
-      .select('id')
-      .eq('user_id', userId)
-      .eq('entity_id', entityId)
-      .maybeSingle()
-    return !!data
-  } catch { return false }
-}
 
 async function getTeamAISummary(teamSlug: string): Promise<Article | null> {
   try {
@@ -231,13 +218,11 @@ export default async function LagPage({
     );
   }
 
-  const { userId } = await auth()
-
   const [articles, narratives, aiSummary, following] = await Promise.all([
     getTeamArticles(slug),
     getTeamNarratives(slug),
     getTeamAISummary(slug),
-    getIsFollowing(userId, team.id),
+    isFollowing(team.id),
   ]);
 
   return (

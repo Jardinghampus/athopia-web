@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from 'react'
 import { Star } from 'lucide-react'
-import { toggleFollow } from '@/app/(app)/lag/[slug]/actions'
+import { toast } from 'sonner'
+import { toggleFollow } from '@/app/actions/follows'
 
 export function FollowButton({
   entityId,
@@ -15,11 +16,17 @@ export function FollowButton({
   const [pending, startTransition] = useTransition()
 
   function handleClick() {
+    const next = !following
+    setFollowing(next)
     startTransition(async () => {
-      const result = await toggleFollow(entityId)
-      if (result && 'following' in result && typeof result.following === 'boolean') {
-        setFollowing(result.following)
+      const res = await toggleFollow(entityId)
+      if (!res.ok) {
+        setFollowing(!next)
+        toast.error('Kunde inte uppdatera. Försök igen.')
+        return
       }
+      setFollowing(!!res.following)
+      toast.success(res.following ? 'Du följer nu laget' : 'Slutade följa laget')
     })
   }
 
@@ -27,6 +34,7 @@ export function FollowButton({
     <button
       onClick={handleClick}
       disabled={pending}
+      aria-pressed={following}
       className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50 ${
         following
           ? 'bg-pitch text-white hover:bg-pitch/80'
