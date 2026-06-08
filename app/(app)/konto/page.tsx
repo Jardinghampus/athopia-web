@@ -9,7 +9,6 @@
 
 import type { Metadata } from "next";
 import { auth, currentUser } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
 import { Check, CreditCard, User } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import Stripe from "stripe";
@@ -44,9 +43,6 @@ export default async function KontoPage({
   searchParams: Promise<{ checkout?: string }>;
 }) {
   const { userId, sessionClaims } = await auth();
-
-  if (!userId) redirect("/sign-in");
-
   const user = await currentUser();
   const meta = sessionClaims?.publicMetadata as {
     subscriptionTier?: string;
