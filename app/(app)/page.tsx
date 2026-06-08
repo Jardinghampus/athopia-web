@@ -164,7 +164,7 @@ export default async function AppHomePage() {
           <div className="flex items-center justify-between mb-6">
             <h2 className="font-heading text-3xl text-foreground">SENASTE NYTT</h2>
             <Link
-              href="/artikel"
+              href="/nyheter"
               className="flex items-center gap-1 text-sm text-pitch hover:text-pitch-light transition-colors"
             >
               Alla nyheter <ArrowRight className="w-4 h-4" />

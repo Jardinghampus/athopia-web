@@ -50,7 +50,7 @@ export function Footer() {
               </Link>
             </li>
             <li>
-              <Link href="/lag/malmo" className="hover:text-foreground transition-colors">
+              <Link href="/lag/malmo-ff" className="hover:text-foreground transition-colors">
                 Malmö
               </Link>
             </li>

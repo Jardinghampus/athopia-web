@@ -50,6 +50,15 @@ export function createServerClient() {
   }
   return createSupabaseClient(supabaseUrl, supabaseServiceRoleKey, {
     auth: { persistSession: false },
+    global: {
+      fetch: (url: RequestInfo | URL, init?: RequestInit) => {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 25000);
+        return fetch(url, { ...init, signal: controller.signal }).finally(() =>
+          clearTimeout(timer)
+        );
+      },
+    },
   });
 }
 

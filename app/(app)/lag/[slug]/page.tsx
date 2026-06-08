@@ -16,7 +16,9 @@ import { TrendingUp, TrendingDown, Minus, Brain } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { ArticleCard } from "@/components/ui/ArticleCard";
 import { NarrativeCard } from "@/components/ui/NarrativeCard";
-import { createServerClient } from "@/lib/supabase";
+import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import { auth } from "@clerk/nextjs/server";
+import { FollowButton } from "@/components/dashboard/follow-button";
 import type { Article, Narrative } from "@/lib/types";
 
 export const dynamic = 'force-dynamic';
@@ -36,11 +38,21 @@ async function getTeam(slug: string): Promise<TeamData | null> {
   try {
     const supabase = createServerClient();
     const { data } = await supabase
-      .from("teams")
+      .from("entities")
       .select("*")
+      .eq("type", "team")
       .eq("slug", slug)
       .single();
-    return data as TeamData | null;
+    if (!data) return null;
+    const meta = (data.metadata ?? {}) as Record<string, unknown>;
+    return {
+      id: data.id as string,
+      name: data.name as string,
+      slug: data.slug as string,
+      logo_url: (meta.logo_url as string | null) ?? null,
+      sportsmonks_id: (meta.sportsmonks_id as number | null) ?? null,
+      sentiment: (meta.sentiment as number | null) ?? null,
+    };
   } catch {
     return null;
   }
@@ -60,6 +72,20 @@ async function getTeamArticles(teamSlug: string): Promise<Article[]> {
   } catch {
     return [];
   }
+}
+
+async function getIsFollowing(userId: string | null, entityId: string): Promise<boolean> {
+  if (!userId || !isSupabaseConfigured()) return false
+  try {
+    const supabase = createServerClient()
+    const { data } = await supabase
+      .from('user_follows')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('entity_id', entityId)
+      .maybeSingle()
+    return !!data
+  } catch { return false }
 }
 
 async function getTeamAISummary(teamSlug: string): Promise<Article | null> {
@@ -194,12 +220,24 @@ export default async function LagPage({
   const { slug } = await params;
   const team = await getTeam(slug);
 
-  if (!team) notFound();
+  if (!team) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16 text-center">
+        <h1 className="font-heading text-4xl text-foreground mb-4">Lag hittades inte</h1>
+        <p className="text-muted-foreground">
+          Laget <strong>{slug}</strong> finns inte i systemet ännu. Lag läggs till löpande.
+        </p>
+      </div>
+    );
+  }
 
-  const [articles, narratives, aiSummary] = await Promise.all([
+  const { userId } = await auth()
+
+  const [articles, narratives, aiSummary, following] = await Promise.all([
     getTeamArticles(slug),
     getTeamNarratives(slug),
     getTeamAISummary(slug),
+    getIsFollowing(userId, team.id),
   ]);
 
   return (
@@ -220,10 +258,13 @@ export default async function LagPage({
               />
             </div>
           )}
-          <div>
-            <h1 className="font-heading text-5xl text-foreground leading-none mb-2">
-              {team.name.toUpperCase()}
-            </h1>
+          <div className="flex-1">
+            <div className="flex items-start justify-between gap-4">
+              <h1 className="font-heading text-5xl text-foreground leading-none mb-2">
+                {team.name.toUpperCase()}
+              </h1>
+              <FollowButton entityId={team.id} initialFollowing={following} />
+            </div>
             {team.sentiment !== null && (
               <div className="max-w-xs mt-4">
                 <SentimentBar value={team.sentiment} />
