@@ -77,7 +77,7 @@ function TeamCell({ name, image }: { name: string; image?: string }) {
 // ── Tabell ────────────────────────────────────────────────────────────────────
 
 async function TabelTab() {
-  const rows = await fetchStandingsFull();
+  const rows = await fetchStandingsFull().catch(() => []);
   if (rows.length === 0) return <EmptyState />;
   return (
     <div className="overflow-x-auto -mx-4 sm:mx-0">
@@ -154,7 +154,7 @@ async function TabelTab() {
 // ── Skytteliga ────────────────────────────────────────────────────────────────
 
 async function SkytteligaTab() {
-  const scorers = await fetchTopScorers();
+  const scorers = await fetchTopScorers().catch(() => []);
   if (scorers.length === 0) return <EmptyState />;
   return (
     <div className="space-y-0.5">
@@ -186,7 +186,7 @@ async function SkytteligaTab() {
 // ── Assistligan ───────────────────────────────────────────────────────────────
 
 async function AssistliganTab() {
-  const assists = await fetchTopAssists();
+  const assists = await fetchTopAssists().catch(() => []);
   if (assists.length === 0) return <EmptyState />;
   return (
     <div className="space-y-0.5">
@@ -226,7 +226,7 @@ function XGTab() {
 // ── Form ──────────────────────────────────────────────────────────────────────
 
 async function FormTab() {
-  const rows = await fetchStandingsFull();
+  const rows = await fetchStandingsFull().catch(() => []);
   if (rows.length === 0) return <EmptyState />;
   const withForm = rows.filter((r) => r.form.length > 0);
   if (withForm.length === 0)
@@ -287,7 +287,7 @@ function PressTab() {
 // ── H2H ───────────────────────────────────────────────────────────────────────
 
 async function H2HTab() {
-  const fixtures = await fetchAllsvenskanFixtures();
+  const fixtures = await fetchAllsvenskanFixtures().catch(() => []);
   const h2hFixtures: H2HFixture[] = fixtures.map((f) => {
     const { home, away, homeGoals, awayGoals } = parseFixtureScore(f);
     return {

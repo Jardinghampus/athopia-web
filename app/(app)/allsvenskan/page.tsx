@@ -11,8 +11,13 @@ export const metadata: Metadata = {
   description: "Tabell, matcher och live scores för Allsvenskan på Athopia.",
 };
 
+const hasToken = process.env.SPORTSMONKS_API_TOKEN && process.env.SPORTSMONKS_API_TOKEN !== "placeholder_token";
+
 export default async function AllsvenskanPage() {
-  const [standings, fixtures] = await Promise.all([fetchStandings(), fetchAllsvenskanFixtures()]);
+  const [standings, fixtures] = await Promise.all([
+    hasToken ? fetchStandings().catch(() => []) : Promise.resolve([]),
+    hasToken ? fetchAllsvenskanFixtures().catch(() => []) : Promise.resolve([]),
+  ]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
