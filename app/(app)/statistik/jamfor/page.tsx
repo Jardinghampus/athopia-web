@@ -6,7 +6,7 @@ import { fetchStandingsFull } from "@/lib/sportsmonks";
 import { TeamSearchBar } from "./TeamSearchBar";
 import { XgChart } from "./XgChart";
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 interface PageProps {
   searchParams: Promise<{ a?: string; b?: string }>;

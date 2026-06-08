@@ -12,7 +12,7 @@ import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import type { Podcast } from "@/lib/types";
 import Link from "next/link";
 
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: "Podcast | Athopia",
