@@ -14,6 +14,8 @@ import { Check, CreditCard, User } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import Stripe from "stripe";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Mitt konto",
   description: "Hantera din Athopia-prenumeration och dina kontoinställningar.",

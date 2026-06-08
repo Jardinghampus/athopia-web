@@ -1,6 +1,8 @@
 import type { MetadataRoute } from "next";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 
+export const dynamic = 'force-dynamic';
+
 const BASE = "https://athopia.se";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

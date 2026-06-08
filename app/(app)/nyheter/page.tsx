@@ -6,7 +6,7 @@ import { NewsFilterPanel } from "@/components/ui/NewsFilterPanel";
 import { NyheterRealtimeBanner } from "@/components/NyheterRealtimeBanner";
 import { getFilteredArticles, getActiveSources } from "@/lib/supabase";
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: "Nyheter | Athopia",

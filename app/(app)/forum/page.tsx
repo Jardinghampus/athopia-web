@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: "Diskutera Allsvenskan med supportrar från alla 16 lag.",
 };
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 interface TeamActivity {
   id: string;
