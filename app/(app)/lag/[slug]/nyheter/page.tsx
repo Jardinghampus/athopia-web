@@ -4,7 +4,7 @@ import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import type { Article } from "@/lib/types";
 import { Newspaper } from "lucide-react";
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 function mapArticle(row: any): Article {
   return {

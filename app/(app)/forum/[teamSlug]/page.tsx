@@ -5,7 +5,7 @@ import type { ForumPost } from "@/lib/types";
 import ForumSummaryBar from "@/components/forum/ForumSummaryBar";
 import ForumClient from "./ForumClient";
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 const ALL_TEAMS = [
   { name: "AIK", slug: "aik" },

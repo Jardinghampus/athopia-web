@@ -19,7 +19,7 @@ import { NarrativeCard } from "@/components/ui/NarrativeCard";
 import { createServerClient } from "@/lib/supabase";
 import type { Article, Narrative } from "@/lib/types";
 
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
 
 // ─── Typer ─────────────────────────────────────────────────────────────────────
 interface TeamData {

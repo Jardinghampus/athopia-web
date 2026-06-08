@@ -6,7 +6,7 @@ import { ArticleCard } from "@/components/ui/ArticleCard";
 import { SentimentBar } from "@/components/ui/SentimentBar";
 import { Separator } from "@/components/ui/separator";
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 interface PlayerRow {
   id: string;

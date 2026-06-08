@@ -5,7 +5,7 @@ import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import type { ForumThread } from "@/lib/types";
 import { currentUser } from "@clerk/nextjs/server";
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 async function getTeamId(slug: string): Promise<string | null> {
   if (!isSupabaseConfigured()) return null;

@@ -17,7 +17,7 @@ import { EntityChip } from "@/components/ui/EntityChip";
 import { createServerClient } from "@/lib/supabase";
 import type { Podcast } from "@/lib/types";
 
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
 
 // ─── Data-hämtning ─────────────────────────────────────────────────────────────
 async function getEpisode(id: string): Promise<Podcast | null> {

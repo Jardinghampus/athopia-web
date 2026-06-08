@@ -11,7 +11,7 @@ import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import type { Narrative, Entity, Article } from "@/lib/types";
 import { Sparkles, TrendingUp, Brain } from "lucide-react";
 
-export const revalidate = 300; // 5 min — ny sammanfattning kan komma
+export const dynamic = 'force-dynamic'; // 5 min — ny sammanfattning kan komma
 
 function mapNarrative(row: Record<string, unknown>): Narrative {
   return {

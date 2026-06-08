@@ -48,6 +48,8 @@ async function getTeamIds(homeId: number | null, awayId: number | null): Promise
   return ((data ?? []) as { id: string }[]).map((e) => e.id);
 }
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
   const fixtureId = parseInt(id, 10);

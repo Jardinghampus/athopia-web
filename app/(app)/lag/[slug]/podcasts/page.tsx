@@ -4,7 +4,7 @@ import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import type { Podcast } from "@/lib/types";
 import { Mic } from "lucide-react";
 
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
 
 function mapPodcast(row: any): Podcast {
   return {

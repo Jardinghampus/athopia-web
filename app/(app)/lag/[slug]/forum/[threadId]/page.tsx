@@ -44,6 +44,8 @@ async function getReplies(threadId: string): Promise<ForumReply[]> {
   }
 }
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata({
   params,
 }: {

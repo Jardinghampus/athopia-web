@@ -19,6 +19,8 @@ async function getTeamId(slug: string): Promise<string | null> {
   }
 }
 
+export const dynamic = 'force-dynamic';
+
 export default async function NyTraadPage({
   params,
 }: {

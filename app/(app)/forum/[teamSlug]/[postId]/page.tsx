@@ -6,7 +6,7 @@ import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import type { ForumPost } from "@/lib/types";
 import ThreadClient from "./ThreadClient";
 
-export const revalidate = 30;
+export const dynamic = 'force-dynamic';
 
 async function getPost(postId: string): Promise<ForumPost | null> {
   if (!isSupabaseConfigured()) return null;

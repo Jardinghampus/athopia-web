@@ -6,7 +6,7 @@ import { TrendBadge } from "@/components/ui/TrendBadge";
 import { SentimentBar } from "@/components/ui/SentimentBar";
 import { Separator } from "@/components/ui/separator";
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 async function getNarrative(id: string): Promise<Narrative | null> {
   if (!isSupabaseConfigured()) return null;

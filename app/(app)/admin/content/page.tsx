@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export const revalidate = 0;
+export const dynamic = 'force-dynamic';
 
 const ALLSVENSKAN_TEAMS = [
   { name: "AIK", slug: "aik" },

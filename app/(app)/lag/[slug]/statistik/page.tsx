@@ -4,7 +4,7 @@ import { fetchStandingsFull } from "@/lib/sportsmonks";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import { BarChart3 } from "lucide-react";
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 async function getTeamName(slug: string): Promise<string> {
   if (!isSupabaseConfigured()) return slug;

@@ -21,7 +21,7 @@ import { createServerClient } from "@/lib/supabase";
 import type { Article } from "@/lib/types";
 import { ArticleScrollTracker } from "@/components/gamification/ArticleScrollTracker";
 
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
 
 // ─── Hjälpfunktioner ───────────────────────────────────────────────────────────
 async function getArticle(slug: string): Promise<Article | null> {
