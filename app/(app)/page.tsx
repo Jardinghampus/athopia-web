@@ -11,7 +11,7 @@ import { fetchAllsvenskanFixtures, fetchLiveScores } from "@/lib/sportsmonks";
 import type { Article, Narrative } from "@/lib/types";
 import type { SMFixture } from "@/lib/sportsmonks";
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 async function getTopArticles(): Promise<Article[]> {
   if (!isSupabaseConfigured()) return [];

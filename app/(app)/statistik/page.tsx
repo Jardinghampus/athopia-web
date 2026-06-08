@@ -13,7 +13,7 @@ import {
   parseFixtureScore,
 } from "@/lib/sportsmonks";
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: "Statistik | Athopia",
