@@ -59,10 +59,7 @@ async function getAISummary(teamSlug: string): Promise<string | null> {
       .from("agent_memory")
       .select("content")
       .eq("agent_id", "forum-summarizer")
-      .eq("category", "forum_summary")
-      .contains("tags", [teamSlug])
-      .order("updated_at", { ascending: false })
-      .limit(1)
+      .eq("category", `forum_summary_${teamSlug}`)
       .maybeSingle();
     return (data as any)?.content ?? null;
   } catch {
