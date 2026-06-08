@@ -4,7 +4,7 @@ import { fetchAllsvenskanFixtures, fetchStandings } from "@/lib/sportsmonks";
 import { ScoreWidget } from "@/components/ui/ScoreWidget";
 import { Separator } from "@/components/ui/separator";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Allsvenskan",

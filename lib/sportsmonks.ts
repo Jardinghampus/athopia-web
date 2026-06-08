@@ -16,7 +16,8 @@ const API_TOKEN = process.env.SPORTSMONKS_API_TOKEN ?? "";
 async function smFetch<T>(
   path: string,
   params: Record<string, string> = {},
-  revalidate = 60
+  revalidate = 60,
+  timeoutMs = 8000
 ): Promise<T> {
   if (!API_TOKEN || API_TOKEN === "placeholder_token") {
     throw new Error("SPORTSMONKS_API_TOKEN saknas eller är placeholder.");
@@ -27,19 +28,25 @@ async function smFetch<T>(
     url.searchParams.set(k, v);
   }
 
-  const res = await fetch(url.toString(), {
-    next: { revalidate },
-    headers: { Accept: "application/json" },
-  });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
 
-  if (!res.ok) {
-    throw new Error(
-      `Sportsmonks API fel ${res.status}: ${path}`
-    );
+  try {
+    const res = await fetch(url.toString(), {
+      next: { revalidate },
+      headers: { Accept: "application/json" },
+      signal: controller.signal,
+    });
+
+    if (!res.ok) {
+      throw new Error(`Sportsmonks API fel ${res.status}: ${path}`);
+    }
+
+    const json = await res.json();
+    return json.data as T;
+  } finally {
+    clearTimeout(timer);
   }
-
-  const json = await res.json();
-  return json.data as T;
 }
 
 // ─── Typdefinitioner (Sportsmonks v3 subset) ──────────────────────────────────
