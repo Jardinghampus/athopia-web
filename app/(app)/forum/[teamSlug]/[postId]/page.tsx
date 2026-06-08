@@ -19,7 +19,8 @@ async function getPost(postId: string): Promise<ForumPost | null> {
       .eq("status", "published")
       .maybeSingle();
     return (data as ForumPost) ?? null;
-  } catch {
+  } catch (error) {
+    console.error("Failed to fetch post:", postId, error);
     return null;
   }
 }
@@ -36,7 +37,8 @@ async function getReplies(rootId: string): Promise<ForumPost[]> {
       .order("created_at", { ascending: true })
       .limit(100);
     return (data as ForumPost[]) ?? [];
-  } catch {
+  } catch (error) {
+    console.error("Failed to fetch replies:", rootId, error);
     return [];
   }
 }
@@ -62,9 +64,10 @@ export default async function ThreadPage({
   params: Promise<{ teamSlug: string; postId: string }>;
 }) {
   const { teamSlug, postId } = await params;
-  const [root, replies] = await Promise.all([getPost(postId), getReplies(postId)]);
-
+  const root = await getPost(postId);
   if (!root) notFound();
+
+  const replies = await getReplies(root.root_id ?? root.id);
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6">

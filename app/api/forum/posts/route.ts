@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
       depth?: number;
     };
 
-    const { content, parent_id, root_id, quoted_post_id, team_slug, sport = "football", depth = 0 } = body;
+    const { content, parent_id, root_id, quoted_post_id, team_slug, sport = "football" } = body;
 
     if (!content?.trim()) {
       return NextResponse.json({ message: "content krävs" }, { status: 400 });
@@ -68,6 +68,16 @@ export async function POST(req: NextRequest) {
     }
 
     const supabase = createServerClient();
+
+    let depth = 0;
+    if (parent_id) {
+      const { data: parentPost } = await supabase
+        .from("forum_posts")
+        .select("depth")
+        .eq("id", parent_id)
+        .single();
+      depth = (parentPost?.depth ?? 0) + 1;
+    }
 
     const { data: post, error } = await supabase
       .from("forum_posts")
@@ -89,17 +99,7 @@ export async function POST(req: NextRequest) {
     if (error) throw error;
 
     if (parent_id) {
-      const { data: parent } = await supabase
-        .from("forum_posts")
-        .select("reply_count")
-        .eq("id", parent_id)
-        .single();
-      if (parent) {
-        await supabase
-          .from("forum_posts")
-          .update({ reply_count: (parent.reply_count ?? 0) + 1 })
-          .eq("id", parent_id);
-      }
+      await supabase.rpc("increment_reply_count", { row_id: parent_id });
     }
 
     return NextResponse.json(post, { status: 201 });

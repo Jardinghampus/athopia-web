@@ -26,8 +26,16 @@ export default function ForumClient({ teamSlug, sport, initialPosts, initialSort
     setLoading(true);
     try {
       const res = await fetch(`/api/forum/posts?teamSlug=${teamSlug}&sport=${sport}&sort=${s}`);
+      if (!res.ok) {
+        console.error("Failed to fetch posts:", await res.text());
+        setPosts([]);
+        return;
+      }
       const json = await res.json() as { posts: ForumPost[] };
       setPosts(json.posts ?? []);
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+      setPosts([]);
     } finally {
       setLoading(false);
     }
@@ -44,25 +52,33 @@ export default function ForumClient({ teamSlug, sport, initialPosts, initialSort
     teamSlug: string;
     sport: string;
   }) {
-    const res = await fetch("/api/forum/posts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        content: data.content,
-        team_slug: data.teamSlug,
-        sport: data.sport,
-      }),
-    });
-    if (res.ok) {
+    try {
+      const res = await fetch("/api/forum/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content: data.content,
+          team_slug: data.teamSlug,
+          sport: data.sport,
+        }),
+      });
+      if (!res.ok) {
+        console.error("Failed to create post:", await res.text());
+        alert("Det gick inte att skapa inlägget. Försök igen.");
+        return;
+      }
       const newPost = await res.json() as ForumPost;
       setPosts((prev) => [newPost, ...prev]);
       setComposeOpen(false);
+    } catch (error) {
+      console.error("Error creating post:", error);
+      alert("Det gick inte att skapa inlägget. Försök igen.");
     }
   }
 
   return (
     <div>
-      <TagFilter active={sort} />
+      <TagFilter active={sort} onChange={setSort} />
 
       {composeOpen && user && (
         <div className="mt-4 p-4 bg-card border border-border rounded-xl">

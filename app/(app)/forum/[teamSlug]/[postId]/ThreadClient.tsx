@@ -22,21 +22,28 @@ export default function ThreadClient({ root, replies: initialReplies, teamSlug, 
     teamSlug: string;
     sport: string;
   }) {
-    const res = await fetch("/api/forum/posts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        content: data.content,
-        parent_id: root.id,
-        root_id: root.id,
-        team_slug: data.teamSlug,
-        sport: data.sport,
-        depth: 1,
-      }),
-    });
-    if (res.ok) {
+    try {
+      const res = await fetch("/api/forum/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content: data.content,
+          parent_id: root.id,
+          root_id: root.id,
+          team_slug: data.teamSlug,
+          sport: data.sport,
+        }),
+      });
+      if (!res.ok) {
+        console.error("Failed to create reply:", await res.text());
+        alert("Det gick inte att skapa svaret. Försök igen.");
+        return;
+      }
       const newPost = await res.json() as ForumPost;
       setReplies((prev) => [...prev, newPost]);
+    } catch (error) {
+      console.error("Error creating reply:", error);
+      alert("Det gick inte att skapa svaret. Försök igen.");
     }
   }
 

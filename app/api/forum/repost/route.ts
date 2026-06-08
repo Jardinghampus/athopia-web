@@ -13,24 +13,13 @@ export async function POST(req: NextRequest) {
 
     const supabase = createServerClient();
 
-    const { data: existing } = await supabase
-      .from("forum_reposts")
-      .select("post_id")
-      .eq("post_id", postId)
-      .eq("user_id", user.id)
-      .maybeSingle();
+    const { data: reposted, error } = await supabase.rpc("toggle_repost", {
+      p_post_id: postId,
+      p_user_id: user.id,
+    });
 
-    if (existing) {
-      await supabase.from("forum_reposts").delete().eq("post_id", postId).eq("user_id", user.id);
-      const { data: p } = await supabase.from("forum_posts").select("repost_count").eq("id", postId).single();
-      await supabase.from("forum_posts").update({ repost_count: Math.max(0, (p?.repost_count ?? 1) - 1) }).eq("id", postId);
-      return NextResponse.json({ reposted: false });
-    } else {
-      await supabase.from("forum_reposts").insert({ post_id: postId, user_id: user.id });
-      const { data: p } = await supabase.from("forum_posts").select("repost_count").eq("id", postId).single();
-      await supabase.from("forum_posts").update({ repost_count: (p?.repost_count ?? 0) + 1 }).eq("id", postId);
-      return NextResponse.json({ reposted: true });
-    }
+    if (error) throw error;
+    return NextResponse.json({ reposted });
   } catch (err) {
     console.error("[forum/repost]", err);
     return NextResponse.json({ message: "Serverfel" }, { status: 500 });

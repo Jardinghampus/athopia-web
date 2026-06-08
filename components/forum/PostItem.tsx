@@ -2,6 +2,7 @@
 
 import { useState, useOptimistic } from "react";
 import { useUser } from "@clerk/nextjs";
+import Image from "next/image";
 import { Heart, MessageCircle, Repeat2, Share2 } from "lucide-react";
 import Link from "next/link";
 import type { ForumPost } from "@/lib/types";
@@ -53,11 +54,17 @@ export default function PostItem({ post, depth = 0, showThread = false, onReply 
     const next = !liked;
     addOptimisticLike(next ? 1 : -1);
     setLiked(next);
-    await fetch("/api/forum/like", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ postId: post.id }),
-    });
+    try {
+      const res = await fetch("/api/forum/like", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postId: post.id }),
+      });
+      if (!res.ok) throw new Error("Like failed");
+    } catch {
+      addOptimisticLike(next ? -1 : 1);
+      setLiked(!next);
+    }
   }
 
   async function toggleRepost() {
@@ -65,19 +72,29 @@ export default function PostItem({ post, depth = 0, showThread = false, onReply 
     const next = !reposted;
     addOptimisticRepost(next ? 1 : -1);
     setReposted(next);
-    await fetch("/api/forum/repost", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ postId: post.id }),
-    });
+    try {
+      const res = await fetch("/api/forum/repost", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postId: post.id }),
+      });
+      if (!res.ok) throw new Error("Repost failed");
+    } catch {
+      addOptimisticRepost(next ? -1 : 1);
+      setReposted(!next);
+    }
   }
 
   async function share() {
     const url = `${window.location.origin}/forum/${post.team_slug}/${post.id}`;
-    if (navigator.share) {
-      await navigator.share({ url });
-    } else {
-      await navigator.clipboard.writeText(url);
+    try {
+      if (navigator.share) {
+        await navigator.share({ url });
+      } else {
+        await navigator.clipboard.writeText(url);
+      }
+    } catch (err) {
+      console.error("Share failed:", err);
     }
   }
 
@@ -116,7 +133,7 @@ export default function PostItem({ post, depth = 0, showThread = false, onReply 
       <div className="flex flex-col items-center">
         <div className="w-9 h-9 rounded-full bg-pitch/20 flex items-center justify-center text-pitch text-xs font-bold shrink-0 overflow-hidden">
           {post.author_avatar ? (
-            <img src={post.author_avatar} alt="" className="w-full h-full object-cover" />
+            <Image src={post.author_avatar} alt="" fill className="object-cover" />
           ) : (
             initials(post.author_name)
           )}
@@ -146,7 +163,7 @@ export default function PostItem({ post, depth = 0, showThread = false, onReply 
         {post.images && post.images.length > 0 && (
           <div className="mt-2 flex gap-2 flex-wrap">
             {post.images.map((src, i) => (
-              <img key={i} src={src} alt="" className="rounded-lg max-h-48 object-cover" />
+              <Image key={i} src={src} alt="" width={300} height={192} className="rounded-lg max-h-48 object-cover" />
             ))}
           </div>
         )}

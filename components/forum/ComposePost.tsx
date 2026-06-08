@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
+import Image from "next/image";
 
 function initials(name: string): string {
   return name
@@ -51,6 +52,8 @@ export default function ComposePost({
     try {
       await onPost({ content: content.trim(), parentId, rootId, teamSlug, sport });
       setContent("");
+    } catch (err) {
+      console.error("Failed to post:", err);
     } finally {
       setLoading(false);
     }
@@ -60,7 +63,7 @@ export default function ComposePost({
     <div className="flex gap-3">
       <div className="w-9 h-9 rounded-full bg-pitch flex items-center justify-center text-white text-xs font-bold shrink-0">
         {user.imageUrl ? (
-          <img src={user.imageUrl} alt="" className="w-9 h-9 rounded-full object-cover" />
+          <Image src={user.imageUrl} alt="" width={36} height={36} className="rounded-full object-cover" />
         ) : (
           initials(name)
         )}

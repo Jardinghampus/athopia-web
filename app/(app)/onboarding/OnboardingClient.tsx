@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Check } from "lucide-react";
 import { useFavoriteTeam } from "@/hooks/useFavoriteTeam";
 import { createClient } from "@supabase/supabase-js";
+import { OnboardingLeaguePicker } from "@/components/gamification/OnboardingLeaguePicker";
 
 interface Team {
   id: string;
@@ -32,6 +33,7 @@ export function OnboardingClient() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [showLeaguePicker, setShowLeaguePicker] = useState(false);
 
   useEffect(() => {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
@@ -55,8 +57,15 @@ export function OnboardingClient() {
     } else {
       markOnboardingDone();
     }
-    router.push("/feed");
+    setSaving(false);
+    setShowLeaguePicker(true);
   };
+
+  if (showLeaguePicker) {
+    return (
+      <OnboardingLeaguePicker onComplete={() => router.push("/feed")} />
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">

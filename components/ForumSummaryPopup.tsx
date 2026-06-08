@@ -48,7 +48,7 @@ export function ForumSummaryPopup() {
 
     if (!data) return;
 
-    const dismissed = localStorage.getItem(DISMISSED_KEY);
+    const dismissed = typeof window !== "undefined" ? localStorage.getItem(DISMISSED_KEY) : null;
     if (dismissed === data.id) return;
 
     setDigest(data as ForumDigest);
@@ -59,19 +59,24 @@ export function ForumSummaryPopup() {
     if (!onForumRoute) return;
     fetchDigest();
 
-    // Refresh vid nästa heltimme, sedan var 60 min
     const delay = getNextHourMs();
+    let intervalId: ReturnType<typeof setInterval> | undefined;
+
     const firstTimer = setTimeout(() => {
       fetchDigest();
-      const interval = setInterval(fetchDigest, REFRESH_MS);
-      return () => clearInterval(interval);
+      intervalId = setInterval(fetchDigest, REFRESH_MS);
     }, delay);
 
-    return () => clearTimeout(firstTimer);
+    return () => {
+      clearTimeout(firstTimer);
+      if (intervalId) clearInterval(intervalId);
+    };
   }, [onForumRoute, fetchDigest]);
 
   const dismiss = () => {
-    if (digest) localStorage.setItem(DISMISSED_KEY, digest.id);
+    if (digest && typeof window !== "undefined") {
+      localStorage.setItem(DISMISSED_KEY, digest.id);
+    }
     setVisible(false);
   };
 

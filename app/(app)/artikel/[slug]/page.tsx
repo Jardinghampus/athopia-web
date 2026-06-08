@@ -19,6 +19,7 @@ import { ArticleCard } from "@/components/ui/ArticleCard";
 import { EntityChip } from "@/components/ui/EntityChip";
 import { createServerClient } from "@/lib/supabase";
 import type { Article } from "@/lib/types";
+import { ArticleScrollTracker } from "@/components/gamification/ArticleScrollTracker";
 
 export const revalidate = 3600;
 
@@ -123,6 +124,7 @@ export default async function ArtikelPage({
   return (
     <>
       <ArticleJsonLd article={article} />
+      <ArticleScrollTracker articleType="match_report" />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
         {/* Hero-bild */}

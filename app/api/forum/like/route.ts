@@ -13,24 +13,13 @@ export async function POST(req: NextRequest) {
 
     const supabase = createServerClient();
 
-    const { data: existing } = await supabase
-      .from("forum_likes")
-      .select("post_id")
-      .eq("post_id", postId)
-      .eq("user_id", user.id)
-      .maybeSingle();
+    const { data: liked, error } = await supabase.rpc("toggle_like", {
+      p_post_id: postId,
+      p_user_id: user.id,
+    });
 
-    if (existing) {
-      await supabase.from("forum_likes").delete().eq("post_id", postId).eq("user_id", user.id);
-      const { data: p } = await supabase.from("forum_posts").select("like_count").eq("id", postId).single();
-      await supabase.from("forum_posts").update({ like_count: Math.max(0, (p?.like_count ?? 1) - 1) }).eq("id", postId);
-      return NextResponse.json({ liked: false });
-    } else {
-      await supabase.from("forum_likes").insert({ post_id: postId, user_id: user.id });
-      const { data: p } = await supabase.from("forum_posts").select("like_count").eq("id", postId).single();
-      await supabase.from("forum_posts").update({ like_count: (p?.like_count ?? 0) + 1 }).eq("id", postId);
-      return NextResponse.json({ liked: true });
-    }
+    if (error) throw error;
+    return NextResponse.json({ liked });
   } catch (err) {
     console.error("[forum/like]", err);
     return NextResponse.json({ message: "Serverfel" }, { status: 500 });

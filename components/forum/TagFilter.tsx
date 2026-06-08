@@ -10,7 +10,7 @@ const TAGS = [
   { id: "match", label: "Match" },
 ] as const;
 
-export default function TagFilter({ active }: { active: string }) {
+export default function TagFilter({ active, onChange }: { active: string; onChange?: (tag: string) => void }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -18,6 +18,7 @@ export default function TagFilter({ active }: { active: string }) {
     const params = new URLSearchParams(searchParams.toString());
     params.set("sort", tag);
     router.push(`?${params.toString()}`);
+    onChange?.(tag);
   }
 
   return (
