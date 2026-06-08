@@ -150,6 +150,32 @@ export interface ForumThread {
   created_at: string;
 }
 
+export interface ForumPost {
+  id: string;
+  content: string;
+  images: string[];
+  parent_id: string | null;
+  root_id: string | null;
+  quoted_post_id: string | null;
+  depth: number;
+  author_id: string;
+  author_name: string;
+  author_avatar: string | null;
+  sport: string;
+  team_slug: string | null;
+  like_count: number;
+  reply_count: number;
+  repost_count: number;
+  view_count: number;
+  ai_summary: string | null;
+  pinned: boolean;
+  hot_score: number;
+  status: string;
+  created_at: string;
+  replies?: ForumPost[];
+  quoted_post?: ForumPost | null;
+}
+
 export type FeedItemType = "news" | "forum" | "summary" | "podcast";
 
 export interface FeedItem {
