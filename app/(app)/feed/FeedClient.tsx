@@ -5,9 +5,8 @@ import Link from "next/link";
 import { Newspaper, MessageSquare, Brain, Podcast, Loader2, RefreshCw } from "lucide-react";
 import { useFavoriteTeam } from "@/hooks/useFavoriteTeam";
 import { createClient } from "@supabase/supabase-js";
+import { UpgradePrompt } from "@/components/UpgradePrompt";
 import type { FeedItem, FeedItemType } from "@/lib/types";
-
-const PAGE_SIZE = 20;
 
 const TYPE_META: Record<FeedItemType, { label: string; color: string; icon: React.ElementType }> = {
   news: { label: "Nyhet", color: "#1D9E75", icon: Newspaper },
@@ -69,6 +68,8 @@ function FeedItemCard({ item }: { item: FeedItem }) {
   );
 }
 
+// Anon-klient används ENBART för realtime-notisen (ny artikel → badge).
+// All feed-data hämtas server-side via /api/feed (plan + dagskvot enforced där).
 function buildSupabaseClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
@@ -76,75 +77,23 @@ function buildSupabaseClient() {
   return createClient(url, key);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function fetchFeedPage(db: any, teamSlug: string | null, offset: number): Promise<FeedItem[]> {
-  const items: FeedItem[] = [];
+interface FeedResponse {
+  items: FeedItem[];
+  hasMore: boolean;
+  gated: boolean;
+}
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let articlesQ: any = db
-    .from("articles")
-    .select("id, title, summary, source_name, published_at, slug, url_hash, is_athopia_generated")
-    .eq("status", "published")
-    .eq("sport", "football")
-    .order("published_at", { ascending: false })
-    .range(offset, offset + PAGE_SIZE - 1);
-
-  if (teamSlug) {
-    articlesQ = articlesQ.contains("team_tags", [teamSlug]);
-  }
-
-  const threadsQ = db
-    .from("forum_threads")
-    .select("id, title, content, author_name, created_at, team_id")
-    .order("created_at", { ascending: false })
-    .range(offset, offset + PAGE_SIZE - 1);
-
-  const podcastsQ = db
-    .from("podcasts")
-    .select("id, title, show_name, published_at")
-    .order("published_at", { ascending: false })
-    .range(offset, offset + PAGE_SIZE - 1);
-
-  const [artRes, thrRes, podRes] = await Promise.all([articlesQ, threadsQ, podcastsQ]);
-
-  for (const a of (artRes.data ?? []) as any[]) {
-    const articleSlug = (a.slug as string | null) ?? (a.url_hash as string | null) ?? (a.id as string);
-    items.push({
-      id: `article-${a.id as string}`,
-      type: (a.is_athopia_generated as boolean) ? "summary" : "news",
-      title: a.title as string,
-      subtitle: a.summary as string | undefined,
-      source: a.source_name as string | undefined,
-      time: a.published_at as string,
-      href: `/artikel/${articleSlug}`,
-    });
-  }
-
-  for (const t of (thrRes.data ?? []) as any[]) {
-    items.push({
-      id: `thread-${t.id}`,
-      type: "forum",
-      title: t.title,
-      subtitle: t.content?.slice(0, 80),
-      source: t.author_name,
-      time: t.created_at,
-      href: `/forum/${t.team_id ?? ""}`,
-    });
-  }
-
-  for (const p of (podRes.data ?? []) as any[]) {
-    items.push({
-      id: `podcast-${p.id}`,
-      type: "podcast",
-      title: p.title,
-      source: p.show_name,
-      time: p.published_at,
-      href: `/podcast/${p.id}`,
-    });
-  }
-
-  items.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
-  return items.slice(0, PAGE_SIZE);
+async function fetchFeedPage(teamSlug: string | null, offset: number): Promise<FeedResponse> {
+  const qs = new URLSearchParams({ offset: String(offset) });
+  if (teamSlug) qs.set("team", teamSlug);
+  const res = await fetch(`/api/feed?${qs.toString()}`, { cache: "no-store" });
+  if (!res.ok) return { items: [], hasMore: false, gated: false };
+  const data = (await res.json()) as Partial<FeedResponse>;
+  return {
+    items: data.items ?? [],
+    hasMore: data.hasMore ?? false,
+    gated: data.gated ?? false,
+  };
 }
 
 export function FeedClient() {
@@ -155,21 +104,19 @@ export function FeedClient() {
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [newCount, setNewCount] = useState(0);
+  const [gated, setGated] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const dbRef = useRef<any>(null);
 
   const load = useCallback(
     async (reset = false) => {
-      const db = buildSupabaseClient();
-      if (!db) { setLoading(false); return; }
-      dbRef.current = db;
-
       const currentOffset = reset ? 0 : offset;
       if (reset) setLoading(true);
       else setLoadingMore(true);
 
-      const newItems = await fetchFeedPage(db, isLoaded ? slug : null, currentOffset);
+      const { items: newItems, hasMore: more, gated: isGated } = await fetchFeedPage(
+        isLoaded ? slug : null,
+        currentOffset
+      );
 
       if (reset) {
         setItems(newItems);
@@ -178,13 +125,13 @@ export function FeedClient() {
       } else {
         setItems((prev) => {
           const ids = new Set(prev.map((i) => i.id));
-          const merged = [...prev, ...newItems.filter((i) => !ids.has(i.id))];
-          return merged;
+          return [...prev, ...newItems.filter((i) => !ids.has(i.id))];
         });
         setOffset((o) => o + newItems.length);
       }
 
-      setHasMore(newItems.length === PAGE_SIZE);
+      setGated(isGated);
+      setHasMore(more && !isGated);
       setLoading(false);
       setLoadingMore(false);
     },
@@ -260,9 +207,13 @@ export function FeedClient() {
           ))}
         </div>
       ) : items.length === 0 ? (
-        <div className="text-center py-20 text-muted-foreground">
-          <p className="text-sm">Inga items i feeden ännu.</p>
-        </div>
+        gated ? (
+          <UpgradePrompt feature="unlimitedFeed" />
+        ) : (
+          <div className="text-center py-20 text-muted-foreground">
+            <p className="text-sm">Inga items i feeden ännu.</p>
+          </div>
+        )
       ) : (
         <div className="flex flex-col gap-3">
           {items.map((item) => (
@@ -279,7 +230,13 @@ export function FeedClient() {
         </div>
       )}
 
-      {!hasMore && items.length > 0 && (
+      {gated && items.length > 0 && (
+        <div className="py-4">
+          <UpgradePrompt feature="unlimitedFeed" />
+        </div>
+      )}
+
+      {!hasMore && !gated && items.length > 0 && (
         <p className="text-center text-xs text-muted-foreground py-4">Inga fler items</p>
       )}
     </div>
