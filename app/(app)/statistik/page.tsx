@@ -356,12 +356,26 @@ export default async function StatistikPage({
             <h1 className="font-heading text-5xl text-foreground">STATISTIK</h1>
             <p className="text-muted-foreground mt-1 text-sm">Allsvenskan {sasong}</p>
           </div>
-          <Link
-            href="/statistik/jamfor"
-            className="px-4 py-2 rounded-lg border border-[#1D9E75] text-[#1D9E75] text-sm font-medium hover:bg-[#1D9E75]/10 transition-colors"
-          >
-            Jämför lag →
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/statistik/scout"
+              className="px-4 py-2 rounded-lg border border-[#1D9E75] text-[#1D9E75] text-sm font-medium hover:bg-[#1D9E75]/10 transition-colors"
+            >
+              Scout Mode →
+            </Link>
+            <Link
+              href="/statistik/spelare"
+              className="px-4 py-2 rounded-lg border border-border text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Jämför spelare →
+            </Link>
+            <Link
+              href="/statistik/jamfor"
+              className="px-4 py-2 rounded-lg border border-border text-sm font-medium text-muted-foreground hover:text-foreground transition-colors hidden sm:inline-block"
+            >
+              Jämför lag →
+            </Link>
+          </div>
         </div>
         <Suspense fallback={<TabSkeleton />}>{tabContent}</Suspense>
       </div>
