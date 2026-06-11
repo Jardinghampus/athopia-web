@@ -4,7 +4,7 @@ import { Telescope } from "lucide-react";
 import { getScoutPool } from "@/lib/team-hub/scout";
 import { ScoutClient } from "./ScoutClient";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Scout Mode | Athopia",

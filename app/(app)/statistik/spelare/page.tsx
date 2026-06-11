@@ -4,7 +4,7 @@ import { Users } from "lucide-react";
 import { getScoutPool } from "@/lib/team-hub/scout";
 import { PlayerCompareClient } from "./PlayerCompareClient";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Spelarjämförelse | Athopia",

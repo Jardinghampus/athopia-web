@@ -10,6 +10,8 @@
  */
 
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import { getTeamNews, getTeamThreads } from "@/lib/dashboard/queries";
+import type { DashArticle, DashThread } from "@/lib/dashboard/types";
 
 export const SEASON_2026 = 26806;
 const SPORT = "football";
@@ -127,6 +129,72 @@ export function deriveForm(recent: FixtureRow[], teamSmId: number): ("W" | "D" |
       const ga = (isHome ? f.away_score : f.home_score) ?? 0;
       return gf > ga ? "W" : gf === ga ? "D" : "L";
     });
+}
+
+// ── Aggregerad hub-payload (för interaktiv dashboard + API) ───────────────────
+
+export interface TeamHubPayload {
+  team: { id: string; name: string; slug: string; logo_url: string | null; sportsmonks_id: number | null };
+  position: number | null;
+  stats: TeamSeasonRow | null;
+  form: ("W" | "D" | "L")[];
+  radar: { metric: string; value: number; raw: number }[];
+  topScorers: LeaderRow[];
+  topAssists: LeaderRow[];
+  squad: LeaderRow[];
+  recent: FixtureRow[];
+  upcoming: FixtureRow[];
+  news: DashArticle[];
+  threads: DashThread[];
+}
+
+const RADAR_DEF: { key: keyof TeamSeasonRow; label: string; invert?: boolean }[] = [
+  { key: "goals_for", label: "Anfall" },
+  { key: "goals_against", label: "Försvar", invert: true },
+  { key: "points", label: "Poäng" },
+  { key: "xg", label: "xG" },
+  { key: "possession", label: "Boll%" },
+  { key: "goal_diff", label: "Målskillnad" },
+];
+
+/** Hämtar och aggregerar hela hub-payloaden för ett lag (slug). */
+export async function getTeamHub(slug: string): Promise<TeamHubPayload | null> {
+  if (!isSupabaseConfigured()) return null;
+  const db = createServerClient();
+  const { data } = await db.from("entities").select("*").eq("type", "team").eq("slug", slug).maybeSingle();
+  if (!data) return null;
+  const meta = (data.metadata ?? {}) as Record<string, unknown>;
+  const smId = (meta.sportsmonks_id as number | null) ?? null;
+  const team = {
+    id: String(data.id),
+    name: String(data.name),
+    slug: String(data.slug),
+    logo_url: (meta.logo_url as string | null) ?? null,
+    sportsmonks_id: smId,
+  };
+
+  const [news, threads] = await Promise.all([getTeamNews(slug), getTeamThreads(team.id)]);
+
+  if (!smId) {
+    return { team, position: null, stats: null, form: [], radar: [], topScorers: [], topAssists: [], squad: [], recent: [], upcoming: [], news, threads };
+  }
+
+  const [league, leaders, fixtures] = await Promise.all([
+    getLeagueSeasonStats(),
+    getTeamLeaders(smId),
+    getTeamFixtures(smId),
+  ]);
+
+  const stats = league.find((t) => t.team_id === smId) ?? null;
+  const sorted = [...league].sort((a, b) => (b.points - a.points) || (b.goal_diff - a.goal_diff));
+  const position = stats?.position ?? (stats ? sorted.findIndex((t) => t.team_id === smId) + 1 : null);
+  const form = deriveForm(fixtures.recent, smId);
+  const radar = stats ? normalizeAgainstLeague(league, stats, RADAR_DEF) : [];
+  const topScorers = [...leaders].sort((a, b) => b.goals - a.goals).slice(0, 5);
+  const topAssists = [...leaders].sort((a, b) => b.assists - a.assists).slice(0, 5);
+  const squad = [...leaders].sort((a, b) => b.appearances - a.appearances);
+
+  return { team, position, stats, form, radar, topScorers, topAssists, squad, recent: fixtures.recent, upcoming: fixtures.upcoming, news, threads };
 }
 
 /** z-score-normalisering → 0–100-skala, för radar-profilering mot ligan. */
