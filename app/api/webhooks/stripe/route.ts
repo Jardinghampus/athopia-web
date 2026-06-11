@@ -60,15 +60,17 @@ export async function POST(req: Request) {
         break;
       }
 
+      const plan = session.metadata?.plan === "elite" ? "elite" : "pro";
+
       await clerk.users.updateUserMetadata(clerkUserId, {
         publicMetadata: {
-          plan: "pro",
+          plan,
           stripeCustomerId: session.customer as string,
           stripeSubscriptionId: session.subscription as string,
         },
       });
 
-      console.log(`[stripe-webhook] PRO aktiverat för ${clerkUserId}`);
+      console.log(`[stripe-webhook] ${plan.toUpperCase()} aktiverat för ${clerkUserId}`);
       break;
     }
 
@@ -94,15 +96,25 @@ export async function POST(req: Request) {
     }
 
     case "customer.subscription.updated": {
-      // Hantera pauser, status-ändringar etc om nödvändigt
       const subscription = event.data.object as Stripe.Subscription;
-      if (subscription.status === "past_due" || subscription.status === "unpaid") {
-        const clerkUserId = subscription.metadata?.clerkUserId;
-        if (clerkUserId) {
-          await clerk.users.updateUserMetadata(clerkUserId, {
-            publicMetadata: { plan: "free" },
-          });
-        }
+      const clerkUserId = subscription.metadata?.clerkUserId;
+      if (!clerkUserId) break;
+
+      if (
+        subscription.status === "past_due" ||
+        subscription.status === "unpaid" ||
+        subscription.status === "canceled"
+      ) {
+        // Nedgradera vid utebliven betalning / avslut
+        await clerk.users.updateUserMetadata(clerkUserId, {
+          publicMetadata: { plan: "free" },
+        });
+      } else if (subscription.status === "active" || subscription.status === "trialing") {
+        // Synka plan (t.ex. PRO → Elite-byte) från subscription-metadata
+        const plan = subscription.metadata?.plan === "elite" ? "elite" : "pro";
+        await clerk.users.updateUserMetadata(clerkUserId, {
+          publicMetadata: { plan },
+        });
       }
       break;
     }

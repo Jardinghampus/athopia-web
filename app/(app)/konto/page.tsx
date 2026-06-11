@@ -42,17 +42,20 @@ export default async function KontoPage({
 }: {
   searchParams: Promise<{ checkout?: string }>;
 }) {
-  const { userId, sessionClaims } = await auth();
+  const { userId } = await auth();
   const user = await currentUser();
-  const meta = sessionClaims?.publicMetadata as {
-    subscriptionTier?: string;
+  // Källa: publicMetadata.plan (sätts av Stripe-webhooken). INTE subscriptionTier.
+  const meta = (user?.publicMetadata ?? {}) as {
+    plan?: string;
     stripeCustomerId?: string;
   };
 
-  const isPro = meta?.subscriptionTier === "pro";
+  const plan = meta.plan ?? "free";
+  const isPaid = plan === "pro" || plan === "elite";
+  const planLabel = plan === "elite" ? "ELITE" : plan === "pro" ? "PRO" : "GRATIS";
   const { checkout } = await searchParams;
 
-  const portalUrl = meta?.stripeCustomerId
+  const portalUrl = meta.stripeCustomerId
     ? await getBillingPortalUrl(meta.stripeCustomerId)
     : null;
 
@@ -62,7 +65,7 @@ export default async function KontoPage({
       {checkout === "success" && (
         <div className="mb-8 p-4 rounded-xl border border-pitch/40 bg-pitch/10 text-pitch text-sm flex items-center gap-2">
           <Check className="w-4 h-4" />
-          Välkommen till PRO! Din prenumeration är nu aktiv.
+          Välkommen! Din prenumeration är nu aktiv.
         </div>
       )}
 
@@ -99,9 +102,9 @@ export default async function KontoPage({
           <div>
             <p className="text-sm text-muted-foreground mb-1">Nuvarande plan</p>
             <div className="flex items-center gap-2">
-              {isPro ? (
+              {isPaid ? (
                 <>
-                  <span className="font-heading text-xl text-pitch">PRO</span>
+                  <span className="font-heading text-xl text-pitch">{planLabel}</span>
                   <span className="text-xs px-2 py-0.5 rounded-full pitch-gradient text-white">
                     Aktiv
                   </span>
@@ -112,7 +115,7 @@ export default async function KontoPage({
             </div>
           </div>
 
-          {isPro && portalUrl ? (
+          {isPaid && portalUrl ? (
             <a
               href={portalUrl}
               className="text-sm px-4 py-2 rounded-xl border border-border hover:border-pitch/40 text-muted-foreground hover:text-foreground transition-colors"
@@ -124,12 +127,12 @@ export default async function KontoPage({
               href="/prenumerera"
               className="text-sm px-4 py-2 rounded-xl pitch-gradient text-white font-medium hover:opacity-90 transition-opacity"
             >
-              Uppgradera till PRO
+              {isPaid ? "Byt plan" : "Uppgradera"}
             </a>
           )}
         </div>
 
-        {isPro && (
+        {isPaid && (
           <>
             <Separator className="my-4" />
             <ul className="space-y-2 text-sm text-muted-foreground">

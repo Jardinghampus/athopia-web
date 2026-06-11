@@ -1,34 +1,55 @@
 /**
  * app/api/create-checkout/route.ts
  * ─────────────────────────────────────────────────────────────────────────────
- * Skapar en Stripe Checkout Session för Athopia PRO.
+ * Skapar en Stripe Checkout Session för Athopia PRO/Elite.
  *
  * Beslut:
- * - Pris: 3900 öre (39 SEK) / månad, recurring subscription.
- * - success_url → /konto?checkout=success
- * - cancel_url  → /prenumerera
- * - Clerk userId skickas som client_reference_id för webhook-mappning.
+ * - Plan (pro/elite) + intervall (month/year) kommer från request-body, valideras
+ *   mot lib/pricing.ts. Pris byggs via inline price_data (inga Stripe Price-ID:n
+ *   behövs i dashboarden).
+ * - clerkUserId + plan + interval sparas i metadata → webhooken sätter rätt plan.
+ * - success_url → /konto?checkout=success, cancel_url → /prenumerera.
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
 import { auth } from "@clerk/nextjs/server";
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
+import {
+  PRICING,
+  amountFor,
+  isPaidPlan,
+  isBillingInterval,
+  type PaidPlan,
+  type BillingInterval,
+} from "@/lib/pricing";
 
-export async function POST() {
+export async function POST(req: Request) {
   // Lazy-init Stripe för att undvika build-time env-krav
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: "2026-04-22.dahlia",
   });
   const { userId } = await auth();
 
-  // Kräv att användaren är inloggad
   if (!userId) {
     return NextResponse.json(
       { error: "Du måste vara inloggad för att prenumerera." },
       { status: 401 }
     );
   }
+
+  // Defaults: PRO månadsvis. Body kan override:a.
+  let plan: PaidPlan = "pro";
+  let interval: BillingInterval = "month";
+  try {
+    const body = (await req.json()) as { plan?: unknown; interval?: unknown };
+    if (isPaidPlan(body.plan)) plan = body.plan;
+    if (isBillingInterval(body.interval)) interval = body.interval;
+  } catch {
+    // Ingen/ogiltig body → behåll defaults
+  }
+
+  const planMeta = PRICING[plan];
 
   try {
     const session = await stripe.checkout.sessions.create({
@@ -39,25 +60,25 @@ export async function POST() {
           price_data: {
             currency: "sek",
             product_data: {
-              name: "Athopia PRO",
-              description: "Fullständiga transkript, AI-analys och exklusivt innehåll.",
-              images: ["https://athopia.se/og-default.png"],
+              name: `Athopia ${planMeta.label}`,
+              description:
+                interval === "year"
+                  ? `${planMeta.label}-prenumeration, årsvis (25 % rabatt)`
+                  : `${planMeta.label}-prenumeration, månadsvis`,
             },
-            unit_amount: 3900, // 39.00 SEK i öre
-            recurring: { interval: "month" },
+            unit_amount: amountFor(plan, interval),
+            recurring: { interval },
           },
           quantity: 1,
         },
       ],
-      // Koppla Clerk user till Stripe session
       client_reference_id: userId,
-      // Sparas i metadata för webhook-hantering
-      metadata: { clerkUserId: userId },
+      // Sparas för webhook-hantering (sätter rätt plan i Clerk)
+      metadata: { clerkUserId: userId, plan, interval },
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/konto?checkout=success`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/prenumerera`,
-      // Billing-portal aktivas automatiskt
       subscription_data: {
-        metadata: { clerkUserId: userId },
+        metadata: { clerkUserId: userId, plan, interval },
       },
     });
 

@@ -2,22 +2,35 @@
 
 /**
  * CheckoutButton — Client Component
- * Initierar Stripe Checkout Session via /api/create-checkout.
+ * Initierar Stripe Checkout Session via /api/create-checkout för en given
+ * plan (pro/elite) + intervall (month/year).
  */
 
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
+import type { PaidPlan, BillingInterval } from "@/lib/pricing";
 
-export function CheckoutButton() {
+interface Props {
+  plan: PaidPlan;
+  interval: BillingInterval;
+  label: string;
+  variant?: "primary" | "outline";
+}
+
+export function CheckoutButton({ plan, interval, label, variant = "primary" }: Props) {
   const [loading, setLoading] = useState(false);
 
   async function handleCheckout() {
     setLoading(true);
     try {
-      const res = await fetch("/api/create-checkout", { method: "POST" });
+      const res = await fetch("/api/create-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan, interval }),
+      });
       const { url, error } = await res.json();
 
-      if (error) {
+      if (error || !url) {
         alert("Något gick fel. Försök igen.");
         return;
       }
@@ -30,12 +43,17 @@ export function CheckoutButton() {
     }
   }
 
+  const styles =
+    variant === "primary"
+      ? "pitch-gradient text-white hover:opacity-90"
+      : "border border-pitch/40 text-foreground hover:border-pitch";
+
   return (
     <button
       onClick={handleCheckout}
       disabled={loading}
-      className="w-full h-11 rounded-xl pitch-gradient text-white font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-60 flex items-center justify-center gap-2"
-      aria-label="Starta PRO-prenumeration"
+      className={`w-full h-11 rounded-xl font-medium text-sm transition-opacity disabled:opacity-60 flex items-center justify-center gap-2 ${styles}`}
+      aria-label={`Starta ${plan}-prenumeration`}
     >
       {loading ? (
         <>
@@ -43,7 +61,7 @@ export function CheckoutButton() {
           Laddar…
         </>
       ) : (
-        "Starta PRO — 39 kr/mån"
+        label
       )}
     </button>
   );
