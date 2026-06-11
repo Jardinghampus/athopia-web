@@ -364,3 +364,34 @@ export async function getAgentLogs(limit = 100): Promise<AgentLog[]> {
     return [];
   }
 }
+
+// ── NewsStream (content_queue RSS-signaler) ────────────────────────────────────
+import type { NewsSignal } from "@/lib/types";
+
+export async function getNewsStream(opts: {
+  sport?: string;
+  limit?: number;
+  orderBy?: "signal_score" | "published_at";
+}): Promise<NewsSignal[]> {
+  if (!isSupabaseConfigured()) return [];
+  const { sport = "football", limit = 20, orderBy = "published_at" } = opts;
+  try {
+    const supabase = createServerClient();
+    let q = supabase
+      .from("content_queue")
+      .select("id, source_name, source_url, signal_score, importance_tier, content, created_at")
+      .eq("sport", sport)
+      .eq("status", "classified")
+      .eq("content_type", "rss_signal")
+      .limit(limit);
+
+    q = orderBy === "signal_score"
+      ? q.order("signal_score", { ascending: false })
+      : q.order("created_at", { ascending: false });
+
+    const { data } = await q;
+    return (data ?? []) as NewsSignal[];
+  } catch {
+    return [];
+  }
+}

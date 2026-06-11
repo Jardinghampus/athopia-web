@@ -54,6 +54,15 @@ export function OnboardingClient() {
     setSaving(true);
     if (selected) {
       await setFavoriteTeam(selected);
+      // Hitta team-id för user_feed_config
+      const team = teams.find((t) => (t.slug ?? t.id) === selected);
+      if (team) {
+        await fetch("/api/feed/config", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ followed_team_ids: [team.id] }),
+        }).catch(() => {});
+      }
     } else {
       markOnboardingDone();
     }

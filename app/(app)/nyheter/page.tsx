@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { ArticleCard, ArticleCardSkeleton } from "@/components/ui/ArticleCard";
+import { ArticleCard } from "@/components/ui/ArticleCard";
 import { NewsFilterPanel } from "@/components/ui/NewsFilterPanel";
 import { NyheterRealtimeBanner } from "@/components/NyheterRealtimeBanner";
+import { NewsStream } from "@/components/news/NewsStream";
 import { getFilteredArticles, getActiveSources } from "@/lib/supabase";
 
 export const dynamic = 'force-dynamic';
@@ -102,7 +103,6 @@ export default async function NyheterPage({
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
-      {/* WEB-30: Realtime-banner — dyker upp när nya artiklar publiceras */}
       <NyheterRealtimeBanner />
 
       <div className="mb-8">
@@ -110,6 +110,14 @@ export default async function NyheterPage({
         <p className="text-muted-foreground mt-2 text-sm">
           {total > 0 ? `${total} artiklar` : "Inga artiklar"} — filtrera per lag, källa eller eventtyp.
         </p>
+      </div>
+
+      {/* NewsStream — RSS-signaler från content_queue (revalidate 30s) */}
+      <div className="mb-10">
+        <h2 className="text-xs font-semibold uppercase tracking-widest text-zinc-500 mb-3">Senaste signaler</h2>
+        <Suspense fallback={<div className="h-40 rounded-xl bg-zinc-900 animate-pulse" />}>
+          <NewsStream sport="football" />
+        </Suspense>
       </div>
 
       <div className="flex gap-8 items-start">

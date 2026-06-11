@@ -62,7 +62,7 @@ export async function POST(req: Request) {
 
       await clerk.users.updateUserMetadata(clerkUserId, {
         publicMetadata: {
-          subscriptionTier: "pro",
+          plan: "pro",
           stripeCustomerId: session.customer as string,
           stripeSubscriptionId: session.subscription as string,
         },
@@ -84,7 +84,7 @@ export async function POST(req: Request) {
 
       await clerk.users.updateUserMetadata(clerkUserId, {
         publicMetadata: {
-          subscriptionTier: "free",
+          plan: "free",
           stripeSubscriptionId: null,
         },
       });
@@ -100,7 +100,7 @@ export async function POST(req: Request) {
         const clerkUserId = subscription.metadata?.clerkUserId;
         if (clerkUserId) {
           await clerk.users.updateUserMetadata(clerkUserId, {
-            publicMetadata: { subscriptionTier: "free" },
+            publicMetadata: { plan: "free" },
           });
         }
       }

@@ -99,6 +99,21 @@ export interface ContentQueueItem {
   meta?: Record<string, unknown> | null;
 }
 
+export interface NewsSignal {
+  id: string;
+  source_name: string | null;
+  source_url: string | null;
+  signal_score: number | null;
+  importance_tier: "breaking" | "major" | "normal" | "noise" | null;
+  content: {
+    title: string;
+    link: string;
+    published_at: string | null;
+    snippet: string | null;
+  };
+  created_at: string;
+}
+
 export interface Team {
   id: number;
   name: string;

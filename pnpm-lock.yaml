@@ -59,6 +59,9 @@ importers:
       stripe:
         specifier: ^22.1.1
         version: 22.1.1(@types/node@20.19.41)
+      svix:
+        specifier: ^1.95.2
+        version: 1.95.2
       swr:
         specifier: ^2.4.1
         version: 2.4.1(react@19.2.4)
@@ -2201,6 +2204,9 @@ packages:
         optional: true
       babel-plugin-macros:
         optional: true
+
+  svix@1.95.2:
+    resolution: {integrity: sha512-i2gDtqABKQritWlFOxQHr+Oa63PBQ3q1oUhwhNwJgH+Xi0NjgWz5o6nd+8EwgNFGrH6UOe3wjKZtbZmjVn9r8w==}
 
   swr@2.4.1:
     resolution: {integrity: sha512-2CC6CiKQtEwaEeNiqWTAw9PGykW8SR5zZX8MZk6TeAvEAnVS7Visz8WzphqgtQ8v2xz/4Q5K+j+SeMaKXeeQIA==}
@@ -4355,6 +4361,10 @@ snapshots:
       react: 19.2.4
     optionalDependencies:
       '@babel/core': 7.29.7
+
+  svix@1.95.2:
+    dependencies:
+      standardwebhooks: 1.0.0
 
   swr@2.4.1(react@19.2.4):
     dependencies:
