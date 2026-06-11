@@ -40,13 +40,23 @@ export function OnboardingClient() {
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
     if (!url || !key) return;
     const db = createClient(url, key);
+    // Filtrerar till lag som deltar i Allsvenskan 2026 via sportsmonks_id
+    const ALLSVENSKAN_2026_IDS = new Set(
+      [354, 411, 432, 443, 532, 720, 1226, 1777, 1870, 2353, 2535, 2678, 2753, 2825, 3285, 8671].map(String)
+    );
     void db
       .from("entities")
       .select("id, name, slug, metadata")
       .eq("type", "team")
       .order("name")
       .then(({ data }) => {
-        if (data) setTeams(data as Team[]);
+        if (data) {
+          const filtered = (data as Team[]).filter((t) => {
+            const smId = String((t.metadata?.["sportsmonks_id"] as number | undefined) ?? "");
+            return ALLSVENSKAN_2026_IDS.has(smId);
+          });
+          setTeams(filtered.length > 0 ? filtered : (data as Team[]));
+        }
       });
   }, []);
 
