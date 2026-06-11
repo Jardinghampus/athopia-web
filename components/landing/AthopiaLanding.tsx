@@ -3,6 +3,8 @@
 import { useRef, ReactNode } from "react";
 import { motion, useInView, useReducedMotion } from "motion/react";
 import Link from "next/link";
+import { formatDistanceToNow } from "date-fns";
+import { sv } from "date-fns/locale";
 import {
   Newspaper,
   BarChart3,
@@ -14,7 +16,38 @@ import {
   MapPin,
   ArrowRight,
   Check,
+  Home,
+  Trophy,
+  CreditCard,
+  LogIn,
+  UserPlus,
+  Zap,
+  TrendingUp,
+  Sparkles,
 } from "lucide-react";
+import { AnimatedHero } from "@/components/ui/animated-hero";
+import { NavBar } from "@/components/ui/tubelight-navbar";
+import { ExpandableTabs, type TabItem } from "@/components/ui/expandable-tabs";
+import DisplayCards, { type DisplayCardProps } from "@/components/ui/display-cards";
+import { BentoGrid, type BentoItem } from "@/components/ui/bento-grid";
+import { LoadingSourcesCard } from "@/components/landing/LoadingSourcesCard";
+
+export interface LandingArticle {
+  id: string;
+  slug: string;
+  title: string;
+  summary: string;
+  sourceName: string;
+  publishedAt: string;
+}
+
+function relativeTime(iso: string): string {
+  try {
+    return formatDistanceToNow(new Date(iso), { locale: sv, addSuffix: true });
+  } catch {
+    return "";
+  }
+}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -61,11 +94,17 @@ function Label({ children }: { children: ReactNode }) {
 
 // ── Root ──────────────────────────────────────────────────────────────────────
 
-export default function AthopiaLanding() {
+export default function AthopiaLanding({
+  articles = [],
+}: {
+  articles?: LandingArticle[];
+}) {
   return (
-    <div className="bg-[#0A0A0A] text-white min-h-screen font-sans overflow-x-hidden">
+    <div className="bg-[#0A0A0A] text-white min-h-screen w-full font-sans overflow-x-clip">
       <SiteNav />
-      <Hero />
+      <HeroSection articles={articles} />
+      <AiSourcesSection />
+      <NewsSection articles={articles} />
       <Pain />
       <ValueProp />
       <HowItWorks />
@@ -81,11 +120,28 @@ export default function AthopiaLanding() {
 
 // ── 1. NAV ────────────────────────────────────────────────────────────────────
 
+const desktopNavItems = [
+  { name: "Hem", url: "/", icon: Home },
+  { name: "Allsvenskan", url: "/allsvenskan", icon: Trophy },
+  { name: "Nyheter", url: "/nyheter", icon: Newspaper },
+  { name: "Priser", url: "/priser", icon: CreditCard },
+];
+
+const mobileTabs: TabItem[] = [
+  { title: "Hem", icon: Home, href: "/" },
+  { title: "Nyheter", icon: Newspaper, href: "/nyheter" },
+  { title: "Allsvenskan", icon: Trophy, href: "/allsvenskan" },
+  { type: "separator" },
+  { title: "Logga in", icon: LogIn, href: "/sign-in" },
+  { title: "Skapa konto", icon: UserPlus, href: "/sign-up" },
+];
+
 function SiteNav() {
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/[0.06] bg-[#0A0A0A]/80 backdrop-blur-xl">
-      <Container>
-        <nav className="flex items-center justify-between h-16">
+    <>
+      {/* Toppbar: logo + auth. Tubelight-glasnav centrerad på laptop/ipad. */}
+      <header className="fixed top-0 inset-x-0 z-50">
+        <div className="relative flex items-center justify-between px-5 md:px-10 pt-4">
           <Link
             href="/"
             className="font-heading text-2xl tracking-widest text-white hover:text-pitch transition-colors duration-200"
@@ -93,47 +149,80 @@ function SiteNav() {
             ATHOPIA
           </Link>
 
-          <div className="hidden md:flex items-center gap-8">
-            {[
-              { label: "Allsvenskan", href: "/allsvenskan" },
-              { label: "Nyheter", href: "/nyheter" },
-              { label: "Priser", href: "/priser" },
-            ].map(({ label, href }) => (
-              <Link
-                key={href}
-                href={href}
-                className="text-sm text-white/55 hover:text-white transition-colors duration-200"
-              >
-                {label}
-              </Link>
-            ))}
-          </div>
+          <NavBar
+            items={desktopNavItems}
+            className="hidden md:block absolute left-1/2 -translate-x-1/2 top-4"
+          />
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <Link
               href="/sign-in"
-              className="hidden md:inline-flex text-sm text-white/60 hover:text-white border border-white/15 hover:border-white/35 rounded-lg px-4 py-2 transition-all duration-200"
+              className="hidden md:inline-flex min-h-11 items-center text-sm text-white/70 hover:text-white border border-white/[0.14] bg-white/[0.05] backdrop-blur-2xl rounded-full px-5 py-2.5 transition-all duration-200 hover:border-white/35"
             >
               Logga in
             </Link>
             <Link
-              href="/onboarding"
-              className="inline-flex items-center gap-1.5 text-sm font-bold bg-pitch text-black rounded-lg px-4 py-2 hover:scale-[1.02] active:scale-[0.98] transition-transform duration-200"
+              href="/sign-up"
+              className="inline-flex min-h-11 items-center gap-1.5 text-sm font-bold bg-pitch text-black rounded-full px-5 py-2.5 hover:scale-[1.02] active:scale-[0.98] transition-transform duration-200"
             >
-              Börja gratis
+              Skapa konto
             </Link>
           </div>
-        </nav>
-      </Container>
-    </header>
+        </div>
+      </header>
+
+      {/* Mobil: app-tabbar längst ner, native-känsla med safe-area */}
+      <div
+        className="md:hidden fixed bottom-0 inset-x-0 z-50 px-3"
+        style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 0.5rem)" }}
+      >
+        <ExpandableTabs tabs={mobileTabs} />
+      </div>
+    </>
   );
 }
 
 // ── 2. HERO ───────────────────────────────────────────────────────────────────
 
-function Hero() {
+function HeroSection({ articles }: { articles: LandingArticle[] }) {
+  const newsCards: DisplayCardProps[] =
+    articles.length >= 3
+      ? articles.slice(0, 3).map((a, i) => ({
+          icon:
+            i === 0 ? (
+              <Sparkles className="size-4 text-pitch-light" />
+            ) : i === 1 ? (
+              <Zap className="size-4 text-pitch-light" />
+            ) : (
+              <Newspaper className="size-4 text-pitch-light" />
+            ),
+          title: a.sourceName,
+          description: a.title,
+          date: relativeTime(a.publishedAt),
+        }))
+      : [
+          {
+            icon: <Sparkles className="size-4 text-pitch-light" />,
+            title: "Athopia AI",
+            description: "Dagens sammanfattning är klar",
+            date: "Just nu",
+          },
+          {
+            icon: <Zap className="size-4 text-pitch-light" />,
+            title: "Nyhetsflödet",
+            description: "Headlines från 40+ källor",
+            date: "Uppdateras löpande",
+          },
+          {
+            icon: <Newspaper className="size-4 text-pitch-light" />,
+            title: "Matchanalys",
+            description: "Varje omgång på djupet",
+            date: "Varje vecka",
+          },
+        ];
+
   return (
-    <section className="relative pt-36 pb-[120px] overflow-hidden">
+    <section className="relative w-full overflow-hidden">
       {/* Ambient radial glow */}
       <div
         aria-hidden
@@ -144,123 +233,107 @@ function Hero() {
         }}
       />
 
-      <Container className="relative z-10">
-        <div className="max-w-[800px]">
+      <div className="relative z-10">
+        <AnimatedHero />
+
+        {/* Nyheter som poppar in — stackade kort */}
+        <Reveal className="flex justify-center px-6 pb-36 pt-4">
+          <div className="-translate-x-6 sm:-translate-x-12">
+            <DisplayCards cards={newsCards} />
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+// ── 2b. ATHOPIA AI — källor → analys ─────────────────────────────────────────
+
+function AiSourcesSection() {
+  return (
+    <section className="py-[120px] border-t border-white/[0.06]">
+      <Container>
+        <div className="text-center mb-16">
           <Reveal>
-            <Label>Svensk fotbollsjournalistik — uppgraderad</Label>
+            <Label>Athopia AI</Label>
           </Reveal>
-
           <Reveal delay={0.08}>
-            <h1
-              className="font-heading leading-[0.92] tracking-wide mt-5 mb-6"
-              style={{ fontSize: "clamp(3.75rem, 11vw, 9rem)" }}
-            >
-              Fotboll som
+            <h2 className="font-heading leading-[1.08] mt-5 text-display-lg">
+              Från 40+ källor.
               <br />
-              <span className="text-pitch">känns på riktigt.</span>
-            </h1>
-          </Reveal>
-
-          <Reveal delay={0.16}>
-            <p className="text-white/65 text-lg md:text-xl leading-relaxed max-w-[540px] mb-10">
-              Athopia är plattformen för dig som vill mer än en tabell och tre
-              rader fakta. Djupanalys. Matchkänsla. Allsvenskan — läst som det
-              förtjänar.
-            </p>
-          </Reveal>
-
-          <Reveal delay={0.24}>
-            <div className="flex flex-col sm:flex-row gap-4 mb-10">
-              <Link
-                href="/onboarding"
-                className="inline-flex items-center justify-center gap-2 bg-pitch text-black font-bold rounded-xl px-7 py-3.5 hover:scale-[1.02] active:scale-[0.98] transition-transform duration-200 text-base"
-              >
-                Börja gratis <ArrowRight className="w-4 h-4" />
-              </Link>
-              <Link
-                href="#sa-fungerar-det"
-                className="inline-flex items-center justify-center border border-white/20 text-white rounded-xl px-7 py-3.5 hover:border-white/45 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 text-base"
-              >
-                Se hur det fungerar
-              </Link>
-            </div>
-          </Reveal>
-
-          <Reveal delay={0.32}>
-            <p className="text-white/30 text-sm">
-              Matchanalys, statistik och forum — för alla 16 lag i Allsvenskan
-            </p>
+              Till en analys.
+            </h2>
           </Reveal>
         </div>
 
-        {/* Editorial article mockup */}
-        <Reveal delay={0.14} className="mt-20">
-          <div className="relative rounded-2xl overflow-hidden border border-white/[0.07] max-w-[900px] aspect-[16/8]">
-            <div
-              className="absolute inset-0"
-              style={{
-                background: "linear-gradient(135deg, #0d1d16 0%, #0a0a0a 60%, #080f0c 100%)",
-              }}
-            />
+        <Reveal delay={0.12}>
+          <LoadingSourcesCard />
+        </Reveal>
+      </Container>
+    </section>
+  );
+}
 
-            <div className="absolute inset-0 flex flex-col p-8 md:p-12">
-              {/* Article meta row */}
-              <div className="flex items-center gap-3 mb-6">
-                <span className="bg-pitch/20 text-pitch text-[10px] font-bold px-2.5 py-1 rounded tracking-widest uppercase">
-                  Matchanalys
-                </span>
-                <span className="text-white/25 text-xs">
-                  Omgång 15 · AIK vs Hammarby · 2–1
-                </span>
-                <span className="ml-auto text-white/20 text-xs hidden sm:block">
-                  8 min läsning
-                </span>
-              </div>
+// ── 2c. SENASTE NYTT — bento ─────────────────────────────────────────────────
 
-              {/* Headline skeletons */}
-              <div className="h-7 md:h-9 bg-white/[0.08] rounded-lg w-[75%] mb-3" />
-              <div className="h-5 bg-white/[0.05] rounded w-[50%] mb-8" />
+function NewsSection({ articles }: { articles: LandingArticle[] }) {
+  if (articles.length === 0) return null;
 
-              {/* Stats row */}
-              <div className="grid grid-cols-3 gap-3 mb-6">
-                {[
-                  { key: "xG", val: "1.82" },
-                  { key: "Possession", val: "54%" },
-                  { key: "PPDA", val: "7.2" },
-                ].map(({ key, val }) => (
-                  <div
-                    key={key}
-                    className="bg-white/[0.04] rounded-xl p-4 border border-white/[0.06]"
-                  >
-                    <div className="text-pitch font-heading text-2xl md:text-3xl leading-none">
-                      {val}
-                    </div>
-                    <div className="text-white/35 text-[10px] mt-1.5 uppercase tracking-widest">
-                      {key}
-                    </div>
-                  </div>
-                ))}
-              </div>
+  const items: BentoItem[] = articles.slice(0, 4).map((a, i) => ({
+    title: a.title,
+    description: a.summary || "Läs hela analysen på Athopia.",
+    icon:
+      i === 0 ? (
+        <TrendingUp className="w-4 h-4 text-pitch" />
+      ) : (
+        <Newspaper className="w-4 h-4 text-pitch" />
+      ),
+    status: i === 0 ? "Senaste" : "Nyhet",
+    meta: relativeTime(a.publishedAt),
+    tags: [a.sourceName],
+    href: `/artikel/${a.slug}`,
+    cta: "Läs mer →",
+    colSpan: i === 0 ? 2 : i === 3 ? 2 : 1,
+    hasPersistentHover: i === 0,
+  }));
 
-              {/* Body skeletons */}
-              <div className="flex flex-col gap-2">
-                {[100, 88, 70].map((w, i) => (
-                  <div
-                    key={i}
-                    className="h-3 bg-white/[0.04] rounded"
-                    style={{ width: `${w}%` }}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Bottom vignette */}
-            <div
-              aria-hidden
-              className="absolute bottom-0 inset-x-0 h-32 pointer-events-none"
-              style={{ background: "linear-gradient(to top, #0A0A0A 0%, transparent 100%)" }}
-            />
+  return (
+    <section className="py-[120px] border-t border-white/[0.06]">
+      <Container>
+        <div className="flex items-end justify-between mb-12">
+          <div>
+            <Reveal>
+              <Label>Senaste nytt</Label>
+            </Reveal>
+            <Reveal delay={0.08}>
+              <h2 className="font-heading leading-[1.08] mt-5 text-display-lg">
+                Det här läser
+                <br />
+                fansen just nu.
+              </h2>
+            </Reveal>
           </div>
+          <Reveal delay={0.12}>
+            <Link
+              href="/nyheter"
+              className="hidden sm:flex items-center gap-1 text-sm text-pitch hover:text-pitch-light transition-colors"
+            >
+              Alla nyheter <ArrowRight className="w-4 h-4" />
+            </Link>
+          </Reveal>
+        </div>
+
+        <Reveal delay={0.1}>
+          <BentoGrid items={items} />
+        </Reveal>
+
+        <Reveal delay={0.14} className="sm:hidden mt-8 text-center">
+          <Link
+            href="/nyheter"
+            className="inline-flex items-center gap-1 text-sm text-pitch hover:text-pitch-light transition-colors"
+          >
+            Alla nyheter <ArrowRight className="w-4 h-4" />
+          </Link>
         </Reveal>
       </Container>
     </section>
@@ -300,7 +373,7 @@ function Pain() {
 
         <Reveal delay={0.08}>
           <h2
-            className="font-heading leading-none tracking-wide mt-5 mb-16 max-w-[680px]"
+            className="font-heading leading-[1.08] mt-5 mb-16 max-w-[680px]"
             style={{ fontSize: "clamp(3rem, 7vw, 5.5rem)" }}
           >
             Fotbollsnyheterna
@@ -366,7 +439,7 @@ function ValueProp() {
             </Reveal>
             <Reveal delay={0.08}>
               <h2
-                className="font-heading leading-none tracking-wide mt-5 mb-6"
+                className="font-heading leading-[1.08] mt-5 mb-6"
                 style={{ fontSize: "clamp(3rem, 6.5vw, 5.5rem)" }}
               >
                 Journalistik som
@@ -436,7 +509,7 @@ function HowItWorks() {
           </Reveal>
           <Reveal delay={0.08}>
             <h2
-              className="font-heading leading-none tracking-wide mt-5"
+              className="font-heading leading-[1.08] mt-5"
               style={{ fontSize: "clamp(3rem, 7vw, 6rem)" }}
             >
               Tre saker.
@@ -507,7 +580,7 @@ function Testimonials() {
           </Reveal>
           <Reveal delay={0.08}>
             <h2
-              className="font-heading leading-none tracking-wide mt-5"
+              className="font-heading leading-[1.08] mt-5"
               style={{ fontSize: "clamp(3rem, 7vw, 6rem)" }}
             >
               De som läser
@@ -589,7 +662,7 @@ function ForWhom() {
           </Reveal>
           <Reveal delay={0.08}>
             <h2
-              className="font-heading leading-none tracking-wide mt-5"
+              className="font-heading leading-[1.08] mt-5"
               style={{ fontSize: "clamp(3rem, 7vw, 6rem)" }}
             >
               Du vet redan
@@ -672,7 +745,7 @@ function Pricing() {
           </Reveal>
           <Reveal delay={0.08}>
             <h2
-              className="font-heading leading-none tracking-wide mt-5"
+              className="font-heading leading-[1.08] mt-5"
               style={{ fontSize: "clamp(3rem, 7vw, 6rem)" }}
             >
               Börja gratis.
@@ -774,7 +847,7 @@ function Faq() {
             </Reveal>
             <Reveal delay={0.08}>
               <h2
-                className="font-heading leading-none tracking-wide mt-5"
+                className="font-heading leading-[1.08] mt-5"
                 style={{ fontSize: "clamp(3rem, 6vw, 5rem)" }}
               >
                 Undrar du
@@ -845,7 +918,7 @@ function CtaSection() {
 
             <Reveal delay={0.08}>
               <h2
-                className="font-heading leading-none tracking-wide mt-5 mb-6"
+                className="font-heading leading-[1.08] mt-5 mb-6"
                 style={{ fontSize: "clamp(3.5rem, 9vw, 7.5rem)" }}
               >
                 Nästa omgång
@@ -904,7 +977,7 @@ const footerCols: Record<string, { label: string; href: string }[]> = {
 
 function SiteFooter() {
   return (
-    <footer className="border-t border-white/[0.06] pt-16 pb-10">
+    <footer className="border-t border-white/[0.06] pt-16 pb-32 md:pb-10">
       <Container>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-14">
           <div className="col-span-2 md:col-span-1">

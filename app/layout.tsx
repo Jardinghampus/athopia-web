@@ -1,20 +1,22 @@
 import type { Metadata, Viewport } from "next";
-import { Bebas_Neue, DM_Sans } from "next/font/google";
+import { Instrument_Serif, Lora } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
-const bebasNeue = Bebas_Neue({
+const instrumentSerif = Instrument_Serif({
   weight: "400",
+  style: ["normal", "italic"],
   subsets: ["latin"],
-  variable: "--font-bebas-neue",
+  variable: "--font-instrument-serif",
   display: "swap",
 });
 
-const dmSans = DM_Sans({
+const lora = Lora({
   subsets: ["latin"],
-  variable: "--font-dm-sans",
+  style: ["normal", "italic"],
+  variable: "--font-lora",
   display: "swap",
 });
 
@@ -61,7 +63,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const content = (
     <html
       lang="sv"
-      className={`${bebasNeue.variable} ${dmSans.variable}`}
+      className={`${instrumentSerif.variable} ${lora.variable}`}
       suppressHydrationWarning
     >
       <body className="min-h-dvh flex flex-col">
