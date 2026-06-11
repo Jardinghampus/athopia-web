@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Rss, Newspaper, BarChart3, MessageSquare, User } from "lucide-react";
+import { Star, Newspaper, BarChart3, MessageSquare, User } from "lucide-react";
 
 const ITEMS = [
-  { href: "/feed", label: "Feed", icon: Rss },
+  { href: "/mitt-lag", label: "Mitt lag", icon: Star },
   { href: "/nyheter", label: "Nyheter", icon: Newspaper },
   { href: "/statistik", label: "Statistik", icon: BarChart3 },
   { href: "/forum", label: "Forum", icon: MessageSquare },

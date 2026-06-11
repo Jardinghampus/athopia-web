@@ -23,6 +23,7 @@ import {
   deriveForm, normalizeAgainstLeague, type TeamSeasonRow, type FixtureRow,
 } from "@/lib/team-hub/queries";
 import { TeamRadar } from "@/components/team-hub/TeamRadar";
+import { TeamContextTracker } from "@/components/team-hub/TeamContextTracker";
 
 export const revalidate = 60;
 
@@ -138,6 +139,7 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+      <TeamContextTracker slug={team.slug} name={team.name} logo_url={team.logo_url} />
       {/* ── Header ─────────────────────────────────────────────── */}
       <div className="flex items-start gap-5">
         {team.logo_url && (
