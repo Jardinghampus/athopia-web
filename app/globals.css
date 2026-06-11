@@ -134,6 +134,9 @@
 
   body {
     @apply bg-background text-foreground min-h-dvh;
+    /* Skyddsnät mot horisontell scroll på mobil. clip (inte hidden) bevarar
+       position: sticky på header/bottom-nav. */
+    overflow-x: clip;
     transition: background-color 200ms ease;
   }
 
