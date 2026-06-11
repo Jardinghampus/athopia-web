@@ -17,7 +17,7 @@ import { Sidebar, DesktopSidebar, useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
-  { href: "/", label: "Hem", Icon: IconHome, exact: true },
+  { href: "/hem", label: "Hem", Icon: IconHome, exact: true },
   { href: "/nyheter", label: "Nyheter", Icon: IconNews, exact: false },
   { href: "/allsvenskan", label: "Allsvenskan", Icon: IconTrophy, exact: false },
   { href: "/match", label: "Matcher", Icon: IconCalendarEvent, exact: false },

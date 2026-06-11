@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, ReactNode } from "react";
-import { motion, useInView } from "motion/react";
+import { motion, useInView, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import {
   Newspaper,
@@ -13,6 +13,7 @@ import {
   Star,
   MapPin,
   ArrowRight,
+  Check,
 } from "lucide-react";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -28,11 +29,12 @@ function Reveal({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-60px" });
+  const reducedMotion = useReducedMotion();
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 20 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      initial={reducedMotion ? false : { opacity: 0, y: 20 }}
+      animate={reducedMotion || isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1], delay }}
       className={className}
     >
@@ -69,6 +71,8 @@ export default function AthopiaLanding() {
       <HowItWorks />
       <Testimonials />
       <ForWhom />
+      <Pricing />
+      <Faq />
       <CtaSection />
       <SiteFooter />
     </div>
@@ -90,20 +94,24 @@ function SiteNav() {
           </Link>
 
           <div className="hidden md:flex items-center gap-8">
-            {["Allsvenskan", "Fotboll", "Om oss"].map((item) => (
+            {[
+              { label: "Allsvenskan", href: "/allsvenskan" },
+              { label: "Nyheter", href: "/nyheter" },
+              { label: "Priser", href: "/priser" },
+            ].map(({ label, href }) => (
               <Link
-                key={item}
-                href="#"
+                key={href}
+                href={href}
                 className="text-sm text-white/55 hover:text-white transition-colors duration-200"
               >
-                {item}
+                {label}
               </Link>
             ))}
           </div>
 
           <div className="flex items-center gap-3">
             <Link
-              href="/konto"
+              href="/sign-in"
               className="hidden md:inline-flex text-sm text-white/60 hover:text-white border border-white/15 hover:border-white/35 rounded-lg px-4 py-2 transition-all duration-200"
             >
               Logga in
@@ -145,7 +153,7 @@ function Hero() {
           <Reveal delay={0.08}>
             <h1
               className="font-heading leading-[0.92] tracking-wide mt-5 mb-6"
-              style={{ fontSize: "clamp(4.5rem, 11vw, 9rem)" }}
+              style={{ fontSize: "clamp(3.75rem, 11vw, 9rem)" }}
             >
               Fotboll som
               <br />
@@ -167,17 +175,20 @@ function Hero() {
                 href="/onboarding"
                 className="inline-flex items-center justify-center gap-2 bg-pitch text-black font-bold rounded-xl px-7 py-3.5 hover:scale-[1.02] active:scale-[0.98] transition-transform duration-200 text-base"
               >
-                Läs dagens analys <ArrowRight className="w-4 h-4" />
+                Börja gratis <ArrowRight className="w-4 h-4" />
               </Link>
-              <button className="inline-flex items-center justify-center border border-white/20 text-white rounded-xl px-7 py-3.5 hover:border-white/45 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 text-base">
+              <Link
+                href="#sa-fungerar-det"
+                className="inline-flex items-center justify-center border border-white/20 text-white rounded-xl px-7 py-3.5 hover:border-white/45 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 text-base"
+              >
                 Se hur det fungerar
-              </button>
+              </Link>
             </div>
           </Reveal>
 
           <Reveal delay={0.32}>
             <p className="text-white/30 text-sm">
-              Läst av 12 000+ Allsvenskan-fans varje omgång
+              Matchanalys, statistik och forum — för alla 16 lag i Allsvenskan
             </p>
           </Reveal>
         </div>
@@ -417,7 +428,7 @@ const steps = [
 
 function HowItWorks() {
   return (
-    <section className="py-[120px] border-t border-white/[0.06]">
+    <section id="sa-fungerar-det" className="py-[120px] border-t border-white/[0.06] scroll-mt-16">
       <Container>
         <div className="text-center mb-20">
           <Reveal>
@@ -608,7 +619,199 @@ function ForWhom() {
   );
 }
 
-// ── 8. CTA ────────────────────────────────────────────────────────────────────
+// ── 8. PRICING ────────────────────────────────────────────────────────────────
+
+const plans = [
+  {
+    name: "Gratis",
+    price: "0 kr",
+    period: "",
+    features: ["Nyhetsflöde med headlines", "Välj lag och liga", "Läs i forumet"],
+    cta: "Börja gratis",
+    href: "/onboarding",
+    highlighted: false,
+  },
+  {
+    name: "PRO",
+    price: "89 kr",
+    period: "/mån",
+    features: [
+      "Obegränsat flöde",
+      "AI-sammanfattningar per lag och match",
+      "Smart ranking och avancerade filter",
+      "Push-notiser",
+      "Skriv i forumet",
+    ],
+    cta: "Uppgradera till PRO",
+    href: "/prenumerera",
+    highlighted: true,
+  },
+  {
+    name: "Elite",
+    price: "169 kr",
+    period: "/mån",
+    features: [
+      "Allt i PRO",
+      "Korskällsanalys av nyheter",
+      "Vad som spelar roll för ditt lag idag",
+      "Trendspaning — rykten som eskalerar",
+    ],
+    cta: "Uppgradera till Elite",
+    href: "/prenumerera",
+    highlighted: false,
+  },
+];
+
+function Pricing() {
+  return (
+    <section className="py-[120px] border-t border-white/[0.06]">
+      <Container>
+        <div className="text-center mb-20">
+          <Reveal>
+            <Label>Priser</Label>
+          </Reveal>
+          <Reveal delay={0.08}>
+            <h2
+              className="font-heading leading-none tracking-wide mt-5"
+              style={{ fontSize: "clamp(3rem, 7vw, 6rem)" }}
+            >
+              Börja gratis.
+              <br />
+              Väx när du vill.
+            </h2>
+          </Reveal>
+          <Reveal delay={0.14}>
+            <p className="text-white/45 text-sm mt-6">25 % rabatt på årsplan</p>
+          </Reveal>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-[980px] mx-auto">
+          {plans.map(({ name, price, period, features, cta, href, highlighted }, i) => (
+            <Reveal key={name} delay={0.08 + i * 0.1}>
+              <div
+                className={`flex flex-col rounded-2xl p-8 h-full border transition-all duration-300 ${
+                  highlighted
+                    ? "bg-pitch/[0.06] border-pitch/35 hover:border-pitch/55"
+                    : "bg-white/[0.025] border-white/[0.06] hover:border-white/[0.12]"
+                }`}
+              >
+                <div className="flex items-center justify-between mb-5">
+                  <h3 className="font-sans font-bold text-white text-lg">{name}</h3>
+                  {highlighted && (
+                    <span className="bg-pitch/20 text-pitch text-[10px] font-bold px-2.5 py-1 rounded tracking-widest uppercase">
+                      Populärast
+                    </span>
+                  )}
+                </div>
+                <div className="mb-7">
+                  <span className="font-heading text-5xl text-white tracking-wide">{price}</span>
+                  {period && <span className="text-white/40 text-sm ml-1">{period}</span>}
+                </div>
+                <ul className="flex flex-col gap-3 mb-8 flex-1">
+                  {features.map((f) => (
+                    <li key={f} className="flex items-start gap-2.5 text-sm text-white/60">
+                      <Check className="w-4 h-4 text-pitch flex-shrink-0 mt-0.5" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href={href}
+                  className={`inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-bold transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98] ${
+                    highlighted
+                      ? "bg-pitch text-black"
+                      : "border border-white/20 text-white hover:border-white/45"
+                  }`}
+                >
+                  {cta}
+                </Link>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+// ── 9. FAQ ────────────────────────────────────────────────────────────────────
+
+const faqItems = [
+  {
+    q: "Vad är Athopia?",
+    a: "En plattform för dig som följer Allsvenskan på djupet: matchanalyser, nyhetsflöde, statistik, podcasts och ett forum för ditt lag — allt på ett ställe.",
+  },
+  {
+    q: "Vad kostar det?",
+    a: "Det är gratis att börja. PRO kostar 89 kr/mån och Elite 169 kr/mån, med 25 % rabatt om du väljer årsplan.",
+  },
+  {
+    q: "Behöver jag kreditkort för att börja?",
+    a: "Nej. Du väljer ditt lag och börjar läsa direkt — helt utan kort.",
+  },
+  {
+    q: "Kan jag avsluta när som helst?",
+    a: "Ja. Du avslutar själv på kontosidan och behåller tillgången till slutet av din betalda period.",
+  },
+  {
+    q: "Vilka lag täcker ni?",
+    a: "Alla 16 lag i Allsvenskan — nyheter, analys, statistik och forum för vart och ett.",
+  },
+  {
+    q: "Vad är Fotbolls-IQ?",
+    a: "Din personliga kunskapsrating. Den stiger när du läser, tippar och följer matcherna — och du tävlar i en liga med fans av samma lag.",
+  },
+];
+
+function Faq() {
+  return (
+    <section className="py-[120px] border-t border-white/[0.06]">
+      <Container>
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-12 lg:gap-20 items-start">
+          <div>
+            <Reveal>
+              <Label>Vanliga frågor</Label>
+            </Reveal>
+            <Reveal delay={0.08}>
+              <h2
+                className="font-heading leading-none tracking-wide mt-5"
+                style={{ fontSize: "clamp(3rem, 6vw, 5rem)" }}
+              >
+                Undrar du
+                <br />
+                något?
+              </h2>
+            </Reveal>
+          </div>
+
+          <Reveal delay={0.12}>
+            <div className="flex flex-col gap-3">
+              {faqItems.map(({ q, a }) => (
+                <details
+                  key={q}
+                  className="group bg-white/[0.025] border border-white/[0.06] rounded-2xl open:border-white/[0.14] transition-colors duration-200"
+                >
+                  <summary className="flex items-center justify-between gap-4 cursor-pointer list-none px-6 py-5 text-white font-sans font-semibold text-[15px] [&::-webkit-details-marker]:hidden">
+                    {q}
+                    <span
+                      aria-hidden
+                      className="text-pitch text-xl leading-none transition-transform duration-200 group-open:rotate-45"
+                    >
+                      +
+                    </span>
+                  </summary>
+                  <p className="px-6 pb-6 text-white/55 text-sm leading-relaxed">{a}</p>
+                </details>
+              ))}
+            </div>
+          </Reveal>
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+// ── 10. CTA ───────────────────────────────────────────────────────────────────
 
 function CtaSection() {
   return (
@@ -668,7 +871,7 @@ function CtaSection() {
                 Välj ditt lag <ArrowRight className="w-5 h-5" />
               </Link>
               <p className="text-white/20 text-xs mt-6">
-                Allsvenskan 2025 · 291 artiklar · Uppdateras varje omgång
+                Allsvenskan 2026 · Uppdateras varje omgång
               </p>
             </Reveal>
           </div>
@@ -678,12 +881,25 @@ function CtaSection() {
   );
 }
 
-// ── 9. FOOTER ─────────────────────────────────────────────────────────────────
+// ── 11. FOOTER ────────────────────────────────────────────────────────────────
 
-const footerCols: Record<string, string[]> = {
-  Produkt: ["Allsvenskan", "Matchanalyser", "Fotbolls-IQ"],
-  Bolag: ["Om Athopia", "Kontakt", "Press"],
-  "Följ oss": ["Twitter/X", "Instagram", "Nyhetsbrev"],
+const footerCols: Record<string, { label: string; href: string }[]> = {
+  Produkt: [
+    { label: "Allsvenskan", href: "/allsvenskan" },
+    { label: "Matchanalyser", href: "/analys" },
+    { label: "Statistik", href: "/statistik" },
+    { label: "Priser", href: "/priser" },
+  ],
+  Community: [
+    { label: "Forum", href: "/forum" },
+    { label: "Nyheter", href: "/nyheter" },
+    { label: "Podcasts", href: "/podcast" },
+  ],
+  Konto: [
+    { label: "Logga in", href: "/sign-in" },
+    { label: "Skapa konto", href: "/sign-up" },
+    { label: "Mitt konto", href: "/konto" },
+  ],
 };
 
 function SiteFooter() {
@@ -702,13 +918,13 @@ function SiteFooter() {
                 {col}
               </h4>
               <ul className="flex flex-col gap-3">
-                {links.map((link) => (
-                  <li key={link}>
+                {links.map(({ label, href }) => (
+                  <li key={href}>
                     <Link
-                      href="#"
+                      href={href}
                       className="text-white/45 text-sm hover:text-white transition-colors duration-200"
                     >
-                      {link}
+                      {label}
                     </Link>
                   </li>
                 ))}
@@ -719,18 +935,15 @@ function SiteFooter() {
 
         <div className="border-t border-white/[0.06] pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-white/20 text-xs">
-            © 2025 Athopia · Alla rättigheter förbehållna
+            © {new Date().getFullYear()} Athopia · Alla rättigheter förbehållna
           </p>
           <div className="flex items-center gap-6">
-            {["Integritetspolicy", "Villkor"].map((item) => (
-              <Link
-                key={item}
-                href="#"
-                className="text-white/20 text-xs hover:text-white/50 transition-colors duration-200"
-              >
-                {item}
-              </Link>
-            ))}
+            <Link
+              href="/integritetspolicy"
+              className="text-white/20 text-xs hover:text-white/50 transition-colors duration-200"
+            >
+              Integritetspolicy
+            </Link>
           </div>
         </div>
       </Container>
