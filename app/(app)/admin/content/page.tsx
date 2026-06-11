@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import { currentUserIsAdmin } from "@/lib/admin";
 import type { Article } from "@/lib/types";
 import { ContentReviewClient } from "./ContentReviewClient";
 
@@ -46,6 +48,10 @@ async function getPendingArticles(): Promise<Article[]> {
 }
 
 export default async function AdminContentPage() {
+  // Försvar på djupet — middleware skyddar redan /admin/*, men dölj sidan
+  // helt (404) om en icke-admin på något sätt når hit.
+  if (!(await currentUserIsAdmin())) notFound();
+
   const articles = await getPendingArticles();
 
   return (

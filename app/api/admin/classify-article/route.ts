@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { currentUserIsAdmin } from "@/lib/admin";
 
 function createServiceClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
@@ -9,6 +10,12 @@ function createServiceClient() {
 }
 
 export async function POST(req: Request) {
+  // Försvar på djupet — middleware blockerar redan, men denna route kör med
+  // service-role-nyckeln (kringgår RLS), så verifiera admin även här.
+  if (!(await currentUserIsAdmin())) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   try {
     const body = (await req.json()) as {
       articleId?: string;
