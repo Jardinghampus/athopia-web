@@ -168,13 +168,18 @@ export function MittLagDashboard({ teams, initialSlug }: { teams: TeamListItem[]
             <div className="px-4 sm:px-6 space-y-5">
               {/* ── Nyckeltal ────────────────────────────────────── */}
               {hub.stats && (
-                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                  <KeyStat label="Poäng" value={hub.stats.points} accent />
-                  <KeyStat label="Spelade" value={hub.stats.played} />
-                  <KeyStat label="Gjorda" value={hub.stats.goals_for} />
-                  <KeyStat label="Insläppta" value={hub.stats.goals_against} />
-                  <KeyStat label="Mål­skill." value={hub.stats.goal_diff} signed />
-                  <KeyStat label="xG" value={hub.stats.xg != null ? Number(hub.stats.xg) : null} decimals={1} />
+                <div className="space-y-2">
+                  {/* 4 + 2 — håller varje chunk inom arbetsminnesgränsen */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <KeyStat label="Poäng" value={hub.stats.points} accent />
+                    <KeyStat label="Spelade" value={hub.stats.played} />
+                    <KeyStat label="Gjorda" value={hub.stats.goals_for} />
+                    <KeyStat label="Insläppta" value={hub.stats.goals_against} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <KeyStat label="Mål­skillnad" value={hub.stats.goal_diff} signed />
+                    <KeyStat label="xG" value={hub.stats.xg != null ? Number(hub.stats.xg) : null} decimals={1} />
+                  </div>
                 </div>
               )}
 
@@ -270,8 +275,7 @@ function Oversikt({ hub, onFixture }: { hub: TeamHubPayload; onFixture: (f: Fixt
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
       <SectionCard title="Lagprofil mot ligan" icon={BarChart3} className="lg:col-span-2">
-        <TeamRadar data={hub.radar} />
-        <p className="text-[11px] text-muted-foreground text-center mt-1">Normaliserat (z-score → 0–100). 50 = ligasnitt.</p>
+        <RadarOrEmpty data={hub.radar} />
       </SectionCard>
 
       <SectionCard title="Ledare" icon={Trophy}>
@@ -305,7 +309,7 @@ function Statistik({ hub }: { hub: TeamHubPayload }) {
   const s = hub.stats;
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-      <SectionCard title="Profilradar" icon={BarChart3}><TeamRadar data={hub.radar} /></SectionCard>
+      <SectionCard title="Profilradar" icon={BarChart3}><RadarOrEmpty data={hub.radar} /></SectionCard>
       <SectionCard title="Säsongsstatistik" icon={Trophy}>
         {!s ? <p className="text-sm text-muted-foreground">Ingen statistik ännu.</p> : (
           <div className="divide-y divide-border/40">
@@ -398,14 +402,39 @@ function Forum({ hub }: { hub: TeamHubPayload }) {
 }
 
 // ─── Delade byggstenar ──────────────────────────────────────────────────────
+function RadarOrEmpty({ data }: { data: TeamHubPayload["radar"] }) {
+  if (!data || data.length === 0) {
+    return (
+      <p className="py-10 text-center text-sm text-muted-foreground">
+        Profilradar visas när säsongsstatistik finns — ofta efter ett par omgångar.
+      </p>
+    );
+  }
+  return (
+    <>
+      <TeamRadar data={data} />
+      <p className="text-[11px] text-muted-foreground text-center mt-1">Normaliserat (z-score → 0–100). 50 = ligasnitt.</p>
+    </>
+  );
+}
 function SectionCard({ title, icon: Icon, children, className = "", footer }: {
   title: string; icon: typeof Trophy; children: React.ReactNode; className?: string; footer?: React.ReactNode;
 }) {
+  // Collapse-state persisteras per kort-titel så valet överlever omladdning.
+  const storageKey = `mittlag:card:${title}`;
   const [open, setOpen] = useState(true);
+  useEffect(() => {
+    try { if (localStorage.getItem(storageKey) === "0") setOpen(false); } catch { /* SSR/privat läge */ }
+  }, [storageKey]);
+  const toggle = () => setOpen((o) => {
+    try { localStorage.setItem(storageKey, o ? "0" : "1"); } catch { /* ignorera */ }
+    return !o;
+  });
   return (
     <TactileCard className={`flex flex-col ${className}`}>
       <button
-        onClick={() => setOpen((o) => !o)}
+        onClick={toggle}
+        aria-expanded={open}
         className="flex items-center gap-2 px-4 py-3 text-left touch-manipulation select-none active:opacity-70 transition-opacity"
       >
         <Icon className="h-4 w-4 text-muted-foreground" />
@@ -476,7 +505,7 @@ function LeaderList({ title, rows, statKey, suffix }: { title: string; rows: Lea
 }
 
 /** Rad för en match — öppnar quickview-sheet vid tap. */
-function FixtureListRow({ fixture: f, smId, onSelect }: { fixture: FixtureRow; smId: number | null; onSelect: (f: FixtureRow) => void }) {
+function FixtureListRow({ fixture: f, smId, onSelect, density }: { fixture: FixtureRow; smId: number | null; onSelect: (f: FixtureRow) => void; density?: "default" | "compact" }) {
   const isHome = f.home_team_id === smId;
   const opp = isHome ? f.away_team_name : f.home_team_name;
   const played = f.status === "FT";
@@ -487,6 +516,7 @@ function FixtureListRow({ fixture: f, smId, onSelect }: { fixture: FixtureRow; s
 
   return (
     <ListRow
+      density={density}
       onClick={() => onSelect(f)}
       leading={
         played
@@ -514,9 +544,7 @@ function FixtureFeed({ recent, upcoming, smId, onFixture }: { recent: FixtureRow
   return (
     <div className="-mx-2 space-y-0.5">
       {[...upcoming, ...recent].map((f) => (
-        <div key={f.sportmonks_id} className="[&>*]:px-2 [&>*]:py-1.5 [&>*]:rounded-lg">
-          <FixtureListRow fixture={f} smId={smId} onSelect={onFixture} />
-        </div>
+        <FixtureListRow key={f.sportmonks_id} fixture={f} smId={smId} onSelect={onFixture} density="compact" />
       ))}
     </div>
   );

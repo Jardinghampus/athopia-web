@@ -16,6 +16,8 @@ interface ListRowProps {
   chevron?: boolean;
   href?: string;
   onClick?: () => void;
+  /** "compact" för täta flöden (inbäddade i kort), default för grupplistor */
+  density?: "default" | "compact";
   className?: string;
 }
 
@@ -32,6 +34,7 @@ export function ListRow({
   chevron,
   href,
   onClick,
+  density = "default",
   className,
 }: ListRowProps) {
   const showChevron = chevron ?? Boolean(href);
@@ -62,7 +65,8 @@ export function ListRow({
   );
 
   const baseClass = cn(
-    "flex w-full items-center gap-3 px-4 py-3 text-left select-none",
+    "flex w-full items-center gap-3 text-left select-none",
+    density === "compact" ? "rounded-lg px-2 py-1.5" : "px-4 py-3",
     interactive &&
       "touch-manipulation transition-colors duration-150 active:bg-muted hover:bg-muted/60 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
     className

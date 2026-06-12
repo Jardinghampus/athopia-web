@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { StatistikTabs } from "./StatistikTabs";
 import { H2HSearch } from "./H2HSearch";
+import { ListGroup } from "@/components/ui/ListGroup";
+import { ListRow } from "@/components/ui/ListRow";
 import type { H2HFixture } from "./H2HSearch";
 import {
   fetchStandingsFull,
@@ -157,29 +159,29 @@ async function SkytteligaTab() {
   const scorers = await fetchTopScorers().catch(() => []);
   if (scorers.length === 0) return <EmptyState />;
   return (
-    <div className="space-y-0.5">
+    <ListGroup className="max-w-2xl">
       {scorers.slice(0, 30).map((s, i) => (
-        <div
+        <ListRow
           key={s.player_id || i}
-          className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-card/50 transition-colors"
-        >
-          <span className="text-xs text-muted-foreground w-6 text-right shrink-0">{s.rank}</span>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-foreground truncate">{s.player_name}</p>
-            <p className="text-xs text-muted-foreground truncate">{s.team_name}</p>
-          </div>
-          <div className="text-right shrink-0">
-            <p className="text-xl font-heading text-foreground leading-none">{s.goals}</p>
-            <p className="text-[10px] text-muted-foreground">mål</p>
-          </div>
-          {s.penalties > 0 && (
-            <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded shrink-0">
-              {s.penalties}P
+          leading={<span className="text-xs tabular-nums text-muted-foreground">{s.rank}</span>}
+          title={s.player_name}
+          subtitle={s.team_name}
+          trailing={
+            <span className="flex items-center gap-2">
+              {s.penalties > 0 && (
+                <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                  {s.penalties}P
+                </span>
+              )}
+              <span className="text-right">
+                <span className="block text-xl font-bold tabular-nums leading-none text-foreground">{s.goals}</span>
+                <span className="block text-[10px] text-muted-foreground">mål</span>
+              </span>
             </span>
-          )}
-        </div>
+          }
+        />
       ))}
-    </div>
+    </ListGroup>
   );
 }
 
@@ -189,24 +191,22 @@ async function AssistliganTab() {
   const assists = await fetchTopAssists().catch(() => []);
   if (assists.length === 0) return <EmptyState />;
   return (
-    <div className="space-y-0.5">
+    <ListGroup className="max-w-2xl">
       {assists.slice(0, 30).map((a, i) => (
-        <div
+        <ListRow
           key={a.player_id || i}
-          className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-card/50 transition-colors"
-        >
-          <span className="text-xs text-muted-foreground w-6 text-right shrink-0">{a.rank}</span>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-foreground truncate">{a.player_name}</p>
-            <p className="text-xs text-muted-foreground truncate">{a.team_name}</p>
-          </div>
-          <div className="text-right shrink-0">
-            <p className="text-xl font-heading text-foreground leading-none">{a.assists}</p>
-            <p className="text-[10px] text-muted-foreground">assist</p>
-          </div>
-        </div>
+          leading={<span className="text-xs tabular-nums text-muted-foreground">{a.rank}</span>}
+          title={a.player_name}
+          subtitle={a.team_name}
+          trailing={
+            <span className="text-right">
+              <span className="block text-xl font-bold tabular-nums leading-none text-foreground">{a.assists}</span>
+              <span className="block text-[10px] text-muted-foreground">assist</span>
+            </span>
+          }
+        />
       ))}
-    </div>
+    </ListGroup>
   );
 }
 
@@ -243,7 +243,7 @@ async function FormTab() {
   });
 
   return (
-    <div className="space-y-2">
+    <ListGroup className="max-w-2xl" footer="Sorterat på poäng de senaste 5 omgångarna.">
       {sorted.map((row) => {
         const last5 = row.form.slice(-5);
         const pts = last5.reduce(
@@ -251,23 +251,23 @@ async function FormTab() {
           0
         );
         return (
-          <div
+          <ListRow
             key={row.team.id}
-            className="flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-xl"
-          >
-            <TeamCell name={row.team.name} image={row.team.image_path || undefined} />
-            <div className="flex items-center gap-1 ml-auto">
-              {last5.map((r, i) => (
-                <FormBadge key={i} result={r} />
-              ))}
-            </div>
-            <span className="text-xs text-muted-foreground w-14 text-right shrink-0">
-              {pts}/15 p
-            </span>
-          </div>
+            title={<TeamCell name={row.team.name} image={row.team.image_path || undefined} />}
+            trailing={
+              <span className="flex items-center gap-3">
+                <span className="flex items-center gap-1">
+                  {last5.map((r, i) => (
+                    <FormBadge key={i} result={r} />
+                  ))}
+                </span>
+                <span className="text-xs tabular-nums text-muted-foreground w-12 text-right">{pts}/15 p</span>
+              </span>
+            }
+          />
         );
       })}
-    </div>
+    </ListGroup>
   );
 }
 
@@ -343,7 +343,7 @@ export default async function StatistikPage({
       {/* Sticky tab-nav + filter */}
       <Suspense
         fallback={
-          <div className="sticky top-[57px] z-30 border-b border-border bg-background/95 h-[88px]" />
+          <div className="sticky top-[57px] z-30 border-b border-border bg-background/95 h-[61px]" />
         }
       >
         <StatistikTabs />
