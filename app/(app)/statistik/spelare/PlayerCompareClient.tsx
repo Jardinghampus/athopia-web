@@ -24,8 +24,8 @@ function PlayerPicker({ pool, value, onChange, label, color }: {
   return (
     <div className="space-y-1">
       <span className="text-xs font-semibold" style={{ color }}>{label}</span>
-      <select value={value} onChange={(e) => onChange(e.target.value)}
-        className="w-full text-sm bg-background border border-border rounded-lg px-2.5 py-2 text-foreground">
+      <select value={value} onChange={(e) => onChange(e.target.value)} aria-label={label}
+        className="w-full text-sm bg-background border border-border rounded-lg px-2.5 min-h-11 sm:min-h-9 text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer">
         <option value="">Välj spelare…</option>
         {pool.map((p) => (
           <option key={p.player_id} value={String(p.player_id)}>{p.fullname} · {p.team_name}</option>

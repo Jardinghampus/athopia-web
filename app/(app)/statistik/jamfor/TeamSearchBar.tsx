@@ -24,7 +24,7 @@ export function TeamSearchBar({ teams }: TeamSearchBarProps) {
   };
 
   const selectClass =
-    "w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#1D9E75] focus:border-transparent";
+    "w-full bg-background border border-border rounded-lg px-3 min-h-11 sm:min-h-9 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#1D9E75] focus:border-transparent cursor-pointer";
 
   return (
     <div className="flex flex-col sm:flex-row gap-3 items-end">
@@ -57,7 +57,7 @@ export function TeamSearchBar({ teams }: TeamSearchBarProps) {
       <button
         onClick={handleCompare}
         disabled={!a || !b || a === b}
-        className="px-5 py-2 rounded-lg bg-[#1D9E75] text-white text-sm font-medium hover:bg-[#1D9E75]/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+        className="px-5 min-h-11 sm:min-h-9 rounded-lg bg-[#1D9E75] text-white text-sm font-medium hover:bg-[#1D9E75]/90 active:opacity-80 transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap touch-manipulation"
       >
         Jämför →
       </button>

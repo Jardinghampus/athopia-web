@@ -1,9 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
-import { Search, SlidersHorizontal, ArrowUpDown } from "lucide-react";
+import { Search, SlidersHorizontal } from "lucide-react";
 import { SCOUT_METRICS, median, type ScoutPlayer, type ScoutMetricKey } from "@/lib/team-hub/scout";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
+import { ListGroup } from "@/components/ui/ListGroup";
+import { ListRow } from "@/components/ui/ListRow";
+import { Sheet, SheetContent, SheetTitle, SheetClose } from "@/components/ui/TactileSheet";
 
 const POSITIONS = [
   { id: "all", label: "Alla positioner" },
@@ -13,12 +16,69 @@ const POSITIONS = [
   { id: "attacker", label: "Anfallare" },
 ];
 
+interface Filters {
+  position: string;
+  metric: ScoutMetricKey;
+  aboveMedian: boolean;
+  minMinutes: number;
+}
+
+/** Filterkontroller — delas mellan inline-panelen (desktop) och Sheet (mobil). */
+function FilterControls({ f, set }: { f: Filters; set: (patch: Partial<Filters>) => void }) {
+  const selectClass =
+    "w-full text-sm bg-background border border-border rounded-lg px-2.5 min-h-11 sm:min-h-9 text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer";
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <label className="text-xs text-muted-foreground space-y-1">
+        <span>Position (medianreferens)</span>
+        <select value={f.position} onChange={(e) => set({ position: e.target.value })} className={selectClass}>
+          {POSITIONS.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
+        </select>
+      </label>
+
+      <label className="text-xs text-muted-foreground space-y-1">
+        <span>Mätvärde</span>
+        <select value={f.metric} onChange={(e) => set({ metric: e.target.value as ScoutMetricKey })} className={selectClass}>
+          {SCOUT_METRICS.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}
+        </select>
+      </label>
+
+      <div className="text-xs text-muted-foreground space-y-1">
+        <span>Riktning</span>
+        <SegmentedControl
+          aria-label="Riktning"
+          options={[
+            { value: "above", label: "Över median" },
+            { value: "below", label: "Under median" },
+          ]}
+          value={f.aboveMedian ? "above" : "below"}
+          onChange={(v) => set({ aboveMedian: v === "above" })}
+        />
+      </div>
+
+      <label className="text-xs text-muted-foreground space-y-1">
+        <span>Min. speltid: {f.minMinutes}′</span>
+        <input
+          type="range" min={0} max={1500} step={90} value={f.minMinutes}
+          onChange={(e) => set({ minMinutes: Number(e.target.value) })}
+          className="w-full accent-pitch min-h-11 sm:min-h-9"
+        />
+      </label>
+    </div>
+  );
+}
+
 export function ScoutClient({ pool }: { pool: ScoutPlayer[] }) {
-  const [position, setPosition] = useState("all");
-  const [metric, setMetric] = useState<ScoutMetricKey>("xg");
-  const [aboveMedian, setAboveMedian] = useState(true);
-  const [minMinutes, setMinMinutes] = useState(0);
+  const [filters, setFilters] = useState<Filters>({
+    position: "all",
+    metric: "xg",
+    aboveMedian: true,
+    minMinutes: 0,
+  });
   const [query, setQuery] = useState("");
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const set = (patch: Partial<Filters>) => setFilters((f) => ({ ...f, ...patch }));
+  const { position, metric, aboveMedian, minMinutes } = filters;
 
   // Jämförelsegrupp = ligan, eller positionen om vald → positionsmedian.
   const cohort = useMemo(
@@ -43,106 +103,100 @@ export function ScoutClient({ pool }: { pool: ScoutPlayer[] }) {
 
   const metricLabel = SCOUT_METRICS.find((m) => m.key === metric)?.label ?? metric;
   const fmt = (v: number) => (metric === "xg" || metric === "xa" || metric === "rating" ? v.toFixed(2) : v);
+  const filterActive = position !== "all" || metric !== "xg" || !aboveMedian || minMinutes > 0;
+
+  const summary = (
+    <p className="text-xs text-muted-foreground">
+      Visar spelare <strong className="text-foreground">{aboveMedian ? "över" : "under"}</strong> {position === "all" ? "liga" : "positions"}median i{" "}
+      <strong className="text-foreground">{metricLabel}</strong> ({fmt(medians[metric])}) ·{" "}
+      <strong className="text-pitch">{results.length}</strong> träffar
+    </p>
+  );
 
   return (
     <div className="space-y-5">
-      {/* Filter-panel */}
-      <div className="rounded-2xl border border-border bg-card p-4 space-y-4">
+      {/* Sök + filterknapp (mobil) */}
+      <div className="flex items-center gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden />
+          <input
+            value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Sök spelare…"
+            aria-label="Sök spelare"
+            className="w-full text-sm bg-card border border-border rounded-xl pl-9 pr-3 min-h-11 text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          />
+        </div>
+        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+          <button
+            onClick={() => setSheetOpen(true)}
+            aria-label="Scout-filter"
+            className={`sm:hidden inline-flex shrink-0 items-center gap-1.5 rounded-xl border px-3.5 min-h-11 text-sm font-medium transition-colors touch-manipulation ${
+              filterActive ? "border-pitch/40 bg-pitch/10 text-pitch" : "border-border text-muted-foreground"
+            }`}
+          >
+            <SlidersHorizontal className="h-4 w-4" />
+          </button>
+          <SheetContent>
+            <div className="space-y-5 pb-4">
+              <SheetTitle>Scout-filter</SheetTitle>
+              <FilterControls f={filters} set={set} />
+              {summary}
+              <SheetClose asChild>
+                <button className="w-full rounded-xl bg-pitch px-4 py-3 text-sm font-medium text-white transition-opacity active:opacity-80">
+                  Visa {results.length} träffar
+                </button>
+              </SheetClose>
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
+
+      {/* Inline filter-panel (desktop) */}
+      <div className="hidden sm:block rounded-2xl border border-border bg-card p-4 space-y-4">
         <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
           <SlidersHorizontal className="h-4 w-4 text-pitch" /> Scout-filter
         </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <label className="text-xs text-muted-foreground space-y-1">
-            <span>Position (medianreferens)</span>
-            <select value={position} onChange={(e) => setPosition(e.target.value)}
-              className="w-full text-sm bg-background border border-border rounded-lg px-2.5 py-1.5 text-foreground">
-              {POSITIONS.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
-            </select>
-          </label>
-
-          <label className="text-xs text-muted-foreground space-y-1">
-            <span>Mätvärde</span>
-            <select value={metric} onChange={(e) => setMetric(e.target.value as ScoutMetricKey)}
-              className="w-full text-sm bg-background border border-border rounded-lg px-2.5 py-1.5 text-foreground">
-              {SCOUT_METRICS.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}
-            </select>
-          </label>
-
-          <label className="text-xs text-muted-foreground space-y-1">
-            <span>Riktning</span>
-            <select value={aboveMedian ? "above" : "below"} onChange={(e) => setAboveMedian(e.target.value === "above")}
-              className="w-full text-sm bg-background border border-border rounded-lg px-2.5 py-1.5 text-foreground">
-              <option value="above">Över median</option>
-              <option value="below">Under median</option>
-            </select>
-          </label>
-
-          <label className="text-xs text-muted-foreground space-y-1">
-            <span>Min. speltid: {minMinutes}′</span>
-            <input type="range" min={0} max={1500} step={90} value={minMinutes}
-              onChange={(e) => setMinMinutes(Number(e.target.value))}
-              className="w-full accent-pitch" />
-          </label>
-        </div>
-
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Sök spelare…"
-            className="w-full text-sm bg-background border border-border rounded-lg pl-9 pr-3 py-2 text-foreground" />
-        </div>
-
-        <p className="text-xs text-muted-foreground">
-          Visar spelare <strong className="text-foreground">{aboveMedian ? "över" : "under"}</strong> {position === "all" ? "liga" : "positions"}median i{" "}
-          <strong className="text-foreground">{metricLabel}</strong> ({fmt(medians[metric])}) ·{" "}
-          <strong className="text-pitch">{results.length}</strong> träffar
-        </p>
+        <FilterControls f={filters} set={set} />
+        {summary}
       </div>
 
       {/* Resultat */}
       {results.length === 0 ? (
-        <p className="text-sm text-muted-foreground py-10 text-center">Inga spelare matchar filtret.</p>
-      ) : (
-        <div className="rounded-2xl border border-border bg-card overflow-x-auto">
-          <table className="w-full text-sm min-w-[640px]">
-            <thead>
-              <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
-                <th className="text-left px-4 py-2.5">#</th>
-                <th className="text-left px-4 py-2.5">Spelare</th>
-                <th className="text-left px-3 py-2.5">Lag</th>
-                <th className="text-center px-3 py-2.5">Pos</th>
-                <th className="text-center px-3 py-2.5">Min</th>
-                <th className="text-center px-3 py-2.5">
-                  <span className="inline-flex items-center gap-1 text-pitch font-semibold">
-                    {metricLabel} <ArrowUpDown className="h-3 w-3" />
-                  </span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {results.slice(0, 60).map((p, i) => {
-                const delta = p[metric] - medians[metric];
-                return (
-                  <tr key={`${p.player_id}-${i}`} className="border-b border-border/40 last:border-0 hover:bg-muted/20">
-                    <td className="px-4 py-2.5 text-muted-foreground">{i + 1}</td>
-                    <td className="px-4 py-2.5">
-                      <Link href={`/spelare/${p.slug ?? p.player_id}`} className="text-foreground hover:text-pitch">{p.fullname}</Link>
-                    </td>
-                    <td className="px-3 py-2.5 text-muted-foreground truncate max-w-[140px]">{p.team_name}</td>
-                    <td className="px-3 py-2.5 text-center text-muted-foreground capitalize">{p.position?.slice(0, 3) ?? "–"}</td>
-                    <td className="px-3 py-2.5 text-center text-muted-foreground">{p.minutes}′</td>
-                    <td className="px-3 py-2.5 text-center">
-                      <span className="font-bold text-foreground">{fmt(p[metric])}</span>
-                      <span className={`ml-1.5 text-[11px] ${delta >= 0 ? "text-pitch" : "text-red-400"}`}>
-                        {delta >= 0 ? "+" : ""}{fmt(delta)}
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+        <div className="py-12 text-center space-y-2">
+          <p className="text-sm text-muted-foreground">Inga spelare matchar filtret.</p>
+          <button
+            onClick={() => { setFilters({ position: "all", metric: "xg", aboveMedian: true, minMinutes: 0 }); setQuery(""); }}
+            className="text-sm text-pitch hover:underline"
+          >
+            Återställ filter
+          </button>
         </div>
+      ) : (
+        <ListGroup
+          className="max-w-3xl"
+          header={`${metricLabel} — ${aboveMedian ? "över" : "under"} median`}
+          footer={`Avvikelsen visas mot ${position === "all" ? "ligans" : "positionens"} median (${fmt(medians[metric])}).`}
+        >
+          {results.slice(0, 60).map((p, i) => {
+            const delta = p[metric] - medians[metric];
+            return (
+              <ListRow
+                key={`${p.player_id}-${i}`}
+                href={`/spelare/${p.slug ?? p.player_id}`}
+                leading={<span className="text-xs tabular-nums text-muted-foreground">{i + 1}</span>}
+                title={p.fullname}
+                subtitle={`${p.team_name} · ${p.position?.slice(0, 3) ?? "–"} · ${p.minutes}′`}
+                trailing={
+                  <span className="tabular-nums">
+                    <span className="font-bold text-foreground">{fmt(p[metric])}</span>
+                    <span className={`ml-1.5 text-[11px] ${delta >= 0 ? "text-pitch" : "text-red-400"}`}>
+                      {delta >= 0 ? "+" : ""}{fmt(delta)}
+                    </span>
+                  </span>
+                }
+              />
+            );
+          })}
+        </ListGroup>
       )}
     </div>
   );
