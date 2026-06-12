@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import {
   RefreshCw, ChevronDown, Trophy, BarChart3, Users, CalendarDays, MessageSquare,
@@ -41,11 +42,29 @@ async function fetchHub(slug: string): Promise<TeamHubPayload> {
   return (await res.json()) as TeamHubPayload;
 }
 
+const TAB_IDS = TAB_OPTIONS.map((t) => t.value);
+
 export function MittLagDashboard({ teams, initialSlug }: { teams: TeamListItem[]; initialSlug: string | null }) {
   const [slug, setSlug] = useState<string | null>(initialSlug);
-  const [tab, setTab] = useState<TabId>("oversikt");
   const [resolved, setResolved] = useState(initialSlug != null);
   const [quickview, setQuickview] = useState<FixtureRow | null>(null);
+
+  // Aktiv flik lever i URL:en (?tab=) — bokmärkbar, delbar, överlever lagbyte.
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get("tab") as TabId | null;
+  const tab: TabId = tabParam && TAB_IDS.includes(tabParam) ? tabParam : "oversikt";
+  const setTab = useCallback(
+    (next: TabId) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (next === "oversikt") params.delete("tab");
+      else params.set("tab", next);
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    },
+    [router, pathname, searchParams]
+  );
 
   // Klient-resolved stored team (om server inte hade någon).
   useEffect(() => {
@@ -89,7 +108,16 @@ export function MittLagDashboard({ teams, initialSlug }: { teams: TeamListItem[]
         {!hub && isPending ? (
           <div className="px-4 sm:px-6 py-6"><MittLagSkeleton /></div>
         ) : !hub ? (
-          <p className="py-16 text-center text-sm text-muted-foreground">Kunde inte ladda lagdata.</p>
+          <div className="py-16 text-center space-y-3">
+            <p className="text-sm text-muted-foreground">Kunde inte ladda lagdata just nu.</p>
+            <button
+              onClick={() => refetch()}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-4 py-2.5 text-sm text-foreground hover:bg-muted active:bg-muted transition-colors touch-manipulation"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${isRefetching ? "animate-spin" : ""}`} />
+              Försök igen
+            </button>
+          </div>
         ) : (
           <>
             {/* ── Large title med lagväljare ──────────────────────── */}
@@ -99,6 +127,7 @@ export function MittLagDashboard({ teams, initialSlug }: { teams: TeamListItem[]
               actions={
                 <button
                   onClick={() => refetch()}
+                  aria-label="Uppdatera lagdata"
                   className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground border border-border rounded-lg px-3 py-2 transition-colors touch-manipulation active:bg-muted"
                 >
                   <RefreshCw className={`h-3.5 w-3.5 ${isRefetching ? "animate-spin" : ""}`} />
@@ -115,13 +144,17 @@ export function MittLagDashboard({ teams, initialSlug }: { teams: TeamListItem[]
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <Star className="h-4 w-4 text-pitch shrink-0" />
-                      <select
-                        value={slug}
-                        onChange={(e) => { setSlug(e.target.value); setTab("oversikt"); }}
-                        className="text-[28px] font-bold tracking-tight text-foreground bg-transparent border-0 focus:outline-none cursor-pointer max-w-full"
-                      >
-                        {teams.map((t) => <option key={t.slug} value={t.slug}>{t.name}</option>)}
-                      </select>
+                      <span className="relative inline-flex min-w-0 items-center gap-1.5">
+                        <select
+                          value={slug}
+                          aria-label="Välj lag"
+                          onChange={(e) => setSlug(e.target.value)}
+                          className="appearance-none text-[28px] font-bold tracking-tight text-foreground bg-transparent border-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md cursor-pointer max-w-full pr-7"
+                        >
+                          {teams.map((t) => <option key={t.slug} value={t.slug}>{t.name}</option>)}
+                        </select>
+                        <ChevronDown aria-hidden className="pointer-events-none absolute right-1 h-5 w-5 text-muted-foreground" />
+                      </span>
                     </div>
                     <div className="flex items-center gap-3 mt-1">
                       {hub.position && <span className="text-xs font-bold text-pitch">#{hub.position} i Allsvenskan</span>}
@@ -458,7 +491,9 @@ function FixtureListRow({ fixture: f, smId, onSelect }: { fixture: FixtureRow; s
       leading={
         played
           ? <span className={`text-xs font-bold ${color}`}>{r}</span>
-          : <span className="text-[10px] font-bold text-blue-400">{f.status === "LIVE" ? "LIVE" : "KOMMER"}</span>
+          : f.status === "LIVE"
+            ? <span className="text-[10px] font-bold text-pitch animate-pulse">LIVE</span>
+            : <span className="text-[10px] font-bold text-muted-foreground">KOMMER</span>
       }
       title={`${isHome ? "H" : "B"} · ${opp}`}
       trailing={
