@@ -10,7 +10,8 @@
 import type { Metadata } from "next";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { Check, CreditCard, User } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
+import { ListGroup } from "@/components/ui/ListGroup";
+import { ListRow } from "@/components/ui/ListRow";
 import Stripe from "stripe";
 
 export const dynamic = 'force-dynamic';
@@ -71,85 +72,59 @@ export default async function KontoPage({
 
       <h1 className="font-heading text-4xl text-foreground mb-8">MITT KONTO</h1>
 
-      {/* Användarinfo */}
-      <section className="rounded-xl border border-border bg-card p-6 mb-6">
-        <div className="flex items-center gap-3 mb-4">
-          <User className="w-5 h-5 text-pitch" />
-          <h2 className="font-medium text-foreground">Profil</h2>
-        </div>
-        <div className="space-y-2 text-sm">
-          <div className="flex justify-between text-muted-foreground">
-            <span>E-post</span>
-            <span className="text-foreground">
-              {user?.emailAddresses?.[0]?.emailAddress ?? "–"}
-            </span>
-          </div>
-          <div className="flex justify-between text-muted-foreground">
-            <span>ID</span>
-            <span className="text-foreground font-mono text-xs">{userId}</span>
-          </div>
-        </div>
-      </section>
+      <div className="space-y-6">
+        {/* Användarinfo */}
+        <ListGroup header="Profil">
+          <ListRow
+            leading={<User />}
+            title="E-post"
+            trailing={<span className="text-foreground">{user?.emailAddresses?.[0]?.emailAddress ?? "–"}</span>}
+          />
+          <ListRow
+            title="Användar-ID"
+            trailing={<span className="font-mono text-xs text-foreground">{userId}</span>}
+          />
+        </ListGroup>
 
-      {/* Plan-status */}
-      <section className="rounded-xl border border-border bg-card p-6 mb-6">
-        <div className="flex items-center gap-3 mb-4">
-          <CreditCard className="w-5 h-5 text-pitch" />
-          <h2 className="font-medium text-foreground">Prenumeration</h2>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm text-muted-foreground mb-1">Nuvarande plan</p>
-            <div className="flex items-center gap-2">
-              {isPaid ? (
-                <>
-                  <span className="font-heading text-xl text-pitch">{planLabel}</span>
-                  <span className="text-xs px-2 py-0.5 rounded-full pitch-gradient text-white">
-                    Aktiv
-                  </span>
-                </>
+        {/* Plan-status */}
+        <ListGroup
+          header="Prenumeration"
+          footer={
+            isPaid
+              ? "Ingår: fullständiga AI-transkript, djupanalys & sentiment, prioriterad support."
+              : "Uppgradera för AI-sammanfattningar, avancerade filter och push-notiser."
+          }
+        >
+          <ListRow
+            leading={<CreditCard />}
+            title="Nuvarande plan"
+            trailing={
+              isPaid ? (
+                <span className="flex items-center gap-2">
+                  <span className="font-semibold text-pitch">{planLabel}</span>
+                  <span className="text-xs px-2 py-0.5 rounded-full pitch-gradient text-white">Aktiv</span>
+                </span>
               ) : (
-                <span className="font-heading text-xl text-foreground">GRATIS</span>
-              )}
-            </div>
-          </div>
-
+                <span className="font-semibold text-foreground">GRATIS</span>
+              )
+            }
+          />
           {isPaid && portalUrl ? (
-            <a
+            <ListRow
               href={portalUrl}
-              className="text-sm px-4 py-2 rounded-xl border border-border hover:border-pitch/40 text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Hantera prenumeration
-            </a>
+              title="Hantera prenumeration"
+              subtitle="Byt plan, uppdatera kort eller avsluta — via Stripe"
+            />
           ) : (
-            <a
+            <ListRow
               href="/prenumerera"
-              className="text-sm px-4 py-2 rounded-xl pitch-gradient text-white font-medium hover:opacity-90 transition-opacity"
-            >
-              {isPaid ? "Byt plan" : "Uppgradera"}
-            </a>
+              title={isPaid ? "Byt plan" : "Uppgradera till PRO"}
+              subtitle={isPaid ? undefined : "89 kr/mån · 25 % rabatt vid årsbetalning"}
+              trailing={<Check className="w-4 h-4 text-pitch" />}
+            />
           )}
-        </div>
-
-        {isPaid && (
-          <>
-            <Separator className="my-4" />
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              {[
-                "Fullständiga AI-transkript",
-                "Djupanalys & sentiment",
-                "Prioriterad support",
-              ].map((f) => (
-                <li key={f} className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-pitch" />
-                  {f}
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
-      </section>
+        </ListGroup>
+      </div>
     </div>
   );
 }

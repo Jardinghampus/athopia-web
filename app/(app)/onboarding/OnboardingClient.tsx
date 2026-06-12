@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { AnimatePresence, motion } from "motion/react";
 import { Check } from "lucide-react";
+import { transitions } from "@/lib/motion";
 import { useFavoriteTeam } from "@/hooks/useFavoriteTeam";
 import { createClient } from "@supabase/supabase-js";
 import { OnboardingLeaguePicker } from "@/components/gamification/OnboardingLeaguePicker";
@@ -16,6 +18,22 @@ interface Team {
 
 function getColor(metadata: Record<string, unknown> | null): string {
   return (metadata?.["primary_color"] as string | undefined) ?? "#1D9E75";
+}
+
+/** Stegindikator för wizarden (2 steg: lag → ligor). */
+function StepDots({ step }: { step: 1 | 2 }) {
+  return (
+    <div className="flex items-center justify-center gap-2 pt-6" aria-label={`Steg ${step} av 2`}>
+      {[1, 2].map((s) => (
+        <motion.span
+          key={s}
+          animate={{ width: s === step ? 24 : 8, opacity: s === step ? 1 : 0.4 }}
+          transition={transitions.snappy}
+          className="h-2 rounded-full bg-pitch"
+        />
+      ))}
+    </div>
+  );
 }
 
 function getInitials(name: string): string {
@@ -82,13 +100,21 @@ export function OnboardingClient() {
 
   if (showLeaguePicker) {
     return (
-      <OnboardingLeaguePicker onComplete={() => router.push("/feed")} />
+      <motion.div
+        initial={{ opacity: 0, x: 24 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={transitions.snappy}
+      >
+        <StepDots step={2} />
+        <OnboardingLeaguePicker onComplete={() => router.push("/feed")} />
+      </motion.div>
     );
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-lg">
+        <StepDots step={1} />
         <div className="mb-8 text-center">
           <h1 className="font-heading text-5xl text-foreground mb-2">VÄLJ DITT LAG</h1>
           <p className="text-muted-foreground text-sm">
@@ -110,10 +136,13 @@ export function OnboardingClient() {
               const isSelected = selected === slug;
 
               return (
-                <button
+                <motion.button
                   key={team.id}
                   onClick={() => setSelected(isSelected ? null : slug)}
-                  className="relative flex flex-col items-center justify-center h-20 rounded-xl border-2 transition-all text-xs font-medium text-center px-1 hover:scale-105"
+                  whileTap={{ scale: 0.94 }}
+                  transition={transitions.press}
+                  aria-pressed={isSelected}
+                  className="relative flex flex-col items-center justify-center h-20 rounded-xl border-2 text-xs font-medium text-center px-1 select-none touch-manipulation outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors"
                   style={{
                     borderColor: isSelected ? color : "var(--border)",
                     backgroundColor: isSelected ? color + "18" : "var(--card)",
@@ -128,35 +157,43 @@ export function OnboardingClient() {
                   <span className="text-[10px] leading-tight line-clamp-2 text-muted-foreground">
                     {team.name}
                   </span>
-                  {isSelected && (
-                    <span
-                      className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full flex items-center justify-center"
-                      style={{ backgroundColor: color }}
-                    >
-                      <Check className="w-2.5 h-2.5 text-white" />
-                    </span>
-                  )}
-                </button>
+                  <AnimatePresence>
+                    {isSelected && (
+                      <motion.span
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        transition={transitions.press}
+                        className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full flex items-center justify-center"
+                        style={{ backgroundColor: color }}
+                      >
+                        <Check className="w-2.5 h-2.5 text-white" />
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </motion.button>
               );
             })}
           </div>
         )}
 
         <div className="mt-8 flex flex-col gap-3">
-          <button
+          <motion.button
             onClick={handleContinue}
             disabled={saving}
-            className="w-full py-3 rounded-xl text-sm font-semibold transition-all"
+            whileTap={{ scale: 0.97 }}
+            transition={transitions.press}
+            className="w-full min-h-12 rounded-xl text-sm font-semibold transition-colors touch-manipulation disabled:opacity-60"
             style={{
               backgroundColor: selected ? "#1D9E75" : "var(--muted)",
               color: selected ? "white" : "var(--muted-foreground)",
             }}
           >
             {saving ? "Sparar..." : selected ? "Fortsätt" : "Välj ett lag ovan"}
-          </button>
+          </motion.button>
           <button
             onClick={() => { markOnboardingDone(); router.push("/app"); }}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors text-center"
+            className="min-h-11 text-sm text-muted-foreground hover:text-foreground transition-colors text-center touch-manipulation"
           >
             Hoppa över
           </button>
