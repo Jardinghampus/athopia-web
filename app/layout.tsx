@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Instrument_Serif, Lora } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
+import { Providers } from "./providers";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
@@ -72,8 +73,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <body className="min-h-dvh flex flex-col">
         <ThemeProvider>
-          {children}
-          <Toaster position="bottom-right" richColors />
+          <Providers>
+            {children}
+            <Toaster position="bottom-right" richColors />
+          </Providers>
         </ThemeProvider>
       </body>
     </html>
