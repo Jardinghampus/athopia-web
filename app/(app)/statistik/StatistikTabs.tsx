@@ -20,7 +20,7 @@ const TABS = [
   { id: "h2h", label: "H2H" },
 ];
 
-const SEASONS = ["2025", "2024", "2023"];
+const SEASONS = ["2026", "2025"];
 
 export function StatistikTabs() {
   const router = useRouter();
@@ -29,9 +29,9 @@ export function StatistikTabs() {
   const [filterOpen, setFilterOpen] = useState(false);
 
   const activeTab = searchParams.get("tab") ?? "tabell";
-  const sasong = searchParams.get("sasong") ?? "2025";
+  const sasong = searchParams.get("sasong") ?? "2026";
   const omgang = searchParams.get("omgang") ?? "alla";
-  const filterActive = sasong !== "2025" || omgang !== "alla";
+  const filterActive = sasong !== "2026" || omgang !== "alla";
 
   function buildUrl(overrides: Record<string, string>) {
     const p = new URLSearchParams(searchParams.toString());

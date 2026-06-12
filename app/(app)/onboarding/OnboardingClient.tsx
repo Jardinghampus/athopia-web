@@ -7,7 +7,6 @@ import { Check } from "lucide-react";
 import { transitions } from "@/lib/motion";
 import { useFavoriteTeam } from "@/hooks/useFavoriteTeam";
 import { createClient } from "@supabase/supabase-js";
-import { OnboardingLeaguePicker } from "@/components/gamification/OnboardingLeaguePicker";
 
 interface Team {
   id: string;
@@ -18,22 +17,6 @@ interface Team {
 
 function getColor(metadata: Record<string, unknown> | null): string {
   return (metadata?.["primary_color"] as string | undefined) ?? "#1D9E75";
-}
-
-/** Stegindikator för wizarden (2 steg: lag → ligor). */
-function StepDots({ step }: { step: 1 | 2 }) {
-  return (
-    <div className="flex items-center justify-center gap-2 pt-6" aria-label={`Steg ${step} av 2`}>
-      {[1, 2].map((s) => (
-        <motion.span
-          key={s}
-          animate={{ width: s === step ? 24 : 8, opacity: s === step ? 1 : 0.4 }}
-          transition={transitions.snappy}
-          className="h-2 rounded-full bg-pitch"
-        />
-      ))}
-    </div>
-  );
 }
 
 function getInitials(name: string): string {
@@ -51,12 +34,15 @@ export function OnboardingClient() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [showLeaguePicker, setShowLeaguePicker] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
 
   useEffect(() => {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
-    if (!url || !key) return;
+    if (!url || !key) {
+      setLoadFailed(true);
+      return;
+    }
     const db = createClient(url, key);
     // Filtrerar till lag som deltar i Allsvenskan 2026 via sportsmonks_id
     const ALLSVENSKAN_2026_IDS = new Set(
@@ -68,12 +54,14 @@ export function OnboardingClient() {
       .eq("type", "team")
       .order("name")
       .then(({ data }) => {
-        if (data) {
+        if (data && data.length > 0) {
           const filtered = (data as Team[]).filter((t) => {
             const smId = String((t.metadata?.["sportsmonks_id"] as number | undefined) ?? "");
             return ALLSVENSKAN_2026_IDS.has(smId);
           });
           setTeams(filtered.length > 0 ? filtered : (data as Team[]));
+        } else {
+          setLoadFailed(true);
         }
       });
   }, []);
@@ -95,26 +83,12 @@ export function OnboardingClient() {
       markOnboardingDone();
     }
     setSaving(false);
-    setShowLeaguePicker(true);
+    router.push("/feed");
   };
-
-  if (showLeaguePicker) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, x: 24 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={transitions.snappy}
-      >
-        <StepDots step={2} />
-        <OnboardingLeaguePicker onComplete={() => router.push("/feed")} />
-      </motion.div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-lg">
-        <StepDots step={1} />
         <div className="mb-8 text-center">
           <h1 className="font-heading text-5xl text-foreground mb-2">VÄLJ DITT LAG</h1>
           <p className="text-muted-foreground text-sm">
@@ -122,10 +96,14 @@ export function OnboardingClient() {
           </p>
         </div>
 
-        {teams.length === 0 ? (
+        {loadFailed ? (
+          <p className="py-10 text-center text-sm text-muted-foreground">
+            Kunde inte ladda lagen just nu. Du kan hoppa över och välja lag senare under Konto.
+          </p>
+        ) : teams.length === 0 ? (
           <div className="grid grid-cols-4 gap-3">
             {Array.from({ length: 16 }).map((_, i) => (
-              <div key={i} className="h-20 rounded-xl bg-card animate-pulse border border-border" />
+              <div key={i} className="h-20 rounded-xl bg-card skeleton-wave border border-border" />
             ))}
           </div>
         ) : (

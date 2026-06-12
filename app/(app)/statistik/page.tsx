@@ -26,6 +26,14 @@ export const metadata: Metadata = {
 type TabId = "tabell" | "skytteliga" | "assistligan" | "xg" | "form" | "press" | "h2h";
 const VALID_TABS: TabId[] = ["tabell", "skytteliga", "assistligan", "xg", "form", "press", "h2h"];
 
+// År → Sportmonks season-id. 2026 = 26806 (samma som team-hub).
+// 2025 läses från env tills id:t är verifierat — saknas det visas EmptyState.
+const SEASON_IDS: Record<string, string | undefined> = {
+  "2026": process.env.SPORTSMONKS_SEASON_ID_2026 ?? "26806",
+  "2025": process.env.SPORTSMONKS_SEASON_ID_2025,
+};
+const VALID_SEASONS = Object.keys(SEASON_IDS);
+
 // ── Delade komponenter ────────────────────────────────────────────────────────
 
 function EmptyState({ message = "Data ej tillgänglig." }: { message?: string }) {
@@ -78,8 +86,8 @@ function TeamCell({ name, image }: { name: string; image?: string }) {
 
 // ── Tabell ────────────────────────────────────────────────────────────────────
 
-async function TabelTab() {
-  const rows = await fetchStandingsFull().catch(() => []);
+async function TabelTab({ seasonId }: { seasonId?: string }) {
+  const rows = await fetchStandingsFull(seasonId).catch(() => []);
   if (rows.length === 0) return <EmptyState />;
   return (
     <div className="overflow-x-auto -mx-4 sm:mx-0">
@@ -155,8 +163,8 @@ async function TabelTab() {
 
 // ── Skytteliga ────────────────────────────────────────────────────────────────
 
-async function SkytteligaTab() {
-  const scorers = await fetchTopScorers().catch(() => []);
+async function SkytteligaTab({ seasonId }: { seasonId?: string }) {
+  const scorers = await fetchTopScorers(seasonId).catch(() => []);
   if (scorers.length === 0) return <EmptyState />;
   return (
     <ListGroup className="max-w-2xl">
@@ -187,8 +195,8 @@ async function SkytteligaTab() {
 
 // ── Assistligan ───────────────────────────────────────────────────────────────
 
-async function AssistliganTab() {
-  const assists = await fetchTopAssists().catch(() => []);
+async function AssistliganTab({ seasonId }: { seasonId?: string }) {
+  const assists = await fetchTopAssists(seasonId).catch(() => []);
   if (assists.length === 0) return <EmptyState />;
   return (
     <ListGroup className="max-w-2xl">
@@ -225,8 +233,8 @@ function XGTab() {
 
 // ── Form ──────────────────────────────────────────────────────────────────────
 
-async function FormTab() {
-  const rows = await fetchStandingsFull().catch(() => []);
+async function FormTab({ seasonId }: { seasonId?: string }) {
+  const rows = await fetchStandingsFull(seasonId).catch(() => []);
   if (rows.length === 0) return <EmptyState />;
   const withForm = rows.filter((r) => r.form.length > 0);
   if (withForm.length === 0)
@@ -325,17 +333,24 @@ export default async function StatistikPage({
 }) {
   const sp = await searchParams;
   const tab = (VALID_TABS.includes(sp.tab as TabId) ? sp.tab : "tabell") as TabId;
-  const sasong = sp.sasong ?? "2025";
+  const sasong = VALID_SEASONS.includes(sp.sasong ?? "") ? sp.sasong! : "2026";
+  const seasonId = SEASON_IDS[sasong];
 
   let tabContent: React.ReactNode;
-  switch (tab) {
-    case "tabell":      tabContent = <TabelTab />;       break;
-    case "skytteliga":  tabContent = <SkytteligaTab />;  break;
-    case "assistligan": tabContent = <AssistliganTab />; break;
-    case "xg":          tabContent = <XGTab />;          break;
-    case "form":        tabContent = <FormTab />;        break;
-    case "press":       tabContent = <PressTab />;       break;
-    case "h2h":         tabContent = <H2HTab />;         break;
+  if (!seasonId && ["tabell", "skytteliga", "assistligan", "form"].includes(tab)) {
+    tabContent = (
+      <EmptyState message={`Säsong ${sasong} är inte konfigurerad ännu (sätt SPORTSMONKS_SEASON_ID_${sasong}).`} />
+    );
+  } else {
+    switch (tab) {
+      case "tabell":      tabContent = <TabelTab seasonId={seasonId} />;       break;
+      case "skytteliga":  tabContent = <SkytteligaTab seasonId={seasonId} />;  break;
+      case "assistligan": tabContent = <AssistliganTab seasonId={seasonId} />; break;
+      case "xg":          tabContent = <XGTab />;          break;
+      case "form":        tabContent = <FormTab seasonId={seasonId} />;        break;
+      case "press":       tabContent = <PressTab />;       break;
+      case "h2h":         tabContent = <H2HTab />;         break;
+    }
   }
 
   return (

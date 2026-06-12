@@ -228,3 +228,13 @@ rtk tsc (0 fel) → pnpm build (Compiled successfully; prerender-felet ovan är 
 3. 320px-viewport-svep (lagväljaren, segmented controls, tabeller).
 4. Verifiera 60fps på sheet-drag + segmented-spring på mellanklassmobil.
 5. /impeccable critique på /statistik och landningen (mitt-lag-trend: 26 → 31).
+
+### Tillägg 2026-06-12 (eftermiddag): onboarding ett steg + säsonger 2025/2026
+- Onboarding är nu ETT steg (16 lag, spara -> /feed). OnboardingLeaguePicker
+  urkopplad (komponenten finns kvar i components/gamification/ om den behövs).
+  Tydligt fel-läge om entities-tabellen är tom eller Supabase-env saknas.
+- Statistik: säsongsväljaren = 2026 (default) + 2025. År -> Sportmonks season-id
+  via SEASON_IDS i app/(app)/statistik/page.tsx: 2026=26806;
+  **2025 kräver env SPORTSMONKS_SEASON_ID_2025** (Vercel + .env) — tills den är
+  satt visar 2025-fliken ett konfigurations-EmptyState. Datapunkt att skjuta in:
+  hämta 2025-id:t från Sportmonks /seasons?search=Allsvenskan.
