@@ -3,7 +3,14 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Users } from "lucide-react";
-import { PlayerRadar, type PlayerRadarSeries } from "@/components/team-hub/PlayerRadar";
+import dynamic from "next/dynamic";
+import type { PlayerRadarSeries } from "@/components/team-hub/PlayerRadar";
+
+// recharts är tungt — ladda radarn först när en spelare valts
+const PlayerRadar = dynamic(
+  () => import("@/components/team-hub/PlayerRadar").then((m) => m.PlayerRadar),
+  { ssr: false, loading: () => <div className="h-64 rounded-xl skeleton-wave bg-muted/40" /> }
+);
 import { SCOUT_METRICS, type ScoutPlayer, type ScoutMetricKey } from "@/lib/team-hub/scout";
 
 const RADAR_METRICS: ScoutMetricKey[] = ["goals", "assists", "xg", "xa", "shots", "rating"];

@@ -9,7 +9,13 @@ import {
   RefreshCw, ChevronDown, Trophy, BarChart3, Users, CalendarDays, MessageSquare,
   Newspaper, Activity, Star, ArrowRight,
 } from "lucide-react";
-import { TeamRadar } from "@/components/team-hub/TeamRadar";
+import dynamic from "next/dynamic";
+
+// recharts är tungt — ladda radarn först när den ska visas
+const TeamRadar = dynamic(
+  () => import("@/components/team-hub/TeamRadar").then((m) => m.TeamRadar),
+  { ssr: false, loading: () => <div className="h-64 rounded-xl skeleton-wave bg-muted/40" /> }
+);
 import { MittLagSkeleton } from "./MittLagSkeleton";
 import { getStoredTeam, setStoredTeam } from "@/lib/team-hub/teamContext";
 import type { TeamHubPayload, LeaderRow, FixtureRow } from "@/lib/team-hub/queries";

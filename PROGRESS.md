@@ -142,8 +142,8 @@ Uppdaterade filer:
 | 4 | /spelare/[slug] + /match/[id] | ✅ | fe0f201 |
 | 5 | /forum/* (ListGroup-index, compose-Sheet, FAB) | ✅ | ba7d573 |
 | 6 | /onboarding (StepDots+spring) + /konto (grupplistor) | ✅ | 4a622f0 |
-| 7 | /feed (PTR, ban-fix) + /nyheter (tokens) + Carousel-primitiv | ✅ | (denna commit) |
-| 8 | Landning + global QA (perf/a11y/Lighthouse) | ⬜ | — |
+| 7 | /feed (PTR, ban-fix) + /nyheter (tokens) + Carousel-primitiv | ✅ | 0c83f0c |
+| 8 | Global QA kodnivå (MotionConfig, recharts-dynamic, audit) | ✅ | (denna commit) — browser-QA kvar, se Phase 8-sektionen |
 
 Fas 7-not: embla-primitiven finns som components/ui/Carousel.tsx men är medvetet
 INTE applicerad — ingen yta tjänar på karusell idag (grid/lista är rätt affordance;
@@ -190,3 +190,41 @@ OBS: Sheet/Card ligger i TactileSheet/TactileCard pga Windows case-krock med sha
 
 rtk tsc (0 fel) → pnpm build (Compiled successfully; prerender-felet ovan är känt)
 → commit feel(<yta>): … → push → Vercel-deploy. Critique: /impeccable critique <yta>.
+
+---
+
+## Phase 8 — Global QA-audit (2026-06-12, kodnivå)
+
+> Browser-baserad QA (Lighthouse, VoiceOver, riktiga viewports) kunde inte köras
+> i denna miljö — kör den checklistan separat, se "Kvar för browser-QA" nedan.
+
+### Audit Health Score (kodnivå)
+
+| # | Dimension | Poäng | Nyckelfynd |
+|---|-----------|-------|-----------|
+| 1 | Accessibility | 3 | aria/focus-visible/44px genomfört i Tactile-ytor; äldre ytor (gamification, LiveMatchClient) ej genomgångna |
+| 2 | Performance | 3 | recharts nu dynamic i mitt-lag + spelare-jämför; alla bilder via next/image; XgChart kvar statisk (server-sida) |
+| 3 | Responsive | 3 | 44px-mål + breakpoints i alla konverterade ytor; tabeller scrollar medvetet horisontellt |
+| 4 | Theming | 2 | SYSTEMISKT: 93 hårdkodade hex i 25 filer (mest gamification/, jamfor/, LiveMatchClient) — många är legitima lagfärger/data-viz men #1D9E75 bör vara var(--color-pitch) överallt |
+| 5 | Anti-Patterns | 4 | Detektor 0 fynd över landing+app+ui+forum; feed-side-stripe åtgärdad i Fas 7 |
+| **Totalt** | | **15/20** | **Good** |
+
+### Åtgärdat i denna fas
+- MotionConfig reducedMotion="user" i app/providers.tsx — ALLA motion-komponenter
+  respekterar nu prefers-reduced-motion globalt (P1, WCAG 2.3.3).
+- recharts lazy-laddas via next/dynamic i MittLagDashboard + PlayerCompareClient
+  (skeleton-wave som loading-state).
+
+### Kvarstående (P2, ej blockerande)
+- Hex → tokens-städning i gamification/, jamfor/page.tsx, LiveMatchClient.tsx,
+  sammanfattning/ (93 förekomster; behåll äkta lagfärger, ersätt brand-hex).
+- XgChart (recharts) statisk i jamfor — dynamic kräver client-wrapper.
+- Refetch-fel i mitt-lag är tysta (sonner-toast vore rätt kanal).
+- Kortkommandon (1–5 för flikar) för power users.
+
+### Kvar för browser-QA (kräver miljö med browser/deploy)
+1. Lighthouse på /, /mitt-lag, /statistik, /nyheter (mål: perf ≥90, a11y ≥95, CLS 0).
+2. VoiceOver/NVDA-pass på onboarding-wizarden och quickview-sheeten.
+3. 320px-viewport-svep (lagväljaren, segmented controls, tabeller).
+4. Verifiera 60fps på sheet-drag + segmented-spring på mellanklassmobil.
+5. /impeccable critique på /statistik och landningen (mitt-lag-trend: 26 → 31).
