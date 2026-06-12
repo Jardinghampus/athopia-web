@@ -150,6 +150,12 @@
     color-scheme: light;
   }
 
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
   html.dark {
     color-scheme: dark;
   }
@@ -252,6 +258,18 @@
   }
   @media (prefers-reduced-motion: reduce) {
     .skeleton-wave::after { animation: none; }
+  }
+
+  /* Marquee för landningssidans klubb-rad (innehållet dubbleras i DOM) */
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+  .animate-marquee {
+    animation: marquee 36s linear infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .animate-marquee { animation: none; }
   }
 
   /* Hide scrollbar while keeping functionality */
