@@ -6,6 +6,7 @@ import { useUser } from "@clerk/nextjs";
 import PostItem from "@/components/forum/PostItem";
 import ComposePost from "@/components/forum/ComposePost";
 import TagFilter from "@/components/forum/TagFilter";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/TactileSheet";
 import type { ForumPost } from "@/lib/types";
 
 interface Props {
@@ -80,19 +81,29 @@ export default function ForumClient({ teamSlug, sport, initialPosts, initialSort
     <div>
       <TagFilter active={sort} onChange={setSort} />
 
-      {composeOpen && user && (
-        <div className="mt-4 p-4 bg-card border border-border rounded-xl">
-          <ComposePost
-            teamSlug={teamSlug}
-            sport={sport}
-            onPost={handlePost}
-          />
-        </div>
+      {/* Compose i bottom-sheet — håller flödet i kontext */}
+      {user && (
+        <Sheet open={composeOpen} onOpenChange={setComposeOpen}>
+          <SheetContent>
+            <div className="space-y-4 pb-2">
+              <SheetTitle>Nytt inlägg</SheetTitle>
+              <ComposePost
+                teamSlug={teamSlug}
+                sport={sport}
+                onPost={handlePost}
+              />
+            </div>
+          </SheetContent>
+        </Sheet>
       )}
 
       <div className="mt-4 flex flex-col divide-y divide-border/30">
         {loading ? (
-          <div className="py-16 text-center text-muted-foreground text-sm">Laddar…</div>
+          <div className="space-y-3 py-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-20 rounded-xl bg-card skeleton-wave" />
+            ))}
+          </div>
         ) : posts.length === 0 ? (
           <div className="py-16 text-center text-muted-foreground text-sm">
             Inga inlägg ännu. Starta diskussionen!
@@ -114,8 +125,8 @@ export default function ForumClient({ teamSlug, sport, initialPosts, initialSort
       {/* FAB */}
       {user && (
         <button
-          onClick={() => setComposeOpen(!composeOpen)}
-          className="fixed bottom-6 right-6 w-14 h-14 bg-pitch text-white rounded-full shadow-lg flex items-center justify-center hover:bg-pitch/90 transition-colors z-50"
+          onClick={() => setComposeOpen(true)}
+          className="fixed right-6 bottom-[max(1.5rem,env(safe-area-inset-bottom))] w-14 h-14 bg-pitch text-white rounded-full shadow-lg flex items-center justify-center hover:bg-pitch/90 active:scale-95 transition-[background-color,transform] z-50 touch-manipulation"
           aria-label="Nytt inlägg"
         >
           <Plus className="w-6 h-6" />

@@ -27,7 +27,7 @@ export default function TagFilter({ active, onChange }: { active: string; onChan
         <button
           key={tag.id}
           onClick={() => select(tag.id)}
-          className={`shrink-0 px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
+          className={`shrink-0 px-3.5 min-h-11 sm:min-h-8 inline-flex items-center rounded-full text-xs font-medium border transition-colors touch-manipulation ${
             active === tag.id
               ? "bg-pitch text-white border-pitch"
               : "border-border/60 text-muted-foreground hover:border-pitch hover:text-pitch"

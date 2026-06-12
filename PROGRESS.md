@@ -123,3 +123,62 @@ Uppdaterade filer:
 | WEB-LH3 | app/lag/[slug]/podcasts/page.tsx | ✅ |
 | WEB-LH4 | app/lag/[slug]/sammanfattning/page.tsx (AI digest + narrativ) | ✅ |
 | WEB-LH5 | components/layout/AllsvenskanNav.tsx (global lag-badges) | ✅ |
+
+---
+
+## Native-feel-initiativet — status 2026-06-12
+
+> Plan: NATIVE-FEEL-PLAN.md · Design: DESIGN.md · Kontext: PRODUCT.md
+> Critique-snapshots: .impeccable/critique/ (mitt-lag: 26 → 31)
+
+### Faser
+
+| Fas | Yta | Status | Commit |
+|-----|-----|--------|--------|
+| 0 | Setup (Impeccable, PRODUCT/DESIGN/PLAN) | ✅ | 1bb0dd6 |
+| 1 | Tactile UI-system (components/ui/) | ✅ | d8f41e1, 2bf9bab |
+| 2 | /mitt-lag (React Query, Sheet, PTR, LargeTitle) | ✅ | eb1d962, 46701da |
+| 3 | /statistik/* (pill-tabbar, filter-Sheet, ListGroup) | ✅ | d8df24f, 9d22571 |
+| 4 | /spelare/[slug] + /match/[id] | ✅ | fe0f201 |
+| 5 | /forum/* (ListGroup-index, compose-Sheet, FAB) | ✅ | (denna commit) |
+| 6 | /onboarding + /konto + auth | ⬜ | — |
+| 7 | /nyheter + /feed + /podcast (embla) | ⬜ | — |
+| 8 | Landning + global QA (perf/a11y/Lighthouse) | ⬜ | — |
+
+### Tactile UI-komponenter (components/ui/)
+
+Pressable · SegmentedControl · Sheet (TactileSheet.tsx) · Card (TactileCard.tsx)
+· ListGroup/ListRow (density-prop) · LargeTitleHeader (titleContent/stickyOffset)
+· TabBar · StatNumber (@number-flow/react) · PullToRefresh (overscroll-contain).
+Motion-tokens: lib/motion.ts (speglar --ease-* i globals.css).
+React Query-provider: app/providers.tsx, inkopplad i app/layout.tsx.
+OBS: Sheet/Card ligger i TactileSheet/TactileCard pga Windows case-krock med shadcn.
+
+### Datapunkter att skjuta in (UI klart, väntar på data)
+
+| Yta | Datakälla | Fylls av | Tomt-läge idag |
+|-----|-----------|----------|----------------|
+| /mitt-lag hela hubben | GET /api/team/[slug]/hub ← lib/team-hub/queries.ts | Sportmonks-sync (fixtures, team_season_stats, player_season_stats) + RSS→content_queue | Mock-fallback lib/team-hub/mock.ts |
+| /mitt-lag radar | team_season_stats (alla lag, season_id=26806) | syncResults → Milo | "visas när säsongsstatistik finns" |
+| /mitt-lag nyheter | articles via hub-payload | RSS-pipeline + Echo | "Inga artiklar ännu" |
+| /statistik tabell/skytte/assist/form | lib/sportsmonks.ts (fetchStandingsFull, fetchTopScorers, fetchTopAssists) | SPORTSMONKS_API_TOKEN i env | EmptyState med env-hint |
+| /statistik xG-flik | Sportmonks premium | abonnemangsuppgradering | platshållare |
+| /statistik/scout + /spelare (jämför) | scout-pool ← player_season_stats | Sportmonks player-sync | tom pool |
+| /statistik/jamfor | match_stats + entities + content_queue(comparison-digest) | OS-17 match-collector + AI-digest | "Kör OS-17" |
+| /spelare/[slug] | players, player_season_stats, player_match_stats, fixtures | Sportmonks player/fixture-sync | mock-spelare + "Ingen statistik" |
+| /match/[id] | fixtures, team_match_stats, fixture_events, fixture_lineups, match_summaries | Hetzner-agent efter matchslut | "Ingen data för match" |
+| /forum | forum_threads, entities + /api/forum/posts | användargenererat (Clerk-auth) | "Inga lag/inlägg" |
+| LIVE-lägen (puls, live_scores) | live_scores + fixtures.status='LIVE' | syncLive (30–60s, endast vid LIVE) | visas ej |
+
+### Kända blockers (oförändrade av initiativet)
+
+1. Lokal `pnpm build` failar på prerender: hooks/useFavoriteTeam.ts kräver
+   ClerkProvider men .env.local saknas lokalt. Vercel (env finns) bygger OK.
+   Fix: villkora useUser-anropet eller lägg Clerk-nycklar i .env.local.
+2. Två lokala kloner: C:\Users\jardi\athopia-web och
+   C:\Users\jardi\Athopia Build\athopia-web — synka båda via git pull.
+
+### Verifieringsprotokoll per fas
+
+rtk tsc (0 fel) → pnpm build (Compiled successfully; prerender-felet ovan är känt)
+→ commit feel(<yta>): … → push → Vercel-deploy. Critique: /impeccable critique <yta>.

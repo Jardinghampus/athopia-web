@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { MessageSquare, Users } from "lucide-react";
+import { Users } from "lucide-react";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import { ListGroup } from "@/components/ui/ListGroup";
+import { ListRow } from "@/components/ui/ListRow";
 
 export const metadata: Metadata = {
   title: "Forum — Allsvenskan",
@@ -87,36 +89,21 @@ export default async function ForumIndexPage() {
           <p className="text-sm">Inga lag hittades.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <ListGroup className="max-w-2xl" footer="Trådantal och senaste aktivitet uppdateras löpande.">
           {teams.map((team) => (
-            <Link
+            <ListRow
               key={team.id}
               href={`/forum/${team.slug}`}
-              className="group flex items-center gap-4 bg-card hover:bg-card/80 border border-border rounded-xl p-4 transition-colors"
-            >
-              <div className="w-10 h-10 rounded-full bg-pitch/10 border border-pitch/20 flex items-center justify-center shrink-0">
-                <span className="text-sm font-bold text-pitch">
+              leading={
+                <span className="flex w-9 h-9 items-center justify-center rounded-full bg-pitch/10 border border-pitch/20 text-xs font-bold text-pitch">
                   {team.name.slice(0, 2).toUpperCase()}
                 </span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-foreground group-hover:text-pitch transition-colors truncate">
-                  {team.name}
-                </p>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <MessageSquare className="w-3 h-3" />
-                  <span>{team.threadCount} trådar</span>
-                  {team.lastActivity && (
-                    <>
-                      <span>·</span>
-                      <span>Senast {timeAgo(team.lastActivity)}</span>
-                    </>
-                  )}
-                </div>
-              </div>
-            </Link>
+              }
+              title={team.name}
+              subtitle={`${team.threadCount} trådar${team.lastActivity ? ` · Senast ${timeAgo(team.lastActivity)}` : ""}`}
+            />
           ))}
-        </div>
+        </ListGroup>
       )}
     </div>
   );
