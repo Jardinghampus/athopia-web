@@ -143,7 +143,7 @@ Uppdaterade filer:
 | 5 | /forum/* (ListGroup-index, compose-Sheet, FAB) | ✅ | ba7d573 |
 | 6 | /onboarding (StepDots+spring) + /konto (grupplistor) | ✅ | 4a622f0 |
 | 7 | /feed (PTR, ban-fix) + /nyheter (tokens) + Carousel-primitiv | ✅ | 0c83f0c |
-| 8 | Global QA kodnivå (MotionConfig, recharts-dynamic, audit) | ✅ | (denna commit) — browser-QA kvar, se Phase 8-sektionen |
+| 8 | Global QA kodnivå (MotionConfig, recharts-dynamic, audit) | ✅ | 3fea4a8 — browser-QA kvar, se Phase 8-sektionen |
 
 Fas 7-not: embla-primitiven finns som components/ui/Carousel.tsx men är medvetet
 INTE applicerad — ingen yta tjänar på karusell idag (grid/lista är rätt affordance;
