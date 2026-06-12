@@ -229,6 +229,31 @@
   .stagger-3 { animation-delay: 90ms; }
   .stagger-4 { animation-delay: 120ms; }
 
+  /* Skeleton shimmer — våg som sveper vänster → höger */
+  @keyframes skeleton-wave {
+    100% { transform: translateX(100%); }
+  }
+  .skeleton-wave {
+    position: relative;
+    overflow: hidden;
+  }
+  .skeleton-wave::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in oklab, var(--color-foreground) 9%, transparent),
+      transparent
+    );
+    animation: skeleton-wave 1.6s ease-in-out infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton-wave::after { animation: none; }
+  }
+
   /* Hide scrollbar while keeping functionality */
   .scrollbar-none {
     scrollbar-width: none;

@@ -5,9 +5,10 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   RefreshCw, ChevronDown, Trophy, BarChart3, Users, CalendarDays, MessageSquare,
-  Newspaper, Activity, Star, Loader2,
+  Newspaper, Activity, Star,
 } from "lucide-react";
 import { TeamRadar } from "@/components/team-hub/TeamRadar";
+import { MittLagSkeleton } from "./MittLagSkeleton";
 import { getStoredTeam, setStoredTeam } from "@/lib/team-hub/teamContext";
 import type { TeamHubPayload, LeaderRow, FixtureRow } from "@/lib/team-hub/queries";
 
@@ -28,12 +29,14 @@ export function MittLagDashboard({ teams, initialSlug }: { teams: TeamListItem[]
   const [loading, setLoading] = useState(false);
   const [tab, setTab] = useState<TabId>("oversikt");
   const [updatedAt, setUpdatedAt] = useState<number | null>(null);
+  const [resolved, setResolved] = useState(initialSlug != null);
 
   // Klient-resolved stored team (om server inte hade någon).
   useEffect(() => {
     if (!slug) {
       const stored = getStoredTeam();
       if (stored?.slug) setSlug(stored.slug);
+      setResolved(true);
     }
   }, [slug]);
 
@@ -56,10 +59,26 @@ export function MittLagDashboard({ teams, initialSlug }: { teams: TeamListItem[]
 
   const current = useMemo(() => teams.find((t) => t.slug === slug) ?? null, [teams, slug]);
 
-  if (!slug) return <EmptyPicker />;
+  if (!slug) {
+    // Innan vi hunnit läsa stored team: visa skelett, inte tom picker.
+    if (!resolved) {
+      return (
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+          <MittLagSkeleton />
+        </div>
+      );
+    }
+    return <EmptyPicker />;
+  }
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-5">
+      {!hub && loading ? (
+        <MittLagSkeleton />
+      ) : !hub ? (
+        <p className="py-16 text-center text-sm text-muted-foreground">Kunde inte ladda lagdata.</p>
+      ) : (
+        <>
       {/* ── Header med lagväljare ─────────────────────────────── */}
       <div className="flex items-center gap-4">
         <div className="relative w-14 h-14 rounded-2xl overflow-hidden bg-card border border-border shrink-0">
@@ -120,18 +139,14 @@ export function MittLagDashboard({ teams, initialSlug }: { teams: TeamListItem[]
       </div>
 
       {/* ── Innehåll ──────────────────────────────────────────── */}
-      {loading && !hub ? (
-        <div className="py-20 flex justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
-      ) : !hub ? (
-        <p className="py-16 text-center text-sm text-muted-foreground">Kunde inte ladda lagdata.</p>
-      ) : (
-        <div className="space-y-5">
-          {tab === "oversikt" && <Oversikt hub={hub} />}
-          {tab === "statistik" && <Statistik hub={hub} />}
-          {tab === "trupp" && <Trupp squad={hub.squad} />}
-          {tab === "matcher" && <Matcher recent={hub.recent} upcoming={hub.upcoming} smId={hub.team.sportsmonks_id} />}
-          {tab === "forum" && <Forum hub={hub} />}
-        </div>
+      <div className="space-y-5">
+        {tab === "oversikt" && <Oversikt hub={hub} />}
+        {tab === "statistik" && <Statistik hub={hub} />}
+        {tab === "trupp" && <Trupp squad={hub.squad} />}
+        {tab === "matcher" && <Matcher recent={hub.recent} upcoming={hub.upcoming} smId={hub.team.sportsmonks_id} />}
+        {tab === "forum" && <Forum hub={hub} />}
+      </div>
+        </>
       )}
     </div>
   );
