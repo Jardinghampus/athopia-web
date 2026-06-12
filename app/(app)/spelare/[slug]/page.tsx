@@ -3,6 +3,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import { ListGroup } from "@/components/ui/ListGroup";
+import { ListRow } from "@/components/ui/ListRow";
+import { StatNumber } from "@/components/ui/StatNumber";
 
 export const revalidate = 60;
 
@@ -68,12 +71,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-function StatBox({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
+function StatBox({ label, value, suffix, sub }: { label: string; value: number; suffix?: string; sub?: string }) {
   return (
-    <div className="bg-card border border-border rounded-xl p-4 text-center">
-      <p className="font-heading text-4xl text-foreground">{value}</p>
+    <div className="bg-card dark:bg-white/[0.025] border border-border rounded-2xl p-4 text-center">
+      <StatNumber value={value} suffix={suffix} className="text-3xl text-foreground" />
       <p className="text-xs text-muted-foreground mt-1">{label}</p>
-      {sub && <p className="text-xs text-[#1D9E75] mt-0.5">{sub}</p>}
+      {sub && <p className="text-xs text-pitch mt-0.5">{sub}</p>}
     </div>
   );
 }
@@ -118,23 +121,23 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
         <div>
           <h2 className="font-heading text-xl text-foreground mb-3">ALLSVENSKAN 2026</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
-            <StatBox label="Matcher"    value={stats.appearances as number ?? 0} />
-            <StatBox label="Mål"        value={stats.goals as number ?? 0} sub={stats.xg ? `xG ${Number(stats.xg).toFixed(1)}` : undefined} />
-            <StatBox label="Assist"     value={stats.assists as number ?? 0} sub={stats.xa ? `xA ${Number(stats.xa).toFixed(1)}` : undefined} />
-            <StatBox label="Speltid"    value={`${stats.minutes as number ?? 0}'`} />
+            <StatBox label="Matcher"    value={(stats.appearances as number) ?? 0} />
+            <StatBox label="Mål"        value={(stats.goals as number) ?? 0} sub={stats.xg ? `xG ${Number(stats.xg).toFixed(1)}` : undefined} />
+            <StatBox label="Assist"     value={(stats.assists as number) ?? 0} sub={stats.xa ? `xA ${Number(stats.xa).toFixed(1)}` : undefined} />
+            <StatBox label="Speltid"    value={(stats.minutes as number) ?? 0} suffix="′" />
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <StatBox label="Skott"      value={stats.shots as number ?? 0} />
-            <StatBox label="Sk. på mål" value={stats.shots_on_target as number ?? 0} />
-            <StatBox label="🟨 Kort"   value={stats.yellow_cards as number ?? 0} />
-            <StatBox label="🟥 Kort"   value={stats.red_cards as number ?? 0} />
+            <StatBox label="Skott"      value={(stats.shots as number) ?? 0} />
+            <StatBox label="Sk. på mål" value={(stats.shots_on_target as number) ?? 0} />
+            <StatBox label="Gula kort"  value={(stats.yellow_cards as number) ?? 0} />
+            <StatBox label="Röda kort"  value={(stats.red_cards as number) ?? 0} />
           </div>
           {(stats.passes as number > 0) && (
             <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <StatBox label="Passningar"    value={stats.passes as number ?? 0} />
-              <StatBox label="Tacklingar"    value={stats.tackles as number ?? 0} />
-              <StatBox label="Interceptions" value={stats.interceptions as number ?? 0} />
-              <StatBox label="Dribblingar"   value={stats.dribbles as number ?? 0} />
+              <StatBox label="Passningar"    value={(stats.passes as number) ?? 0} />
+              <StatBox label="Tacklingar"    value={(stats.tackles as number) ?? 0} />
+              <StatBox label="Interceptions" value={(stats.interceptions as number) ?? 0} />
+              <StatBox label="Dribblingar"   value={(stats.dribbles as number) ?? 0} />
             </div>
           )}
         </div>
@@ -144,41 +147,42 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
       {matches.length > 0 && (
         <div>
           <h2 className="font-heading text-xl text-foreground mb-3">MATCH FÖR MATCH</h2>
-          <div className="rounded-xl border border-border bg-card overflow-x-auto">
-            <table className="w-full text-sm min-w-[500px]">
-              <thead>
-                <tr className="border-b border-border bg-muted/40">
-                  <th className="text-left px-4 py-2 text-xs text-muted-foreground">Match</th>
-                  <th className="text-center px-3 py-2 text-xs text-muted-foreground">Min</th>
-                  <th className="text-center px-3 py-2 text-xs text-muted-foreground">Mål</th>
-                  <th className="text-center px-3 py-2 text-xs text-muted-foreground">Ast</th>
-                  <th className="text-center px-3 py-2 text-xs text-muted-foreground">xG</th>
-                  <th className="text-center px-3 py-2 text-xs text-muted-foreground">🟨</th>
-                </tr>
-              </thead>
-              <tbody>
-                {matches.map((m, i) => {
-                  const fix = m.fixture as Record<string, unknown> | null;
-                  return (
-                    <tr key={i} className="border-b border-border/40 last:border-0 hover:bg-muted/20 transition-colors">
-                      <td className="px-4 py-2">
-                        {fix ? (
-                          <Link href={`/match/${m.fixture_id}`} className="text-foreground hover:text-[#1D9E75]">
-                            {fix.home_team_name as string} {fix.home_score as number}–{fix.away_score as number} {fix.away_team_name as string}
-                          </Link>
-                        ) : `Match #${m.fixture_id}`}
-                      </td>
-                      <td className="text-center px-3 py-2 text-muted-foreground">{m.minutes_played as number ?? 0}′</td>
-                      <td className="text-center px-3 py-2 font-semibold">{m.goals as number ?? 0}</td>
-                      <td className="text-center px-3 py-2">{m.assists as number ?? 0}</td>
-                      <td className="text-center px-3 py-2 text-muted-foreground">{m.xg ? Number(m.xg).toFixed(2) : "–"}</td>
-                      <td className="text-center px-3 py-2 text-yellow-500">{m.yellow_cards as number ?? 0}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <ListGroup footer="Senaste 10 matcherna. Tryck på en match för detaljer.">
+            {matches.map((m, i) => {
+              const fix = m.fixture as Record<string, unknown> | null;
+              const goals = (m.goals as number) ?? 0;
+              const assists = (m.assists as number) ?? 0;
+              const yellows = (m.yellow_cards as number) ?? 0;
+              const reds = (m.red_cards as number) ?? 0;
+              const parts = [
+                `${(m.minutes_played as number) ?? 0}′`,
+                m.xg ? `xG ${Number(m.xg).toFixed(2)}` : null,
+                yellows > 0 ? `${yellows} gult` : null,
+                reds > 0 ? `${reds} rött` : null,
+              ].filter(Boolean);
+              const contribution = [
+                goals > 0 ? `${goals} mål` : null,
+                assists > 0 ? `${assists} ast` : null,
+              ].filter(Boolean).join(" · ");
+              return (
+                <ListRow
+                  key={i}
+                  href={fix ? `/match/${m.fixture_id}` : undefined}
+                  title={
+                    fix
+                      ? `${fix.home_team_name as string} ${fix.home_score as number}–${fix.away_score as number} ${fix.away_team_name as string}`
+                      : `Match #${m.fixture_id}`
+                  }
+                  subtitle={parts.join(" · ")}
+                  trailing={
+                    contribution
+                      ? <span className="font-semibold tabular-nums text-foreground">{contribution}</span>
+                      : <span className="tabular-nums">–</span>
+                  }
+                />
+              );
+            })}
+          </ListGroup>
         </div>
       )}
 
