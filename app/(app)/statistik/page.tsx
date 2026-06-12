@@ -14,6 +14,30 @@ import {
   fetchAllsvenskanFixtures,
   parseFixtureScore,
 } from "@/lib/sportsmonks";
+import {
+  SEASON_IDS,
+  getStandingsFromDb,
+  getTopScorersFromDb,
+  getTopAssistsFromDb,
+} from "@/lib/statistik";
+
+// Primär källa: Supabase (fylls av Hetzner-syncen). Fallback: Sportmonks-API
+// direkt — tas bort när Supabase-datan är verifierad komplett för båda säsonger.
+async function getStandings(seasonId: string) {
+  const db = await getStandingsFromDb(seasonId);
+  if (db.length > 0) return db;
+  return fetchStandingsFull(seasonId).catch(() => []);
+}
+async function getScorers(seasonId: string) {
+  const db = await getTopScorersFromDb(seasonId);
+  if (db.length > 0) return db;
+  return fetchTopScorers(seasonId).catch(() => []);
+}
+async function getAssists(seasonId: string) {
+  const db = await getTopAssistsFromDb(seasonId);
+  if (db.length > 0) return db;
+  return fetchTopAssists(seasonId).catch(() => []);
+}
 
 export const dynamic = 'force-dynamic';
 
@@ -26,12 +50,6 @@ export const metadata: Metadata = {
 type TabId = "tabell" | "skytteliga" | "assistligan" | "xg" | "form" | "press" | "h2h";
 const VALID_TABS: TabId[] = ["tabell", "skytteliga", "assistligan", "xg", "form", "press", "h2h"];
 
-// År → Sportmonks season-id. 2026 = 26806 (samma som team-hub).
-// 2025 läses från env tills id:t är verifierat — saknas det visas EmptyState.
-const SEASON_IDS: Record<string, string | undefined> = {
-  "2026": process.env.SPORTSMONKS_SEASON_ID_2026 ?? "26806",
-  "2025": process.env.SPORTSMONKS_SEASON_ID_2025,
-};
 const VALID_SEASONS = Object.keys(SEASON_IDS);
 
 // ── Delade komponenter ────────────────────────────────────────────────────────
@@ -86,8 +104,8 @@ function TeamCell({ name, image }: { name: string; image?: string }) {
 
 // ── Tabell ────────────────────────────────────────────────────────────────────
 
-async function TabelTab({ seasonId }: { seasonId?: string }) {
-  const rows = await fetchStandingsFull(seasonId).catch(() => []);
+async function TabelTab({ seasonId }: { seasonId: string }) {
+  const rows = await getStandings(seasonId);
   if (rows.length === 0) return <EmptyState />;
   return (
     <div className="overflow-x-auto -mx-4 sm:mx-0">
@@ -163,8 +181,8 @@ async function TabelTab({ seasonId }: { seasonId?: string }) {
 
 // ── Skytteliga ────────────────────────────────────────────────────────────────
 
-async function SkytteligaTab({ seasonId }: { seasonId?: string }) {
-  const scorers = await fetchTopScorers(seasonId).catch(() => []);
+async function SkytteligaTab({ seasonId }: { seasonId: string }) {
+  const scorers = await getScorers(seasonId);
   if (scorers.length === 0) return <EmptyState />;
   return (
     <ListGroup className="max-w-2xl">
@@ -195,8 +213,8 @@ async function SkytteligaTab({ seasonId }: { seasonId?: string }) {
 
 // ── Assistligan ───────────────────────────────────────────────────────────────
 
-async function AssistliganTab({ seasonId }: { seasonId?: string }) {
-  const assists = await fetchTopAssists(seasonId).catch(() => []);
+async function AssistliganTab({ seasonId }: { seasonId: string }) {
+  const assists = await getAssists(seasonId);
   if (assists.length === 0) return <EmptyState />;
   return (
     <ListGroup className="max-w-2xl">
@@ -233,8 +251,8 @@ function XGTab() {
 
 // ── Form ──────────────────────────────────────────────────────────────────────
 
-async function FormTab({ seasonId }: { seasonId?: string }) {
-  const rows = await fetchStandingsFull(seasonId).catch(() => []);
+async function FormTab({ seasonId }: { seasonId: string }) {
+  const rows = await getStandings(seasonId);
   if (rows.length === 0) return <EmptyState />;
   const withForm = rows.filter((r) => r.form.length > 0);
   if (withForm.length === 0)
@@ -334,23 +352,17 @@ export default async function StatistikPage({
   const sp = await searchParams;
   const tab = (VALID_TABS.includes(sp.tab as TabId) ? sp.tab : "tabell") as TabId;
   const sasong = VALID_SEASONS.includes(sp.sasong ?? "") ? sp.sasong! : "2026";
-  const seasonId = SEASON_IDS[sasong];
+  const seasonId = SEASON_IDS[sasong]!;
 
   let tabContent: React.ReactNode;
-  if (!seasonId && ["tabell", "skytteliga", "assistligan", "form"].includes(tab)) {
-    tabContent = (
-      <EmptyState message={`Säsong ${sasong} är inte konfigurerad ännu (sätt SPORTSMONKS_SEASON_ID_${sasong}).`} />
-    );
-  } else {
-    switch (tab) {
-      case "tabell":      tabContent = <TabelTab seasonId={seasonId} />;       break;
-      case "skytteliga":  tabContent = <SkytteligaTab seasonId={seasonId} />;  break;
-      case "assistligan": tabContent = <AssistliganTab seasonId={seasonId} />; break;
-      case "xg":          tabContent = <XGTab />;          break;
-      case "form":        tabContent = <FormTab seasonId={seasonId} />;        break;
-      case "press":       tabContent = <PressTab />;       break;
-      case "h2h":         tabContent = <H2HTab />;         break;
-    }
+  switch (tab) {
+    case "tabell":      tabContent = <TabelTab seasonId={seasonId} />;       break;
+    case "skytteliga":  tabContent = <SkytteligaTab seasonId={seasonId} />;  break;
+    case "assistligan": tabContent = <AssistliganTab seasonId={seasonId} />; break;
+    case "xg":          tabContent = <XGTab />;          break;
+    case "form":        tabContent = <FormTab seasonId={seasonId} />;        break;
+    case "press":       tabContent = <PressTab />;       break;
+    case "h2h":         tabContent = <H2HTab />;         break;
   }
 
   return (

@@ -238,3 +238,21 @@ rtk tsc (0 fel) → pnpm build (Compiled successfully; prerender-felet ovan är 
   **2025 kräver env SPORTSMONKS_SEASON_ID_2025** (Vercel + .env) — tills den är
   satt visar 2025-fliken ett konfigurations-EmptyState. Datapunkt att skjuta in:
   hämta 2025-id:t från Sportmonks /seasons?search=Allsvenskan.
+
+### Tillägg 2026-06-12 (kväll): statistik läser Supabase (Sportmonks -> sync -> Supabase -> web)
+- Nytt datalager lib/statistik.ts mot allsvenskan-sync-tabellerna (teams, players,
+  fixtures, team_season_stats, player_season_stats; schema i
+  "Athopia Build/sportsmonks/allsvenskan-sync/supabase/schema.sql").
+- Tabellen härleds ur fixtures (status=FT): W/D/L, GF/GA, poäng, form, position —
+  team_season_stats saknar insläppta mål/poäng/position.
+- Skytteliga/assistligan: player_season_stats JOIN players + teams.
+- Säsonger: 2026=26806, 2025=24943 (samma som allsvenskan-sync/.env), env-overridebara.
+- FALLBACK: om Supabase ger 0 rader anropas Sportmonks-API:t direkt
+  (lib/sportsmonks.ts) — ta bort fallbacken när sync-datan är verifierad för
+  båda säsongerna.
+- OBS vid verifiering: Supabase REST + MCP svarade 522/timeout vid implementations-
+  tillfället — datan kunde inte rad-räknas. Kontrollera projektet i dashboarden
+  och verifiera /statistik?sasong=2025 mot riktiga rader.
+- Kända scheman-krockar att bevaka: sync-fixtures (id PK, home_team_id) vs
+  webbens äldre fixtures-användning i mitt-lag/match (sportmonks_id,
+  home_team_name) — mitt-lag-hubben kan behöva samma migrering senare.
