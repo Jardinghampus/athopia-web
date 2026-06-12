@@ -159,6 +159,8 @@ const RADAR_DEF: { key: keyof TeamSeasonRow; label: string; invert?: boolean }[]
 
 /** Hämtar och aggregerar hela hub-payloaden för ett lag (slug). */
 export async function getTeamHub(slug: string): Promise<TeamHubPayload | null> {
+  const { MOCK_TEAM_SLUG, mockTeamHub } = await import("./mock");
+  if (slug === MOCK_TEAM_SLUG) return mockTeamHub();
   if (!isSupabaseConfigured()) return null;
   const db = createServerClient();
   const { data } = await db.from("entities").select("*").eq("type", "team").eq("slug", slug).maybeSingle();

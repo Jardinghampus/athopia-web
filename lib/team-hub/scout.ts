@@ -39,7 +39,8 @@ export const SCOUT_METRICS = [
 export type ScoutMetricKey = (typeof SCOUT_METRICS)[number]["key"];
 
 export async function getScoutPool(): Promise<ScoutPlayer[]> {
-  if (!isSupabaseConfigured()) return [];
+  const { mockScoutPool } = await import("./mock");
+  if (!isSupabaseConfigured()) return mockScoutPool();
   try {
     const db = createServerClient();
     const [{ data: stats }, { data: teams }] = await Promise.all([
@@ -56,7 +57,7 @@ export async function getScoutPool(): Promise<ScoutPlayer[]> {
       if (smId != null) teamName.set(smId, String(t.name));
     }
 
-    return ((stats ?? []) as Record<string, unknown>[]).map((r) => {
+    const pool = ((stats ?? []) as Record<string, unknown>[]).map((r) => {
       const p = (r.players ?? {}) as Record<string, unknown>;
       const tid = Number(r.team_id ?? 0);
       return {
@@ -76,8 +77,10 @@ export async function getScoutPool(): Promise<ScoutPlayer[]> {
         rating: Number(r.rating ?? 0),
       };
     });
+    // Fallback till mock medan DB är tom/onåbar så UI:t går att jobba med.
+    return pool.length > 0 ? pool : mockScoutPool();
   } catch {
-    return [];
+    return mockScoutPool();
   }
 }
 
