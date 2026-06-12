@@ -54,7 +54,7 @@ export function TeamSelectionModal({ forceVisible = false }: TeamSelectionModalP
     void db
       .from("entities")
       .select("id, name, slug, metadata")
-      .eq("type", "club")
+      .eq("type", "team")
       .order("name")
       .then(({ data }) => {
         if (data) setTeams(data as Team[]);

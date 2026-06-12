@@ -66,7 +66,7 @@ async function getTeamStats(slug: string): Promise<TeamStats | null> {
     .from("entities")
     .select("id, name, slug, metadata")
     .eq("slug", slug)
-    .eq("type", "club")
+    .eq("type", "team")
     .single();
 
   if (!entity) return null;
@@ -187,7 +187,7 @@ async function getTeamList(): Promise<{ name: string; slug: string }[]> {
   const { data } = await db
     .from("entities")
     .select("name, slug")
-    .eq("type", "club")
+    .eq("type", "team")
     .not("slug", "is", null)
     .order("name");
   return (data ?? []) as { name: string; slug: string }[];

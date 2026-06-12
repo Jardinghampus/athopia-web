@@ -81,7 +81,7 @@ async function getAllsvenskanTeams(): Promise<string[]> {
     const { data } = await supabase
       .from("entities")
       .select("name")
-      .eq("type", "club")
+      .eq("type", "team")
       .order("name");
     return (data ?? []).map((e: { name: string }) => e.name);
   } catch {
