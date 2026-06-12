@@ -55,7 +55,7 @@ export function SheetTitle({
 }: ComponentProps<typeof Drawer.Title>) {
   return (
     <Drawer.Title
-      className={cn("font-heading text-2xl tracking-wide", className)}
+      className={cn("text-lg font-semibold", className)}
       {...props}
     />
   );
