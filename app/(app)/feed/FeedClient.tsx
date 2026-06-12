@@ -6,6 +6,7 @@ import { Newspaper, MessageSquare, Brain, Podcast, Loader2, RefreshCw } from "lu
 import { useFavoriteTeam } from "@/hooks/useFavoriteTeam";
 import { createClient } from "@supabase/supabase-js";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
+import { PullToRefresh } from "@/components/ui/PullToRefresh";
 import type { FeedItem, FeedItemType } from "@/lib/types";
 
 const TYPE_META: Record<FeedItemType, { label: string; color: string; icon: React.ElementType }> = {
@@ -32,8 +33,7 @@ function FeedItemCard({ item }: { item: FeedItem }) {
   return (
     <Link
       href={item.href}
-      className="group flex items-start gap-3 bg-card hover:bg-card/80 border border-border rounded-xl p-4 transition-colors"
-      style={{ borderLeftWidth: 3, borderLeftColor: meta.color }}
+      className="group flex items-start gap-3 bg-card hover:bg-card/80 active:bg-muted border border-border rounded-xl p-4 transition-colors touch-manipulation"
     >
       <div
         className="mt-0.5 shrink-0 w-8 h-8 rounded-full flex items-center justify-center"
@@ -174,6 +174,7 @@ export function FeedClient() {
   const teamLabel = slug ? slug.replace(/-/g, " ").toUpperCase() : "ALLSVENSKAN";
 
   return (
+    <PullToRefresh onRefresh={() => load(true)}>
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -203,7 +204,7 @@ export function FeedClient() {
       {loading ? (
         <div className="flex flex-col gap-3">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="h-20 rounded-xl bg-card animate-pulse border border-border" />
+            <div key={i} className="h-20 rounded-xl bg-card border border-border skeleton-wave" />
           ))}
         </div>
       ) : items.length === 0 ? (
@@ -240,5 +241,6 @@ export function FeedClient() {
         <p className="text-center text-xs text-muted-foreground py-4">Inga fler items</p>
       )}
     </div>
+    </PullToRefresh>
   );
 }

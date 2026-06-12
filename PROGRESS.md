@@ -140,16 +140,24 @@ Uppdaterade filer:
 | 2 | /mitt-lag (React Query, Sheet, PTR, LargeTitle) | ✅ | eb1d962, 46701da |
 | 3 | /statistik/* (pill-tabbar, filter-Sheet, ListGroup) | ✅ | d8df24f, 9d22571 |
 | 4 | /spelare/[slug] + /match/[id] | ✅ | fe0f201 |
-| 5 | /forum/* (ListGroup-index, compose-Sheet, FAB) | ✅ | (denna commit) |
-| 6 | /onboarding + /konto + auth | ⬜ | — |
-| 7 | /nyheter + /feed + /podcast (embla) | ⬜ | — |
+| 5 | /forum/* (ListGroup-index, compose-Sheet, FAB) | ✅ | ba7d573 |
+| 6 | /onboarding (StepDots+spring) + /konto (grupplistor) | ✅ | 4a622f0 |
+| 7 | /feed (PTR, ban-fix) + /nyheter (tokens) + Carousel-primitiv | ✅ | (denna commit) |
 | 8 | Landning + global QA (perf/a11y/Lighthouse) | ⬜ | — |
+
+Fas 7-not: embla-primitiven finns som components/ui/Carousel.tsx men är medvetet
+INTE applicerad — ingen yta tjänar på karusell idag (grid/lista är rätt affordance;
+karusell döljer innehåll). Använd den när en sektion faktiskt behöver horisontell
+snap (t.ex. landningens telefon-mockups eller en framtida "shows"-rail i /podcast).
+Feed-korten hade en färgad vänsterkant (side-stripe = absolute ban i Impeccable) —
+borttagen; typfärgen bärs av ikon-bubblan + etiketten.
 
 ### Tactile UI-komponenter (components/ui/)
 
 Pressable · SegmentedControl · Sheet (TactileSheet.tsx) · Card (TactileCard.tsx)
 · ListGroup/ListRow (density-prop) · LargeTitleHeader (titleContent/stickyOffset)
-· TabBar · StatNumber (@number-flow/react) · PullToRefresh (overscroll-contain).
+· TabBar · StatNumber (@number-flow/react) · PullToRefresh (overscroll-contain)
+· Carousel (embla, oanvänd än — se Fas 7-not).
 Motion-tokens: lib/motion.ts (speglar --ease-* i globals.css).
 React Query-provider: app/providers.tsx, inkopplad i app/layout.tsx.
 OBS: Sheet/Card ligger i TactileSheet/TactileCard pga Windows case-krock med shadcn.

@@ -114,8 +114,8 @@ export default async function NyheterPage({
 
       {/* NewsStream — RSS-signaler från content_queue (revalidate 30s) */}
       <div className="mb-10">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-zinc-500 mb-3">Senaste signaler</h2>
-        <Suspense fallback={<div className="h-40 rounded-xl bg-zinc-900 animate-pulse" />}>
+        <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Senaste signaler</h2>
+        <Suspense fallback={<div className="h-40 rounded-xl bg-card skeleton-wave" />}>
           <NewsStream sport="football" />
         </Suspense>
       </div>
