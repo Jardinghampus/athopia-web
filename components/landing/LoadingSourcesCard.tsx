@@ -11,10 +11,10 @@ import {
 } from "@/components/ui/highlighter";
 
 const SOURCES = [
-  { id: "src-1", label: "Sportbladet", className: "right-12 top-10" },
-  { id: "src-2", label: "Fotbollskanalen", className: "left-2 top-20" },
-  { id: "src-3", label: "Expressen", className: "bottom-20 right-1" },
-  { id: "src-4", label: "SVT Sport", className: "bottom-12 left-14" },
+  { id: "src-1", label: "Lokalpress", className: "right-12 top-10" },
+  { id: "src-2", label: "Klubbkanaler", className: "left-2 top-20" },
+  { id: "src-3", label: "Matchrapporter", className: "bottom-20 right-1" },
+  { id: "src-4", label: "Poddar & forum", className: "bottom-12 left-14" },
 ];
 
 /** Pekarens stopp (left, top) synkade med källornas positioner ovan */

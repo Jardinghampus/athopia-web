@@ -50,15 +50,18 @@ export function AnimatedHero({
             </Link>
           </div>
 
-          <div className="flex gap-4 flex-col">
-            <h1 className="text-display-2xl font-heading max-w-3xl text-center mx-auto">
+          <div className="flex gap-4 flex-col w-full">
+            <h1
+              className="font-heading max-w-6xl w-full text-center mx-auto px-2"
+              style={{ fontSize: "clamp(2.5rem, 1.3rem + 5vw, 6.5rem)", lineHeight: 1.08, letterSpacing: "-0.015em" }}
+            >
               <span className="text-white">{lead}</span>
               <span className="relative flex w-full justify-center overflow-hidden text-center md:pb-3 md:pt-1 h-[1.25em]">
                 &nbsp;
                 {titleList.map((title, index) => (
                   <motion.span
                     key={index}
-                    className="absolute italic text-pitch whitespace-nowrap"
+                    className="absolute italic text-pitch whitespace-nowrap px-1"
                     initial={{ opacity: 0, y: reducedMotion ? 0 : -100 }}
                     transition={{ type: "spring", stiffness: 50 }}
                     animate={

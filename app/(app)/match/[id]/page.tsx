@@ -91,7 +91,7 @@ export default async function MatchPage({ params }: PageProps) {
       {/* AI-sammanfattning */}
       {summary && (
         <div className="bg-amber-500/5 border border-amber-500/30 rounded-xl p-5">
-          <p className="text-xs font-semibold text-amber-500 uppercase tracking-wide mb-2">Athopia AI · The Athletic-stil</p>
+          <p className="text-xs font-semibold text-amber-500 uppercase tracking-wide mb-2">Athopia AI · Matchanalys</p>
           <p className="text-sm text-foreground/90 leading-relaxed">{summary}</p>
         </div>
       )}

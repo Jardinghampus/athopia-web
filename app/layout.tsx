@@ -21,19 +21,23 @@ const lora = Lora({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://athopia.se"),
+  metadataBase: new URL("https://www.athopia.se"),
   manifest: "/manifest.json",
   title: {
-    default: "Athopia — Allsvenskans hemma på nätet",
+    default: "Athopia — Allsvenskan 2026: tabell, resultat & statistik",
     template: "%s | Athopia",
   },
   description:
-    "Realtidsnyheter, AI-analys, djupstatistik och ditt lags forum — allt på ett ställe. Allsvenskan-versionen av The Athletic.",
-  keywords: ["fotboll", "allsvenskan", "premier league", "live scores", "fotbollspodcast"],
+    "Allt om Allsvenskan 2026 — live-tabell, resultat, spelschema, skytteliga, xG och djupstatistik för alla 16 lag. Matchanalyser, nyhetsflöde och forum för ditt lag, samlat på ett ställe.",
+  keywords: [
+    "Allsvenskan", "Allsvenskan 2026", "Allsvenskan tabell", "Allsvenskan resultat",
+    "Allsvenskan matcher", "Allsvenskan statistik", "Allsvenskan live", "Allsvenskan spelschema",
+    "Allsvenskan skytteliga", "svensk fotboll", "fotboll Allsvenskan", "Allsvenskan xG",
+  ],
   openGraph: {
     type: "website",
     locale: "sv_SE",
-    url: "https://athopia.se",
+    url: "https://www.athopia.se",
     siteName: "Athopia",
     images: [{ url: "/og-default.png", width: 1200, height: 630 }],
   },
