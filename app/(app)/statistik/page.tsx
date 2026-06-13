@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { StatistikTabs } from "./StatistikTabs";
+import { FavoriteTeamHighlight } from "./FavoriteTeamHighlight";
 import { H2HSearch } from "./H2HSearch";
 import { ListGroup } from "@/components/ui/ListGroup";
 import { ListRow } from "@/components/ui/ListRow";
@@ -128,6 +129,7 @@ async function TabelTab({ seasonId }: { seasonId: string }) {
           {rows.map((row, i) => (
             <tr
               key={row.team.id}
+              data-team-slug={row.team.name.toLowerCase().replace(/\s+/g, "-")}
               className={`border-b border-border/40 hover:bg-card/50 transition-colors ${
                 i < 3 ? "text-foreground" : ""
               }`}
@@ -375,6 +377,9 @@ export default async function StatistikPage({
       >
         <StatistikTabs />
       </Suspense>
+
+      {/* Client-side lag-highlight */}
+      <FavoriteTeamHighlight />
 
       {/* Innehåll */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">

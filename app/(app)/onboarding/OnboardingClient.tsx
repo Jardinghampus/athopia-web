@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
-import { Check } from "lucide-react";
+import { Check, ArrowRight, Bell, Zap, ChevronRight } from "lucide-react";
 import { transitions } from "@/lib/motion";
 import { useFavoriteTeam } from "@/hooks/useFavoriteTeam";
 import { createClient } from "@supabase/supabase-js";
@@ -28,6 +28,12 @@ function getInitials(name: string): string {
     .slice(0, 3);
 }
 
+const ALLSVENSKAN_2026_SM_IDS = new Set(
+  [354, 411, 432, 443, 532, 720, 1226, 1777, 1870, 2353, 2535, 2678, 2753, 2825, 3285, 8671].map(String)
+);
+
+const LOAD_TIMEOUT_MS = 8000;
+
 export function OnboardingClient() {
   const router = useRouter();
   const { setFavoriteTeam, markOnboardingDone } = useFavoriteTeam();
@@ -35,71 +41,103 @@ export function OnboardingClient() {
   const [selected, setSelected] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [loadFailed, setLoadFailed] = useState(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+
     if (!url || !key) {
       setLoadFailed(true);
       return;
     }
+
+    // Timeout guard — om Supabase inte svarar på 8s visar vi fallback
+    timeoutRef.current = setTimeout(() => {
+      setLoadFailed(true);
+    }, LOAD_TIMEOUT_MS);
+
     const db = createClient(url, key);
-    // Filtrerar till lag som deltar i Allsvenskan 2026 via sportsmonks_id
-    const ALLSVENSKAN_2026_IDS = new Set(
-      [354, 411, 432, 443, 532, 720, 1226, 1777, 1870, 2353, 2535, 2678, 2753, 2825, 3285, 8671].map(String)
-    );
     void db
       .from("entities")
       .select("id, name, slug, metadata")
       .eq("type", "team")
       .order("name")
-      .then(({ data }) => {
-        if (data && data.length > 0) {
-          const filtered = (data as Team[]).filter((t) => {
-            const smId = String((t.metadata?.["sportsmonks_id"] as number | undefined) ?? "");
-            return ALLSVENSKAN_2026_IDS.has(smId);
-          });
-          setTeams(filtered.length > 0 ? filtered : (data as Team[]));
-        } else {
-          setLoadFailed(true);
+      .then(({ data, error }) => {
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
         }
+        if (error || !data || data.length === 0) {
+          setLoadFailed(true);
+          return;
+        }
+        const filtered = (data as Team[]).filter((t) => {
+          const smId = String((t.metadata?.["sportsmonks_id"] as number | undefined) ?? "");
+          return ALLSVENSKAN_2026_SM_IDS.has(smId);
+        });
+        setTeams(filtered.length > 0 ? filtered : (data as Team[]));
       });
+
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
   }, []);
+
+  const selectedTeam = teams.find((t) => (t.slug ?? t.id) === selected);
+  const selectedColor = selectedTeam ? getColor(selectedTeam.metadata) : "#1D9E75";
 
   const handleContinue = async () => {
     setSaving(true);
-    if (selected) {
-      await setFavoriteTeam(selected);
-      // Hitta team-id för user_feed_config
-      const team = teams.find((t) => (t.slug ?? t.id) === selected);
-      if (team) {
+    try {
+      if (selected && selectedTeam) {
+        await setFavoriteTeam(selected);
+        // Spara i Supabase user_feed_config (ignorera fel — Clerk metadata är primärt)
         await fetch("/api/feed/config", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ followed_team_ids: [team.id] }),
+          body: JSON.stringify({ followed_team_ids: [selectedTeam.id] }),
         }).catch(() => {});
+      } else {
+        markOnboardingDone();
       }
-    } else {
-      markOnboardingDone();
+    } catch {
+      // Spara aldrig fast — vi navigerar ändå
     }
-    setSaving(false);
+    router.push("/feed");
+  };
+
+  const handleSkip = () => {
+    markOnboardingDone();
     router.push("/feed");
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4 py-8">
       <div className="w-full max-w-lg">
-        <div className="mb-8 text-center">
+        {/* Header */}
+        <motion.div
+          className="mb-8 text-center"
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+        >
           <h1 className="font-heading text-5xl text-foreground mb-2">VÄLJ DITT LAG</h1>
-          <p className="text-muted-foreground text-sm">
-            Få personaliserade nyheter, push-notiser och statistik för ditt lag.
+          <p className="text-muted-foreground text-sm max-w-xs mx-auto">
+            Hela Athopia anpassas efter ditt lag — nyheter, statistik, forum och notiser.
           </p>
-        </div>
+        </motion.div>
 
+        {/* Team grid */}
         {loadFailed ? (
-          <p className="py-10 text-center text-sm text-muted-foreground">
-            Kunde inte ladda lagen just nu. Du kan hoppa över och välja lag senare under Konto.
-          </p>
+          <div className="py-10 text-center space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Kunde inte ladda lagen just nu.
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Du kan välja lag senare under Konto → Inställningar.
+            </p>
+          </div>
         ) : teams.length === 0 ? (
           <div className="grid grid-cols-4 gap-3">
             {Array.from({ length: 16 }).map((_, i) => (
@@ -107,8 +145,13 @@ export function OnboardingClient() {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-4 gap-3">
-            {teams.map((team) => {
+          <motion.div
+            className="grid grid-cols-4 gap-3"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            {teams.map((team, i) => {
               const color = getColor(team.metadata);
               const slug = team.slug ?? team.id;
               const isSelected = selected === slug;
@@ -117,17 +160,19 @@ export function OnboardingClient() {
                 <motion.button
                   key={team.id}
                   onClick={() => setSelected(isSelected ? null : slug)}
-                  whileTap={{ scale: 0.94 }}
-                  transition={transitions.press}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.02, duration: 0.25, ease: "easeOut" }}
+                  whileTap={{ scale: 0.92 }}
                   aria-pressed={isSelected}
                   className="relative flex flex-col items-center justify-center h-20 rounded-xl border-2 text-xs font-medium text-center px-1 select-none touch-manipulation outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors"
                   style={{
                     borderColor: isSelected ? color : "var(--border)",
-                    backgroundColor: isSelected ? color + "18" : "var(--card)",
+                    backgroundColor: isSelected ? color + "1A" : "var(--card)",
                   }}
                 >
                   <span
-                    className="text-xl font-bold leading-none mb-1"
+                    className="text-xl font-bold leading-none mb-1 transition-colors"
                     style={{ color: isSelected ? color : "var(--muted-foreground)" }}
                   >
                     {getInitials(team.name)}
@@ -152,28 +197,84 @@ export function OnboardingClient() {
                 </motion.button>
               );
             })}
-          </div>
+          </motion.div>
         )}
 
-        <div className="mt-8 flex flex-col gap-3">
+        {/* Engagement preview — visas när ett lag är valt */}
+        <AnimatePresence>
+          {selectedTeam && (
+            <motion.div
+              initial={{ opacity: 0, height: 0, marginTop: 0 }}
+              animate={{ opacity: 1, height: "auto", marginTop: 16 }}
+              exit={{ opacity: 0, height: 0, marginTop: 0 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="overflow-hidden"
+            >
+              <div
+                className="rounded-xl border p-4 space-y-3"
+                style={{
+                  borderColor: selectedColor + "40",
+                  backgroundColor: selectedColor + "0D",
+                }}
+              >
+                <p
+                  className="text-xs font-semibold uppercase tracking-wider"
+                  style={{ color: selectedColor }}
+                >
+                  Du får direkt tillgång till
+                </p>
+                <div className="grid grid-cols-1 gap-2">
+                  {[
+                    { icon: Zap, text: `Senaste nyheterna om ${selectedTeam.name}` },
+                    { icon: Bell, text: "Push-notiser vid mål och transferrykten" },
+                    { icon: ChevronRight, text: "Statistik, tabell och matchhistorik" },
+                  ].map(({ icon: Icon, text }, i) => (
+                    <div key={i} className="flex items-center gap-2.5 text-sm text-foreground/80">
+                      <div
+                        className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
+                        style={{ backgroundColor: selectedColor + "25" }}
+                      >
+                        <Icon className="w-3 h-3" style={{ color: selectedColor }} />
+                      </div>
+                      {text}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Actions */}
+        <div className="mt-6 flex flex-col gap-3">
           <motion.button
             onClick={handleContinue}
             disabled={saving}
             whileTap={{ scale: 0.97 }}
             transition={transitions.press}
-            className="w-full min-h-12 rounded-xl text-sm font-semibold transition-colors touch-manipulation disabled:opacity-60"
+            className="w-full min-h-12 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-colors touch-manipulation disabled:opacity-60"
             style={{
-              backgroundColor: selected ? "#1D9E75" : "var(--muted)",
+              backgroundColor: selected ? selectedColor : "var(--muted)",
               color: selected ? "white" : "var(--muted-foreground)",
             }}
           >
-            {saving ? "Sparar..." : selected ? "Fortsätt" : "Välj ett lag ovan"}
+            {saving ? (
+              "Sparar..."
+            ) : selected && selectedTeam ? (
+              <>
+                Gå till {selectedTeam.name}-flödet
+                <ArrowRight className="w-4 h-4" />
+              </>
+            ) : (
+              "Välj ett lag ovan"
+            )}
           </motion.button>
+
           <button
-            onClick={() => { markOnboardingDone(); router.push("/app"); }}
+            onClick={handleSkip}
             className="min-h-11 text-sm text-muted-foreground hover:text-foreground transition-colors text-center touch-manipulation"
           >
-            Hoppa över
+            Hoppa över — välj senare
           </button>
         </div>
       </div>

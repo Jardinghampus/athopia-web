@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { currentUser } from "@clerk/nextjs/server";
 import { OnboardingClient } from "./OnboardingClient";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Välj ditt lag | Athopia",
@@ -9,6 +11,16 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function OnboardingPage() {
+export default async function OnboardingPage() {
+  const user = await currentUser();
+
+  // Inloggad + har redan valt lag → skippa onboarding
+  if (user) {
+    const meta = user.unsafeMetadata as Record<string, unknown> | undefined;
+    if (meta?.["favoriteTeam"]) {
+      redirect("/feed");
+    }
+  }
+
   return <OnboardingClient />;
 }

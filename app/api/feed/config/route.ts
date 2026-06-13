@@ -1,49 +1,62 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { createServiceClient } from "@/lib/supabase";
+import { createClient } from "@supabase/supabase-js";
+
+function getDb() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_KEY;
+  if (!url || !key) throw new Error("Missing Supabase env vars");
+  return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
+}
+
+export async function GET() {
+  const { userId } = await auth();
+  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  try {
+    const db = getDb();
+    const { data, error } = await db
+      .from("user_feed_config")
+      .select("*")
+      .eq("clerk_user_id", userId)
+      .single();
+
+    if (error && error.code !== "PGRST116") {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    return NextResponse.json(data ?? null);
+  } catch {
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
+}
 
 export async function PATCH(req: Request) {
   const { userId } = await auth();
-  if (!userId) {
-    return NextResponse.json({ error: "Ej autentiserad" }, { status: 401 });
-  }
+  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   let body: Record<string, unknown>;
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ error: "Ogiltig JSON" }, { status: 400 });
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  // Tillåtna fält att uppdatera (aldrig plan-beroende premium-fält client-side)
-  const allowed = [
-    "sport",
-    "followed_team_ids",
-    "followed_leagues",
-    "content_types",
-  ] as const;
-
-  const patch: Record<string, unknown> = {};
-  for (const key of allowed) {
-    if (key in body) patch[key] = body[key];
+  // Server-side allowlist — aldrig lita på klienten för premium-fält
+  const allowed = ["followed_team_ids", "followed_leagues", "content_types", "sport"] as const;
+  const update: Record<string, unknown> = { clerk_user_id: userId };
+  for (const k of allowed) {
+    if (k in body) update[k] = body[k];
   }
 
-  if (Object.keys(patch).length === 0) {
-    return NextResponse.json({ error: "Inga giltiga fält" }, { status: 400 });
+  try {
+    const db = getDb();
+    const { error } = await db
+      .from("user_feed_config")
+      .upsert(update, { onConflict: "clerk_user_id" });
+
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ ok: true });
+  } catch {
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
-
-  const supabase = createServiceClient();
-  const { error } = await supabase
-    .from("user_feed_config")
-    .upsert(
-      { clerk_user_id: userId, ...patch },
-      { onConflict: "clerk_user_id" }
-    );
-
-  if (error) {
-    console.error("[feed/config] DB-fel:", error);
-    return NextResponse.json({ error: "DB-fel" }, { status: 500 });
-  }
-
-  return NextResponse.json({ ok: true });
 }
