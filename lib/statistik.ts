@@ -50,23 +50,26 @@ export interface ScorerRow {
 }
 
 interface FixtureLite {
-  home_team_id: number;
-  away_team_id: number;
+  home_team_id: number | string;
+  away_team_id: number | string;
   home_score: number | null;
   away_score: number | null;
-  starting_at: string | null;
+  kickoff_at: string | null;
 }
 
 type TeamLite = { id: number; name: string | null; logo_path: string | null };
 
 // Cachead teams-lista (JSON-serialiserbar — Map byggs utanför cachen).
+// OBS: faktiska kolumner är sportmonks_id + logo (inte id + logo_path).
 const cachedTeams = unstable_cache(
   async (): Promise<TeamLite[]> => {
     if (!isSupabaseConfigured()) return [];
     try {
       const db = createServerClient();
-      const { data } = await db.from("teams").select("id,name,logo_path");
-      return (data ?? []) as TeamLite[];
+      const { data } = await db.from("teams").select("sportmonks_id,name,logo");
+      return ((data ?? []) as { sportmonks_id: number; name: string | null; logo: string | null }[]).map(
+        (t) => ({ id: t.sportmonks_id, name: t.name, logo_path: t.logo })
+      );
     } catch {
       return [];
     }
@@ -90,10 +93,11 @@ const cachedSeasonFixtures = unstable_cache(
       const db = createServerClient();
       const { data } = await db
         .from("fixtures")
-        .select("home_team_id,away_team_id,home_score,away_score,starting_at")
+        .select("home_team_id,away_team_id,home_score,away_score,kickoff_at")
         .eq("season_id", Number(seasonId))
         .eq("status", "FT")
-        .order("starting_at", { ascending: true });
+        .not("home_score", "is", null) // FT utan resultat (sync-glapp) skulle korrupta tabellen
+        .order("kickoff_at", { ascending: true });
       return (data ?? []) as FixtureLite[];
     } catch {
       return [];
@@ -133,8 +137,9 @@ export async function getStandingsFromDb(seasonId: string): Promise<StandingRow[
     for (const f of played) {
       const hs = f.home_score ?? 0;
       const as = f.away_score ?? 0;
-      const home = ensure(f.home_team_id);
-      const away = ensure(f.away_team_id);
+      // home_team_id är text, away_team_id är bigint i DB → normalisera
+      const home = ensure(Number(f.home_team_id));
+      const away = ensure(Number(f.away_team_id));
       home.played++; away.played++;
       home.goals_for += hs; home.goals_against += as;
       away.goals_for += as; away.goals_against += hs;
@@ -163,6 +168,26 @@ export async function getStandingsFromDb(seasonId: string): Promise<StandingRow[
   }
 }
 
+// Spelarnamn-map (players-PK = sportmonks_id, namnkolumn = fullname).
+const cachedPlayers = unstable_cache(
+  async (): Promise<Record<number, string>> => {
+    if (!isSupabaseConfigured()) return {};
+    try {
+      const db = createServerClient();
+      const { data } = await db.from("players").select("sportmonks_id,fullname");
+      const map: Record<number, string> = {};
+      for (const p of (data ?? []) as { sportmonks_id: number; fullname: string | null }[]) {
+        if (p.fullname) map[p.sportmonks_id] = p.fullname;
+      }
+      return map;
+    } catch {
+      return {};
+    }
+  },
+  ["statistik:players"],
+  { revalidate: TEAMS_REVALIDATE, tags: ["statistik"] }
+);
+
 const cachedLeaderRows = unstable_cache(
   async (seasonId: string, orderCol: "goals" | "assists"): Promise<Record<string, unknown>[]> => {
     if (!isSupabaseConfigured()) return [];
@@ -170,7 +195,7 @@ const cachedLeaderRows = unstable_cache(
       const db = createServerClient();
       const { data } = await db
         .from("player_season_stats")
-        .select("player_id,team_id,goals,assists,players(name)")
+        .select("player_id,team_id,goals,assists")
         .eq("season_id", Number(seasonId))
         .gt(orderCol, 0)
         .order(orderCol, { ascending: false })
@@ -190,16 +215,17 @@ async function getLeaders(
 ): Promise<ScorerRow[]> {
   if (!isSupabaseConfigured()) return [];
   try {
-    const [data, teamMap] = await Promise.all([
+    const [data, teamMap, playerMap] = await Promise.all([
       cachedLeaderRows(seasonId, orderCol),
       getTeamMap(),
+      cachedPlayers(),
     ]);
     return (data as Record<string, unknown>[]).map((r, i) => {
-      const p = (r.players ?? {}) as { name?: string | null };
+      const pid = (r.player_id as number) ?? 0;
       return {
         rank: i + 1,
-        player_id: (r.player_id as number) ?? 0,
-        player_name: p.name ?? `Spelare ${r.player_id}`,
+        player_id: pid,
+        player_name: playerMap[pid] ?? `Spelare ${pid}`,
         team_name: teamMap.get(r.team_id as number)?.name ?? "–",
         goals: (r.goals as number) ?? 0,
         assists: (r.assists as number) ?? 0,
