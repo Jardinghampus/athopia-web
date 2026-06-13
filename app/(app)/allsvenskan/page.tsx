@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { fetchAllsvenskanFixtures, fetchStandings } from "@/lib/sportsmonks";
+import { fetchAllsvenskanFixtures, fetchStandings } from "@/lib/db/fixtures";
 import { ScoreWidget } from "@/components/ui/ScoreWidget";
 import { Separator } from "@/components/ui/separator";
 

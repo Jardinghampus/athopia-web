@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { createServerClient } from "@/lib/supabase";
 import { isSupabaseConfigured } from "@/lib/supabase";
-import { fetchStandingsFull } from "@/lib/sportsmonks";
+import { fetchStandingsFull } from "@/lib/db/fixtures";
 import { TeamSearchBar } from "./TeamSearchBar";
 import { XgChart } from "./XgChart";
 

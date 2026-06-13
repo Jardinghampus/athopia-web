@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
-import { fetchAllsvenskanFixtures } from "@/lib/sportsmonks";
-import type { SMFixture } from "@/lib/sportsmonks";
+import { fetchAllsvenskanFixtures } from "@/lib/db/fixtures";
+import type { SMFixture } from "@/lib/db/fixtures";
 import { ScoreWidget } from "@/components/ui/ScoreWidget";
 
 export const metadata: Metadata = {

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { fetchLiveScores, fetchAllsvenskanFixtures, parseFixtureScore } from "@/lib/sportsmonks";
+import { fetchLiveScores, fetchAllsvenskanFixtures, parseFixtureScore } from "@/lib/db/fixtures";
 
 export const revalidate = 60;
 

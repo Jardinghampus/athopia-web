@@ -1,11 +1,10 @@
 /**
  * lib/sportsmonks.ts
  * ─────────────────────────────────────────────────────────────────────────────
- * Wrapper kring Sportsmonks Football API v3.
+ * @deprecated Anropar Sportmonks API direkt — använd lib/db/fixtures.ts istället.
+ * Korrekt flöde: Sportmonks → athopia-os sync → Supabase → lib/db/fixtures.ts
  *
- * Beslut: Alla anrop använder Next.js fetch() med `revalidate: 60` (ISR).
- * Live-matchdata uppdateras var 60:e sekund utan att rebuilda hela appen.
- * Statisk data (lag, spelare, ligor) använder längre TTL (3600s).
+ * Denna fil är kvar som fallback. Importera INTE från denna fil i ny kod.
  * ─────────────────────────────────────────────────────────────────────────────
  */
 

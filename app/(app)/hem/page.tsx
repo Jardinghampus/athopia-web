@@ -7,9 +7,9 @@ import { ArticleCard } from "@/components/ui/ArticleCard";
 import { NarrativeCard } from "@/components/ui/NarrativeCard";
 import { ScoreWidget } from "@/components/ui/ScoreWidget";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
-import { fetchAllsvenskanFixtures, fetchLiveScores } from "@/lib/sportsmonks";
+import { fetchAllsvenskanFixtures, fetchLiveScores } from "@/lib/db/fixtures";
 import type { Article, Narrative } from "@/lib/types";
-import type { SMFixture } from "@/lib/sportsmonks";
+import type { SMFixture } from "@/lib/db/fixtures";
 
 export const dynamic = 'force-dynamic';
 

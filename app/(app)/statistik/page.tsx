@@ -14,7 +14,7 @@ import {
   fetchTopAssists,
   fetchAllsvenskanFixtures,
   parseFixtureScore,
-} from "@/lib/sportsmonks";
+} from "@/lib/db/fixtures";
 import {
   SEASON_IDS,
   getStandingsFromDb,
