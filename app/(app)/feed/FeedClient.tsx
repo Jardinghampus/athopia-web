@@ -4,7 +4,6 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { Newspaper, MessageSquare, Brain, Podcast, Loader2, RefreshCw } from "lucide-react";
 import { useFavoriteTeam } from "@/hooks/useFavoriteTeam";
-import { createClient } from "@supabase/supabase-js";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { PullToRefresh } from "@/components/ui/PullToRefresh";
 import type { FeedItem, FeedItemType } from "@/lib/types";
@@ -68,14 +67,7 @@ function FeedItemCard({ item }: { item: FeedItem }) {
   );
 }
 
-// Anon-klient används ENBART för realtime-notisen (ny artikel → badge).
-// All feed-data hämtas server-side via /api/feed (plan + dagskvot enforced där).
-function buildSupabaseClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
-  if (!url || !key) return null;
-  return createClient(url, key);
-}
+const NEW_POLL_INTERVAL_MS = 90_000;
 
 interface FeedResponse {
   items: FeedItem[];
@@ -145,17 +137,26 @@ export function FeedClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoaded, slug]);
 
-  // Supabase Realtime
+  // Ny-artikel-detektor: pollar CDN-cachad endpoint istället för Realtime
+  // (ingen öppen WebSocket, ingen WAL-decode → lägre Supabase-usage).
   useEffect(() => {
-    const db = buildSupabaseClient();
-    if (!db) return;
-    const channel = db
-      .channel("feed-articles")
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "articles" }, () => {
-        setNewCount((n) => n + 1);
-      })
-      .subscribe();
-    return () => { void db.removeChannel(channel); };
+    let cancelled = false;
+    let baseline: string | null = null;
+
+    async function check() {
+      try {
+        const res = await fetch("/api/articles/recent", { cache: "no-store" });
+        if (!res.ok) return;
+        const { latest } = (await res.json()) as { latest: string | null };
+        if (cancelled || !latest) return;
+        if (baseline === null) baseline = latest;
+        else if (latest > baseline) setNewCount((n) => Math.max(n, 1));
+      } catch { /* tyst */ }
+    }
+
+    void check();
+    const id = setInterval(check, NEW_POLL_INTERVAL_MS);
+    return () => { cancelled = true; clearInterval(id); };
   }, []);
 
   // Infinite scroll

@@ -14,6 +14,7 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
+import { unstable_cache } from "next/cache";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import type {
   AgentLog,
@@ -252,20 +253,24 @@ export async function getArticle(slug: string): Promise<Article | null> {
   }
 }
 
-export async function getNarratives(limit = 12): Promise<Narrative[]> {
-  if (!isSupabaseConfigured()) return [];
-  try {
-    const supabase = createServerClient();
-    const { data } = await supabase
-      .from("narratives")
-      .select("*")
-      .order("score", { ascending: false })
-      .limit(limit);
-    return (data ?? []).map(mapNarrative);
-  } catch {
-    return [];
-  }
-}
+export const getNarratives = unstable_cache(
+  async (limit = 12): Promise<Narrative[]> => {
+    if (!isSupabaseConfigured()) return [];
+    try {
+      const supabase = createServerClient();
+      const { data } = await supabase
+        .from("narratives")
+        .select("*")
+        .order("score", { ascending: false })
+        .limit(limit);
+      return (data ?? []).map(mapNarrative);
+    } catch {
+      return [];
+    }
+  },
+  ["narratives"],
+  { revalidate: 300, tags: ["narratives"] }
+);
 
 export async function getEntities(type?: Entity["type"]): Promise<Entity[]> {
   if (!isSupabaseConfigured()) return [];
@@ -280,20 +285,24 @@ export async function getEntities(type?: Entity["type"]): Promise<Entity[]> {
   }
 }
 
-export async function getPodcasts(limit = 24): Promise<Podcast[]> {
-  if (!isSupabaseConfigured()) return [];
-  try {
-    const supabase = createServerClient();
-    const { data } = await supabase
-      .from("podcasts")
-      .select("*")
-      .order("published_at", { ascending: false })
-      .limit(limit);
-    return (data ?? []).map(mapPodcast);
-  } catch {
-    return [];
-  }
-}
+export const getPodcasts = unstable_cache(
+  async (limit = 24): Promise<Podcast[]> => {
+    if (!isSupabaseConfigured()) return [];
+    try {
+      const supabase = createServerClient();
+      const { data } = await supabase
+        .from("podcasts")
+        .select("*")
+        .order("published_at", { ascending: false })
+        .limit(limit);
+      return (data ?? []).map(mapPodcast);
+    } catch {
+      return [];
+    }
+  },
+  ["podcasts"],
+  { revalidate: 600, tags: ["podcasts"] }
+);
 
 export async function getPodcast(id: string): Promise<Podcast | null> {
   if (!isSupabaseConfigured()) return null;
@@ -368,30 +377,34 @@ export async function getAgentLogs(limit = 100): Promise<AgentLog[]> {
 // ── NewsStream (content_queue RSS-signaler) ────────────────────────────────────
 import type { NewsSignal } from "@/lib/types";
 
-export async function getNewsStream(opts: {
-  sport?: string;
-  limit?: number;
-  orderBy?: "signal_score" | "published_at";
-}): Promise<NewsSignal[]> {
-  if (!isSupabaseConfigured()) return [];
-  const { sport = "football", limit = 20, orderBy = "published_at" } = opts;
-  try {
-    const supabase = createServerClient();
-    let q = supabase
-      .from("content_queue")
-      .select("id, source_name, source_url, signal_score, importance_tier, content, created_at")
-      .eq("sport", sport)
-      .eq("status", "classified")
-      .eq("content_type", "rss_signal")
-      .limit(limit);
+export const getNewsStream = unstable_cache(
+  async (opts: {
+    sport?: string;
+    limit?: number;
+    orderBy?: "signal_score" | "published_at";
+  }): Promise<NewsSignal[]> => {
+    if (!isSupabaseConfigured()) return [];
+    const { sport = "football", limit = 20, orderBy = "published_at" } = opts;
+    try {
+      const supabase = createServerClient();
+      let q = supabase
+        .from("content_queue")
+        .select("id, source_name, source_url, signal_score, importance_tier, content, created_at")
+        .eq("sport", sport)
+        .eq("status", "classified")
+        .eq("content_type", "rss_signal")
+        .limit(limit);
 
-    q = orderBy === "signal_score"
-      ? q.order("signal_score", { ascending: false })
-      : q.order("created_at", { ascending: false });
+      q = orderBy === "signal_score"
+        ? q.order("signal_score", { ascending: false })
+        : q.order("created_at", { ascending: false });
 
-    const { data } = await q;
-    return (data ?? []) as NewsSignal[];
-  } catch {
-    return [];
-  }
-}
+      const { data } = await q;
+      return (data ?? []) as NewsSignal[];
+    } catch {
+      return [];
+    }
+  },
+  ["news-stream"],
+  { revalidate: 60, tags: ["news"] }
+);

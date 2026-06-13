@@ -1,43 +1,49 @@
 "use client";
 
 /**
- * WEB-30: Realtime-banner — visar "X nya artiklar — ladda om" om nya artiklar publicerats.
- * Supabase Realtime: lyssnar på INSERT i articles WHERE status='published'.
+ * WEB-30: "X nya artiklar — ladda om"-banner.
+ *
+ * Tidigare: Supabase Realtime (öppen WebSocket + WAL-decode på varje insert).
+ * Nu: pollar /api/articles/recent var 90:e sekund. Endpointen är CDN-cachad
+ * (s-maxage=60) → max ~1 Supabase-query/min totalt, oavsett antal besökare.
+ * Ingen persistent anslutning, ingen WAL-decode → kraftigt lägre Supabase-usage.
  */
 
-import { useEffect, useState, useCallback } from "react";
-import { createClient } from "@/lib/supabase";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Sparkles, RefreshCw } from "lucide-react";
 
+const POLL_INTERVAL_MS = 90_000;
+
 export function NyheterRealtimeBanner() {
-  const [newCount, setNewCount] = useState(0);
+  const [hasNew, setHasNew] = useState(false);
+  const baselineRef = useRef<string | null>(null);
 
   useEffect(() => {
-    let supabase: ReturnType<typeof createClient>;
-    try {
-      supabase = createClient();
-    } catch {
-      return;
+    let cancelled = false;
+
+    async function check() {
+      try {
+        const res = await fetch("/api/articles/recent", { cache: "no-store" });
+        if (!res.ok) return;
+        const { latest } = (await res.json()) as { latest: string | null };
+        if (cancelled || !latest) return;
+
+        if (baselineRef.current === null) {
+          // Första pollen: sätt baslinje, visa inget
+          baselineRef.current = latest;
+        } else if (latest > baselineRef.current) {
+          setHasNew(true);
+        }
+      } catch {
+        // Tyst — banner är icke-kritisk
+      }
     }
 
-    const channel = supabase
-      .channel("articles-new")
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "articles",
-          filter: "status=eq.published",
-        },
-        () => {
-          setNewCount((c) => c + 1);
-        }
-      )
-      .subscribe();
-
+    void check();
+    const id = setInterval(check, POLL_INTERVAL_MS);
     return () => {
-      void supabase.removeChannel(channel);
+      cancelled = true;
+      clearInterval(id);
     };
   }, []);
 
@@ -45,7 +51,7 @@ export function NyheterRealtimeBanner() {
     window.location.reload();
   }, []);
 
-  if (newCount === 0) return null;
+  if (!hasNew) return null;
 
   return (
     <button
@@ -54,7 +60,7 @@ export function NyheterRealtimeBanner() {
       aria-live="polite"
     >
       <Sparkles className="w-3.5 h-3.5" />
-      {newCount === 1 ? "1 ny artikel" : `${newCount} nya artiklar`}
+      Nya artiklar
       <RefreshCw className="w-3.5 h-3.5" />
     </button>
   );

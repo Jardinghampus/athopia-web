@@ -11,12 +11,19 @@
  * saknar insläppta mål/poäng/position. Säsonger: 2026=26806, 2025=24943
  * (samma id:n som allsvenskan-sync/.env).
  */
+import { unstable_cache } from "next/cache";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 
 export const SEASON_IDS: Record<string, string> = {
   "2026": process.env.SPORTSMONKS_SEASON_ID_2026 ?? "26806",
   "2025": process.env.SPORTSMONKS_SEASON_ID_2025 ?? "24943",
 };
+
+// Cache-fönster: syncen (Hetzner) kör var 30:e min → 5 min cache är färskt nog
+// och delar den tunga fixture-aggregationen mellan ALLA besökare istället för
+// att köra en ny Supabase-query per sidladdning. Lag ändras sällan → 1h.
+const STATS_REVALIDATE = 300;
+const TEAMS_REVALIDATE = 3600;
 
 export interface StandingRow {
   position: number;
@@ -50,31 +57,60 @@ interface FixtureLite {
   starting_at: string | null;
 }
 
-async function getTeamMap(db: ReturnType<typeof createServerClient>) {
-  const { data } = await db.from("teams").select("id,name,logo_path");
+type TeamLite = { id: number; name: string | null; logo_path: string | null };
+
+// Cachead teams-lista (JSON-serialiserbar — Map byggs utanför cachen).
+const cachedTeams = unstable_cache(
+  async (): Promise<TeamLite[]> => {
+    if (!isSupabaseConfigured()) return [];
+    try {
+      const db = createServerClient();
+      const { data } = await db.from("teams").select("id,name,logo_path");
+      return (data ?? []) as TeamLite[];
+    } catch {
+      return [];
+    }
+  },
+  ["statistik:teams"],
+  { revalidate: TEAMS_REVALIDATE, tags: ["statistik"] }
+);
+
+async function getTeamMap() {
+  const teams = await cachedTeams();
   return new Map(
-    (data ?? []).map((t: { id: number; name: string | null; logo_path: string | null }) => [
-      t.id,
-      { name: t.name ?? `Lag ${t.id}`, image_path: t.logo_path },
-    ])
+    teams.map((t) => [t.id, { name: t.name ?? `Lag ${t.id}`, image_path: t.logo_path }])
   );
 }
+
+// Cachead fixture-hämtning per säsong — delas mellan alla besökare.
+const cachedSeasonFixtures = unstable_cache(
+  async (seasonId: string): Promise<FixtureLite[]> => {
+    if (!isSupabaseConfigured()) return [];
+    try {
+      const db = createServerClient();
+      const { data } = await db
+        .from("fixtures")
+        .select("home_team_id,away_team_id,home_score,away_score,starting_at")
+        .eq("season_id", Number(seasonId))
+        .eq("status", "FT")
+        .order("starting_at", { ascending: true });
+      return (data ?? []) as FixtureLite[];
+    } catch {
+      return [];
+    }
+  },
+  ["statistik:fixtures"],
+  { revalidate: STATS_REVALIDATE, tags: ["statistik"] }
+);
 
 /** Ligatabell härledd ur spelade matcher i Supabase. Tom array = ingen data. */
 export async function getStandingsFromDb(seasonId: string): Promise<StandingRow[]> {
   if (!isSupabaseConfigured()) return [];
   try {
-    const db = createServerClient();
-    const [{ data: fixtures }, teamMap] = await Promise.all([
-      db
-        .from("fixtures")
-        .select("home_team_id,away_team_id,home_score,away_score,starting_at")
-        .eq("season_id", Number(seasonId))
-        .eq("status", "FT")
-        .order("starting_at", { ascending: true }),
-      getTeamMap(db),
+    const [played, teamMap] = await Promise.all([
+      cachedSeasonFixtures(seasonId),
+      getTeamMap(),
     ]);
-    const played = (fixtures ?? []) as FixtureLite[];
     if (played.length === 0) return [];
 
     const acc = new Map<number, StandingRow>();
@@ -127,24 +163,38 @@ export async function getStandingsFromDb(seasonId: string): Promise<StandingRow[
   }
 }
 
+const cachedLeaderRows = unstable_cache(
+  async (seasonId: string, orderCol: "goals" | "assists"): Promise<Record<string, unknown>[]> => {
+    if (!isSupabaseConfigured()) return [];
+    try {
+      const db = createServerClient();
+      const { data } = await db
+        .from("player_season_stats")
+        .select("player_id,team_id,goals,assists,players(name)")
+        .eq("season_id", Number(seasonId))
+        .gt(orderCol, 0)
+        .order(orderCol, { ascending: false })
+        .limit(30);
+      return (data ?? []) as Record<string, unknown>[];
+    } catch {
+      return [];
+    }
+  },
+  ["statistik:leaders"],
+  { revalidate: STATS_REVALIDATE, tags: ["statistik"] }
+);
+
 async function getLeaders(
   seasonId: string,
   orderCol: "goals" | "assists"
 ): Promise<ScorerRow[]> {
   if (!isSupabaseConfigured()) return [];
   try {
-    const db = createServerClient();
-    const [{ data }, teamMap] = await Promise.all([
-      db
-        .from("player_season_stats")
-        .select("player_id,team_id,goals,assists,players(name)")
-        .eq("season_id", Number(seasonId))
-        .gt(orderCol, 0)
-        .order(orderCol, { ascending: false })
-        .limit(30),
-      getTeamMap(db),
+    const [data, teamMap] = await Promise.all([
+      cachedLeaderRows(seasonId, orderCol),
+      getTeamMap(),
     ]);
-    return ((data ?? []) as Record<string, unknown>[]).map((r, i) => {
+    return (data as Record<string, unknown>[]).map((r, i) => {
       const p = (r.players ?? {}) as { name?: string | null };
       return {
         rank: i + 1,
