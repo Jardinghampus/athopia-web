@@ -76,6 +76,12 @@ export default async function KontoPage({
         {/* Användarinfo */}
         <ListGroup header="Profil">
           <ListRow
+            href="/profil"
+            leading={<User />}
+            title="Min profil"
+            subtitle="Redigera nickname, bio, profilbild och lag"
+          />
+          <ListRow
             leading={<User />}
             title="E-post"
             trailing={<span className="text-foreground">{user?.emailAddresses?.[0]?.emailAddress ?? "–"}</span>}

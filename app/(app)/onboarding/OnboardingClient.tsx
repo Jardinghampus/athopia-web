@@ -28,10 +28,6 @@ function getInitials(name: string): string {
     .slice(0, 3);
 }
 
-const ALLSVENSKAN_2026_SM_IDS = new Set(
-  [354, 411, 432, 443, 532, 720, 1226, 1777, 1870, 2353, 2535, 2678, 2753, 2825, 3285, 8671].map(String)
-);
-
 const LOAD_TIMEOUT_MS = 8000;
 
 export function OnboardingClient() {
@@ -72,10 +68,10 @@ export function OnboardingClient() {
           setLoadFailed(true);
           return;
         }
-        const filtered = (data as Team[]).filter((t) => {
-          const smId = String((t.metadata?.["sportsmonks_id"] as number | undefined) ?? "");
-          return ALLSVENSKAN_2026_SM_IDS.has(smId);
-        });
+        // Allsvenskan-lag via metadata.league (sportsmonks_id saknas i entities)
+        const filtered = (data as Team[]).filter(
+          (t) => (t.metadata?.["league"] as string | undefined) === "Allsvenskan"
+        );
         setTeams(filtered.length > 0 ? filtered : (data as Team[]));
       });
 

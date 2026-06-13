@@ -28,6 +28,23 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Ogiltig signatur" }, { status: 400 });
   }
 
+  // Spegla publika profilfält till profiles (display_name + avatar) — bevarar
+  // nickname/bio/verified som sätts via /api/profile.
+  function mirrorProfile(data: WebhookEvent["data"]) {
+    const d = data as {
+      id: string;
+      first_name?: string | null;
+      last_name?: string | null;
+      image_url?: string | null;
+    };
+    const supabase = createServiceClient();
+    const display = [d.first_name, d.last_name].filter(Boolean).join(" ") || null;
+    return supabase.from("profiles").upsert(
+      { clerk_user_id: d.id, display_name: display, avatar_url: d.image_url ?? null },
+      { onConflict: "clerk_user_id" }
+    );
+  }
+
   if (event.type === "user.created") {
     const { id: clerkUserId } = event.data;
     const supabase = createServiceClient();
@@ -48,13 +65,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "DB-fel" }, { status: 500 });
     }
 
-    // Skapa dagens usage-rad (free-tier räknare startar på 0)
     await supabase.from("user_feed_usage").upsert(
       { clerk_user_id: clerkUserId, date: new Date().toISOString().split("T")[0], items_seen: 0 },
       { onConflict: "clerk_user_id,date" }
     );
+    await mirrorProfile(event.data);
 
-    console.log(`[clerk-webhook] user_feed_config skapad för ${clerkUserId}`);
+    console.log(`[clerk-webhook] user_feed_config + profil skapad för ${clerkUserId}`);
+  }
+
+  if (event.type === "user.updated") {
+    await mirrorProfile(event.data);
   }
 
   return NextResponse.json({ received: true });

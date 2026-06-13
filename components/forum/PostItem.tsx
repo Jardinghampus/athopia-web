@@ -8,6 +8,7 @@ import Link from "next/link";
 import type { ForumPost } from "@/lib/types";
 import QuoteBox from "./QuoteBox";
 import ComposePost from "./ComposePost";
+import { ProfileLink } from "@/components/profile/ProfilePopup";
 
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -131,20 +132,25 @@ export default function PostItem({ post, depth = 0, showThread = false, onReply 
     <div className={`flex gap-3 ${depth > 0 ? "ml-9" : ""}`}>
       {/* Thread line + avatar column */}
       <div className="flex flex-col items-center">
-        <div className="w-9 h-9 rounded-full bg-pitch/20 flex items-center justify-center text-pitch text-xs font-bold shrink-0 overflow-hidden">
+        <ProfileLink
+          userId={post.author_id}
+          className="w-9 h-9 rounded-full bg-pitch/20 flex items-center justify-center text-pitch text-xs font-bold shrink-0 overflow-hidden relative hover:ring-2 hover:ring-pitch/40 transition-all"
+        >
           {post.author_avatar ? (
             <Image src={post.author_avatar} alt="" fill className="object-cover" />
           ) : (
             initials(post.author_name)
           )}
-        </div>
+        </ProfileLink>
         {showLine && <div className="w-px flex-1 min-h-[16px] bg-border/50 mt-1" />}
       </div>
 
       <div className="flex-1 pb-4 min-w-0">
         {/* Header */}
         <div className="flex items-center gap-2 mb-1">
-          <span className="text-sm font-semibold text-foreground">{post.author_name}</span>
+          <ProfileLink userId={post.author_id} className="text-sm font-semibold text-foreground hover:underline">
+            {post.author_name}
+          </ProfileLink>
           <span className="text-xs text-muted-foreground">
             @{post.author_name.toLowerCase().replace(/\s+/g, "")}
           </span>
