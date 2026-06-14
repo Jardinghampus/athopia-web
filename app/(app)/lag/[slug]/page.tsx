@@ -4,7 +4,7 @@
  * Modulär kortbaserad dashboard à la Football Manager för fans.
  * Header: position, form (W/D/L), 5 nyckeltal.
  * Kort: Nyckelstatistik + radar, Ledare, Nyheter, Forum, Senaste händelser.
- * ALL statistik hämtas från Sportmonks-synkade tabeller (se lib/team-hub/queries).
+ * ALL statistik hämtas från Supabase (synkad av athopia-os, se lib/team-hub/queries).
  * ─────────────────────────────────────────────────────────────────────────────
  */
 

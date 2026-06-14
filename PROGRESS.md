@@ -45,7 +45,6 @@ Alla routes byggda och kompilerade rent (`pnpm build` → 0 fel).
 
 | Variabel | Krävs av | Status |
 |----------|----------|--------|
-| `SPORTSMONKS_API_TOKEN` | Statistik, matcher, standings | Behöver sättas i Vercel |
 | `STRIPE_WEBHOOK_SECRET` | Webhook-verifiering i produktion | Behöver sättas i Vercel |
 | `NEXT_PUBLIC_SUPABASE_URL` | All data | Behöver sättas i Vercel |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | All data | Behöver sättas i Vercel |
@@ -169,11 +168,11 @@ OBS: Sheet/Card ligger i TactileSheet/TactileCard pga Windows case-krock med sha
 | /mitt-lag hela hubben | GET /api/team/[slug]/hub ← lib/team-hub/queries.ts | Sportmonks-sync (fixtures, team_season_stats, player_season_stats) + RSS→content_queue | Mock-fallback lib/team-hub/mock.ts |
 | /mitt-lag radar | team_season_stats (alla lag, season_id=26806) | syncResults → Milo | "visas när säsongsstatistik finns" |
 | /mitt-lag nyheter | articles via hub-payload | RSS-pipeline + Echo | "Inga artiklar ännu" |
-| /statistik tabell/skytte/assist/form | lib/sportsmonks.ts (fetchStandingsFull, fetchTopScorers, fetchTopAssists) | SPORTSMONKS_API_TOKEN i env | EmptyState med env-hint |
-| /statistik xG-flik | Sportmonks premium | abonnemangsuppgradering | platshållare |
-| /statistik/scout + /spelare (jämför) | scout-pool ← player_season_stats | Sportmonks player-sync | tom pool |
+| /statistik tabell/skytte/assist/form | lib/statistik.ts → Supabase (team_season_stats, player_season_stats) | athopia-os sync-jobb | EmptyState |
+| /statistik xG-flik | Supabase (xg-kolumn i team_season_stats) | athopia-os sync-jobb | platshållare |
+| /statistik/scout + /spelare (jämför) | scout-pool ← player_season_stats | athopia-os player-sync | tom pool |
 | /statistik/jamfor | match_stats + entities + content_queue(comparison-digest) | OS-17 match-collector + AI-digest | "Kör OS-17" |
-| /spelare/[slug] | players, player_season_stats, player_match_stats, fixtures | Sportmonks player/fixture-sync | mock-spelare + "Ingen statistik" |
+| /spelare/[slug] | players, player_season_stats, player_match_stats, fixtures | athopia-os player/fixture-sync | mock-spelare + "Ingen statistik" |
 | /match/[id] | fixtures, team_match_stats, fixture_events, fixture_lineups, match_summaries | Hetzner-agent efter matchslut | "Ingen data för match" |
 | /forum | forum_threads, entities + /api/forum/posts | användargenererat (Clerk-auth) | "Inga lag/inlägg" |
 | LIVE-lägen (puls, live_scores) | live_scores + fixtures.status='LIVE' | syncLive (30–60s, endast vid LIVE) | visas ej |
@@ -233,23 +232,15 @@ rtk tsc (0 fel) → pnpm build (Compiled successfully; prerender-felet ovan är 
 - Onboarding är nu ETT steg (16 lag, spara -> /feed). OnboardingLeaguePicker
   urkopplad (komponenten finns kvar i components/gamification/ om den behövs).
   Tydligt fel-läge om entities-tabellen är tom eller Supabase-env saknas.
-- Statistik: säsongsväljaren = 2026 (default) + 2025. År -> Sportmonks season-id
-  via SEASON_IDS i app/(app)/statistik/page.tsx: 2026=26806;
-  **2025 kräver env SPORTSMONKS_SEASON_ID_2025** (Vercel + .env) — tills den är
-  satt visar 2025-fliken ett konfigurations-EmptyState. Datapunkt att skjuta in:
-  hämta 2025-id:t från Sportmonks /seasons?search=Allsvenskan.
+- Statistik: säsongsväljaren = 2026 (default) + 2025. SEASON_IDS i lib/statistik.ts:
+  2026=26806, 2025=24943 (env-overridebara via SPORTSMONKS_SEASON_ID_2026/2025).
 
-### Tillägg 2026-06-12 (kväll): statistik läser Supabase (Sportmonks -> sync -> Supabase -> web)
-- Nytt datalager lib/statistik.ts mot allsvenskan-sync-tabellerna (teams, players,
-  fixtures, team_season_stats, player_season_stats; schema i
-  "Athopia Build/sportsmonks/allsvenskan-sync/supabase/schema.sql").
-- Tabellen härleds ur fixtures (status=FT): W/D/L, GF/GA, poäng, form, position —
-  team_season_stats saknar insläppta mål/poäng/position.
+### Tillägg 2026-06-12 (kväll): statistik läser Supabase (athopia-os synkar)
+- Datalager lib/statistik.ts mot tabellerna: teams, players, fixtures,
+  team_season_stats, player_season_stats.
+- Tabellen härleds ur fixtures (status=FT): W/D/L, GF/GA, poäng, form, position.
 - Skytteliga/assistligan: player_season_stats JOIN players + teams.
-- Säsonger: 2026=26806, 2025=24943 (samma som allsvenskan-sync/.env), env-overridebara.
-- FALLBACK: om Supabase ger 0 rader anropas Sportmonks-API:t direkt
-  (lib/sportsmonks.ts) — ta bort fallbacken när sync-datan är verifierad för
-  båda säsongerna.
+- athopia-web läser ENBART från Supabase — lib/sportsmonks.ts är borttagen.
 - OBS vid verifiering: Supabase REST + MCP svarade 522/timeout vid implementations-
   tillfället — datan kunde inte rad-räknas. Kontrollera projektet i dashboarden
   och verifiera /statistik?sasong=2025 mot riktiga rader.

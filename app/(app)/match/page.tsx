@@ -13,7 +13,6 @@ export const metadata: Metadata = {
 export const revalidate = 60;
 
 async function getFixtures(): Promise<SMFixture[]> {
-  if (!process.env.SPORTSMONKS_API_TOKEN || process.env.SPORTSMONKS_API_TOKEN === "placeholder_token") return [];
   try {
     const fixtures = await fetchAllsvenskanFixtures();
     return fixtures.slice(0, 20);
@@ -32,7 +31,7 @@ export default async function MatcherPage() {
       {fixtures.length === 0 ? (
         <div className="rounded-2xl border border-border bg-card p-8 text-center text-muted-foreground">
           <p>Inga matcher att visa just nu.</p>
-          <p className="text-sm mt-2">Data från Sportsmonks laddas när API-nyckel är konfigurerad.</p>
+          <p className="text-sm mt-2">Data synkroniseras från Supabase via athopia-os.</p>
         </div>
       ) : (
         <div className="flex flex-col gap-2">

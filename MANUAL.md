@@ -31,9 +31,9 @@ STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 STRIPE_PRICE_ID=
 
-# Sportsmonks
-SPORTSMONKS_API_KEY=
 ```
+# Sportmonks-synkronisering hanteras av athopia-os (separat repo).
+# athopia-web läser enbart från Supabase.
 
 ## Projektstruktur
 
@@ -42,7 +42,7 @@ app/
   page.tsx              — startsida (ISR 60s)
   layout.tsx            — root layout + Clerk + fonts
   artikel/[slug]/       — artikeldetaljsida + JSON-LD
-  lag/[slug]/           — lagprofil + Sportsmonks stats
+  lag/[slug]/           — lagprofil + Supabase-statistik (synkad via athopia-os)
   podcast/              — lista + [id]/episod
   prenumerera/          — Stripe Checkout (39 SEK/mån)
   konto/                — PRO-gate, Stripe Portal
@@ -54,7 +54,7 @@ app/
   robots.ts
 lib/
   supabase.ts           — createServerClient() + createBrowserClient()
-  sportsmonks.ts        — API-wrapper med ISR-cache
+  db/fixtures.ts        — Supabase-queries för matchdata (ISR-cachad)
 components/ui/
   NavAuth.tsx           — Client Component, Clerk auth i navbar
   ArticleCard.tsx

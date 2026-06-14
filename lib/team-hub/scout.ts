@@ -2,7 +2,7 @@
  * lib/team-hub/scout.ts — Scout Mode datalager
  * ─────────────────────────────────────────────────────────────────────────────
  * Tänk som en fotbollsscout: filtrera spelare på mätvärden och jämför mot
- * liga- och positionsmedian. All data från Sportmonks-synkade tabeller.
+ * liga- och positionsmedian. All data från Supabase (synkad av athopia-os).
  * ─────────────────────────────────────────────────────────────────────────────
  */
 

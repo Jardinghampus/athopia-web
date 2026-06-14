@@ -1,7 +1,7 @@
 /**
  * next.config.ts — Athopia Next.js-konfiguration
  *
- * images.remotePatterns: tillåter bilder från Supabase Storage och Sportsmonks CDN.
+ * images.remotePatterns: tillåter bilder från Supabase Storage och externa CDN:er.
  */
 
 import type { NextConfig } from "next";
@@ -23,11 +23,7 @@ const nextConfig: NextConfig = {
         hostname: "*.supabase.co",
         pathname: "/storage/v1/object/public/**",
       },
-      // Sportsmonks CDN
-      {
-        protocol: "https",
-        hostname: "cdn.sportmonks.com",
-      },
+      // Externt CDN (lagbilder synkade via athopia-os)
       {
         protocol: "https",
         hostname: "*.cloudfront.net",

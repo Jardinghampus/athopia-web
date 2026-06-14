@@ -9,9 +9,6 @@ import { ListGroup } from "@/components/ui/ListGroup";
 import { ListRow } from "@/components/ui/ListRow";
 import type { H2HFixture } from "./H2HSearch";
 import {
-  fetchStandingsFull,
-  fetchTopScorers,
-  fetchTopAssists,
   fetchAllsvenskanFixtures,
   parseFixtureScore,
 } from "@/lib/db/fixtures";
@@ -22,22 +19,15 @@ import {
   getTopAssistsFromDb,
 } from "@/lib/statistik";
 
-// Primär källa: Supabase (fylls av Hetzner-syncen). Fallback: Sportmonks-API
-// direkt — tas bort när Supabase-datan är verifierad komplett för båda säsonger.
+// Data hämtas från Supabase (synkad av athopia-os från Sportmonks).
 async function getStandings(seasonId: string) {
-  const db = await getStandingsFromDb(seasonId);
-  if (db.length > 0) return db;
-  return fetchStandingsFull(seasonId).catch(() => []);
+  return getStandingsFromDb(seasonId);
 }
 async function getScorers(seasonId: string) {
-  const db = await getTopScorersFromDb(seasonId);
-  if (db.length > 0) return db;
-  return fetchTopScorers(seasonId).catch(() => []);
+  return getTopScorersFromDb(seasonId);
 }
 async function getAssists(seasonId: string) {
-  const db = await getTopAssistsFromDb(seasonId);
-  if (db.length > 0) return db;
-  return fetchTopAssists(seasonId).catch(() => []);
+  return getTopAssistsFromDb(seasonId);
 }
 
 export const revalidate = 300;
@@ -60,7 +50,7 @@ function EmptyState({ message = "Data ej tillgänglig." }: { message?: string })
     <div className="text-center py-20 text-muted-foreground">
       <p className="text-sm">{message}</p>
       <p className="text-xs mt-1 opacity-60">
-        Kontrollera att SPORTSMONKS_API_TOKEN är satt i .env.local.
+        Data synkroniseras via athopia-os. Kontrollera att sync-jobbet är igång.
       </p>
     </div>
   );
@@ -243,9 +233,9 @@ async function AssistliganTab({ seasonId }: { seasonId: string }) {
 function XGTab() {
   return (
     <div className="text-center py-20 text-muted-foreground">
-      <p className="text-sm">xG-data kräver premium-tillgång via Sportsmonks.</p>
+      <p className="text-sm">xG-data ej tillgänglig ännu.</p>
       <p className="text-xs mt-1 opacity-60">
-        Uppgradera Sportsmonks-abonnemanget för att aktivera xG-statistik.
+        Synkroniseras av athopia-os när xG-data finns i Supabase.
       </p>
     </div>
   );
@@ -306,7 +296,7 @@ function PressTab() {
     <div className="text-center py-20 text-muted-foreground">
       <p className="text-sm">Press-statistik kräver data från Opta eller StatsBomb.</p>
       <p className="text-xs mt-1 opacity-60">
-        Inte tillgänglig via Sportsmonks. Planerat för framtida integration.
+        Planerat för framtida integration.
       </p>
     </div>
   );

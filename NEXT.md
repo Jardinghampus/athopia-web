@@ -14,7 +14,7 @@ Jobb körs i ordning. Markera ✅ när klart.
 
 ## Fas 1: Grund & infrastruktur
 
-- [x] **J-01** — Env-variabler: fixade SUPABASE_SERVICE_ROLE_KEY, SPORTSMONKS_API_TOKEN, NEXT_PUBLIC_BASE_URL + Clerk redirects
+- [x] **J-01** — Env-variabler: fixade SUPABASE_SERVICE_ROLE_KEY, NEXT_PUBLIC_BASE_URL + Clerk redirects
 - [x] **J-02** — Layout: global navbar med NavAuth + footer med länkstruktur
 - [x] **J-03** — Fonts: Bebas Neue + DM Sans via next/font/google
 - [x] **J-04** — Theme: dark-first, CSS-tokens (#1D9E75 som --color-pitch), custom utilities

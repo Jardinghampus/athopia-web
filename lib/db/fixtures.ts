@@ -11,7 +11,7 @@
 import { unstable_cache } from "next/cache";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 
-// ─── Re-exporterade typer (bakåtkompatibelt med lib/sportsmonks) ──────────────
+// ─── Typer ────────────────────────────────────────────────────────────────────
 
 export interface SMTeam {
   id: number;

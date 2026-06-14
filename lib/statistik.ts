@@ -1,15 +1,12 @@
 /**
- * Statistik-datalager — läser Supabase-tabellerna som Hetzner-syncen
- * (Athopia Build/sportsmonks/allsvenskan-sync) fyller:
+ * Statistik-datalager — läser Supabase-tabellerna som athopia-os fyller:
  *   teams, players, fixtures, team_season_stats, player_season_stats.
  *
- * Flöde: Sportmonks → allsvenskan-sync → Supabase → athopia-web.
- * Direkt-anrop mot Sportmonks-API:t används ENDAST som fallback
- * (lib/sportsmonks.ts) tills Supabase-datan är komplett.
+ * Flöde: Sportmonks → athopia-os sync-jobb → Supabase → athopia-web.
+ * athopia-web läser ENBART från Supabase — inga direkta Sportmonks-anrop.
  *
  * Tabellen härleds ur fixtures (status='FT') eftersom team_season_stats
- * saknar insläppta mål/poäng/position. Säsonger: 2026=26806, 2025=24943
- * (samma id:n som allsvenskan-sync/.env).
+ * saknar insläppta mål/poäng/position. Säsonger: 2026=26806, 2025=24943.
  */
 import { unstable_cache } from "next/cache";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";

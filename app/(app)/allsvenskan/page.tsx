@@ -11,12 +11,10 @@ export const metadata: Metadata = {
   description: "Tabell, matcher och live scores för Allsvenskan på Athopia.",
 };
 
-const hasToken = process.env.SPORTSMONKS_API_TOKEN && process.env.SPORTSMONKS_API_TOKEN !== "placeholder_token";
-
 export default async function AllsvenskanPage() {
   const [standings, fixtures] = await Promise.all([
-    hasToken ? fetchStandings().catch(() => []) : Promise.resolve([]),
-    hasToken ? fetchAllsvenskanFixtures().catch(() => []) : Promise.resolve([]),
+    fetchStandings().catch(() => []),
+    fetchAllsvenskanFixtures().catch(() => []),
   ]);
 
   return (
@@ -84,7 +82,7 @@ export default async function AllsvenskanPage() {
                 {standings.length === 0 && (
                   <tr>
                     <td colSpan={6} className="p-6 text-center text-muted-foreground">
-                      Ingen tabell-data (kräver `SPORTSMONKS_ALLSVENSKAN_SEASON_ID`).
+                      Ingen tabell-data tillgänglig ännu.
                     </td>
                   </tr>
                 )}

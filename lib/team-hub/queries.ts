@@ -1,7 +1,7 @@
 /**
  * lib/team-hub/queries.ts — Team Hub aggregeringslager
  * ─────────────────────────────────────────────────────────────────────────────
- * All statistik hämtas från Sportmonks-synkade Supabase-tabeller:
+ * All statistik hämtas från Supabase (synkad av athopia-os från Sportmonks):
  *   team_season_stats   (team_id = sportmonks_id, season_id)
  *   player_season_stats (team_id, season_id, players-join)
  *   fixtures            (home_team_id/away_team_id = sportmonks_id)

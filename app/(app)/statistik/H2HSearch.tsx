@@ -114,7 +114,7 @@ export function H2HSearch({ fixtures }: Props) {
         </p>
       ) : fixtures.length === 0 ? (
         <p className="text-center py-16 text-sm text-muted-foreground">
-          Data ej tillgänglig — kontrollera att SPORTSMONKS_API_TOKEN är satt i .env.local.
+          Data ej tillgänglig — matchdata synkroniseras via athopia-os.
         </p>
       ) : filtered.length === 0 ? (
         <p className="text-center py-16 text-sm text-muted-foreground">

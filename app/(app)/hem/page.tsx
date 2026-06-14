@@ -65,7 +65,6 @@ async function getTrendingNarratives(): Promise<Narrative[]> {
 }
 
 async function getFixtures(): Promise<SMFixture[]> {
-  if (!process.env.SPORTSMONKS_API_TOKEN || process.env.SPORTSMONKS_API_TOKEN === "placeholder_token") return [];
   try {
     const live = await fetchLiveScores();
     if (live.length > 0) return live.slice(0, 6);
