@@ -185,17 +185,9 @@ export function ProfilePageClient({
     <div className="max-w-xl mx-auto px-4 sm:px-6 py-10 space-y-8">
       <h1 className="font-heading text-4xl text-foreground">MIN PROFIL</h1>
 
-      {/* Profilkort (samma som andra ser) + byt bild */}
-      <div className="relative">
-        <ProfileCard profile={profile} />
-        <button
-          onClick={() => fileRef.current?.click()}
-          className="absolute bottom-4 right-4 flex items-center gap-1.5 rounded-full bg-card border border-border px-3 py-1.5 text-xs text-muted-foreground shadow-sm hover:text-foreground transition-colors"
-        >
-          <Camera className="h-3.5 w-3.5" /> Byt bild
-        </button>
-        <input ref={fileRef} type="file" accept="image/*" hidden onChange={onAvatarPick} />
-      </div>
+      {/* Profilkort med kamera-overlay direkt på avataren */}
+      <ProfileCardEditable profile={profile} onPickFile={() => fileRef.current?.click()} />
+      <input ref={fileRef} type="file" accept="image/*" hidden onChange={onAvatarPick} />
 
       {/* Redigera offentlig profil */}
       <section className="space-y-4">
@@ -289,6 +281,9 @@ export function ProfilePageClient({
           {resetSent ? "Återställningsmail skickat" : "Återställ lösenord"}
         </button>
       </section>
+
+      {/* Hantera konto */}
+      <AccountManagement clerkUserId={profile.clerk_user_id} />
     </div>
     </>
   );
@@ -312,5 +307,127 @@ function Field({
         />
       </div>
     </div>
+  );
+}
+
+// ── Profilkort med kamera direkt på avataren ──────────────────────────────────
+function ProfileCardEditable({ profile, onPickFile }: { profile: PublicProfile; onPickFile: () => void }) {
+  const TEAM_GRADIENT = "linear-gradient(135deg, #4DA3FF 0%, #0B2A6B 100%)";
+  const name = profile.nickname ?? profile.display_name ?? "Anonym";
+  function initials(n: string) { return n.split(" ").filter(Boolean).map((w) => w[0]?.toUpperCase() ?? "").join("").slice(0, 2); }
+
+  return (
+    <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
+      <div className="relative h-28" style={{ background: TEAM_GRADIENT }} aria-hidden />
+      <div className="flex flex-col items-center px-6 pb-7 -mt-12">
+        {/* Avatar med kamera-overlay */}
+        <button
+          onClick={onPickFile}
+          className="group relative rounded-full ring-4 ring-card bg-card focus-visible:outline-none focus-visible:ring-pitch"
+          aria-label="Byt profilbild"
+        >
+          {profile.avatar_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={profile.avatar_url} alt={name} className="h-24 w-24 rounded-full object-cover" />
+          ) : (
+            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted text-2xl font-semibold text-muted-foreground">
+              {initials(name)}
+            </div>
+          )}
+          {/* Overlay */}
+          <span className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity flex items-center justify-center">
+            <Camera className="w-6 h-6 text-white" />
+          </span>
+        </button>
+
+        <div className="mt-4 flex items-center gap-1.5">
+          <h2 className="text-xl font-semibold text-foreground">{name}</h2>
+        </div>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Tryck på bilden för att byta
+        </p>
+        {profile.bio && (
+          <p className="mt-4 max-w-sm text-center text-sm leading-relaxed text-foreground/80">{profile.bio}</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Hantera konto ─────────────────────────────────────────────────────────────
+function AccountManagement({ clerkUserId: _ }: { clerkUserId: string }) {
+  const { user } = useUser();
+  const router = useRouter();
+  const [portalLoading, setPortalLoading] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  async function openPortal() {
+    setPortalLoading(true);
+    try {
+      const res = await fetch("/api/billing/portal", { method: "POST" });
+      const { url } = (await res.json()) as { url?: string };
+      if (url) window.location.href = url;
+    } catch {}
+    setPortalLoading(false);
+  }
+
+  async function deleteAccount() {
+    if (!user) return;
+    setDeleting(true);
+    try {
+      await user.delete();
+      router.push("/");
+    } catch {
+      setDeleting(false);
+    }
+  }
+
+  return (
+    <section className="space-y-3 pb-10">
+      <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+        Hantera konto
+      </h2>
+
+      <button
+        onClick={openPortal}
+        disabled={portalLoading}
+        className="w-full min-h-11 rounded-xl border border-border text-sm font-medium text-foreground flex items-center justify-center gap-2 hover:bg-muted transition-colors disabled:opacity-60"
+      >
+        {portalLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+        Hantera prenumeration (Stripe)
+      </button>
+
+      {!deleteConfirm ? (
+        <button
+          onClick={() => setDeleteConfirm(true)}
+          className="w-full min-h-11 rounded-xl border border-red-900/40 text-sm font-medium text-red-400 flex items-center justify-center gap-2 hover:bg-red-950/20 transition-colors"
+        >
+          Avsluta mitt konto
+        </button>
+      ) : (
+        <div className="rounded-xl border border-red-900/40 bg-red-950/10 p-4 space-y-3">
+          <p className="text-sm text-red-300 text-center">
+            Är du säker? Ditt konto och all data raderas permanent.
+          </p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setDeleteConfirm(false)}
+              className="flex-1 min-h-10 rounded-xl border border-border text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Avbryt
+            </button>
+            <button
+              onClick={deleteAccount}
+              disabled={deleting}
+              className="flex-1 min-h-10 rounded-xl bg-red-600 text-sm font-semibold text-white flex items-center justify-center gap-2 hover:bg-red-500 transition-colors disabled:opacity-60"
+            >
+              {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              Ja, radera konto
+            </button>
+          </div>
+        </div>
+      )}
+    </section>
   );
 }
