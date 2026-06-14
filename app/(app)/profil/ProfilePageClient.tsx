@@ -1,13 +1,55 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useUser, useSignIn } from "@clerk/nextjs";
 import { createClient } from "@supabase/supabase-js";
-import { Camera, Check, Loader2, Lock, Mail, ShieldCheck, KeyRound } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { Camera, Check, Loader2, Lock, Mail, ShieldCheck, KeyRound, ArrowRight, Sparkles } from "lucide-react";
 import { ProfileCard, type PublicProfile } from "@/components/profile/ProfileCard";
 import { ListGroup } from "@/components/ui/ListGroup";
 import { ListRow } from "@/components/ui/ListRow";
 import { useFavoriteTeam } from "@/hooks/useFavoriteTeam";
+
+function WelcomePopup({ onClose }: { onClose: () => void }) {
+  const router = useRouter();
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+    >
+      <motion.div
+        initial={{ y: 40, opacity: 0, scale: 0.96 }}
+        animate={{ y: 0, opacity: 1, scale: 1 }}
+        exit={{ y: 40, opacity: 0, scale: 0.96 }}
+        transition={{ duration: 0.38, ease: [0.23, 1, 0.32, 1] }}
+        className="w-full max-w-sm rounded-3xl border border-pitch/30 bg-background/95 backdrop-blur p-6 text-center shadow-2xl"
+      >
+        <div className="w-14 h-14 rounded-2xl bg-pitch/15 border border-pitch/30 flex items-center justify-center mx-auto mb-4">
+          <Sparkles className="w-7 h-7 text-pitch" />
+        </div>
+        <h2 className="font-heading text-2xl text-foreground mb-2">Välkommen ombord!</h2>
+        <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
+          Din profil är skapad. Nu är det dags att se ditt personliga fotbollsflöde.
+        </p>
+        <button
+          onClick={() => { onClose(); router.push("/feed"); }}
+          className="w-full min-h-[50px] rounded-2xl pitch-gradient text-white font-semibold text-sm flex items-center justify-center gap-2 touch-manipulation"
+        >
+          Ta mig till mitt feed <ArrowRight className="w-4 h-4" />
+        </button>
+        <button
+          onClick={onClose}
+          className="mt-3 w-full min-h-[44px] text-sm text-muted-foreground hover:text-foreground transition-colors touch-manipulation"
+        >
+          Stanna här på profilen
+        </button>
+      </motion.div>
+    </motion.div>
+  );
+}
 
 interface Team { id: string; name: string; slug: string | null }
 
@@ -27,6 +69,8 @@ export function ProfilePageClient({
   const { user } = useUser();
   const { signIn } = useSignIn();
   const { setFavoriteTeam } = useFavoriteTeam();
+  const searchParams = useSearchParams();
+  const [showWelcome, setShowWelcome] = useState(searchParams.get("welcome") === "1");
 
   const [profile, setProfile] = useState<PublicProfile>(initialProfile);
   const [firstName, setFirstName] = useState(initialFirst ?? "");
@@ -134,6 +178,10 @@ export function ProfilePageClient({
   }
 
   return (
+    <>
+      <AnimatePresence>
+        {showWelcome && <WelcomePopup onClose={() => setShowWelcome(false)} />}
+      </AnimatePresence>
     <div className="max-w-xl mx-auto px-4 sm:px-6 py-10 space-y-8">
       <h1 className="font-heading text-4xl text-foreground">MIN PROFIL</h1>
 
@@ -242,6 +290,7 @@ export function ProfilePageClient({
         </button>
       </section>
     </div>
+    </>
   );
 }
 

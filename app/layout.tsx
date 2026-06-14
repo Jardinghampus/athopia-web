@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Instrument_Serif, Lora } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
+import { svSE } from "@clerk/localizations";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { Providers } from "./providers";
 import { Toaster } from "@/components/ui/sonner";
@@ -82,5 +83,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 
-  return clerkEnabled ? <ClerkProvider>{content}</ClerkProvider> : content;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return clerkEnabled ? <ClerkProvider localization={svSE as any}>{content}</ClerkProvider> : content;
 }
