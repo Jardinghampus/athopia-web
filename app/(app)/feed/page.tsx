@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { FeedClient } from "./FeedClient";
+import { FeedDashboard } from "./FeedDashboard";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Mitt feed",
-  description: "Personaliserad feed med nyheter, forum och podcasts för ditt lag.",
+  title: "Dashboard | Athopia",
+  description: "Din personaliserade football dashboard — statistik, nyheter, forum och podcasts för ditt lag.",
 };
 
 export default function FeedPage() {
-  return <FeedClient />;
+  return <FeedDashboard />;
 }
