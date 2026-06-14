@@ -100,7 +100,7 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
 
   if (!team) {
     return (
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16 text-center">
+      <div className="w-full px-6 sm:px-8 py-16 text-center">
         <h1 className="font-heading text-4xl text-foreground mb-4">Lag hittades inte</h1>
         <p className="text-muted-foreground">Laget <strong>{slug}</strong> finns inte i systemet ännu.</p>
       </div>
@@ -138,7 +138,7 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
     : [];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+    <div className="w-full px-6 sm:px-8 py-8 space-y-6">
       <TeamContextTracker slug={team.slug} name={team.name} logo_url={team.logo_url} />
       {/* ── Header ─────────────────────────────────────────────── */}
       <div className="flex items-start gap-5">
