@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import type { FeedItem } from "@/lib/types";
@@ -24,18 +24,13 @@ export async function GET(req: Request) {
     return NextResponse.json({ items: [], hasMore: false, gated: false });
   }
 
-  // Plan-check (gratis = 20 items/dag)
+  // Plan-check via Clerk publicMetadata (sätts av Stripe-webhook)
   let isPro = false;
   if (userId) {
     try {
-      const { data: config } = await db
-        .from("user_feed_config")
-        .select("clerk_user_id")
-        .eq("clerk_user_id", userId)
-        .single();
-      // Plan hanteras via Clerk metadata — här kollar vi bara om config finns
-      // TODO: getUserPlan() när Stripe-integration är klar
-      isPro = !!config;
+      const user = await currentUser();
+      const plan = (user?.publicMetadata?.plan as string | undefined) ?? "free";
+      isPro = plan === "pro" || plan === "elite";
     } catch { /* ignorera */ }
   }
 

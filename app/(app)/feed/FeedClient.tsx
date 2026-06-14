@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useFavoriteTeam } from "@/hooks/useFavoriteTeam";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
+import { FeedPaywallBanner, FeedGhostCards } from "@/components/FeedPaywallBanner";
 import { PullToRefresh } from "@/components/ui/PullToRefresh";
 import type { FeedItem, FeedItemType } from "@/lib/types";
 
@@ -204,6 +205,28 @@ function FeedItemCard({ item }: { item: FeedItem }) {
         )}
       </div>
     </Link>
+  );
+}
+
+const SOFT_PAYWALL_AFTER = 8; // inject banner after this many items
+
+function FeedList({ items, gated }: { items: FeedItem[]; gated: boolean }) {
+  const splitAt = gated && items.length > SOFT_PAYWALL_AFTER ? SOFT_PAYWALL_AFTER : -1;
+  const above = splitAt === -1 ? items : items.slice(0, splitAt);
+  const hasBanner = splitAt !== -1;
+
+  return (
+    <div className="flex flex-col gap-3">
+      {above.map((item) => (
+        <FeedItemCard key={item.id} item={item} />
+      ))}
+      {hasBanner && (
+        <>
+          <FeedPaywallBanner />
+          <FeedGhostCards count={3} />
+        </>
+      )}
+    </div>
   );
 }
 
@@ -428,18 +451,14 @@ export function FeedClient() {
           </div>
         ) : visibleItems.length === 0 ? (
           gated ? (
-            <UpgradePrompt feature="unlimitedFeed" />
+            <FeedPaywallBanner />
           ) : (
             <div className="text-center py-16 text-muted-foreground">
               <p className="text-sm">Inga{filter !== "all" ? ` ${FILTERS.find((f) => f.key === filter)?.label.toLowerCase()}-` : " "}items ännu.</p>
             </div>
           )
         ) : (
-          <div className="flex flex-col gap-3">
-            {visibleItems.map((item) => (
-              <FeedItemCard key={item.id} item={item} />
-            ))}
-          </div>
+          <FeedList items={visibleItems} gated={gated} />
         )}
 
         <div ref={bottomRef} className="h-4" />
@@ -447,12 +466,6 @@ export function FeedClient() {
         {loadingMore && (
           <div className="flex justify-center py-4">
             <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
-          </div>
-        )}
-
-        {gated && items.length > 0 && (
-          <div className="py-4">
-            <UpgradePrompt feature="unlimitedFeed" />
           </div>
         )}
 
