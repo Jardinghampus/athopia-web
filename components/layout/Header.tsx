@@ -24,7 +24,7 @@ export function Header({ clerkEnabled }: { clerkEnabled: boolean }) {
   return (
     <>
       <header className="sticky top-0 z-50 border-b border-border/50 bg-background/90 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
+        <div className="w-full px-6 sm:px-8 h-14 flex items-center justify-between gap-4">
           {/* Logo */}
           <div className="flex items-center gap-3">
             <Link
@@ -84,7 +84,7 @@ export function Header({ clerkEnabled }: { clerkEnabled: boolean }) {
         {/* Mobile nav */}
         {mobileOpen && (
           <div className="md:hidden border-t border-border/50 bg-background/98 backdrop-blur-xl">
-            <nav className="flex flex-col max-w-7xl mx-auto px-4 py-3 gap-1">
+            <nav className="flex flex-col px-6 py-3 gap-1">
               {NAV_LINKS.map((link) => (
                 <Link
                   key={link.href}
