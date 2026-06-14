@@ -120,7 +120,7 @@ export default async function NyheterPage({
         </Suspense>
       </div>
 
-      <div className="flex gap-8 items-start">
+      <div className="flex flex-col lg:flex-row gap-8 items-start">
         {/* Filter-panel */}
         <Suspense fallback={null}>
           <NewsFilterPanel
