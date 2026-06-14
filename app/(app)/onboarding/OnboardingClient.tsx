@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { Check, ArrowRight, Bell, Zap, ChevronRight } from "lucide-react";
@@ -83,6 +83,19 @@ export function OnboardingClient() {
   const selectedTeam = teams.find((t) => (t.slug ?? t.id) === selected);
   const selectedColor = selectedTeam ? getColor(selectedTeam.metadata) : "#1D9E75";
 
+  // Prefetcha feed i bakgrunden direkt vid val
+  const prefetchFeed = useCallback((teamSlug: string) => {
+    void fetch(`/api/feed?team=${encodeURIComponent(teamSlug)}&offset=0`, { cache: "no-store" })
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (data) {
+          try {
+            sessionStorage.setItem("prefetch_feed", JSON.stringify({ slug: teamSlug, data, ts: Date.now() }));
+          } catch {}
+        }
+      });
+  }, []);
+
   const handleContinue = async () => {
     setSaving(true);
     try {
@@ -155,7 +168,11 @@ export function OnboardingClient() {
               return (
                 <motion.button
                   key={team.id}
-                  onClick={() => setSelected(isSelected ? null : slug)}
+                  onClick={() => {
+                    const next = isSelected ? null : slug;
+                    setSelected(next);
+                    if (next) prefetchFeed(next);
+                  }}
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.02, duration: 0.25, ease: "easeOut" }}

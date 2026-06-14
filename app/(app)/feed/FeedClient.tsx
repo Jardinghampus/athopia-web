@@ -2,18 +2,41 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
-import { Newspaper, MessageSquare, Brain, Podcast, Loader2, RefreshCw } from "lucide-react";
+import {
+  Newspaper,
+  MessageSquare,
+  Brain,
+  Podcast,
+  Loader2,
+  RefreshCw,
+  Sparkles,
+  ChevronRight,
+} from "lucide-react";
 import { useFavoriteTeam } from "@/hooks/useFavoriteTeam";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { PullToRefresh } from "@/components/ui/PullToRefresh";
 import type { FeedItem, FeedItemType } from "@/lib/types";
 
+// ─── Meta ────────────────────────────────────────────────────────────────────
+
 const TYPE_META: Record<FeedItemType, { label: string; color: string; icon: React.ElementType }> = {
-  news: { label: "Nyhet", color: "#1D9E75", icon: Newspaper },
-  forum: { label: "Forum", color: "#7F77DD", icon: MessageSquare },
+  news:    { label: "Nyhet",    color: "#1D9E75", icon: Newspaper },
+  forum:   { label: "Forum",   color: "#7F77DD", icon: MessageSquare },
   summary: { label: "AI-analys", color: "#BA7517", icon: Brain },
   podcast: { label: "Podcast", color: "#378ADD", icon: Podcast },
 };
+
+type FilterType = "all" | FeedItemType;
+
+const FILTERS: { key: FilterType; label: string }[] = [
+  { key: "all",     label: "Allt"      },
+  { key: "news",    label: "Nyheter"   },
+  { key: "summary", label: "AI-analys" },
+  { key: "forum",   label: "Forum"     },
+  { key: "podcast", label: "Podcast"   },
+];
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -24,6 +47,126 @@ function timeAgo(iso: string): string {
   if (h < 24) return `${h}h`;
   return `${Math.floor(h / 24)}d`;
 }
+
+// ─── AI Summary Card ─────────────────────────────────────────────────────────
+
+function AISummaryCard({ item }: { item: FeedItem }) {
+  return (
+    <Link
+      href={item.href}
+      className="group block rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/8 to-amber-600/4 p-4 transition-colors hover:bg-amber-500/12 active:bg-amber-500/16 touch-manipulation"
+    >
+      <div className="flex items-center gap-2 mb-3">
+        <div className="w-7 h-7 rounded-full bg-amber-500/20 flex items-center justify-center shrink-0">
+          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+        </div>
+        <span className="text-[11px] font-semibold uppercase tracking-wide text-amber-400">
+          AI-analys
+        </span>
+        <span className="text-[11px] text-muted-foreground ml-auto">{timeAgo(item.time)}</span>
+      </div>
+      <p className="text-sm font-semibold text-foreground group-hover:text-amber-300 transition-colors line-clamp-3 leading-snug">
+        {item.title}
+      </p>
+      {item.subtitle && (
+        <p className="text-xs text-muted-foreground mt-2 line-clamp-2">{item.subtitle}</p>
+      )}
+      <div className="flex items-center gap-1 mt-3 text-xs text-amber-400/70">
+        <span>Läs analys</span>
+        <ChevronRight className="w-3 h-3" />
+      </div>
+    </Link>
+  );
+}
+
+// ─── Carousel Card ────────────────────────────────────────────────────────────
+
+function CarouselCard({ item, index }: { item: FeedItem; index: number }) {
+  return (
+    <Link
+      href={item.href}
+      className="group shrink-0 w-[78vw] max-w-[300px] snap-start rounded-2xl border border-border bg-card p-4 flex flex-col justify-between min-h-[120px] touch-manipulation active:bg-muted transition-colors"
+    >
+      <div>
+        <div className="flex items-center gap-1.5 mb-2">
+          <span className="text-[10px] font-bold text-pitch uppercase tracking-wide">
+            #{index + 1}
+          </span>
+          {item.source && (
+            <>
+              <span className="text-[10px] text-muted-foreground">·</span>
+              <span className="text-[10px] text-muted-foreground truncate">{item.source}</span>
+            </>
+          )}
+        </div>
+        <p className="text-sm font-semibold text-foreground line-clamp-3 leading-snug group-hover:text-pitch transition-colors">
+          {item.title}
+        </p>
+      </div>
+      <p className="text-[11px] text-muted-foreground mt-3">{timeAgo(item.time)}</p>
+    </Link>
+  );
+}
+
+function TopNewsCarousel({ items }: { items: FeedItem[] }) {
+  if (items.length === 0) return null;
+  return (
+    <div className="-mx-4 sm:-mx-6">
+      <div className="flex items-center justify-between px-4 sm:px-6 mb-3">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Topbnyheter
+        </h2>
+        <span className="text-[10px] text-muted-foreground/50">Swipa →</span>
+      </div>
+      <div
+        className="flex gap-3 overflow-x-auto px-4 sm:px-6 pb-2 snap-x snap-mandatory scroll-smooth"
+        style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" } as React.CSSProperties}
+      >
+        {items.map((item, i) => (
+          <CarouselCard key={item.id} item={item} index={i} />
+        ))}
+        {/* Trailing spacer so last card isn't flush to edge */}
+        <div className="shrink-0 w-4" aria-hidden />
+      </div>
+    </div>
+  );
+}
+
+// ─── Filter Tabs ─────────────────────────────────────────────────────────────
+
+function FilterTabs({
+  active,
+  onChange,
+}: {
+  active: FilterType;
+  onChange: (f: FilterType) => void;
+}) {
+  return (
+    <div
+      className="-mx-4 sm:-mx-6 overflow-x-auto"
+      style={{ scrollbarWidth: "none" } as React.CSSProperties}
+    >
+      <div className="flex gap-2 px-4 sm:px-6 pb-1">
+        {FILTERS.map(({ key, label }) => (
+          <button
+            key={key}
+            onClick={() => onChange(key)}
+            className={[
+              "shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors touch-manipulation",
+              active === key
+                ? "bg-pitch text-white"
+                : "bg-card border border-border text-muted-foreground hover:text-foreground hover:border-pitch/40",
+            ].join(" ")}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Feed Item Card ───────────────────────────────────────────────────────────
 
 function FeedItemCard({ item }: { item: FeedItem }) {
   const meta = TYPE_META[item.type];
@@ -42,10 +185,7 @@ function FeedItemCard({ item }: { item: FeedItem }) {
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
-          <span
-            className="text-[11px] font-semibold uppercase tracking-wide"
-            style={{ color: meta.color }}
-          >
+          <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: meta.color }}>
             {meta.label}
           </span>
           <span className="text-[11px] text-muted-foreground">{timeAgo(item.time)}</span>
@@ -69,10 +209,25 @@ function FeedItemCard({ item }: { item: FeedItem }) {
 
 const NEW_POLL_INTERVAL_MS = 90_000;
 
+// ─── API types ────────────────────────────────────────────────────────────────
+
+interface HeroData {
+  summary: FeedItem | null;
+  topNews: FeedItem[];
+}
+
 interface FeedResponse {
   items: FeedItem[];
   hasMore: boolean;
   gated: boolean;
+}
+
+async function fetchHero(teamSlug: string | null): Promise<HeroData> {
+  const qs = new URLSearchParams();
+  if (teamSlug) qs.set("team", teamSlug);
+  const res = await fetch(`/api/feed/hero?${qs.toString()}`, { cache: "no-store" });
+  if (!res.ok) return { summary: null, topNews: [] };
+  return (await res.json()) as HeroData;
 }
 
 async function fetchFeedPage(teamSlug: string | null, offset: number): Promise<FeedResponse> {
@@ -80,16 +235,19 @@ async function fetchFeedPage(teamSlug: string | null, offset: number): Promise<F
   if (teamSlug) qs.set("team", teamSlug);
   const res = await fetch(`/api/feed?${qs.toString()}`, { cache: "no-store" });
   if (!res.ok) return { items: [], hasMore: false, gated: false };
-  const data = (await res.json()) as Partial<FeedResponse>;
-  return {
-    items: data.items ?? [],
-    hasMore: data.hasMore ?? false,
-    gated: data.gated ?? false,
-  };
+  return (await res.json()) as FeedResponse;
 }
+
+// ─── Main Component ───────────────────────────────────────────────────────────
 
 export function FeedClient() {
   const { slug, isLoaded, needsOnboarding } = useFavoriteTeam();
+
+  // Hero (AI summary + top 5 news)
+  const [hero, setHero] = useState<HeroData | null>(null);
+  const [heroLoading, setHeroLoading] = useState(true);
+
+  // Main feed
   const [items, setItems] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -97,18 +255,48 @@ export function FeedClient() {
   const [hasMore, setHasMore] = useState(true);
   const [newCount, setNewCount] = useState(0);
   const [gated, setGated] = useState(false);
+  const [filter, setFilter] = useState<FilterType>("all");
+
   const bottomRef = useRef<HTMLDivElement>(null);
 
+  // ── Hero load ──────────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!isLoaded) return;
+    setHeroLoading(true);
+    void fetchHero(slug).then((data) => {
+      setHero(data);
+      setHeroLoading(false);
+    });
+  }, [isLoaded, slug]);
+
+  // ── Main feed load ─────────────────────────────────────────────────────────
   const load = useCallback(
     async (reset = false) => {
       const currentOffset = reset ? 0 : offset;
       if (reset) setLoading(true);
       else setLoadingMore(true);
 
-      const { items: newItems, hasMore: more, gated: isGated } = await fetchFeedPage(
-        isLoaded ? slug : null,
-        currentOffset
-      );
+      // Consume prefetch from onboarding if available and fresh
+      if (reset) {
+        try {
+          const raw = sessionStorage.getItem("prefetch_feed");
+          if (raw) {
+            sessionStorage.removeItem("prefetch_feed");
+            const cached = JSON.parse(raw) as { slug: string; data: FeedResponse; ts: number };
+            if (cached.slug === slug && Date.now() - cached.ts < 30_000) {
+              setItems(cached.data.items ?? []);
+              setOffset((cached.data.items ?? []).length);
+              setHasMore(cached.data.hasMore ?? false);
+              setGated(cached.data.gated ?? false);
+              setLoading(false);
+              setLoadingMore(false);
+              return;
+            }
+          }
+        } catch {}
+      }
+
+      const { items: newItems, hasMore: more, gated: isGated } = await fetchFeedPage(slug, currentOffset);
 
       if (reset) {
         setItems(newItems);
@@ -127,10 +315,10 @@ export function FeedClient() {
       setLoading(false);
       setLoadingMore(false);
     },
-    [slug, isLoaded, offset]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [slug, offset],
   );
 
-  // Initialload
   useEffect(() => {
     if (!isLoaded) return;
     void load(true);
@@ -159,12 +347,12 @@ export function FeedClient() {
     return () => { cancelled = true; clearInterval(id); };
   }, []);
 
-  // Infinite scroll
+  // ── Infinite scroll ────────────────────────────────────────────────────────
   useEffect(() => {
     if (!bottomRef.current || loadingMore || !hasMore) return;
     const obs = new IntersectionObserver(
       ([entry]) => { if (entry?.isIntersecting) void load(); },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
     obs.observe(bottomRef.current);
     return () => obs.disconnect();
@@ -174,74 +362,104 @@ export function FeedClient() {
 
   const teamLabel = slug ? slug.replace(/-/g, " ").toUpperCase() : "ALLSVENSKAN";
 
+  const visibleItems =
+    filter === "all" ? items : items.filter((i) => i.type === filter);
+
   return (
-    <PullToRefresh onRefresh={() => load(true)}>
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="font-heading text-4xl text-foreground leading-none">MITT FEED</h1>
-          <p className="text-sm text-muted-foreground mt-1">{teamLabel}</p>
+    <PullToRefresh onRefresh={async () => { await load(true); void fetchHero(slug).then(setHero); }}>
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 space-y-5">
+
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="font-heading text-4xl text-foreground leading-none">MITT FEED</h1>
+            <p className="text-sm text-muted-foreground mt-1">{teamLabel}</p>
+          </div>
+          {!needsOnboarding && (
+            <Link
+              href="/onboarding"
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Byt lag
+            </Link>
+          )}
         </div>
-        {!needsOnboarding && (
-          <Link
-            href="/onboarding"
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+
+        {/* New articles badge */}
+        {newCount > 0 && (
+          <button
+            onClick={() => { void load(true); void fetchHero(slug).then(setHero); }}
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-pitch/10 border border-pitch/30 text-sm text-pitch hover:bg-pitch/20 transition-colors"
           >
-            Byt lag
-          </Link>
+            <RefreshCw className="w-4 h-4" />
+            {newCount} ny{newCount > 1 ? "a" : ""} artikel{newCount > 1 ? "ar" : ""}
+          </button>
+        )}
+
+        {/* AI Summary */}
+        {heroLoading ? (
+          <div className="h-[130px] rounded-2xl bg-card border border-border skeleton-wave" />
+        ) : hero?.summary ? (
+          <AISummaryCard item={hero.summary} />
+        ) : null}
+
+        {/* Top News Carousel */}
+        {heroLoading ? (
+          <div className="-mx-4 sm:-mx-6">
+            <div className="flex gap-3 px-4 sm:px-6 overflow-hidden">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="shrink-0 w-[78vw] max-w-[300px] h-[120px] rounded-2xl bg-card border border-border skeleton-wave" />
+              ))}
+            </div>
+          </div>
+        ) : (hero?.topNews ?? []).length > 0 ? (
+          <TopNewsCarousel items={hero!.topNews} />
+        ) : null}
+
+        {/* Filter tabs */}
+        <FilterTabs active={filter} onChange={(f) => setFilter(f)} />
+
+        {/* Main feed */}
+        {loading ? (
+          <div className="flex flex-col gap-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="h-20 rounded-xl bg-card border border-border skeleton-wave" />
+            ))}
+          </div>
+        ) : visibleItems.length === 0 ? (
+          gated ? (
+            <UpgradePrompt feature="unlimitedFeed" />
+          ) : (
+            <div className="text-center py-16 text-muted-foreground">
+              <p className="text-sm">Inga{filter !== "all" ? ` ${FILTERS.find((f) => f.key === filter)?.label.toLowerCase()}-` : " "}items ännu.</p>
+            </div>
+          )
+        ) : (
+          <div className="flex flex-col gap-3">
+            {visibleItems.map((item) => (
+              <FeedItemCard key={item.id} item={item} />
+            ))}
+          </div>
+        )}
+
+        <div ref={bottomRef} className="h-4" />
+
+        {loadingMore && (
+          <div className="flex justify-center py-4">
+            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+          </div>
+        )}
+
+        {gated && items.length > 0 && (
+          <div className="py-4">
+            <UpgradePrompt feature="unlimitedFeed" />
+          </div>
+        )}
+
+        {!hasMore && !gated && visibleItems.length > 0 && (
+          <p className="text-center text-xs text-muted-foreground py-4">Inga fler items</p>
         )}
       </div>
-
-      {newCount > 0 && (
-        <button
-          onClick={() => load(true)}
-          className="w-full flex items-center justify-center gap-2 mb-4 py-2.5 rounded-xl bg-pitch/10 border border-pitch/30 text-sm text-pitch hover:bg-pitch/20 transition-colors"
-        >
-          <RefreshCw className="w-4 h-4" />
-          {newCount} ny{newCount > 1 ? "a" : ""} artikel{newCount > 1 ? "ar" : ""}
-        </button>
-      )}
-
-      {loading ? (
-        <div className="flex flex-col gap-3">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="h-20 rounded-xl bg-card border border-border skeleton-wave" />
-          ))}
-        </div>
-      ) : items.length === 0 ? (
-        gated ? (
-          <UpgradePrompt feature="unlimitedFeed" />
-        ) : (
-          <div className="text-center py-20 text-muted-foreground">
-            <p className="text-sm">Inga items i feeden ännu.</p>
-          </div>
-        )
-      ) : (
-        <div className="flex flex-col gap-3">
-          {items.map((item) => (
-            <FeedItemCard key={item.id} item={item} />
-          ))}
-        </div>
-      )}
-
-      <div ref={bottomRef} className="h-4" />
-
-      {loadingMore && (
-        <div className="flex justify-center py-4">
-          <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
-        </div>
-      )}
-
-      {gated && items.length > 0 && (
-        <div className="py-4">
-          <UpgradePrompt feature="unlimitedFeed" />
-        </div>
-      )}
-
-      {!hasMore && !gated && items.length > 0 && (
-        <p className="text-center text-xs text-muted-foreground py-4">Inga fler items</p>
-      )}
-    </div>
     </PullToRefresh>
   );
 }
