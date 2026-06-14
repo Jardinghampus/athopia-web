@@ -75,8 +75,8 @@ export async function POST(req: Request) {
       client_reference_id: userId,
       // Sparas för webhook-hantering (sätter rätt plan i Clerk)
       metadata: { clerkUserId: userId, plan, interval },
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/konto?checkout=success`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/prenumerera`,
+      success_url: `https://athopia.se/konto?checkout=success`,
+      cancel_url: `https://athopia.se/prenumerera`,
       subscription_data: {
         metadata: { clerkUserId: userId, plan, interval },
       },
@@ -84,9 +84,10 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ url: session.url });
   } catch (err) {
-    console.error("[create-checkout]", err);
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[create-checkout] STRIPE ERROR:", msg);
     return NextResponse.json(
-      { error: "Kunde inte skapa betalningssession." },
+      { error: "Kunde inte skapa betalningssession.", detail: msg },
       { status: 500 }
     );
   }

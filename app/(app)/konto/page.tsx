@@ -30,7 +30,7 @@ async function getBillingPortalUrl(customerId: string): Promise<string | null> {
   try {
     const session = await stripe.billingPortal.sessions.create({
       customer: customerId,
-      return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/konto`,
+      return_url: `https://athopia.se/konto`,
       locale: "sv",
     });
     return session.url;
