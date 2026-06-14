@@ -1,31 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import { createServerClient, isSupabaseConfigured, getEntities } from "@/lib/supabase";
 import type { ForumPost } from "@/lib/types";
 import ForumSummaryBar from "@/components/forum/ForumSummaryBar";
 import ForumDailySummary from "@/components/forum/ForumDailySummary";
 import ForumClient from "./ForumClient";
 
 export const dynamic = 'force-dynamic';
-
-const ALL_TEAMS = [
-  { name: "AIK", slug: "aik" },
-  { name: "DIF", slug: "djurgardens-if" },
-  { name: "MFF", slug: "malmoe-ff" },
-  { name: "HIF", slug: "helsingborgs-if" },
-  { name: "IFK Gborg", slug: "ifk-goeteborg" },
-  { name: "Häcken", slug: "bk-haecken" },
-  { name: "Hammarby", slug: "hammarby-if" },
-  { name: "Sirius", slug: "ik-sirius" },
-  { name: "Kalmar", slug: "kalmar-ff" },
-  { name: "Elfsborg", slug: "if-elfsborg" },
-  { name: "Örebro", slug: "orebro-sk" },
-  { name: "Norrköping", slug: "ifk-norrkoping" },
-  { name: "Sundsvall", slug: "gif-sundsvall" },
-  { name: "Mjällby", slug: "mjallby-aif" },
-  { name: "Värnamo", slug: "ik-varnamo" },
-  { name: "Halmstad", slug: "halmstads-bk" },
-];
 
 const DIF_MOCK_POSTS: ForumPost[] = [
   {
@@ -212,7 +193,8 @@ export async function generateMetadata({
   params: Promise<{ teamSlug: string }>;
 }): Promise<Metadata> {
   const { teamSlug } = await params;
-  const name = ALL_TEAMS.find((t) => t.slug === teamSlug)?.name ?? teamSlug;
+  const teams = await getEntities("team");
+  const name = teams.find((t) => t.slug === teamSlug)?.name ?? teamSlug;
   return {
     title: `${name} Forum | Athopia`,
     description: `Diskutera ${name} med andra supportrar på Athopia.`,
@@ -230,18 +212,19 @@ export default async function ForumTeamPage({
   const { sort = "hot" } = await searchParams;
   const validSort = ["hot", "latest", "transfers", "taktik", "match"].includes(sort) ? sort : "hot";
 
-  const [posts, aiSummary] = await Promise.all([
+  const [posts, aiSummary, allTeams] = await Promise.all([
     getPosts(teamSlug, validSort),
     getAISummary(teamSlug),
+    getEntities("team"),
   ]);
 
-  const teamName = ALL_TEAMS.find((t) => t.slug === teamSlug)?.name ?? teamSlug.replace(/-/g, " ").toUpperCase();
+  const teamName = allTeams.find((t) => t.slug === teamSlug)?.name ?? teamSlug.replace(/-/g, " ").toUpperCase();
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6">
       {/* Lag-tabs */}
       <div className="flex gap-1.5 overflow-x-auto scrollbar-none mb-6 pb-1">
-        {ALL_TEAMS.map((t) => (
+        {allTeams.map((t) => (
           <Link
             key={t.slug}
             href={`/forum/${t.slug}`}

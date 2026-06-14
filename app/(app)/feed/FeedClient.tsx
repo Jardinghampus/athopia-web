@@ -263,8 +263,9 @@ async function fetchFeedPage(teamSlug: string | null, offset: number): Promise<F
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export function FeedClient() {
-  const { slug, isLoaded, needsOnboarding } = useFavoriteTeam();
+export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
+  const { slug: favSlug, isLoaded, needsOnboarding } = useFavoriteTeam();
+  const slug = forceTeam ?? favSlug;
 
   // Hero (AI summary + top 5 news)
   const [hero, setHero] = useState<HeroData | null>(null);
