@@ -276,8 +276,10 @@ export async function getEntities(type?: Entity["type"]): Promise<Entity[]> {
   if (!isSupabaseConfigured()) return [];
   try {
     const supabase = createServerClient();
-    let q = supabase.from("entities").select("*").order("name", { ascending: true }).limit(500);
+    let q = supabase.from("entities").select("*").order("name", { ascending: true }).limit(100);
     if (type) q = q.eq("type", type);
+    // Visa bara Allsvenskan-lag (ej landslag, Camp Sweden, etc.)
+    if (type === "team") q = (q as any).eq("metadata->>league", "Allsvenskan");
     const { data } = await q;
     return (data ?? []).map(mapEntity);
   } catch {
