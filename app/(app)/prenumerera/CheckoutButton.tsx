@@ -1,12 +1,8 @@
 "use client";
 
-/**
- * CheckoutButton — Client Component
- * Initierar Stripe Checkout Session via /api/create-checkout för en given
- * plan (pro/elite) + intervall (month/year).
- */
-
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
 import { Loader2 } from "lucide-react";
 import type { PaidPlan, BillingInterval } from "@/lib/pricing";
 
@@ -19,8 +15,14 @@ interface Props {
 
 export function CheckoutButton({ plan, interval, label, variant = "primary" }: Props) {
   const [loading, setLoading] = useState(false);
+  const { isSignedIn } = useAuth();
+  const router = useRouter();
 
   async function handleCheckout() {
+    if (!isSignedIn) {
+      router.push("/sign-up?redirect_url=/onboarding");
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch("/api/create-checkout", {
