@@ -14,8 +14,10 @@ export function formatDate(date: string | number | Date): string {
   });
 }
 
-export function formatDateRelative(date: string | number | Date): string {
+export function formatDateRelative(date: string | number | Date | null | undefined): string {
+  if (date == null) return "";
   const d = date instanceof Date ? date : new Date(date);
+  if (isNaN(d.getTime())) return "";
   const diffMs = Date.now() - d.getTime();
   const diffSec = Math.floor(diffMs / 1000);
   const abs = Math.abs(diffSec);
