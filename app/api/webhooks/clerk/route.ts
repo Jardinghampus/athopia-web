@@ -1,6 +1,8 @@
 import { Webhook } from "svix";
 import { NextResponse } from "next/server";
 import type { WebhookEvent } from "@clerk/nextjs/server";
+import { clerkClient } from "@clerk/nextjs/server";
+import Stripe from "stripe";
 import { createServiceClient } from "@/lib/supabase";
 
 export async function POST(req: Request) {
@@ -47,6 +49,30 @@ export async function POST(req: Request) {
 
   if (event.type === "user.created") {
     const { id: clerkUserId } = event.data;
+    const email = (event.data as { email_addresses?: { email_address: string }[] })
+      .email_addresses?.[0]?.email_address;
+    const d = event.data as { first_name?: string | null; last_name?: string | null };
+
+    // Skapa Stripe Customer och spara ID i Clerk privateMetadata
+    if (process.env.STRIPE_SECRET_KEY) {
+      try {
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+          apiVersion: "2026-04-22.dahlia",
+        });
+        const customer = await stripe.customers.create({
+          email,
+          name: [d.first_name, d.last_name].filter(Boolean).join(" ") || undefined,
+          metadata: { clerkUserId },
+        });
+        const clerk = await clerkClient();
+        await clerk.users.updateUserMetadata(clerkUserId, {
+          privateMetadata: { stripeCustomerId: customer.id },
+        });
+      } catch (err) {
+        console.error("[clerk-webhook] Stripe customer creation failed:", err);
+      }
+    }
+
     const supabase = createServiceClient();
 
     const { error } = await supabase.from("user_feed_config").upsert(

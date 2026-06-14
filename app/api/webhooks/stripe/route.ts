@@ -74,48 +74,71 @@ export async function POST(req: Request) {
       break;
     }
 
-    case "customer.subscription.deleted": {
-      const subscription = event.data.object as Stripe.Subscription;
-      const clerkUserId = subscription.metadata?.clerkUserId;
-
-      if (!clerkUserId) {
-        // Fallback: sök via stripeCustomerId om metadata saknas
-        console.error("[stripe-webhook] Saknar clerkUserId i subscription", subscription.id);
-        break;
-      }
-
-      await clerk.users.updateUserMetadata(clerkUserId, {
-        publicMetadata: {
-          plan: "free",
-          stripeSubscriptionId: null,
-        },
-      });
-
-      console.log(`[stripe-webhook] Prenumeration avbruten för ${clerkUserId}`);
-      break;
-    }
-
+    case "customer.subscription.created":
     case "customer.subscription.updated": {
       const subscription = event.data.object as Stripe.Subscription;
       const clerkUserId = subscription.metadata?.clerkUserId;
       if (!clerkUserId) break;
+
+      const periodEndTs = subscription.items.data[0]?.current_period_end;
+      const currentPeriodEnd = periodEndTs
+        ? new Date(periodEndTs * 1000).toISOString()
+        : undefined;
 
       if (
         subscription.status === "past_due" ||
         subscription.status === "unpaid" ||
         subscription.status === "canceled"
       ) {
-        // Nedgradera vid utebliven betalning / avslut
         await clerk.users.updateUserMetadata(clerkUserId, {
-          publicMetadata: { plan: "free" },
+          publicMetadata: { plan: "free", stripeSubscriptionId: subscription.id },
+          privateMetadata: {
+            subscription: {
+              id: subscription.id,
+              status: subscription.status,
+              currentPeriodEnd,
+              cancelAtPeriodEnd: subscription.cancel_at_period_end,
+            },
+          },
         });
       } else if (subscription.status === "active" || subscription.status === "trialing") {
-        // Synka plan (t.ex. PRO → Elite-byte) från subscription-metadata
         const plan = subscription.metadata?.plan === "elite" ? "elite" : "pro";
         await clerk.users.updateUserMetadata(clerkUserId, {
-          publicMetadata: { plan },
+          publicMetadata: {
+            plan,
+            stripeCustomerId: subscription.customer as string,
+            stripeSubscriptionId: subscription.id,
+          },
+          privateMetadata: {
+            subscription: {
+              id: subscription.id,
+              status: subscription.status,
+              plan,
+              currentPeriodEnd,
+              cancelAtPeriodEnd: subscription.cancel_at_period_end,
+            },
+          },
         });
       }
+      console.log(`[stripe-webhook] subscription.${event.type.split(".").pop()} för ${clerkUserId}`);
+      break;
+    }
+
+    case "customer.subscription.deleted": {
+      const subscription = event.data.object as Stripe.Subscription;
+      const clerkUserId = subscription.metadata?.clerkUserId;
+
+      if (!clerkUserId) {
+        console.error("[stripe-webhook] Saknar clerkUserId i subscription", subscription.id);
+        break;
+      }
+
+      await clerk.users.updateUserMetadata(clerkUserId, {
+        publicMetadata: { plan: "free", stripeSubscriptionId: null },
+        privateMetadata: { subscription: null },
+      });
+
+      console.log(`[stripe-webhook] Prenumeration avbruten för ${clerkUserId}`);
       break;
     }
 

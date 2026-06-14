@@ -9,7 +9,7 @@
 
 import type { Metadata } from "next";
 import { auth, currentUser } from "@clerk/nextjs/server";
-import { Check, CreditCard, User } from "lucide-react";
+import { AlertTriangle, Check, CreditCard, User } from "lucide-react";
 import { ListGroup } from "@/components/ui/ListGroup";
 import { ListRow } from "@/components/ui/ListRow";
 import Stripe from "stripe";
@@ -31,6 +31,7 @@ async function getBillingPortalUrl(customerId: string): Promise<string | null> {
     const session = await stripe.billingPortal.sessions.create({
       customer: customerId,
       return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/konto`,
+      locale: "sv",
     });
     return session.url;
   } catch {
@@ -50,11 +51,24 @@ export default async function KontoPage({
     plan?: string;
     stripeCustomerId?: string;
   };
+  const subMeta = (user?.privateMetadata as Record<string, unknown> | undefined)
+    ?.subscription as {
+    currentPeriodEnd?: string;
+    cancelAtPeriodEnd?: boolean;
+  } | null | undefined;
 
   const plan = meta.plan ?? "free";
   const isPaid = plan === "pro" || plan === "elite";
   const planLabel = plan === "elite" ? "ELITE" : plan === "pro" ? "PRO" : "GRATIS";
   const { checkout } = await searchParams;
+
+  const periodEndFormatted = subMeta?.currentPeriodEnd
+    ? new Date(subMeta.currentPeriodEnd).toLocaleDateString("sv-SE", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })
+    : null;
 
   const portalUrl = meta.stripeCustomerId
     ? await getBillingPortalUrl(meta.stripeCustomerId)
@@ -115,6 +129,19 @@ export default async function KontoPage({
               )
             }
           />
+          {subMeta?.cancelAtPeriodEnd && periodEndFormatted && (
+            <ListRow
+              leading={<AlertTriangle className="text-amber-400" />}
+              title="Prenumerationen avslutas"
+              subtitle={`Du har tillgång till ${periodEndFormatted}. Förnya via "Hantera prenumeration".`}
+            />
+          )}
+          {isPaid && !subMeta?.cancelAtPeriodEnd && periodEndFormatted && (
+            <ListRow
+              title="Förnyas"
+              trailing={<span className="text-foreground text-sm">{periodEndFormatted}</span>}
+            />
+          )}
           {isPaid && portalUrl ? (
             <ListRow
               href={portalUrl}
