@@ -5,6 +5,7 @@ import { svSE } from "@clerk/localizations";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { Providers } from "./providers";
 import { Toaster } from "@/components/ui/sonner";
+import { CookieBanner } from "@/components/CookieBanner";
 import "./globals.css";
 
 const instrumentSerif = Instrument_Serif({
@@ -77,6 +78,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Providers>
             {children}
             <Toaster position="bottom-right" richColors />
+            <CookieBanner />
           </Providers>
         </ThemeProvider>
       </body>
