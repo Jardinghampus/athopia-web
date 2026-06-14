@@ -3,7 +3,7 @@
 import { useState, useOptimistic } from "react";
 import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
-import { Heart, MessageCircle, Repeat2, Share2 } from "lucide-react";
+import { ThumbsUp, MessageCircle, Repeat2, Share2, Flag } from "lucide-react";
 import Link from "next/link";
 import type { ForumPost } from "@/lib/types";
 import QuoteBox from "./QuoteBox";
@@ -40,7 +40,9 @@ export default function PostItem({ post, depth = 0, showThread = false, onReply 
   const { user } = useUser();
   const [replyOpen, setReplyOpen] = useState(false);
   const [liked, setLiked] = useState(false);
+  const [likeAnimating, setLikeAnimating] = useState(false);
   const [reposted, setReposted] = useState(false);
+  const [reported, setReported] = useState(false);
   const [optimisticLikes, addOptimisticLike] = useOptimistic(
     post.like_count,
     (state: number, delta: number) => state + delta
@@ -55,6 +57,10 @@ export default function PostItem({ post, depth = 0, showThread = false, onReply 
     const next = !liked;
     addOptimisticLike(next ? 1 : -1);
     setLiked(next);
+    if (next) {
+      setLikeAnimating(true);
+      setTimeout(() => setLikeAnimating(false), 400);
+    }
     try {
       const res = await fetch("/api/forum/like", {
         method: "POST",
@@ -65,6 +71,20 @@ export default function PostItem({ post, depth = 0, showThread = false, onReply 
     } catch {
       addOptimisticLike(next ? -1 : 1);
       setLiked(!next);
+    }
+  }
+
+  async function handleReport() {
+    if (!user || reported) return;
+    setReported(true);
+    try {
+      await fetch("/api/forum/report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postId: post.id }),
+      });
+    } catch {
+      setReported(false);
     }
   }
 
@@ -201,10 +221,15 @@ export default function PostItem({ post, depth = 0, showThread = false, onReply 
           <button
             onClick={toggleLike}
             className={`flex items-center gap-1.5 transition-colors ${
-              liked ? "text-red-500" : "text-muted-foreground hover:text-red-500"
+              liked ? "text-pitch" : "text-muted-foreground hover:text-pitch"
             }`}
           >
-            <Heart className={`w-4 h-4 ${liked ? "fill-current" : ""}`} />
+            <ThumbsUp
+              className={`w-4 h-4 transition-transform ${
+                liked ? "fill-current" : ""
+              } ${likeAnimating ? "scale-125 -rotate-12" : "scale-100 rotate-0"}`}
+              style={{ transition: likeAnimating ? "transform 0.2s cubic-bezier(0.34,1.56,0.64,1)" : "transform 0.15s ease" }}
+            />
             {optimisticLikes > 0 && (
               <span className="text-xs">{optimisticLikes}</span>
             )}
@@ -215,6 +240,18 @@ export default function PostItem({ post, depth = 0, showThread = false, onReply 
             className="flex items-center gap-1.5 text-muted-foreground hover:text-pitch transition-colors"
           >
             <Share2 className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={handleReport}
+            disabled={reported}
+            className={`flex items-center gap-1.5 ml-auto transition-colors ${
+              reported ? "text-amber-500" : "text-muted-foreground hover:text-amber-500"
+            }`}
+            title="Rapportera inlägg"
+          >
+            <Flag className="w-3.5 h-3.5" />
+            {reported && <span className="text-xs">Skickat</span>}
           </button>
         </div>
 

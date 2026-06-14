@@ -2,6 +2,11 @@
 
 # ATHOPIA WEB — operativ konstitution
 
+## Auto-Mode (cross-repo)
+Öppna Claude Code i `C:\Users\jardi\Athopia Build` (roten) för cross-repo arbete.
+Slash commands: `/auto/status`, `/auto/plan`, `/auto/sync`, `/auto/fix`, `/auto/review`, `/auto/commit`, `/auto/deploy`
+Se `C:\Users\jardi\Athopia Build\.claude\SUMMARY.md` för fullständig dokumentation.
+
 ## Mission
 Publik webb för Athopia på athopia.se.
 Data från athopia-os via Supabase.
