@@ -1,6 +1,6 @@
 import { unstable_cache } from 'next/cache'
 import { createServerClient, isSupabaseConfigured } from '@/lib/supabase'
-import { fetchStandingsFull } from '@/lib/sportsmonks'
+import { fetchStandingsFull } from '@/lib/db/fixtures'
 import type { DashTeam, DashArticle, DashThread, DashStanding, DashStatPoint } from './types'
 
 const SPORT = 'football'

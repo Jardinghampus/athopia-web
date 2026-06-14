@@ -12,8 +12,8 @@
 import Image from "next/image";
 import { Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { SMFixture } from "@/lib/sportsmonks";
-import { parseFixtureScore } from "@/lib/sportsmonks";
+import type { SMFixture } from "@/lib/db/fixtures";
+import { parseFixtureScore } from "@/lib/db/fixtures";
 
 interface ScoreWidgetProps {
   fixture: SMFixture;
