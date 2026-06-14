@@ -372,7 +372,7 @@ export default async function StatistikPage({
       <FavoriteTeamHighlight />
 
       {/* Innehåll */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      <div className="w-full px-6 sm:px-8 py-8">
         <div className="mb-6 flex items-end justify-between">
           <div>
             <h1 className="font-heading text-5xl text-foreground">STATISTIK</h1>
@@ -381,7 +381,7 @@ export default async function StatistikPage({
           <div className="flex items-center gap-2">
             <Link
               href="/statistik/scout"
-              className="px-4 py-2 rounded-lg border border-[#1D9E75] text-[#1D9E75] text-sm font-medium hover:bg-[#1D9E75]/10 transition-colors"
+              className="px-4 py-2 rounded-lg border border-pitch text-pitch text-sm font-medium hover:bg-pitch/10 transition-colors"
             >
               Scout Mode →
             </Link>

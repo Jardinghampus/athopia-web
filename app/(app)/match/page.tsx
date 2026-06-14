@@ -25,7 +25,7 @@ export default async function MatcherPage() {
   const fixtures = await getFixtures();
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
+    <div className="w-full px-6 sm:px-8 py-8">
       <h1 className="font-heading text-4xl text-foreground mb-6">MATCHER</h1>
 
       {fixtures.length === 0 ? (

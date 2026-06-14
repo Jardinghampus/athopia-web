@@ -82,7 +82,7 @@ function HeroNarrative({ narrative }: { narrative: Narrative }) {
       <div className="relative p-6 sm:p-10">
         <div className="flex items-center gap-2 mb-4">
           <Zap className="w-4 h-4 text-pitch" />
-          <span className="text-xs font-medium text-pitch uppercase tracking-widest">
+          <span className="text-xs font-semibold text-pitch">
             Trending narrativ
           </span>
         </div>
@@ -130,7 +130,7 @@ async function DailySummarySection() {
       <div className="relative">
         <div className="flex items-center gap-2 mb-3">
           <Brain className="w-4 h-4 text-pitch" />
-          <span className="text-xs font-semibold text-pitch uppercase tracking-widest">Athopia AI</span>
+          <span className="text-xs font-semibold text-pitch">Athopia AI</span>
           <span className="text-xs text-muted-foreground ml-2">
             {new Date(dailySummary.publishedAt ?? "").toLocaleDateString("sv-SE", {
               weekday: "long", day: "numeric", month: "long"
@@ -216,7 +216,7 @@ const SidebarSkeleton = () => (
 
 export default function AppHomePage() {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    <div className="w-full px-6 sm:px-8 py-8">
       <Suspense fallback={null}>
         <DailySummarySection />
       </Suspense>

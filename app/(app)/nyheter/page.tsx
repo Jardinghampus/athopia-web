@@ -102,7 +102,7 @@ export default async function NyheterPage({
   const urlBase = `/nyheter?${filterParams.toString()}`;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+    <div className="w-full px-6 sm:px-8 py-10">
       <NyheterRealtimeBanner />
 
       <div className="mb-8">
@@ -114,7 +114,7 @@ export default async function NyheterPage({
 
       {/* NewsStream — RSS-signaler från content_queue (revalidate 30s) */}
       <div className="mb-10">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Senaste signaler</h2>
+        <h2 className="text-xs font-semibold text-muted-foreground mb-3">Senaste signaler</h2>
         <Suspense fallback={<div className="h-40 rounded-xl bg-card skeleton-wave" />}>
           <NewsStream sport="football" />
         </Suspense>

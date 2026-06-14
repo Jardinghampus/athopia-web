@@ -221,7 +221,7 @@ export default async function ForumTeamPage({
   const teamName = allTeams.find((t) => t.slug === teamSlug)?.name ?? teamSlug.replace(/-/g, " ").toUpperCase();
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6">
+    <div className="w-full px-6 sm:px-8 py-6">
       {/* Lag-tabs */}
       <div className="flex gap-1.5 overflow-x-auto scrollbar-none mb-6 pb-1">
         {allTeams.map((t) => (
