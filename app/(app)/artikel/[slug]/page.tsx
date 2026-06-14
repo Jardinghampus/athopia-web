@@ -21,7 +21,7 @@ import { createServerClient } from "@/lib/supabase";
 import type { Article } from "@/lib/types";
 import { ArticleScrollTracker } from "@/components/gamification/ArticleScrollTracker";
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600;
 
 // ─── Hjälpfunktioner ───────────────────────────────────────────────────────────
 async function getArticle(slug: string): Promise<Article | null> {
@@ -111,12 +111,7 @@ export default async function ArtikelPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [article, related] = await Promise.all([
-    getArticle(slug),
-    // Hämtar relaterade direkt om vi har article-id (optimistiskt)
-    Promise.resolve([] as Article[]),
-  ]);
-
+  const article = await getArticle(slug);
   if (!article) notFound();
 
   const relatedArticles = await getRelatedArticles(article.id);

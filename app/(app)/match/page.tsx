@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   description: "Allsvenskan matchschema, resultat och livescore.",
 };
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 async function getFixtures(): Promise<SMFixture[]> {
   if (!process.env.SPORTSMONKS_API_TOKEN || process.env.SPORTSMONKS_API_TOKEN === "placeholder_token") return [];
