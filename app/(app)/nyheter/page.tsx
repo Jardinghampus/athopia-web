@@ -6,6 +6,7 @@ import { NewsFilterPanel } from "@/components/ui/NewsFilterPanel";
 import { NyheterRealtimeBanner } from "@/components/NyheterRealtimeBanner";
 import { NewsStream } from "@/components/news/NewsStream";
 import { getFilteredArticles, getActiveSources } from "@/lib/supabase";
+import { filterStateToParams } from "@/lib/filters";
 
 export const dynamic = 'force-dynamic';
 
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
   description: "Senaste fotbollsnyheterna — AI-kurerat för Allsvenskan på Athopia.",
 };
 
-const LIMIT = 12;
+const LIMIT = 24;
 
 // ── Sidnumrering ──────────────────────────────────────────────────────────────
 function Pagination({
@@ -94,11 +95,7 @@ export default async function NyheterPage({
   ]);
 
   // URL base för sidnumrering (bevarar alla filter-params utom page)
-  const filterParams = new URLSearchParams();
-  if (visa !== "all") filterParams.set("visa", visa);
-  if (teams.length) filterParams.set("lag", teams.join(","));
-  if (sources.length) filterParams.set("kalla", sources.join(","));
-  if (events.length) filterParams.set("event", events.join(","));
+  const filterParams = filterStateToParams({ visa, teams, sources, events });
   const urlBase = `/nyheter?${filterParams.toString()}`;
 
   return (
@@ -120,24 +117,19 @@ export default async function NyheterPage({
         </Suspense>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-8 items-start">
-        {/* Filter-panel */}
-        <Suspense fallback={null}>
-          <NewsFilterPanel
-            allSources={allSources}
-            initialParams={Object.fromEntries(
-              Object.entries(sp).filter(([k]) => ["visa", "lag", "kalla", "event"].includes(k))
-            )}
-            totalCount={total}
-          />
-        </Suspense>
+      {/* Horisontell sticky filterbar */}
+      <Suspense fallback={null}>
+        <NewsFilterPanel
+          allSources={allSources}
+          initialParams={Object.fromEntries(
+            Object.entries(sp).filter(([k]) => ["visa", "lag", "kalla", "event"].includes(k))
+          )}
+          totalCount={total}
+        />
+      </Suspense>
 
-        {/* Artiklar */}
-        <div className="flex-1 min-w-0">
-          <ArticleGrid articles={articles} />
-          <Pagination page={page} total={total} urlBase={urlBase} />
-        </div>
-      </div>
+      <ArticleGrid articles={articles} />
+      <Pagination page={page} total={total} urlBase={urlBase} />
     </div>
   );
 }

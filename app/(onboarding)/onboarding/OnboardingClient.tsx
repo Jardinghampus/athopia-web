@@ -10,7 +10,7 @@ import {
 import { useUser } from "@clerk/nextjs";
 import { transitions } from "@/lib/motion";
 import { useFavoriteTeam } from "@/hooks/useFavoriteTeam";
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase";
 import {
   PRICING, amountFor, formatKr, monthlyEquivalent,
   type PaidPlan, type BillingInterval,
@@ -149,6 +149,7 @@ export function OnboardingClient() {
   const [step, setStep] = useState(0);
   const [dir, setDir] = useState(1);
   const [showFireworks, setShowFireworks] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   // Step 1 — Team
   const [teams, setTeams] = useState<Team[]>([]);
@@ -162,6 +163,7 @@ export function OnboardingClient() {
   const [avatarBlob, setAvatarBlob] = useState<Blob | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const avatarPreviewRef = useRef<string | null>(null);
 
   // Step 3 — Plan
   const [selectedPlan, setSelectedPlan] = useState<PaidPlan>("pro");
@@ -170,6 +172,13 @@ export function OnboardingClient() {
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   const [saving, setSaving] = useState(false);
+
+  // Revoke avatar object URL vid unmount
+  useEffect(() => {
+    return () => {
+      if (avatarPreviewRef.current) URL.revokeObjectURL(avatarPreviewRef.current);
+    };
+  }, []);
 
   // Prefill nickname from Clerk
   useEffect(() => {
@@ -180,11 +189,9 @@ export function OnboardingClient() {
 
   // Load teams
   useEffect(() => {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
-    if (!url || !key) { setLoadFailed(true); return; }
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) { setLoadFailed(true); return; }
     timeoutRef.current = setTimeout(() => setLoadFailed(true), LOAD_TIMEOUT_MS);
-    const db = createClient(url, key);
+    const db = createClient();
     void db.from("entities").select("id, name, slug, metadata").eq("type", "team").order("name")
       .then(({ data, error }) => {
         if (timeoutRef.current) { clearTimeout(timeoutRef.current); timeoutRef.current = null; }
@@ -215,12 +222,18 @@ export function OnboardingClient() {
     if (!file) return;
     try {
       const blob = await compressImage(file, 320, 0.55);
+      if (avatarPreviewRef.current) URL.revokeObjectURL(avatarPreviewRef.current);
+      const url = URL.createObjectURL(blob);
+      avatarPreviewRef.current = url;
       setAvatarBlob(blob);
-      setAvatarPreview(URL.createObjectURL(blob));
+      setAvatarPreview(url);
     } catch {
       // Fallback: använd original
+      if (avatarPreviewRef.current) URL.revokeObjectURL(avatarPreviewRef.current);
+      const url = URL.createObjectURL(file);
+      avatarPreviewRef.current = url;
       setAvatarBlob(file);
-      setAvatarPreview(URL.createObjectURL(file));
+      setAvatarPreview(url);
     }
   }
 
@@ -239,13 +252,12 @@ export function OnboardingClient() {
     }
   }
 
-  const handleSaveProfile = async () => {
+  const handleSaveProfile = async (): Promise<boolean> => {
     setSaving(true);
+    setSaveError(null);
     try {
-      // Ladda upp avatar om vald
       const avatarUrl = await uploadAvatar();
 
-      // Spara lag
       if (selectedTeam && teamObj) {
         await setFavoriteTeam(selectedTeam);
         await fetch("/api/feed/config", {
@@ -257,28 +269,39 @@ export function OnboardingClient() {
         markOnboardingDone();
       }
 
-      // Spara nickname + avatar_url
       const body: Record<string, string> = {};
       if (nickname.trim()) body["nickname"] = nickname.trim();
       if (avatarUrl) body["avatar_url"] = avatarUrl;
       if (Object.keys(body).length > 0) {
-        await fetch("/api/profile", {
+        const res = await fetch("/api/profile", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
-        }).catch(() => {});
+        });
+        if (!res.ok) {
+          const data = (await res.json().catch(() => ({}))) as { error?: string };
+          throw new Error(data.error ?? "Kunde inte spara profil");
+        }
       }
       if (nickname.trim()) {
         await user?.update({ username: nickname.trim() }).catch(() => {});
       }
-    } catch {}
-    setSaving(false);
+      return true;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Något gick fel";
+      console.error("[onboarding] handleSaveProfile:", msg);
+      setSaveError(msg);
+      return false;
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleCheckout = async () => {
     setCheckoutLoading(true);
     setCheckoutError(null);
     await handleSaveProfile();
+    // Fortsätt till Stripe även om profil-sparning delvis misslyckades
     try {
       await startCheckout(selectedPlan, billingInterval);
     } catch (err) {
@@ -288,9 +311,8 @@ export function OnboardingClient() {
   };
 
   const handleFreeFinish = async () => {
-    setSaving(true);
-    await handleSaveProfile();
-    router.push("/profil?welcome=1");
+    const ok = await handleSaveProfile();
+    if (ok) router.push("/profil?welcome=1");
   };
 
   return (
@@ -526,23 +548,28 @@ export function OnboardingClient() {
                   id="nickname"
                   type="text"
                   value={nickname}
-                  onChange={(e) => setNickname(e.target.value.slice(0, 24))}
+                  onChange={(e) => setNickname(e.target.value.slice(0, 20))}
                   placeholder="ditt-nickname"
-                  maxLength={24}
+                  maxLength={20}
                   autoComplete="nickname"
                   className="w-full min-h-[54px] rounded-2xl border border-border bg-card text-foreground px-4 text-base outline-none focus:border-pitch focus:ring-2 focus:ring-pitch/20 transition-all"
                 />
                 <div className="flex justify-end mt-1">
-                  <span className="text-xs text-muted-foreground">{nickname.length}/24</span>
+                  <span className="text-xs text-muted-foreground">{nickname.length}/20</span>
                 </div>
               </div>
+
+              {saveError && (
+                <p className="text-sm text-red-400 text-center mb-2">{saveError}</p>
+              )}
 
               <div className="mt-auto flex flex-col gap-3">
                 <motion.button
                   onClick={async () => {
+                    await handleSaveProfile();
                     setShowFireworks(true);
                     setTimeout(() => setShowFireworks(false), 1200);
-                    await new Promise((r) => setTimeout(r, 600));
+                    await new Promise((r) => setTimeout(r, 400));
                     goTo(3);
                   }}
                   whileTap={{ scale: 0.97 }}

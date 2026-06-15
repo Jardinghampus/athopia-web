@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function GET(req: NextRequest) {
   if (!isSupabaseConfigured()) {
@@ -46,6 +47,11 @@ export async function POST(req: NextRequest) {
   try {
     const user = await currentUser();
     if (!user) return NextResponse.json({ message: "Ej inloggad" }, { status: 401 });
+
+    const rl = rateLimit(`forum:${user.id}`, { limit: 10, windowMs: 60_000 });
+    if (!rl.success) {
+      return NextResponse.json({ message: "För många inlägg — vänta en stund" }, { status: 429 });
+    }
     if (!isSupabaseConfigured()) return NextResponse.json({ message: "DB ej konfigurerad" }, { status: 503 });
 
     const body = await req.json() as {

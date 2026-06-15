@@ -8,9 +8,46 @@ const PAGE_SIZE = 20;
 
 function getDb() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-  const key = process.env.SUPABASE_SERVICE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
   if (!url || !key) return null;
   return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
+}
+
+/** Returnerar hur många items denna free-användare sett idag (läser user_feed_usage). */
+async function getItemsSeenToday(db: ReturnType<typeof getDb>, userId: string): Promise<number> {
+  if (!db) return 0;
+  const today = new Date().toISOString().split("T")[0];
+  const { data } = await db
+    .from("user_feed_usage")
+    .select("items_seen")
+    .eq("clerk_user_id", userId)
+    .eq("date", today)
+    .maybeSingle();
+  return (data?.items_seen as number | null) ?? 0;
+}
+
+/** Ökar items_seen för free-användaren med det antal items som skickas. */
+async function incrementItemsSeen(
+  db: ReturnType<typeof getDb>,
+  userId: string,
+  count: number
+): Promise<void> {
+  if (!db || count === 0) return;
+  const today = new Date().toISOString().split("T")[0];
+  const { error: rpcErr } = await db.rpc("increment_feed_usage", {
+    p_clerk_user_id: userId,
+    p_date: today,
+    p_delta: count,
+  });
+  if (rpcErr) {
+    // Fallback: upsert manuellt om RPC saknas ännu
+    await db!
+      .from("user_feed_usage")
+      .upsert(
+        { clerk_user_id: userId, date: today, items_seen: count },
+        { onConflict: "clerk_user_id,date" }
+      );
+  }
 }
 
 export async function GET(req: Request) {
@@ -31,78 +68,60 @@ export async function GET(req: Request) {
       const user = await currentUser();
       const plan = (user?.publicMetadata?.plan as string | undefined) ?? "free";
       isPro = plan === "pro" || plan === "elite";
-    } catch { /* ignorera */ }
+    } catch (err) {
+      console.warn("[feed] Kunde inte hämta plan från Clerk:", err);
+    }
   }
 
-  const effectiveLimit = isPro ? PAGE_SIZE : Math.max(0, FREE_DAILY_LIMIT - offset);
-  if (effectiveLimit === 0) {
+  // Free-dagsgräns: läs faktiskt antal sett artiklar idag från DB
+  let itemsSeenToday = 0;
+  if (!isPro && userId) {
+    itemsSeenToday = await getItemsSeenToday(db, userId);
+  }
+
+  const remaining = isPro ? PAGE_SIZE : Math.max(0, FREE_DAILY_LIMIT - itemsSeenToday);
+  if (remaining === 0) {
     return NextResponse.json({ items: [], hasMore: false, gated: true });
   }
+  const effectiveLimit = Math.min(PAGE_SIZE, remaining);
 
-  // Hämta artiklar från content_queue (rss_signal + classified) ELLER articles
-  // Prioritet: content_queue med signal_score, fallback till articles
   let items: FeedItem[] = [];
 
   try {
-    // Försök content_queue först (om migration 17 är körd)
-    let q = db
-      .from("content_queue")
-      .select("id, content, created_at, source_name, source_url, signal_score")
+    // Echo skriver till articles (is_processed=true) — inte content_queue
+    let aq = db
+      .from("articles")
+      .select("id, title, source_name, source_url, published_at, summary, importance_score")
       .eq("sport", "football")
-      .in("status", ["classified", "pending_classification", "approved"])
-      .order("signal_score", { ascending: false, nullsFirst: false })
-      .order("created_at", { ascending: false })
+      .eq("is_processed", true)
+      .order(isPro ? "importance_score" : "published_at", { ascending: false, nullsFirst: false })
       .range(offset, offset + effectiveLimit - 1);
 
     if (teamSlug) {
-      // Filtrera på team-slug via entity_ids (enkel text-search på content jsonb)
-      // Begränsning: kräver att content innehåller laget — förbättras med entity_ids
-      q = q.ilike("content->>title", `%${teamSlug.replace(/-/g, " ")}%`);
+      aq = aq.ilike("title", `%${teamSlug.replace(/-/g, " ")}%`);
     }
 
-    const { data: queueData } = await q;
-
-    if (queueData && queueData.length > 0) {
-      items = queueData.map((row) => {
-        const content = (row.content as Record<string, unknown>) ?? {};
-        return {
-          id: row.id,
-          type: "news" as const,
-          title: (content["title"] as string | undefined) ?? "Nyhet",
-          source: row.source_name ?? (content["source_name"] as string | undefined) ?? null,
-          time: row.created_at as string,
-          href: (content["source_url"] as string | undefined) ?? row.source_url ?? "#",
-        };
-      });
-    } else {
-      // Fallback till articles-tabellen
-      let aq = db
-        .from("articles")
-        .select("id, title, source_name, source_url, published_at, summary")
-        .eq("sport", "football")
-        .order("published_at", { ascending: false })
-        .range(offset, offset + effectiveLimit - 1);
-
-      if (teamSlug) {
-        aq = aq.ilike("title", `%${teamSlug.replace(/-/g, " ")}%`);
-      }
-
-      const { data: articleData } = await aq;
-      items = (articleData ?? []).map((a) => ({
-        id: a.id,
-        type: "news" as const,
-        title: a.title,
-        source: a.source_name ?? null,
-        time: a.published_at,
-        href: a.source_url ?? "#",
-        subtitle: a.summary ?? null,
-      }));
-    }
-  } catch {
-    // DB-fel — returnera tomt
+    const { data: articleData } = await aq;
+    items = (articleData ?? []).map((a) => ({
+      id: a.id,
+      type: "news" as const,
+      title: a.title,
+      source: a.source_name ?? null,
+      time: a.published_at,
+      href: a.source_url ?? "#",
+      subtitle: a.summary ?? null,
+    }));
+  } catch (err) {
+    console.error("[feed] DB-fel:", err);
   }
 
-  const gated = !isPro && offset + items.length >= FREE_DAILY_LIMIT;
+  // Öka daglig räknare för free-användare
+  if (!isPro && userId && items.length > 0) {
+    void incrementItemsSeen(db, userId, items.length);
+  }
+
+  const totalSeenAfter = itemsSeenToday + items.length;
+  const gated = !isPro && totalSeenAfter >= FREE_DAILY_LIMIT;
   const hasMore = items.length === effectiveLimit && !gated;
 
   return NextResponse.json({ items, hasMore, gated });

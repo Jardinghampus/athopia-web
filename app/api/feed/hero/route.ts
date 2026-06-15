@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { createServiceClient, isSupabaseConfigured } from "@/lib/supabase";
 import type { FeedItem } from "@/lib/types";
@@ -22,6 +22,14 @@ export async function GET(req: Request) {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: "Ej autentiserad" }, { status: 401 });
   if (!isSupabaseConfigured()) return NextResponse.json({ summary: null, topNews: [] });
+
+  // AI-summaries är en PRO+-feature — free-användare får null
+  let isPro = false;
+  try {
+    const user = await currentUser();
+    const plan = (user?.publicMetadata?.plan as string | undefined) ?? "free";
+    isPro = plan === "pro" || plan === "elite";
+  } catch { /* ignorera */ }
 
   const { searchParams } = new URL(req.url);
   const team = searchParams.get("team");
@@ -51,11 +59,14 @@ export async function GET(req: Request) {
     .limit(5);
   if (team) newsQ = newsQ.contains("team_tags", [team]);
 
-  const [{ data: sumData }, { data: newsData }] = await Promise.all([summaryQ, newsQ]);
+  const [{ data: sumData }, { data: newsData }] = await Promise.all([
+    isPro ? summaryQ : Promise.resolve({ data: [] }),
+    newsQ,
+  ]);
 
   return NextResponse.json({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    summary: (sumData as any[])?.[0] ? toItem((sumData as any[])[0], "summary") : null,
+    summary: isPro && (sumData as any[])?.[0] ? toItem((sumData as any[])[0], "summary") : null,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     topNews: ((newsData as any[]) ?? []).map((a) => toItem(a, "news")),
   });

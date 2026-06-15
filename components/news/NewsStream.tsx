@@ -2,7 +2,8 @@ import { getUserPlan } from "@/lib/access";
 import { getNewsStream } from "@/lib/supabase";
 import { NewsItem } from "./NewsItem";
 
-export const revalidate = 30;
+// OBS: revalidate-export har ingen effekt i en komponentfil — caching styrs av
+// unstable_cache() i lib/supabase.ts → getNewsStream (tag: "news", 60s).
 
 export async function NewsStream({
   sport = "football",

@@ -196,6 +196,7 @@ export async function getFilteredArticles(filters: ArticleFilters = {}): Promise
     let q = supabase
       .from("articles")
       .select("*", { count: "exact" })
+      .eq("sport", "football")
       .order("published_at", { ascending: false })
       .range(offset, offset + limit - 1);
 
@@ -233,6 +234,7 @@ export async function getActiveSources(): Promise<{ name: string; id: string }[]
       .from("rss_sources")
       .select("id, name")
       .eq("active", true)
+      .eq("sport", "football")
       .in("category", ["news"])
       .order("name", { ascending: true })
       .limit(100);
@@ -376,8 +378,16 @@ export async function getAgentLogs(limit = 100): Promise<AgentLog[]> {
   }
 }
 
-// ── NewsStream (content_queue RSS-signaler) ────────────────────────────────────
+// ── NewsStream (läser från articles — Echo skriver dit, ej content_queue) ────────
 import type { NewsSignal } from "@/lib/types";
+
+function mapImportanceTier(score: number | null): NewsSignal["importance_tier"] {
+  if (score === null) return null;
+  if (score >= 0.85) return "breaking";
+  if (score >= 0.70) return "major";
+  if (score >= 0.50) return "normal";
+  return "noise";
+}
 
 export const getNewsStream = unstable_cache(
   async (opts: {
@@ -390,19 +400,32 @@ export const getNewsStream = unstable_cache(
     try {
       const supabase = createServerClient();
       let q = supabase
-        .from("content_queue")
-        .select("id, source_name, source_url, signal_score, importance_tier, content, created_at")
+        .from("articles")
+        .select("id, source_name, source_url, importance_score, title, summary, published_at, url")
         .eq("sport", sport)
-        .eq("status", "classified")
-        .eq("content_type", "rss_signal")
+        .eq("is_processed", true)
+        .not("importance_score", "is", null)
         .limit(limit);
 
       q = orderBy === "signal_score"
-        ? q.order("signal_score", { ascending: false })
-        : q.order("created_at", { ascending: false });
+        ? q.order("importance_score", { ascending: false })
+        : q.order("published_at", { ascending: false });
 
       const { data } = await q;
-      return (data ?? []) as NewsSignal[];
+      return (data ?? []).map((row) => ({
+        id: String(row.id),
+        source_name: row.source_name ?? null,
+        source_url: row.source_url ?? row.url ?? null,
+        signal_score: row.importance_score ?? null,
+        importance_tier: mapImportanceTier(row.importance_score ?? null),
+        content: {
+          title: row.title ?? "",
+          link: row.source_url ?? row.url ?? "",
+          published_at: row.published_at ?? null,
+          snippet: row.summary ?? null,
+        },
+        created_at: row.published_at ?? "",
+      }));
     } catch {
       return [];
     }

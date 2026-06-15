@@ -32,7 +32,7 @@ export async function POST(req: Request) {
 
   // Spegla publika profilfält till profiles (display_name + avatar) — bevarar
   // nickname/bio/verified som sätts via /api/profile.
-  function mirrorProfile(data: WebhookEvent["data"]) {
+  async function mirrorProfile(data: WebhookEvent["data"]): Promise<void> {
     const d = data as {
       id: string;
       first_name?: string | null;
@@ -41,10 +41,11 @@ export async function POST(req: Request) {
     };
     const supabase = createServiceClient();
     const display = [d.first_name, d.last_name].filter(Boolean).join(" ") || null;
-    return supabase.from("profiles").upsert(
+    const { error } = await supabase.from("profiles").upsert(
       { clerk_user_id: d.id, display_name: display, avatar_url: d.image_url ?? null },
       { onConflict: "clerk_user_id" }
     );
+    if (error) console.error("[clerk-webhook] mirrorProfile fel:", error.message);
   }
 
   if (event.type === "user.created") {
@@ -53,21 +54,26 @@ export async function POST(req: Request) {
       .email_addresses?.[0]?.email_address;
     const d = event.data as { first_name?: string | null; last_name?: string | null };
 
-    // Skapa Stripe Customer och spara ID i Clerk privateMetadata
+    // Skapa Stripe Customer — kontrollera att det inte redan finns ett (idempotent vid retry)
     if (process.env.STRIPE_SECRET_KEY) {
       try {
-        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-          apiVersion: "2026-04-22.dahlia",
-        });
-        const customer = await stripe.customers.create({
-          email,
-          name: [d.first_name, d.last_name].filter(Boolean).join(" ") || undefined,
-          metadata: { clerkUserId },
-        });
         const clerk = await clerkClient();
-        await clerk.users.updateUserMetadata(clerkUserId, {
-          privateMetadata: { stripeCustomerId: customer.id },
-        });
+        const existingUser = await clerk.users.getUser(clerkUserId);
+        const existingCustomerId = existingUser.privateMetadata?.stripeCustomerId as string | undefined;
+
+        if (!existingCustomerId) {
+          const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+            apiVersion: "2026-04-22.dahlia",
+          });
+          const customer = await stripe.customers.create({
+            email,
+            name: [d.first_name, d.last_name].filter(Boolean).join(" ") || undefined,
+            metadata: { clerkUserId },
+          });
+          await clerk.users.updateUserMetadata(clerkUserId, {
+            privateMetadata: { stripeCustomerId: customer.id },
+          });
+        }
       } catch (err) {
         console.error("[clerk-webhook] Stripe customer creation failed:", err);
       }

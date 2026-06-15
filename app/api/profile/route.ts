@@ -2,10 +2,6 @@ import { auth, currentUser, clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 
-function db() {
-  return createServerClient();
-}
-
 // GET /api/profile — egen fullständig profil (privat)
 export async function GET() {
   const { userId } = await auth();
@@ -13,7 +9,7 @@ export async function GET() {
   const user = await currentUser();
   if (!isSupabaseConfigured()) return NextResponse.json({ profile: null });
 
-  const { data } = await db()
+  const { data } = await createServerClient()
     .from("profiles")
     .select("*")
     .eq("clerk_user_id", userId)
@@ -51,7 +47,7 @@ export async function PATCH(req: Request) {
         { status: 400 }
       );
     }
-    const { data: taken } = await db()
+    const { data: taken } = await createServerClient()
       .from("profiles")
       .select("clerk_user_id")
       .ilike("nickname", nickname)
@@ -86,7 +82,7 @@ export async function PATCH(req: Request) {
   if (bio !== undefined) update.bio = bio || null;
   if (avatarUrl !== undefined) update.avatar_url = avatarUrl;
 
-  const { error } = await db().from("profiles").upsert(update, { onConflict: "clerk_user_id" });
+  const { error } = await createServerClient().from("profiles").upsert(update, { onConflict: "clerk_user_id" });
   if (error) {
     if (error.code === "23505") {
       return NextResponse.json({ error: "Nickname är upptaget", field: "nickname" }, { status: 409 });

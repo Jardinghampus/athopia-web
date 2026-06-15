@@ -60,6 +60,9 @@ export async function POST(req: Request) {
         break;
       }
 
+      if (!session.metadata?.plan) {
+        console.warn("[stripe-webhook] Saknar plan i session.metadata", session.id);
+      }
       const plan = session.metadata?.plan === "elite" ? "elite" : "pro";
 
       await clerk.users.updateUserMetadata(clerkUserId, {
@@ -80,7 +83,7 @@ export async function POST(req: Request) {
       const clerkUserId = subscription.metadata?.clerkUserId;
       if (!clerkUserId) break;
 
-      const periodEndTs = subscription.items.data[0]?.current_period_end;
+      const periodEndTs = (subscription as unknown as { current_period_end?: number }).current_period_end;
       const currentPeriodEnd = periodEndTs
         ? new Date(periodEndTs * 1000).toISOString()
         : undefined;

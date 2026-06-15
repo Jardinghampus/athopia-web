@@ -1,11 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { SlidersHorizontal, X } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
 import { clsx } from "clsx";
+import {
+  type NewsFilterState,
+  DEFAULT_NEWS_FILTER,
+  filterStateToParams,
+  paramsToFilterState,
+  isDefaultFilter,
+} from "@/lib/filters";
 
-// ── Statisk Allsvenskan-lag lista ─────────────────────────────────────────────
 const ALLSVENSKAN_TEAMS = [
   { slug: "AIK", label: "AIK" },
   { slug: "BK Häcken", label: "BK Häcken" },
@@ -36,70 +42,65 @@ const EVENT_TYPES = [
 
 const LS_KEY = "athopia_nyheter_filter";
 
-export interface FilterState {
-  visa: "all" | "ai" | "source";
-  teams: string[];
-  sources: string[];
-  events: string[];
-}
-
-const DEFAULT_FILTER: FilterState = {
-  visa: "all",
-  teams: [],
-  sources: [],
-  events: [],
-};
-
-function stateToParams(state: FilterState): URLSearchParams {
-  const p = new URLSearchParams();
-  if (state.visa !== "all") p.set("visa", state.visa);
-  if (state.teams.length) p.set("lag", state.teams.join(","));
-  if (state.sources.length) p.set("kalla", state.sources.join(","));
-  if (state.events.length) p.set("event", state.events.join(","));
-  return p;
-}
-
-function paramsToState(sp: URLSearchParams): FilterState {
-  return {
-    visa: (sp.get("visa") as FilterState["visa"]) ?? "all",
-    teams: sp.get("lag") ? sp.get("lag")!.split(",").filter(Boolean) : [],
-    sources: sp.get("kalla") ? sp.get("kalla")!.split(",").filter(Boolean) : [],
-    events: sp.get("event") ? sp.get("event")!.split(",").filter(Boolean) : [],
-  };
-}
-
-function isDefault(state: FilterState): boolean {
-  return (
-    state.visa === "all" &&
-    state.teams.length === 0 &&
-    state.sources.length === 0 &&
-    state.events.length === 0
-  );
-}
+// Lokalt alias + re-export för konsumenter
+type FilterState = NewsFilterState;
+export type { FilterState };
 
 function toggle(arr: string[], val: string): string[] {
   return arr.includes(val) ? arr.filter((x) => x !== val) : [...arr, val];
 }
 
-// ── Section-komponent ──────────────────────────────────────────────────────────
-function FilterSection({
-  title,
+// ── Dropdown ──────────────────────────────────────────────────────────────────
+function Dropdown({
+  label,
+  count,
   children,
 }: {
-  title: string;
+  label: string;
+  count: number;
   children: React.ReactNode;
 }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function onOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    if (open) document.addEventListener("mousedown", onOutside);
+    return () => document.removeEventListener("mousedown", onOutside);
+  }, [open]);
+
   return (
-    <div>
-      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-        {title}
-      </p>
-      <div className="space-y-1">{children}</div>
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className={clsx(
+          "flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-sm transition-colors",
+          count > 0
+            ? "border-pitch/60 bg-pitch/10 text-foreground"
+            : "border-border bg-card text-muted-foreground hover:text-foreground hover:border-border/80"
+        )}
+      >
+        {label}
+        {count > 0 && (
+          <span className="bg-pitch text-white text-xs px-1.5 py-0.5 rounded-full leading-none">
+            {count}
+          </span>
+        )}
+        <ChevronDown className={clsx("w-3.5 h-3.5 transition-transform", open && "rotate-180")} />
+      </button>
+
+      {open && (
+        <div className="absolute top-full left-0 mt-1.5 z-50 bg-popover border border-border rounded-xl shadow-xl min-w-[180px] max-h-64 overflow-y-auto p-2">
+          {children}
+        </div>
+      )}
     </div>
   );
 }
 
-function CheckRow({
+function CheckItem({
   checked,
   onChange,
   label,
@@ -109,15 +110,12 @@ function CheckRow({
   label: string;
 }) {
   return (
-    <label className="flex items-center gap-2 cursor-pointer group">
+    <label className="flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
       <div
         className={clsx(
           "w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors",
-          checked
-            ? "bg-pitch border-pitch"
-            : "border-border group-hover:border-pitch/60"
+          checked ? "bg-pitch border-pitch" : "border-border"
         )}
-        onClick={onChange}
       >
         {checked && (
           <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 10 10">
@@ -125,13 +123,7 @@ function CheckRow({
           </svg>
         )}
       </div>
-      <span
-        className={clsx(
-          "text-sm transition-colors",
-          checked ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
-        )}
-        onClick={onChange}
-      >
+      <span className={clsx("text-sm", checked ? "text-foreground" : "text-muted-foreground")}>
         {label}
       </span>
     </label>
@@ -145,29 +137,31 @@ interface Props {
   totalCount: number;
 }
 
+const VISA_OPTS = [
+  { value: "all", label: "Alla" },
+  { value: "ai", label: "AI-summering" },
+  { value: "source", label: "Källartiklar" },
+] as const;
+
 export function NewsFilterPanel({ allSources, initialParams, totalCount }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const [filter, setFilter] = useState<FilterState>(() =>
-    paramsToState(new URLSearchParams(initialParams))
+    paramsToFilterState(new URLSearchParams(initialParams))
   );
-  const [drawerOpen, setDrawerOpen] = useState(false);
 
-  // Ladda från localStorage vid mount om URL-params är tomma
   useEffect(() => {
-    const urlState = paramsToState(searchParams);
-    if (isDefault(urlState)) {
+    const urlState = paramsToFilterState(searchParams);
+    if (isDefaultFilter(urlState)) {
       try {
         const saved = localStorage.getItem(LS_KEY);
         if (saved) {
           const parsed = JSON.parse(saved) as FilterState;
           setFilter(parsed);
-          const params = stateToParams(parsed);
-          if (params.toString()) {
-            router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-          }
+          const params = filterStateToParams(parsed);
+          if (params.toString()) router.replace(`${pathname}?${params.toString()}`, { scroll: false });
         }
       } catch { /* ignore */ }
     }
@@ -177,180 +171,95 @@ export function NewsFilterPanel({ allSources, initialParams, totalCount }: Props
   const applyFilter = useCallback(
     (next: FilterState) => {
       setFilter(next);
-      try {
-        localStorage.setItem(LS_KEY, JSON.stringify(next));
-      } catch { /* ignore */ }
-      const params = stateToParams(next);
-      router.replace(
-        params.toString() ? `${pathname}?${params.toString()}` : pathname,
-        { scroll: false }
-      );
+      try { localStorage.setItem(LS_KEY, JSON.stringify(next)); } catch { /* ignore */ }
+      const params = filterStateToParams(next);
+      router.replace(params.toString() ? `${pathname}?${params.toString()}` : pathname, { scroll: false });
     },
     [router, pathname]
   );
 
-  const reset = () => applyFilter(DEFAULT_FILTER);
+  const reset = () => applyFilter(DEFAULT_NEWS_FILTER);
 
   const activeCount =
-    (filter.visa !== "all" ? 1 : 0) +
-    filter.teams.length +
-    filter.sources.length +
-    filter.events.length;
-
-  const filterContent = (
-    <div className="flex flex-col gap-6">
-      {/* Visa */}
-      <FilterSection title="Visa">
-        {(
-          [
-            { value: "all", label: "Alla nyheter" },
-            { value: "ai", label: "Athopia AI-sammanfattningar" },
-            { value: "source", label: "Bara källartiklar" },
-          ] as const
-        ).map((opt) => (
-          <label key={opt.value} className="flex items-center gap-2 cursor-pointer group">
-            <div
-              className={clsx(
-                "w-4 h-4 rounded-full border flex items-center justify-center shrink-0 transition-colors",
-                filter.visa === opt.value
-                  ? "border-pitch"
-                  : "border-border group-hover:border-pitch/60"
-              )}
-              onClick={() => applyFilter({ ...filter, visa: opt.value })}
-            >
-              {filter.visa === opt.value && (
-                <div className="w-2 h-2 rounded-full bg-pitch" />
-              )}
-            </div>
-            <span
-              className={clsx(
-                "text-sm transition-colors",
-                filter.visa === opt.value
-                  ? "text-foreground"
-                  : "text-muted-foreground group-hover:text-foreground"
-              )}
-              onClick={() => applyFilter({ ...filter, visa: opt.value })}
-            >
-              {opt.label}
-            </span>
-          </label>
-        ))}
-      </FilterSection>
-
-      {/* Lag */}
-      <FilterSection title="Lag">
-        {ALLSVENSKAN_TEAMS.map((t) => (
-          <CheckRow
-            key={t.slug}
-            checked={filter.teams.includes(t.slug)}
-            onChange={() =>
-              applyFilter({ ...filter, teams: toggle(filter.teams, t.slug) })
-            }
-            label={t.label}
-          />
-        ))}
-      </FilterSection>
-
-      {/* Källor */}
-      {allSources.length > 0 && (
-        <FilterSection title="Källor">
-          {allSources.map((s) => (
-            <CheckRow
-              key={s.id}
-              checked={filter.sources.includes(s.name)}
-              onChange={() =>
-                applyFilter({ ...filter, sources: toggle(filter.sources, s.name) })
-              }
-              label={s.name}
-            />
-          ))}
-        </FilterSection>
-      )}
-
-      {/* Eventtyp */}
-      <FilterSection title="Eventtyp">
-        {EVENT_TYPES.map((e) => (
-          <CheckRow
-            key={e.value}
-            checked={filter.events.includes(e.value)}
-            onChange={() =>
-              applyFilter({ ...filter, events: toggle(filter.events, e.value) })
-            }
-            label={e.label}
-          />
-        ))}
-      </FilterSection>
-
-      {/* Återställ */}
-      {activeCount > 0 && (
-        <button
-          onClick={reset}
-          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mt-2"
-        >
-          <X className="w-3.5 h-3.5" />
-          Återställ filter
-        </button>
-      )}
-    </div>
-  );
+    (filter.visa !== "all" ? 1 : 0) + filter.teams.length + filter.sources.length + filter.events.length;
 
   return (
-    <>
-      {/* Desktop sidebar */}
-      <aside className="hidden lg:block w-56 shrink-0">
-        <div className="sticky top-20">
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-sm font-semibold text-foreground">Filter</p>
-            {activeCount > 0 && (
-              <span className="text-xs bg-pitch text-white px-1.5 py-0.5 rounded-full">
-                {activeCount}
-              </span>
-            )}
-          </div>
-          {filterContent}
+    <div className="sticky top-[57px] z-30 bg-background/90 backdrop-blur-sm border-b border-border -mx-4 sm:-mx-6 px-4 sm:px-6 py-3 mb-6">
+      <div className="flex items-center gap-2 flex-wrap">
+        {/* Pill-tabs: Visa */}
+        <div className="flex items-center gap-1 bg-card border border-border rounded-lg p-0.5">
+          {VISA_OPTS.map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => applyFilter({ ...filter, visa: opt.value })}
+              className={clsx(
+                "px-3 py-1 rounded-md text-sm font-medium transition-colors",
+                filter.visa === opt.value
+                  ? "bg-pitch text-white shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {opt.label}
+            </button>
+          ))}
         </div>
-      </aside>
 
-      {/* Mobil: trigger-knapp */}
-      <div className="lg:hidden mb-4">
-        <button
-          onClick={() => setDrawerOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-lg text-sm text-foreground hover:border-pitch/40 transition-colors"
-        >
-          <SlidersHorizontal className="w-4 h-4" />
-          Filter
-          {activeCount > 0 && (
-            <span className="bg-pitch text-white text-xs px-1.5 py-0.5 rounded-full">
-              {activeCount}
-            </span>
-          )}
-        </button>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <div className="w-px h-5 bg-border mx-1" />
+
+        {/* Lag dropdown */}
+        <Dropdown label="Lag" count={filter.teams.length}>
+          {ALLSVENSKAN_TEAMS.map((t) => (
+            <CheckItem
+              key={t.slug}
+              checked={filter.teams.includes(t.slug)}
+              onChange={() => applyFilter({ ...filter, teams: toggle(filter.teams, t.slug) })}
+              label={t.label}
+            />
+          ))}
+        </Dropdown>
+
+        {/* Källor dropdown */}
+        {allSources.length > 0 && (
+          <Dropdown label="Källor" count={filter.sources.length}>
+            {allSources.map((s) => (
+              <CheckItem
+                key={s.id}
+                checked={filter.sources.includes(s.name)}
+                onChange={() => applyFilter({ ...filter, sources: toggle(filter.sources, s.name) })}
+                label={s.name}
+              />
+            ))}
+          </Dropdown>
+        )}
+
+        {/* Eventtyp dropdown */}
+        <Dropdown label="Eventtyp" count={filter.events.length}>
+          {EVENT_TYPES.map((e) => (
+            <CheckItem
+              key={e.value}
+              checked={filter.events.includes(e.value)}
+              onChange={() => applyFilter({ ...filter, events: toggle(filter.events, e.value) })}
+              label={e.label}
+            />
+          ))}
+        </Dropdown>
+
+        {/* Återställ */}
+        {activeCount > 0 && (
+          <button
+            onClick={reset}
+            className="ml-1 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <X className="w-3.5 h-3.5" />
+            Återställ
+          </button>
+        )}
+
+        {/* Räknare */}
+        <span className="ml-auto text-xs text-muted-foreground hidden sm:block">
           {totalCount} artiklar
-        </p>
+        </span>
       </div>
-
-      {/* Mobil: drawer */}
-      {drawerOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 flex">
-          <div
-            className="absolute inset-0 bg-black/60"
-            onClick={() => setDrawerOpen(false)}
-          />
-          <div className="relative ml-auto w-72 max-w-full h-full bg-background border-l border-border overflow-y-auto p-5">
-            <div className="flex items-center justify-between mb-6">
-              <p className="font-semibold text-foreground">Filter</p>
-              <button
-                onClick={() => setDrawerOpen(false)}
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            {filterContent}
-          </div>
-        </div>
-      )}
-    </>
+    </div>
   );
 }

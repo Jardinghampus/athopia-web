@@ -23,12 +23,18 @@ import {
   type PaidPlan,
   type BillingInterval,
 } from "@/lib/pricing";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
-export async function POST(req: Request) {
+export async function POST(req: Request & { headers: Headers }) {
   // Lazy-init Stripe för att undvika build-time env-krav
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: "2026-04-22.dahlia",
   });
+  const rl = rateLimit(`checkout:${getClientIp(req)}`, { limit: 5, windowMs: 60_000 });
+  if (!rl.success) {
+    return NextResponse.json({ error: "För många förfrågningar" }, { status: 429 });
+  }
+
   const { userId } = await auth();
 
   if (!userId) {
@@ -50,6 +56,8 @@ export async function POST(req: Request) {
   }
 
   const planMeta = PRICING[plan];
+
+  const base = (process.env.NEXT_PUBLIC_BASE_URL ?? "https://athopia.se").replace(/\/$/, "");
 
   try {
     const session = await stripe.checkout.sessions.create({
@@ -73,10 +81,9 @@ export async function POST(req: Request) {
         },
       ],
       client_reference_id: userId,
-      // Sparas för webhook-hantering (sätter rätt plan i Clerk)
       metadata: { clerkUserId: userId, plan, interval },
-      success_url: `https://athopia.se/konto?checkout=success`,
-      cancel_url: `https://athopia.se/prenumerera`,
+      success_url: `${base}/konto?checkout=success`,
+      cancel_url: `${base}/prenumerera`,
       subscription_data: {
         metadata: { clerkUserId: userId, plan, interval },
       },

@@ -93,8 +93,8 @@ export interface Task {
 export interface ContentQueueItem {
   id: string;
   createdAt: string;
-  status: "queued" | "processing" | "done" | "error";
-  type: "article" | "podcast" | "narrative";
+  status: "pending_classification" | "classified" | "pending_review" | "approved" | "published";
+  content_type: "rss_signal" | "carousel" | "x_thread" | "narrative";
   sourceId: string;
   meta?: Record<string, unknown> | null;
 }
