@@ -28,7 +28,7 @@ export function MobileNav() {
               key={href}
               href={href}
               className={`flex-1 flex flex-col items-center justify-center gap-0.5 text-[10px] font-medium transition-colors ${
-                active ? "text-[#1D9E75]" : "text-muted-foreground hover:text-foreground"
+                active ? "text-pitch" : "text-muted-foreground hover:text-foreground"
               }`}
             >
               <Icon className="w-5 h-5" />

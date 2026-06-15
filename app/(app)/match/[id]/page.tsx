@@ -121,7 +121,7 @@ export default async function MatchPage({ params }: PageProps) {
                       <span className="font-semibold text-foreground">{String(a ?? "–")}</span>
                     </div>
                     <div className="h-1.5 bg-muted rounded-full flex overflow-hidden">
-                      <div className="bg-[#1D9E75]" style={{ width: `${pct}%` }} />
+                      <div className="bg-pitch" style={{ width: `${pct}%` }} />
                       <div className="bg-blue-500" style={{ width: `${100 - pct}%` }} />
                     </div>
                   </div>

@@ -63,7 +63,7 @@ export function RoundRing({
             key={`fg-${i}`}
             d={arcPath(seg.startDeg, seg.startDeg + segmentAngle, r)}
             fill="none"
-            stroke={seg.done ? '#1D9E75' : 'transparent'}
+            stroke={seg.done ? 'var(--color-pitch)' : 'transparent'}
             strokeWidth={6}
             strokeLinecap="round"
             initial={{ pathLength: 0 }}
@@ -76,7 +76,7 @@ export function RoundRing({
           x={cx}
           y={cy - 4}
           textAnchor="middle"
-          fill={isComplete ? '#1D9E75' : '#888'}
+          fill={isComplete ? 'var(--color-pitch)' : '#888'}
           fontSize={size * 0.18}
           fontWeight="700"
           fontFamily="monospace"
@@ -98,7 +98,7 @@ export function RoundRing({
         <motion.span
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="text-xs text-[#1D9E75] font-semibold tracking-wider uppercase"
+          className="text-xs text-pitch font-semibold tracking-wider uppercase"
         >
           Ring stängd ✓
         </motion.span>

@@ -10,7 +10,7 @@ interface Props {
 
 export function IQRatingWidget({ iq, leagueTeamName }: Props) {
   const scoreColor =
-    iq.weekly_iq >= 80 ? '#1D9E75'
+    iq.weekly_iq >= 80 ? 'var(--color-pitch)'
     : iq.weekly_iq >= 60 ? '#F9A825'
     : '#888'
 

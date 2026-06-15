@@ -60,7 +60,7 @@ export function PersonalizedFeed() {
         {slug && (
           <Link
             href={`/lag/${slug}`}
-            className="flex items-center gap-1 text-sm text-[#1D9E75] hover:underline"
+            className="flex items-center gap-1 text-sm text-pitch hover:underline"
           >
             Lagprofil <ArrowRight className="w-4 h-4" />
           </Link>
@@ -82,7 +82,7 @@ export function PersonalizedFeed() {
       ) : (
         <p className="text-muted-foreground text-sm py-6 text-center">
           Inga nyheter hittade.{" "}
-          <Link href="/nyheter" className="text-[#1D9E75] hover:underline">
+          <Link href="/nyheter" className="text-pitch hover:underline">
             Bläddra alla nyheter →
           </Link>
         </p>
@@ -92,7 +92,7 @@ export function PersonalizedFeed() {
       {slug && (
         <div className="mt-4 flex items-center gap-2">
           <span className="text-xs text-muted-foreground">Utforska:</span>
-          <Link href="/nyheter" className="text-xs text-[#1D9E75] hover:underline">
+          <Link href="/nyheter" className="text-xs text-pitch hover:underline">
             Alla lag →
           </Link>
           <Link href="/onboarding" className="text-xs text-muted-foreground hover:text-foreground">

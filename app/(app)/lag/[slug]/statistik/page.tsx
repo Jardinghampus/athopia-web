@@ -95,11 +95,11 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
           <div className="flex gap-3">
             <div className="flex-1 rounded-xl border border-border bg-card p-4 flex justify-between">
               <span className="text-sm text-muted-foreground">Poäng</span>
-              <span className="font-heading text-2xl text-[#1D9E75]">{standings.points as number ?? 0}</span>
+              <span className="font-heading text-2xl text-pitch">{standings.points as number ?? 0}</span>
             </div>
             <div className="flex-1 rounded-xl border border-border bg-card p-4 flex justify-between">
               <span className="text-sm text-muted-foreground">Målskillnad</span>
-              <span className={`font-heading text-2xl ${(standings.goal_diff as number ?? 0) >= 0 ? "text-[#1D9E75]" : "text-red-400"}`}>
+              <span className={`font-heading text-2xl ${(standings.goal_diff as number ?? 0) >= 0 ? "text-pitch" : "text-red-400"}`}>
                 {(standings.goal_diff as number ?? 0) >= 0 ? "+" : ""}{standings.goal_diff as number ?? 0}
               </span>
             </div>
@@ -131,7 +131,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
                           <Image src={pl.image as string} alt="" fill className="object-cover" sizes="28px" />
                         </div>
                       )}
-                      <Link href={`/spelare/${playerSlug}`} className="flex-1 text-sm text-foreground hover:text-[#1D9E75] truncate">
+                      <Link href={`/spelare/${playerSlug}`} className="flex-1 text-sm text-foreground hover:text-pitch truncate">
                         {(pl?.fullname as string) ?? "–"}
                       </Link>
                       <span className="text-sm font-bold text-foreground">{String(row[key] ?? 0)}</span>
@@ -172,7 +172,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
                 return (
                   <tr key={i} className="border-b border-border/40 last:border-0 hover:bg-muted/20 transition-colors">
                     <td className="px-4 py-2">
-                      <Link href={`/spelare/${playerSlug}`} className="text-foreground hover:text-[#1D9E75]">
+                      <Link href={`/spelare/${playerSlug}`} className="text-foreground hover:text-pitch">
                         {(pl?.fullname as string) ?? "–"}
                       </Link>
                     </td>
@@ -205,10 +205,10 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
               const won  = isHome ? hs > as_ : as_ > hs;
               const drew = hs === as_;
               const result = drew ? "O" : won ? "V" : "F";
-              const color  = drew ? "text-muted-foreground" : won ? "text-[#1D9E75]" : "text-red-400";
+              const color  = drew ? "text-muted-foreground" : won ? "text-pitch" : "text-red-400";
               return (
                 <Link key={f.sportmonks_id as number} href={`/match/${f.sportmonks_id}`}
-                  className="flex items-center gap-3 bg-card border border-border rounded-lg px-4 py-3 hover:border-[#1D9E75]/50 transition-colors">
+                  className="flex items-center gap-3 bg-card border border-border rounded-lg px-4 py-3 hover:border-pitch/50 transition-colors">
                   <span className={`font-bold text-sm w-5 ${color}`}>{result}</span>
                   <span className="text-sm text-muted-foreground flex-1 truncate">
                     {isHome ? "H" : "B"} · {opp as string}

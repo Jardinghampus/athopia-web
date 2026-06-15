@@ -25,7 +25,7 @@ interface XgChartProps {
   colorB?: string;
 }
 
-export function XgChart({ data, nameA, nameB, colorA = "#1D9E75", colorB = "#3B82F6" }: XgChartProps) {
+export function XgChart({ data, nameA, nameB, colorA = "var(--color-pitch)", colorB = "#3B82F6" }: XgChartProps) {
   if (data.length === 0) {
     return (
       <div className="h-48 flex items-center justify-center text-muted-foreground text-sm">

@@ -23,7 +23,7 @@ export function FavoriteTeamHighlight() {
 
       if (match) {
         row.style.setProperty("background-color", "rgba(29,158,117,0.08)");
-        row.style.setProperty("box-shadow", "inset 2px 0 0 #1D9E75");
+        row.style.setProperty("box-shadow", `inset 2px 0 0 var(--color-pitch)`);
         // Scrolla till raden om den inte är synlig
         row.scrollIntoView({ behavior: "smooth", block: "nearest" });
       }

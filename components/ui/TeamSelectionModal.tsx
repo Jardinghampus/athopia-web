@@ -13,7 +13,7 @@ interface Team {
 }
 
 function getTeamColor(metadata: Record<string, unknown> | null): string {
-  return (metadata?.["primary_color"] as string | undefined) ?? "#1D9E75";
+  return (metadata?.["primary_color"] as string | undefined) ?? "var(--color-pitch)";
 }
 
 function getTeamInitials(name: string): string {
@@ -157,7 +157,7 @@ export function TeamSelectionModal({ forceVisible = false }: TeamSelectionModalP
             className={cn(
               "px-5 py-2 rounded-lg text-sm font-medium transition-all",
               selected
-                ? "bg-[#1D9E75] text-white hover:bg-[#1D9E75]/90"
+                ? "bg-pitch text-white hover:bg-pitch/90"
                 : "bg-muted text-muted-foreground cursor-not-allowed",
             )}
           >

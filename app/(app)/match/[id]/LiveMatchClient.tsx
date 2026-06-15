@@ -59,12 +59,12 @@ function LiveXgChart({ homeXg, awayXg, homeName, awayName }: {
   return (
     <div>
       <div className="flex justify-between text-xs text-muted-foreground mb-2">
-        <span className="text-[#1D9E75] font-medium">{homeName}</span>
+        <span className="text-pitch font-medium">{homeName}</span>
         <span className="font-medium text-foreground">xG</span>
         <span className="text-[#3B82F6] font-medium">{awayName}</span>
       </div>
       <div className="flex items-center gap-3 mb-3">
-        <span className="text-3xl font-bold text-[#1D9E75]">{homeXg.toFixed(2)}</span>
+        <span className="text-3xl font-bold text-pitch">{homeXg.toFixed(2)}</span>
         <span className="text-muted-foreground text-sm flex-1 text-center">–</span>
         <span className="text-3xl font-bold text-[#3B82F6]">{awayXg.toFixed(2)}</span>
       </div>
@@ -81,7 +81,7 @@ function LiveXgChart({ homeXg, awayXg, homeName, awayName }: {
             }}
           />
           <ReferenceLine y={1.5} stroke="hsl(var(--border))" strokeDasharray="3 3" />
-          <Area type="monotone" dataKey="home" name={homeName} stroke="#1D9E75" fill="#1D9E75" fillOpacity={0.15} strokeWidth={2} />
+          <Area type="monotone" dataKey="home" name={homeName} stroke="var(--color-pitch)" fill="var(--color-pitch)" fillOpacity={0.15} strokeWidth={2} />
           <Area type="monotone" dataKey="away" name={awayName} stroke="#3B82F6" fill="#3B82F6" fillOpacity={0.15} strokeWidth={2} />
         </AreaChart>
       </ResponsiveContainer>
@@ -102,7 +102,7 @@ function StatBar({ label, home, away }: { label: string; home: number; away: num
         <span className="font-semibold text-foreground">{away}</span>
       </div>
       <div className="h-1.5 bg-muted rounded-full overflow-hidden flex">
-        <div className="bg-[#1D9E75] transition-all duration-700" style={{ width: `${homeW}%` }} />
+        <div className="bg-pitch transition-all duration-700" style={{ width: `${homeW}%` }} />
         <div className="bg-[#3B82F6] transition-all duration-700" style={{ width: `${100 - homeW}%` }} />
       </div>
     </div>

@@ -21,7 +21,7 @@ import type { FeedItem, FeedItemType } from "@/lib/types";
 // ─── Meta ────────────────────────────────────────────────────────────────────
 
 const TYPE_META: Record<FeedItemType, { label: string; color: string; icon: React.ElementType }> = {
-  news:    { label: "Nyhet",    color: "#1D9E75", icon: Newspaper },
+  news:    { label: "Nyhet",    color: "var(--color-pitch)", icon: Newspaper },
   forum:   { label: "Forum",   color: "#7F77DD", icon: MessageSquare },
   summary: { label: "AI-analys", color: "#BA7517", icon: Brain },
   podcast: { label: "Podcast", color: "#378ADD", icon: Podcast },

@@ -29,7 +29,7 @@ export interface LandingArticle {
 
 export default function AthopiaLanding({}: { articles?: LandingArticle[] } = {}) {
   return (
-    <div className="min-h-screen overflow-x-clip bg-[#0A0A0A] font-sans text-white">
+    <div className="min-h-screen overflow-x-clip bg-zinc-950 font-sans text-white">
       <LandingNav />
       <main>
         <Hero />

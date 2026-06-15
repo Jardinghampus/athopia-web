@@ -14,7 +14,7 @@ const PlayerRadar = dynamic(
 import { SCOUT_METRICS, type ScoutPlayer, type ScoutMetricKey } from "@/lib/team-hub/scout";
 
 const RADAR_METRICS: ScoutMetricKey[] = ["goals", "assists", "xg", "xa", "shots", "rating"];
-const COLOR_A = "#1D9E75";
+const COLOR_A = "var(--color-pitch)";
 const COLOR_B = "#3B82F6";
 
 /** Percentilrank (0–100) för ett värde inom poolen. */

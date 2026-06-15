@@ -134,7 +134,7 @@ export default async function SammanfattningPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {teamSummaries.map(({ team, article }) => {
-            const color = TEAM_COLORS[team] ?? "#1D9E75";
+            const color = TEAM_COLORS[team] ?? "var(--color-pitch)";
             const initials = getTeamInitials(team);
 
             return (

@@ -68,7 +68,7 @@ export function OnboardingLeaguePicker({ onComplete }: { onComplete: () => void 
               onClick={() => setSelected(team.slug)}
               className={`rounded-lg border p-3 text-center transition-all ${
                 selected === team.slug
-                  ? 'border-[#1D9E75] bg-[#1D9E75]/10 text-white'
+                  ? 'border-pitch bg-pitch/10 text-white'
                   : 'border-white/10 text-white/50 hover:border-white/30 hover:text-white'
               }`}
             >
@@ -84,7 +84,7 @@ export function OnboardingLeaguePicker({ onComplete }: { onComplete: () => void 
         <button
           onClick={joinLeague}
           disabled={!selected || saving}
-          className="w-full py-3 rounded-lg bg-[#1D9E75] text-black font-bold disabled:opacity-40 transition-opacity"
+          className="w-full py-3 rounded-lg bg-pitch text-black font-bold disabled:opacity-40 transition-opacity"
         >
           {saving ? 'Sparar...' : 'Gå med i ligan →'}
         </button>

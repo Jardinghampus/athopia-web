@@ -19,7 +19,7 @@ interface RadarPoint {
  * Lagprofil-radar — normaliserade värden (z-score → 0–100) mot ligamedian.
  * 50 = ligasnitt, >50 = över snittet. Inga hårdkodade värden.
  */
-export function TeamRadar({ data, color = "#1D9E75" }: { data: RadarPoint[]; color?: string }) {
+export function TeamRadar({ data, color = "var(--color-pitch)" }: { data: RadarPoint[]; color?: string }) {
   if (data.length === 0) {
     return (
       <div className="h-[220px] flex items-center justify-center text-sm text-muted-foreground">

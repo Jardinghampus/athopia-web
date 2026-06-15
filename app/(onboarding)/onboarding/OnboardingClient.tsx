@@ -26,7 +26,7 @@ interface Team {
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 function getColor(metadata: Record<string, unknown> | null): string {
-  return (metadata?.["primary_color"] as string | undefined) ?? "#1D9E75";
+  return (metadata?.["primary_color"] as string | undefined) ?? "var(--color-pitch)";
 }
 function getInitials(name: string): string {
   return name.split(" ").filter((w) => w.length > 1).map((w) => w[0]?.toUpperCase() ?? "").join("").slice(0, 3);
@@ -61,7 +61,7 @@ function Fireworks() {
     id: i,
     angle: (i / 40) * 360,
     distance: 60 + Math.random() * 120,
-    color: ["#1D9E75", "#25C48F", "#ffffff", "#ffd700", "#ff6b6b", "#74b9ff"][i % 6],
+    color: ["var(--color-pitch)", "#25C48F", "#ffffff", "#ffd700", "#ff6b6b", "#74b9ff"][i % 6],
     size: 4 + Math.random() * 6,
     delay: Math.random() * 0.3,
   }));
@@ -203,7 +203,7 @@ export function OnboardingClient() {
   }, []);
 
   const teamObj = teams.find((t) => (t.slug ?? t.id) === selectedTeam);
-  const teamColor = teamObj ? getColor(teamObj.metadata) : "#1D9E75";
+  const teamColor = teamObj ? getColor(teamObj.metadata) : "var(--color-pitch)";
 
   const prefetchFeed = useCallback((slug: string) => {
     void fetch(`/api/feed?team=${encodeURIComponent(slug)}&offset=0`, { cache: "no-store" })

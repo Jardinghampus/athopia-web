@@ -59,7 +59,7 @@ export function LoadingSourcesCard() {
             <Particles
               className="absolute inset-0 -z-10 opacity-10 transition-opacity duration-1000 ease-in-out group-hover/item:opacity-100"
               quantity={140}
-              color="#1D9E75"
+              color="var(--color-pitch)"
               vy={-0.2}
             />
             <div className="flex justify-center">

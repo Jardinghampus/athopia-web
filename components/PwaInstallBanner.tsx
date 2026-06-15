@@ -53,7 +53,7 @@ export function PwaInstallBanner() {
             <div className="flex gap-2 mt-3">
               <button
                 onClick={handlePushAccept}
-                className="px-3 py-1.5 bg-[#1D9E75] text-white text-xs font-medium rounded-lg hover:bg-[#1D9E75]/90 transition-colors"
+                className="px-3 py-1.5 bg-pitch text-white text-xs font-medium rounded-lg hover:bg-pitch/90 transition-colors"
               >
                 Aktivera
               </button>
@@ -91,7 +91,7 @@ export function PwaInstallBanner() {
             <div className="flex gap-2 mt-3">
               <button
                 onClick={triggerInstall}
-                className="px-3 py-1.5 bg-[#1D9E75] text-white text-xs font-medium rounded-lg hover:bg-[#1D9E75]/90 transition-colors"
+                className="px-3 py-1.5 bg-pitch text-white text-xs font-medium rounded-lg hover:bg-pitch/90 transition-colors"
               >
                 Installera
               </button>

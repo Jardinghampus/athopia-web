@@ -194,7 +194,7 @@ export function BentoFeatures() {
                     <svg viewBox="0 0 80 80" className="absolute inset-0 -rotate-90">
                       <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="6" />
                       <circle
-                        cx="40" cy="40" r="34" fill="none" stroke="#1D9E75" strokeWidth="6"
+                        cx="40" cy="40" r="34" fill="none" stroke="var(--color-pitch)" strokeWidth="6"
                         strokeLinecap="round" strokeDasharray="213.6" strokeDashoffset="53.4"
                       />
                     </svg>

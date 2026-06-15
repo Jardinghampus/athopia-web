@@ -58,7 +58,7 @@ export function MatchCard({ card, onReveal }: Props) {
           >
             <div className="text-center">
               <p className="text-4xl mb-2">🔮</p>
-              <p className="text-[#1D9E75] font-bold text-lg">Synskarp!</p>
+              <p className="text-pitch font-bold text-lg">Synskarp!</p>
               <p className="text-white/60 text-sm">+{card.iq_points_earned} IQ-poäng</p>
             </div>
           </motion.div>
@@ -71,7 +71,7 @@ export function MatchCard({ card, onReveal }: Props) {
             ? 'border-white/5 bg-white/[0.03] opacity-60'
             : card.is_revealed
             ? card.outcome_correct
-              ? 'border-[#1D9E75]/30 bg-[#1D9E75]/5'
+              ? 'border-pitch/30 bg-pitch/5'
               : 'border-red-500/20 bg-red-500/5'
             : 'border-white/10 bg-white/5 hover:border-white/20 cursor-pointer'
         }`}
@@ -89,7 +89,7 @@ export function MatchCard({ card, onReveal }: Props) {
               : '▶ Tryck för reveal'}
           </span>
           {card.is_revealed && card.iq_points_earned > 0 && (
-            <span className="text-xs text-[#1D9E75] font-semibold">
+            <span className="text-xs text-pitch font-semibold">
               +{card.iq_points_earned} IQ
             </span>
           )}
@@ -117,13 +117,13 @@ export function MatchCard({ card, onReveal }: Props) {
           <div className="flex items-center gap-2">
             <span
               className={`text-xs font-semibold ${
-                card.outcome_correct ? 'text-[#1D9E75]' : 'text-red-400'
+                card.outcome_correct ? 'text-pitch' : 'text-red-400'
               }`}
             >
               {card.outcome_correct ? '✓ Rätt vinnare' : '✗ Fel vinnare'}
             </span>
             {card.score_correct && (
-              <span className="text-xs text-[#1D9E75] font-semibold">• Exakt rätt 🔮</span>
+              <span className="text-xs text-pitch font-semibold">• Exakt rätt 🔮</span>
             )}
           </div>
         )}

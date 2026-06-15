@@ -103,7 +103,7 @@ export function ExpandableTabs({
     <div
       ref={outsideClickRef}
       className={cn(
-        "flex flex-wrap items-center justify-center gap-1 rounded-2xl border border-white/[0.12] bg-[#0A0A0A]/70 backdrop-blur-2xl backdrop-saturate-150 p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_8px_32px_rgba(0,0,0,0.45)]",
+        "flex flex-wrap items-center justify-center gap-1 rounded-2xl border border-white/[0.12] bg-zinc-950/70 backdrop-blur-2xl backdrop-saturate-150 p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_8px_32px_rgba(0,0,0,0.45)]",
         className
       )}
     >

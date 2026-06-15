@@ -104,7 +104,7 @@ export function CookieBanner() {
           <div className="mt-4 flex flex-wrap gap-2">
             <button
               onClick={() => save({ analytics: true, marketing: true })}
-              className="flex-1 rounded-xl bg-[#1D9E75] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#18876A] active:scale-[0.97]"
+              className="flex-1 rounded-xl bg-pitch px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#18876A] active:scale-[0.97]"
             >
               Godkänn alla
             </button>
@@ -156,7 +156,7 @@ function Toggle({
         onClick={() => onChange(!checked)}
         className={[
           "mt-0.5 h-5 w-9 flex-shrink-0 rounded-full transition-colors duration-200",
-          checked ? "bg-[#1D9E75]" : "bg-zinc-700",
+          checked ? "bg-pitch" : "bg-zinc-700",
           disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer",
         ].join(" ")}
       >

@@ -34,7 +34,7 @@ export function GamificationHub() {
         </p>
         <button
           onClick={() => setShowPicker(true)}
-          className="px-5 py-2 rounded-lg bg-[#1D9E75] text-black font-bold text-sm"
+          className="px-5 py-2 rounded-lg bg-pitch text-black font-bold text-sm"
         >
           Välj lag →
         </button>
