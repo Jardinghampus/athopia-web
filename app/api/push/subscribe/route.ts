@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createClient } from "@supabase/supabase-js";
+import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,13 +15,11 @@ export async function POST(req: NextRequest) {
 
     const { userId } = await auth();
 
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-    const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
-    if (!url || !key) {
+    if (!isSupabaseConfigured()) {
       return NextResponse.json({ error: "Supabase ej konfigurerat" }, { status: 503 });
     }
 
-    const db = createClient(url, key);
+    const db = createServerClient();
 
     // Upsert subscription — endpoint är UNIQUE
     const { error } = await db.from("push_subscriptions").upsert(
