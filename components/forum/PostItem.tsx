@@ -3,7 +3,7 @@
 import { useState, useOptimistic } from "react";
 import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
-import { ThumbsUp, MessageCircle, Repeat2, Share2, Flag } from "lucide-react";
+import { Heart, MessageCircle, Repeat2, Share2, Flag } from "lucide-react";
 import Link from "next/link";
 import type { ForumPost } from "@/lib/types";
 import QuoteBox from "./QuoteBox";
@@ -195,14 +195,14 @@ export default function PostItem({ post, depth = 0, showThread = false, onReply 
         )}
 
         {/* Actions */}
-        <div className="flex items-center gap-5 mt-2 -ml-1">
+        <div className="flex items-center gap-4 mt-2.5 -ml-1">
           <button
             onClick={() => setReplyOpen(!replyOpen)}
             className="flex items-center gap-1.5 text-muted-foreground hover:text-pitch transition-colors"
           >
             <MessageCircle className="w-4 h-4" />
             {post.reply_count > 0 && (
-              <span className="text-xs">{post.reply_count}</span>
+              <span className="text-xs tabular-nums">{post.reply_count}</span>
             )}
           </button>
 
@@ -214,24 +214,25 @@ export default function PostItem({ post, depth = 0, showThread = false, onReply 
           >
             <Repeat2 className="w-4 h-4" />
             {optimisticReposts > 0 && (
-              <span className="text-xs">{optimisticReposts}</span>
+              <span className="text-xs tabular-nums">{optimisticReposts}</span>
             )}
           </button>
 
           <button
             onClick={toggleLike}
             className={`flex items-center gap-1.5 transition-colors ${
-              liked ? "text-pitch" : "text-muted-foreground hover:text-pitch"
+              liked ? "text-rose-500" : "text-muted-foreground hover:text-rose-500"
             }`}
           >
-            <ThumbsUp
-              className={`w-4 h-4 transition-transform ${
-                liked ? "fill-current" : ""
-              } ${likeAnimating ? "scale-125 -rotate-12" : "scale-100 rotate-0"}`}
-              style={{ transition: likeAnimating ? "transform 0.2s cubic-bezier(0.34,1.56,0.64,1)" : "transform 0.15s ease" }}
+            <Heart
+              className={`w-4 h-4 ${liked ? "fill-current" : ""}`}
+              style={{
+                transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1), color 0.15s ease",
+                transform: likeAnimating ? "scale(1.35)" : "scale(1)",
+              }}
             />
             {optimisticLikes > 0 && (
-              <span className="text-xs">{optimisticLikes}</span>
+              <span className="text-xs tabular-nums">{optimisticLikes}</span>
             )}
           </button>
 

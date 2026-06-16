@@ -33,7 +33,17 @@ function getInitials(name: string): string {
 }
 
 const LOAD_TIMEOUT_MS = 8000;
-const TOTAL_STEPS = 4; // 0=välkommen 1=lag 2=profil 3=uppgradera
+const TOTAL_STEPS = 5; // 0=välkommen 1=lag 2=intressen 3=profil 4=uppgradera
+
+const INTEREST_OPTIONS = [
+  { id: "transfer", label: "Transfers" },
+  { id: "analysis", label: "Taktik & analys" },
+  { id: "match", label: "Matchrapport" },
+  { id: "statistics", label: "Statistik & xG" },
+  { id: "injury", label: "Skador" },
+  { id: "table", label: "Tabeller" },
+] as const;
+type InterestId = typeof INTEREST_OPTIONS[number]["id"];
 
 // ── Image compress ─────────────────────────────────────────────────────────────
 async function compressImage(file: File, maxPx = 320, quality = 0.55): Promise<Blob> {
@@ -88,18 +98,23 @@ function Fireworks() {
   );
 }
 
-// ── Progress dots ──────────────────────────────────────────────────────────────
+// ── Progress bar (thin, Revolut-style) ───────────────────────────────────────
 function Progress({ step, total }: { step: number; total: number }) {
+  const pct = ((step + 1) / total) * 100;
   return (
-    <div className="flex gap-1.5 justify-center" aria-label={`Steg ${step + 1} av ${total}`}>
-      {Array.from({ length: total }, (_, i) => (
-        <motion.div
-          key={i}
-          animate={{ width: i === step ? 20 : 6, opacity: i <= step ? 1 : 0.3 }}
-          transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-          className="h-1.5 rounded-full bg-pitch"
-        />
-      ))}
+    <div
+      className="flex-1 h-[3px] bg-white/10 rounded-full overflow-hidden"
+      role="progressbar"
+      aria-valuenow={step + 1}
+      aria-valuemin={1}
+      aria-valuemax={total}
+      aria-label={`Steg ${step + 1} av ${total}`}
+    >
+      <motion.div
+        className="h-full bg-pitch rounded-full"
+        animate={{ width: `${pct}%` }}
+        transition={{ duration: 0.45, ease: [0.23, 1, 0.32, 1] }}
+      />
     </div>
   );
 }
@@ -165,7 +180,10 @@ export function OnboardingClient() {
   const fileRef = useRef<HTMLInputElement>(null);
   const avatarPreviewRef = useRef<string | null>(null);
 
-  // Step 3 — Plan
+  // Step 2 — Interests
+  const [selectedInterests, setSelectedInterests] = useState<InterestId[]>([]);
+
+  // Step 4 — Plan
   const [selectedPlan, setSelectedPlan] = useState<PaidPlan>("pro");
   const [billingInterval, setBillingInterval] = useState<BillingInterval>("month");
   const [checkoutLoading, setCheckoutLoading] = useState(false);
@@ -263,7 +281,10 @@ export function OnboardingClient() {
         await fetch("/api/feed/config", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ followed_team_ids: [teamObj.id] }),
+          body: JSON.stringify({
+            followed_team_ids: [teamObj.id],
+            ...(selectedInterests.length > 0 ? { content_types: selectedInterests } : {}),
+          }),
         }).catch(() => {});
       } else {
         markOnboardingDone();
@@ -318,15 +339,17 @@ export function OnboardingClient() {
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-background">
       {/* Top bar */}
-      <div className="flex items-center justify-between px-5 pt-[env(safe-area-inset-top,0px)] pt-6 pb-4 shrink-0">
+      <div className="flex items-center gap-4 px-5 pt-[env(safe-area-inset-top,0px)] pt-6 pb-4 shrink-0">
         <Progress step={step} total={TOTAL_STEPS} />
-        <button
-          onClick={handleFreeFinish}
-          disabled={saving}
-          className="text-xs text-muted-foreground hover:text-foreground transition-colors touch-manipulation min-h-[44px] flex items-center disabled:opacity-50"
-        >
-          Hoppa över
-        </button>
+        {step > 0 && (
+          <button
+            onClick={handleFreeFinish}
+            disabled={saving}
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors touch-manipulation min-h-[44px] flex items-center shrink-0 disabled:opacity-50"
+          >
+            Hoppa över
+          </button>
+        )}
       </div>
 
       {/* Step content */}
@@ -496,8 +519,71 @@ export function OnboardingClient() {
             </motion.div>
           )}
 
-          {/* ── STEG 2: Din profil ── */}
+          {/* ── STEG 2: Intressen ── */}
           {step === 2 && (
+            <motion.div
+              key="step-2"
+              custom={dir}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.32, ease: [0.23, 1, 0.32, 1] }}
+              className="absolute inset-0 flex flex-col px-5 pt-4 pb-8 overflow-y-auto"
+            >
+              <div className="mb-8">
+                <h2 className="font-heading text-4xl text-foreground mb-2">Vad följer du?</h2>
+                <p className="text-muted-foreground text-sm">Välj det du bryr dig om — flödet anpassas direkt.</p>
+              </div>
+
+              <motion.div
+                className="flex flex-wrap gap-2.5"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+              >
+                {INTEREST_OPTIONS.map(({ id, label }, i) => {
+                  const active = selectedInterests.includes(id);
+                  return (
+                    <motion.button
+                      key={id}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: i * 0.04, duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
+                      whileTap={{ scale: 0.93 }}
+                      onClick={() =>
+                        setSelectedInterests((prev) =>
+                          active ? prev.filter((x) => x !== id) : [...prev, id]
+                        )
+                      }
+                      aria-pressed={active}
+                      className={[
+                        "h-11 px-5 rounded-full text-sm font-medium border-2 transition-colors touch-manipulation",
+                        active
+                          ? "border-pitch bg-pitch/15 text-pitch"
+                          : "border-border bg-card text-muted-foreground hover:border-pitch/40 hover:text-foreground",
+                      ].join(" ")}
+                    >
+                      {label}
+                    </motion.button>
+                  );
+                })}
+              </motion.div>
+
+              <div className="mt-auto flex flex-col gap-3 pt-8">
+                <motion.button
+                  onClick={() => goTo(3)}
+                  whileTap={{ scale: 0.97 }}
+                  className="w-full min-h-[54px] rounded-2xl pitch-gradient text-white font-semibold text-base flex items-center justify-center gap-2 touch-manipulation"
+                >
+                  {selectedInterests.length > 0 ? "Fortsätt" : "Hoppa över"} <ArrowRight className="w-4 h-4" />
+                </motion.button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* ── STEG 3: Din profil ── */}
+          {step === 3 && (
             <motion.div
               key="step-2"
               custom={dir}
@@ -570,7 +656,7 @@ export function OnboardingClient() {
                     setShowFireworks(true);
                     setTimeout(() => setShowFireworks(false), 1200);
                     await new Promise((r) => setTimeout(r, 400));
-                    goTo(3);
+                    goTo(4);
                   }}
                   whileTap={{ scale: 0.97 }}
                   className="relative overflow-hidden w-full min-h-[54px] rounded-2xl pitch-gradient text-white font-semibold text-base flex items-center justify-center gap-2 touch-manipulation"
@@ -578,17 +664,17 @@ export function OnboardingClient() {
                   Ser bra ut! <ArrowRight className="w-4 h-4" />
                   {showFireworks && <Fireworks />}
                 </motion.button>
-                <button onClick={() => goTo(1)} className="min-h-[44px] text-sm text-muted-foreground hover:text-foreground transition-colors text-center touch-manipulation">
+                <button onClick={() => goTo(2)} className="min-h-[44px] text-sm text-muted-foreground hover:text-foreground transition-colors text-center touch-manipulation">
                   ← Tillbaka
                 </button>
               </div>
             </motion.div>
           )}
 
-          {/* ── STEG 3: Välj plan ── */}
-          {step === 3 && (
+          {/* ── STEG 4: Välj plan ── */}
+          {step === 4 && (
             <motion.div
-              key="step-3"
+              key="step-4"
               custom={dir}
               variants={slideVariants}
               initial="enter"

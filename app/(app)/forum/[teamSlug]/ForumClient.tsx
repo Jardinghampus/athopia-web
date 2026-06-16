@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Plus } from "lucide-react";
+import { motion } from "motion/react";
 import { useUser } from "@clerk/nextjs";
 import PostItem from "@/components/forum/PostItem";
 import ComposePost from "@/components/forum/ComposePost";
@@ -124,13 +125,15 @@ export default function ForumClient({ teamSlug, sport, initialPosts, initialSort
 
       {/* FAB */}
       {user && (
-        <button
+        <motion.button
           onClick={() => setComposeOpen(true)}
-          className="fixed right-6 bottom-[max(1.5rem,env(safe-area-inset-bottom))] w-14 h-14 bg-pitch text-white rounded-full shadow-lg flex items-center justify-center hover:bg-pitch/90 active:scale-95 transition-[background-color,transform] z-50 touch-manipulation"
+          whileTap={{ scale: 0.88 }}
+          transition={{ type: "spring", stiffness: 500, damping: 30, mass: 0.6 }}
+          className="fixed right-5 bottom-[calc(max(1.5rem,env(safe-area-inset-bottom))+4rem)] w-14 h-14 bg-pitch text-white rounded-full shadow-[0_4px_20px_rgba(29,158,117,0.45)] flex items-center justify-center hover:bg-pitch-light transition-colors z-50 touch-manipulation"
           aria-label="Nytt inlägg"
         >
-          <Plus className="w-6 h-6" />
-        </button>
+          <Plus className="w-6 h-6" strokeWidth={2.5} />
+        </motion.button>
       )}
     </div>
   );
