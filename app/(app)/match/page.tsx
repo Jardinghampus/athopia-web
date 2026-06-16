@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import { fetchAllsvenskanFixtures } from "@/lib/db/fixtures";
@@ -26,7 +26,7 @@ export default async function MatcherPage() {
 
   return (
     <div className="w-full px-6 sm:px-8 py-8">
-      <h1 className="font-heading text-4xl text-foreground mb-6">MATCHER</h1>
+      <h1 className="font-bold text-4xl text-foreground mb-6">MATCHER</h1>
 
       {fixtures.length === 0 ? (
         <div className="rounded-2xl border border-border bg-card p-8 text-center text-muted-foreground">

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -30,7 +30,7 @@ function WelcomePopup({ onClose }: { onClose: () => void }) {
         <div className="w-14 h-14 rounded-2xl bg-pitch/15 border border-pitch/30 flex items-center justify-center mx-auto mb-4">
           <Sparkles className="w-7 h-7 text-pitch" />
         </div>
-        <h2 className="font-heading text-2xl text-foreground mb-2">Välkommen ombord!</h2>
+        <h2 className="font-semibold text-2xl text-foreground mb-2">Välkommen ombord!</h2>
         <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
           Din profil är skapad. Nu är det dags att se ditt personliga fotbollsflöde.
         </p>
@@ -183,7 +183,7 @@ export function ProfilePageClient({
         {showWelcome && <WelcomePopup onClose={() => setShowWelcome(false)} />}
       </AnimatePresence>
     <div className="max-w-xl mx-auto px-4 sm:px-6 py-10 space-y-8">
-      <h1 className="font-heading text-4xl text-foreground">MIN PROFIL</h1>
+      <h1 className="font-bold text-4xl text-foreground">MIN PROFIL</h1>
 
       {/* Profilkort med kamera-overlay direkt på avataren */}
       <ProfileCardEditable profile={profile} onPickFile={() => fileRef.current?.click()} />

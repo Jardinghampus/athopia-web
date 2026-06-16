@@ -1,4 +1,4 @@
-import { Suspense } from 'react'
+﻿import { Suspense } from 'react'
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { getFollowedTeams } from '@/lib/dashboard/queries'
@@ -26,7 +26,7 @@ export default async function DashboardPage({
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6 px-4 py-6">
       <div className="flex flex-col gap-1">
-        <h1 className="font-heading text-2xl font-bold tracking-tight">MIN DASHBOARD</h1>
+        <h1 className="font-semibold text-2xl font-bold tracking-tight">MIN DASHBOARD</h1>
         <p className="text-sm text-muted-foreground">Allt om dina följda lag på ett ställe</p>
       </div>
 

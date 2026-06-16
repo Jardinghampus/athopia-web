@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { Brain, Star } from "lucide-react";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import type { Article } from "@/lib/types";
@@ -91,7 +91,7 @@ export default async function SammanfattningPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
       <div className="mb-8">
-        <h1 className="font-heading text-4xl text-foreground">DAGLIGA SAMMANFATTNINGAR</h1>
+        <h1 className="font-bold text-4xl text-foreground">DAGLIGA SAMMANFATTNINGAR</h1>
         <p className="text-sm text-muted-foreground mt-1">
           AI-genererade analyser för Allsvenskan och varje lag
         </p>
@@ -115,7 +115,7 @@ export default async function SammanfattningPage() {
                 })}
               </span>
             </div>
-            <h2 className="font-heading text-3xl sm:text-4xl text-foreground mb-3 leading-tight">
+            <h2 className="font-bold text-3xl sm:text-4xl text-foreground mb-3 leading-tight">
               {digest.title}
             </h2>
             <p className="text-sm text-foreground/80 leading-relaxed max-w-3xl">

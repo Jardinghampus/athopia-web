@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 /**
  * PricingPlans — Client Component
@@ -46,9 +46,9 @@ function PriceTag({ plan, interval }: { plan: PaidPlan; interval: BillingInterva
   const amount = amountFor(plan, interval);
   return (
     <div className="mb-6">
-      <h2 className="font-heading text-2xl text-pitch mb-1">{plan === "elite" ? "ELITE" : "PRO"}</h2>
+      <h2 className="font-semibold text-2xl text-pitch mb-1">{plan === "elite" ? "ELITE" : "PRO"}</h2>
       <div className="flex items-baseline gap-1">
-        <span className="text-4xl font-heading text-foreground">{amount / 100}</span>
+        <span className="text-4xl font-bold text-foreground">{amount / 100}</span>
         <span className="text-muted-foreground text-sm">kr / {interval === "year" ? "år" : "mån"}</span>
       </div>
       {interval === "year" ? (
@@ -110,9 +110,9 @@ export function PricingPlans() {
         {/* Gratis */}
         <div className="rounded-2xl border border-border bg-card p-6 flex flex-col">
           <div className="mb-6">
-            <h2 className="font-heading text-2xl text-foreground mb-1">GRATIS</h2>
+            <h2 className="font-semibold text-2xl text-foreground mb-1">GRATIS</h2>
             <div className="flex items-baseline gap-1">
-              <span className="text-4xl font-heading text-foreground">0</span>
+              <span className="text-4xl font-bold text-foreground">0</span>
               <span className="text-muted-foreground text-sm">kr / mån</span>
             </div>
             <p className="text-xs text-muted-foreground mt-1">Inget kort behövs</p>

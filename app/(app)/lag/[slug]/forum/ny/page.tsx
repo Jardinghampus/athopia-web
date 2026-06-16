@@ -37,7 +37,7 @@ export default async function NyTraadPage({
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
-      <h1 className="font-heading text-3xl text-foreground mb-8">NY TRÅD</h1>
+      <h1 className="font-bold text-3xl text-foreground mb-8">NY TRÅD</h1>
       <CreateThreadForm
         slug={slug}
         teamId={teamId ?? ""}

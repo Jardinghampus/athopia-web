@@ -81,7 +81,7 @@ export default async function MatchPage({ params }: PageProps) {
         <div className="flex items-center justify-center gap-6">
           <p className="text-lg font-bold text-right flex-1">{homeName}</p>
           <div className="text-center">
-            <p className="font-heading text-6xl tabular-nums text-foreground">{homeScore}–{awayScore}</p>
+            <p className="font-bold text-6xl tabular-nums text-foreground">{homeScore}–{awayScore}</p>
             <p className="text-xs text-muted-foreground mt-1">{fix.status as string}</p>
           </div>
           <p className="text-lg font-bold text-left flex-1">{awayName}</p>

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { Users } from "lucide-react";
 import { getScoutPool } from "@/lib/team-hub/scout";
@@ -18,7 +18,7 @@ export default async function PlayerComparePage() {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="font-heading text-5xl text-foreground flex items-center gap-3">
+          <h1 className="font-bold text-5xl text-foreground flex items-center gap-3">
             <Users className="h-9 w-9 text-pitch" /> SPELARJÄMFÖRELSE
           </h1>
           <p className="text-muted-foreground mt-1 text-sm">Radarprofil normaliserad mot ligan · Allsvenskan 2026</p>

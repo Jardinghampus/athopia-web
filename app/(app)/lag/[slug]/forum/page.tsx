@@ -97,7 +97,7 @@ export default async function ForumPage({
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="font-heading text-3xl text-foreground">FORUM</h1>
+        <h1 className="font-bold text-3xl text-foreground">FORUM</h1>
         {user ? (
           <Link
             href={`${base}/ny`}

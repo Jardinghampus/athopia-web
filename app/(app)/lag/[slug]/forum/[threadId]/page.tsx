@@ -97,7 +97,7 @@ export default async function ThreadPage({
       {/* OP */}
       <div className="bg-card border border-border rounded-xl p-6 mb-6">
         <div className="flex items-start justify-between gap-4 mb-4">
-          <h1 className="font-heading text-2xl text-foreground leading-tight">
+          <h1 className="font-semibold text-2xl text-foreground leading-tight">
             {thread.title}
           </h1>
           {thread.locked && (

@@ -155,7 +155,7 @@ export default async function PodcastEpisodePage({
           <span className="text-sm text-pitch font-medium">{episode.showName}</span>
         </div>
 
-        <h1 className="font-heading text-4xl sm:text-5xl text-foreground mb-4 leading-tight">
+        <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-4 leading-tight">
           {episode.title.toUpperCase()}
         </h1>
 
@@ -193,7 +193,7 @@ export default async function PodcastEpisodePage({
         {/* Transkript */}
         {hasTranscript && (
           <section>
-            <h2 className="font-heading text-2xl text-foreground mb-4">TRANSKRIPT</h2>
+            <h2 className="font-semibold text-2xl text-foreground mb-4">TRANSKRIPT</h2>
             <TranscriptSection
               html={null}
               isPro={true}

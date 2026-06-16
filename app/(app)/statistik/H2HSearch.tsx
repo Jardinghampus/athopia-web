@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 
@@ -130,7 +130,7 @@ export function H2HSearch({ fixtures }: Props) {
               { label: teamB, value: bWins },
             ].map((stat) => (
               <div key={stat.label} className="bg-card border border-border rounded-xl p-4">
-                <p className="text-3xl font-heading text-pitch">{stat.value}</p>
+                <p className="text-3xl font-bold text-pitch">{stat.value}</p>
                 <p className="text-xs text-muted-foreground mt-1 truncate">{stat.label}</p>
               </div>
             ))}

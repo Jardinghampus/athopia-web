@@ -146,7 +146,7 @@ export default async function ArtikelPage({
         )}
 
         {/* Rubrik */}
-        <h1 className="font-heading text-4xl sm:text-5xl text-foreground mb-3 leading-tight">
+        <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-3 leading-tight">
           {article.title}
         </h1>
 
@@ -206,7 +206,7 @@ export default async function ArtikelPage({
         {relatedArticles.length > 0 && (
           <section className="mt-16">
             <Separator className="mb-8" />
-            <h2 className="font-heading text-3xl text-foreground mb-6">
+            <h2 className="font-bold text-3xl text-foreground mb-6">
               RELATERADE ARTIKLAR
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

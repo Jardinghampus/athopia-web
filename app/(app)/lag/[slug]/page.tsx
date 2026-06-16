@@ -80,7 +80,7 @@ function FormDots({ form }: { form: ("W" | "D" | "L")[] }) {
 function KeyStat({ label, value, accent }: { label: string; value: string | number; accent?: boolean }) {
   return (
     <div className="rounded-xl border border-border bg-card p-3 text-center">
-      <p className={`font-heading text-2xl ${accent ? "text-pitch" : "text-foreground"}`}>{value}</p>
+      <p className={`font-semibold text-2xl ${accent ? "text-pitch" : "text-foreground"}`}>{value}</p>
       <p className="text-[11px] text-muted-foreground mt-0.5">{label}</p>
     </div>
   );
@@ -101,7 +101,7 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
   if (!team) {
     return (
       <div className="w-full px-6 sm:px-8 py-16 text-center">
-        <h1 className="font-heading text-4xl text-foreground mb-4">Lag hittades inte</h1>
+        <h1 className="font-bold text-4xl text-foreground mb-4">Lag hittades inte</h1>
         <p className="text-muted-foreground">Laget <strong>{slug}</strong> finns inte i systemet ännu.</p>
       </div>
     );
@@ -150,7 +150,7 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="font-heading text-4xl sm:text-5xl text-foreground leading-none">{team.name.toUpperCase()}</h1>
+              <h1 className="font-bold text-4xl sm:text-5xl text-foreground leading-none">{team.name.toUpperCase()}</h1>
               {position && (
                 <p className="text-sm text-muted-foreground mt-2">
                   <span className="font-bold text-pitch">#{position}</span> i Allsvenskan
@@ -265,7 +265,7 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
                 <Link key={f.sportmonks_id} href={`/match/${f.sportmonks_id}`} className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-muted/40">
                   <span className={`text-xs font-bold w-10 ${color}`}>{res}</span>
                   <span className="text-sm text-muted-foreground flex-1 truncate">{opp}</span>
-                  <span className="font-heading text-sm text-foreground">{gf}–{ga}</span>
+                  <span className="font-semibold text-sm text-foreground">{gf}–{ga}</span>
                 </Link>
               );
             })}

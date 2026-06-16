@@ -1,4 +1,4 @@
-/**
+﻿/**
  * WEB-31: Podcast filterview
  * Filter: lag (entity_ids), show (source_name), datum, sök (pgvector)
  * Entity chips visar vilka lag som nämns per avsnitt.
@@ -255,7 +255,7 @@ export default async function PodcastListPage({
         <div className="w-10 h-10 rounded-xl pitch-gradient flex items-center justify-center">
           <Mic className="w-5 h-5 text-white" />
         </div>
-        <h1 className="font-heading text-5xl text-foreground">PODCAST</h1>
+        <h1 className="font-bold text-5xl text-foreground">PODCAST</h1>
       </div>
       <p className="text-muted-foreground mb-8">
         {episodes.length} avsnitt — AI-transkript, entiteter och lag-filter.

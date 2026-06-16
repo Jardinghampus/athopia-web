@@ -106,7 +106,7 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
           </div>
         )}
         <div>
-          <h1 className="font-heading text-5xl text-foreground leading-none mb-1">{player.fullname as string}</h1>
+          <h1 className="font-bold text-5xl text-foreground leading-none mb-1">{player.fullname as string}</h1>
           <p className="text-muted-foreground text-sm">
             {POS_SV[player.position as string] ?? player.position ?? "–"}
             {age ? ` · ${age} år` : ""}
@@ -119,7 +119,7 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
       {/* Säsongstatistik 2026 */}
       {stats && (
         <div>
-          <h2 className="font-heading text-xl text-foreground mb-3">ALLSVENSKAN 2026</h2>
+          <h2 className="font-semibold text-xl text-foreground mb-3">ALLSVENSKAN 2026</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
             <StatBox label="Matcher"    value={(stats.appearances as number) ?? 0} />
             <StatBox label="Mål"        value={(stats.goals as number) ?? 0} sub={stats.xg ? `xG ${Number(stats.xg).toFixed(1)}` : undefined} />
@@ -146,7 +146,7 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
       {/* Match-för-match */}
       {matches.length > 0 && (
         <div>
-          <h2 className="font-heading text-xl text-foreground mb-3">MATCH FÖR MATCH</h2>
+          <h2 className="font-semibold text-xl text-foreground mb-3">MATCH FÖR MATCH</h2>
           <ListGroup footer="Senaste 10 matcherna. Tryck på en match för detaljer.">
             {matches.map((m, i) => {
               const fix = m.fixture as Record<string, unknown> | null;

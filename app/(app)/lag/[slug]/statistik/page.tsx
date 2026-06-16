@@ -57,7 +57,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
     <div className="rounded-xl border border-border bg-card p-4 text-center">
-      <p className="font-heading text-3xl text-foreground">{value}</p>
+      <p className="font-bold text-3xl text-foreground">{value}</p>
       <p className="text-xs text-muted-foreground mt-1">{label}</p>
     </div>
   );
@@ -79,7 +79,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-      <h2 className="font-heading text-3xl text-foreground">STATISTIK — {teamName.toUpperCase()}</h2>
+      <h2 className="font-bold text-3xl text-foreground">STATISTIK — {teamName.toUpperCase()}</h2>
 
       {/* Tabellrad */}
       {standings && (
@@ -95,11 +95,11 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
           <div className="flex gap-3">
             <div className="flex-1 rounded-xl border border-border bg-card p-4 flex justify-between">
               <span className="text-sm text-muted-foreground">Poäng</span>
-              <span className="font-heading text-2xl text-pitch">{standings.points as number ?? 0}</span>
+              <span className="font-semibold text-2xl text-pitch">{standings.points as number ?? 0}</span>
             </div>
             <div className="flex-1 rounded-xl border border-border bg-card p-4 flex justify-between">
               <span className="text-sm text-muted-foreground">Målskillnad</span>
-              <span className={`font-heading text-2xl ${(standings.goal_diff as number ?? 0) >= 0 ? "text-pitch" : "text-red-400"}`}>
+              <span className={`font-semibold text-2xl ${(standings.goal_diff as number ?? 0) >= 0 ? "text-pitch" : "text-red-400"}`}>
                 {(standings.goal_diff as number ?? 0) >= 0 ? "+" : ""}{standings.goal_diff as number ?? 0}
               </span>
             </div>
@@ -117,7 +117,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
           ].map(({ title, rows, key, label }) => (
             <div key={title} className="bg-card border border-border rounded-xl overflow-hidden">
               <div className="px-4 py-3 border-b border-border">
-                <h3 className="font-heading text-sm text-foreground">{title}</h3>
+                <h3 className="font-semibold text-sm text-foreground">{title}</h3>
               </div>
               <div className="divide-y divide-border/50">
                 {rows.map((row, i) => {
@@ -149,7 +149,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
       {players.length > 0 && (
         <div className="rounded-2xl border border-border bg-card overflow-x-auto">
           <div className="px-4 py-3 border-b border-border">
-            <h3 className="font-heading text-sm text-foreground">ALL SPELARTSTATISTIK</h3>
+            <h3 className="font-semibold text-sm text-foreground">ALL SPELARTSTATISTIK</h3>
           </div>
           <table className="w-full text-sm min-w-[600px]">
             <thead>
@@ -195,7 +195,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
       {/* Senaste matcher */}
       {fixtures.length > 0 && (
         <div>
-          <h3 className="font-heading text-xl text-foreground mb-3">SENASTE MATCHER</h3>
+          <h3 className="font-semibold text-xl text-foreground mb-3">SENASTE MATCHER</h3>
           <div className="space-y-2">
             {fixtures.map((f) => {
               const isHome = String(f.home_team_id) === String(smId);
@@ -213,7 +213,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
                   <span className="text-sm text-muted-foreground flex-1 truncate">
                     {isHome ? "H" : "B"} · {opp as string}
                   </span>
-                  <span className="font-heading text-lg text-foreground">{hs}–{as_}</span>
+                  <span className="font-semibold text-lg text-foreground">{hs}–{as_}</span>
                   <span className="text-xs text-muted-foreground">
                     {f.kickoff_at ? new Date(f.kickoff_at as string).toLocaleDateString("sv-SE", { day: "numeric", month: "short" }) : ""}
                   </span>

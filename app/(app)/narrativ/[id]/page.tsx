@@ -48,7 +48,7 @@ export default async function NarrativePage({
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
-      <h1 className="font-heading text-5xl text-foreground mb-3">{narrative.topic}</h1>
+      <h1 className="font-bold text-5xl text-foreground mb-3">{narrative.topic}</h1>
       <div className="flex items-center gap-3 mb-6">
         <TrendBadge trend={narrative.trend} />
         <span className="text-sm text-muted-foreground">{Math.round(narrative.score * 100)}%</span>

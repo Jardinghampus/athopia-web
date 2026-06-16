@@ -119,7 +119,7 @@ export default async function LagSammanfattningPage({
           <Brain className="w-5 h-5 text-white" />
         </div>
         <div>
-          <h2 className="font-heading text-3xl text-foreground">
+          <h2 className="font-bold text-3xl text-foreground">
             AI-SAMMANFATTNING — {teamName.toUpperCase()}
           </h2>
           <p className="text-sm text-muted-foreground">
@@ -149,7 +149,7 @@ export default async function LagSammanfattningPage({
                     })}
                   </span>
                 </div>
-                <h3 className="font-heading text-2xl text-foreground mb-4">
+                <h3 className="font-semibold text-2xl text-foreground mb-4">
                   {latestSummary.title}
                 </h3>
                 <div className="text-sm text-foreground leading-relaxed whitespace-pre-line">
@@ -187,7 +187,7 @@ export default async function LagSammanfattningPage({
                 <Sparkles className="w-7 h-7 text-pitch" />
               </div>
               <div>
-                <p className="font-heading text-xl text-foreground mb-2">
+                <p className="font-semibold text-xl text-foreground mb-2">
                   Sammanfattning genereras
                 </p>
                 <p className="text-sm text-muted-foreground max-w-sm">
@@ -203,7 +203,7 @@ export default async function LagSammanfattningPage({
         <aside>
           <div className="flex items-center gap-2 mb-4">
             <TrendingUp className="w-4 h-4 text-muted-foreground" />
-            <h3 className="font-heading text-lg text-foreground">AKTIVA NARRATIV</h3>
+            <h3 className="font-semibold text-lg text-foreground">AKTIVA NARRATIV</h3>
           </div>
           {narratives.length === 0 ? (
             <p className="text-sm text-muted-foreground">Inga aktiva narrativ för {teamName}.</p>

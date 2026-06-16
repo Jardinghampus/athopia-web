@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+﻿import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowRight, Zap, Brain } from "lucide-react";
 import { PersonalizedFeed } from "@/components/PersonalizedFeed";
@@ -86,7 +86,7 @@ function HeroNarrative({ narrative }: { narrative: Narrative }) {
             Trending narrativ
           </span>
         </div>
-        <h1 className="font-heading text-4xl sm:text-6xl text-foreground mb-4 leading-none">
+        <h1 className="font-bold text-4xl sm:text-6xl text-foreground mb-4 leading-none">
           {narrative.topic}
         </h1>
         <div className="flex items-center gap-6 text-sm text-muted-foreground">
@@ -107,7 +107,7 @@ function ScoreSection({ fixtures }: { fixtures: SMFixture[] }) {
   return (
     <aside className="flex flex-col gap-2">
       <div className="flex items-center justify-between mb-2">
-        <h2 className="font-heading text-2xl text-foreground">
+        <h2 className="font-semibold text-2xl text-foreground">
           {hasLive ? "LIVE" : "IDAG"}
         </h2>
         {hasLive && <span className="live-dot" />}
@@ -137,7 +137,7 @@ async function DailySummarySection() {
             })}
           </span>
         </div>
-        <h2 className="font-heading text-3xl sm:text-4xl text-foreground mb-3 leading-tight">
+        <h2 className="font-bold text-3xl sm:text-4xl text-foreground mb-3 leading-tight">
           {dailySummary.title}
         </h2>
         <p className="text-sm text-muted-foreground line-clamp-3 max-w-2xl">
@@ -160,7 +160,7 @@ async function ArticlesSection() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="font-heading text-3xl text-foreground">SENASTE NYTT</h2>
+        <h2 className="font-bold text-3xl text-foreground">SENASTE NYTT</h2>
         <Link href="/nyheter" className="flex items-center gap-1 text-sm text-pitch hover:text-pitch-light transition-colors">
           Alla nyheter <ArrowRight className="w-4 h-4" />
         </Link>
@@ -183,7 +183,7 @@ async function NarrativesSection() {
   const narratives = await getTrendingNarratives();
   return (
     <div>
-      <h2 className="font-heading text-2xl text-foreground mb-4">TRENDANDE NARRATIV</h2>
+      <h2 className="font-semibold text-2xl text-foreground mb-4">TRENDANDE NARRATIV</h2>
       <div className="flex flex-col gap-3">
         {narratives.map((n) => <NarrativeCard key={n.id} narrative={n} />)}
       </div>

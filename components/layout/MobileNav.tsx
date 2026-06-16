@@ -17,7 +17,7 @@ export function MobileNav() {
 
   return (
     <nav
-      className="md:hidden sticky bottom-0 z-50 border-t border-border/50 bg-[#0f0f0f]"
+      className="md:hidden sticky bottom-0 z-50 border-t border-border/50 bg-background/95 backdrop-blur-md"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <div className="flex items-stretch h-14">

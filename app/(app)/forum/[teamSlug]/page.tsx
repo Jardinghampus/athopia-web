@@ -239,7 +239,7 @@ export default async function ForumTeamPage({
         ))}
       </div>
 
-      <h1 className="font-heading text-2xl text-foreground mb-4">
+      <h1 className="font-semibold text-2xl text-foreground mb-4">
         {teamName}
       </h1>
 

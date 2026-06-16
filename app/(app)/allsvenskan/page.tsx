@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { fetchAllsvenskanFixtures, fetchStandings } from "@/lib/db/fixtures";
 import { ScoreWidget } from "@/components/ui/ScoreWidget";
@@ -21,7 +21,7 @@ export default async function AllsvenskanPage() {
     <div className="w-full px-6 sm:px-8 py-10">
       <div className="flex items-end justify-between gap-6 mb-8">
         <div>
-          <h1 className="font-heading text-5xl text-foreground">ALLSVENSKAN</h1>
+          <h1 className="font-bold text-5xl text-foreground">ALLSVENSKAN</h1>
           <p className="text-muted-foreground mt-2">Tabell och matchschema — uppdateras löpande.</p>
         </div>
       </div>
@@ -29,7 +29,7 @@ export default async function AllsvenskanPage() {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8">
         <section className="rounded-2xl border border-border bg-card overflow-hidden">
           <div className="p-5">
-            <h2 className="font-heading text-2xl text-foreground">TABELL</h2>
+            <h2 className="font-semibold text-2xl text-foreground">TABELL</h2>
           </div>
           <Separator />
           <div className="overflow-x-auto">
@@ -92,7 +92,7 @@ export default async function AllsvenskanPage() {
         </section>
 
         <aside>
-          <h2 className="font-heading text-2xl text-foreground mb-4">MATCHER</h2>
+          <h2 className="font-semibold text-2xl text-foreground mb-4">MATCHER</h2>
           <div className="flex flex-col gap-3">
             {fixtures.slice(0, 8).map((f) => (
               <ScoreWidget key={f.id} fixture={f} />

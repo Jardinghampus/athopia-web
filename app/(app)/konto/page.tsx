@@ -1,4 +1,4 @@
-/**
+﻿/**
  * app/konto/page.tsx — Kontosida (PRO-gate i middleware)
  * ─────────────────────────────────────────────────────────────────────────────
  * - Visar plan-status (PRO / Free)
@@ -84,7 +84,7 @@ export default async function KontoPage({
         </div>
       )}
 
-      <h1 className="font-heading text-4xl text-foreground mb-8">MITT KONTO</h1>
+      <h1 className="font-bold text-4xl text-foreground mb-8">MITT KONTO</h1>
 
       <div className="space-y-6">
         {/* Användarinfo */}

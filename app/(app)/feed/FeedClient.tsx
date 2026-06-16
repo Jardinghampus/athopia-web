@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
@@ -396,7 +396,7 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="font-heading text-4xl text-foreground leading-none">MITT FEED</h1>
+            <h1 className="font-bold text-4xl text-foreground leading-none">MITT FEED</h1>
             <p className="text-sm text-muted-foreground mt-1">{teamLabel}</p>
           </div>
           {!needsOnboarding && (

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -375,7 +375,7 @@ export default async function StatistikPage({
       <div className="w-full px-6 sm:px-8 py-8">
         <div className="mb-6 flex items-end justify-between">
           <div>
-            <h1 className="font-heading text-5xl text-foreground">STATISTIK</h1>
+            <h1 className="font-bold text-5xl text-foreground">STATISTIK</h1>
             <p className="text-muted-foreground mt-1 text-sm">Allsvenskan {sasong}</p>
           </div>
           <div className="flex items-center gap-2">

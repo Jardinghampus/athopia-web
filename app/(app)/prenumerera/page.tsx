@@ -1,4 +1,4 @@
-/**
+﻿/**
  * app/prenumerera/page.tsx — Prissida
  * ─────────────────────────────────────────────────────────────────────────────
  * Free / PRO 89 kr / Elite 169 kr — 25 % rabatt på årsplan.
@@ -27,7 +27,7 @@ export default function PrenumereraPage() {
           <Zap className="w-4 h-4" />
           Athopia Premium
         </div>
-        <h1 className="font-heading text-6xl sm:text-7xl text-foreground mb-4">
+        <h1 className="font-bold text-6xl sm:text-7xl text-foreground mb-4">
           FOTBOLL PÅ DJUPET
         </h1>
         <p className="text-muted-foreground text-lg max-w-xl mx-auto">
