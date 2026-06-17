@@ -85,6 +85,25 @@ export async function GET(req: Request) {
   }
   const effectiveLimit = Math.min(PAGE_SIZE, remaining);
 
+  // PRO: hämta followed_team_ids från user_feed_config
+  let followedTeamNames: string[] = [];
+  if (isPro && userId && !teamSlug) {
+    const { data: feedConfig } = await db
+      .from("user_feed_config")
+      .select("followed_team_ids")
+      .eq("clerk_user_id", userId)
+      .maybeSingle();
+    const teamIds: string[] = feedConfig?.followed_team_ids ?? [];
+    if (teamIds.length > 0) {
+      const { data: entities } = await db
+        .from("entities")
+        .select("name")
+        .in("id", teamIds)
+        .eq("type", "team");
+      followedTeamNames = (entities ?? []).map((e: { name: string }) => e.name);
+    }
+  }
+
   let items: FeedItem[] = [];
 
   try {
@@ -99,6 +118,12 @@ export async function GET(req: Request) {
 
     if (teamSlug) {
       aq = aq.ilike("title", `%${teamSlug.replace(/-/g, " ")}%`);
+    } else if (followedTeamNames.length > 0) {
+      // PRO med följda lag: filtrera på lagnamn i titeln (OR-logik via Supabase or())
+      const orFilter = followedTeamNames
+        .map((name) => `title.ilike.%${name}%`)
+        .join(",");
+      aq = aq.or(orFilter);
     }
 
     const { data: articleData } = await aq;
