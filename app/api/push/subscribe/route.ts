@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     // Upsert subscription — endpoint är UNIQUE
     const { error } = await db.from("push_subscriptions").upsert(
       {
-        user_id: userId ?? "anonymous",
+        clerk_user_id: userId ?? "anonymous",
         endpoint: subscription.endpoint,
         p256dh: subscription.keys.p256dh,
         auth: subscription.keys.auth,

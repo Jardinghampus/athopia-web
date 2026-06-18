@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
     .eq("is_active", true);
 
   if (userIds && userIds.length > 0) {
-    q = q.in("user_id", userIds);
+    q = q.in("clerk_user_id", userIds);
   } else if (teamIds && teamIds.length > 0) {
     q = q.overlaps("team_ids", teamIds);
   }
