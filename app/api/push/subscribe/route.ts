@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import { enforceRateLimit } from "@/lib/ratelimit";
 
 export async function POST(req: NextRequest) {
   try {
+    const { userId } = await auth();
+
+    const blocked = await enforceRateLimit("write", req, userId);
+    if (blocked) return blocked;
+
     const { subscription, teamIds = [] } = (await req.json()) as {
       subscription: PushSubscriptionJSON;
       teamIds: string[];
@@ -12,8 +18,6 @@ export async function POST(req: NextRequest) {
     if (!subscription?.endpoint || !subscription.keys?.p256dh || !subscription.keys?.auth) {
       return NextResponse.json({ error: "Ogiltig subscription" }, { status: 400 });
     }
-
-    const { userId } = await auth();
 
     if (!isSupabaseConfigured()) {
       return NextResponse.json({ error: "Supabase ej konfigurerat" }, { status: 503 });

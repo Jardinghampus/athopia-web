@@ -1,7 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
-import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { enforceRateLimit } from "@/lib/ratelimit";
+import { parseBody, z } from "@/lib/validation";
+import { sanitizeText } from "@/lib/sanitize";
+
+const ForumPostSchema = z.object({
+  content: z.string().trim().min(1, "content krävs").max(500, "Max 500 tecken"),
+  parent_id: z.string().uuid().optional(),
+  root_id: z.string().uuid().optional(),
+  quoted_post_id: z.string().uuid().optional(),
+  team_slug: z.string().max(100).optional(),
+  sport: z.enum(["football", "golf"]).default("football"),
+});
 
 export async function GET(req: NextRequest) {
   if (!isSupabaseConfigured()) {
@@ -48,29 +59,18 @@ export async function POST(req: NextRequest) {
     const user = await currentUser();
     if (!user) return NextResponse.json({ message: "Ej inloggad" }, { status: 401 });
 
-    const rl = rateLimit(`forum:${user.id}`, { limit: 10, windowMs: 60_000 });
-    if (!rl.success) {
-      return NextResponse.json({ message: "För många inlägg — vänta en stund" }, { status: 429 });
-    }
     if (!isSupabaseConfigured()) return NextResponse.json({ message: "DB ej konfigurerad" }, { status: 503 });
 
-    const body = await req.json() as {
-      content?: string;
-      parent_id?: string;
-      root_id?: string;
-      quoted_post_id?: string;
-      team_slug?: string;
-      sport?: string;
-      depth?: number;
-    };
+    // Rate limit per inloggad användare (skydd mot spam/missbruk vid skala)
+    const blocked = await enforceRateLimit("write", req, user.id);
+    if (blocked) return blocked;
 
-    const { content, parent_id, root_id, quoted_post_id, team_slug, sport = "football" } = body;
-
-    if (!content?.trim()) {
+    const parsed = await parseBody(req, ForumPostSchema);
+    if (!parsed.ok) return parsed.response;
+    const { parent_id, root_id, quoted_post_id, team_slug, sport } = parsed.data;
+    const content = sanitizeText(parsed.data.content);
+    if (!content) {
       return NextResponse.json({ message: "content krävs" }, { status: 400 });
-    }
-    if (content.trim().length > 500) {
-      return NextResponse.json({ message: "Max 500 tecken" }, { status: 400 });
     }
 
     const supabase = createServerClient();

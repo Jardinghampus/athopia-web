@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import { enforceRateLimit } from "@/lib/ratelimit";
 
 export async function GET(req: Request) {
+  const blocked = await enforceRateLimit("search", req);
+  if (blocked) return blocked;
+
   const { searchParams } = new URL(req.url);
-  const q = (searchParams.get("q") ?? "").trim();
+  const q = (searchParams.get("q") ?? "").trim().slice(0, 100);
   if (!q) return NextResponse.json({ episodes: [], chunks: [] });
   if (!isSupabaseConfigured()) return NextResponse.json({ episodes: [], chunks: [] });
 

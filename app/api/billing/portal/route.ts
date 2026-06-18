@@ -1,10 +1,14 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { enforceRateLimit } from "@/lib/ratelimit";
 
-export async function POST() {
+export async function POST(req: Request) {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: "Ej inloggad" }, { status: 401 });
+
+  const blocked = await enforceRateLimit("checkout", req, userId);
+  if (blocked) return blocked;
 
   const user = await currentUser();
   const customerId = user?.privateMetadata?.stripeCustomerId as string | undefined;

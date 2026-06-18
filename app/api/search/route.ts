@@ -1,15 +1,14 @@
 import { NextResponse } from "next/server";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
-import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { enforceRateLimit } from "@/lib/ratelimit";
 
 export async function GET(req: Request) {
-  const rl = rateLimit(`search:${getClientIp(req)}`, { limit: 30, windowMs: 60_000 });
-  if (!rl.success) {
-    return NextResponse.json({ error: "För många förfrågningar" }, { status: 429 });
-  }
+  // Sök är dyr + missbruksbar → rate-limit (per IP för anon, per user om inloggad)
+  const blocked = await enforceRateLimit("search", req);
+  if (blocked) return blocked;
 
   const { searchParams } = new URL(req.url);
-  const q = (searchParams.get("q") ?? "").trim();
+  const q = (searchParams.get("q") ?? "").trim().slice(0, 100);
   if (!q) return NextResponse.json({ articles: [], teams: [], players: [], podcasts: [] });
   if (!isSupabaseConfigured()) return NextResponse.json({ articles: [], teams: [], players: [], podcasts: [] });
 

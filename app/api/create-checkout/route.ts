@@ -15,6 +15,7 @@
 import { auth } from "@clerk/nextjs/server";
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
+import { enforceRateLimit } from "@/lib/ratelimit";
 import {
   PRICING,
   amountFor,
@@ -23,17 +24,12 @@ import {
   type PaidPlan,
   type BillingInterval,
 } from "@/lib/pricing";
-import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(req: Request & { headers: Headers }) {
   // Lazy-init Stripe för att undvika build-time env-krav
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: "2026-04-22.dahlia",
   });
-  const rl = rateLimit(`checkout:${getClientIp(req)}`, { limit: 5, windowMs: 60_000 });
-  if (!rl.success) {
-    return NextResponse.json({ error: "För många förfrågningar" }, { status: 429 });
-  }
 
   const { userId } = await auth();
 
@@ -43,6 +39,9 @@ export async function POST(req: Request & { headers: Headers }) {
       { status: 401 }
     );
   }
+
+  const blocked = await enforceRateLimit("checkout", req, userId);
+  if (blocked) return blocked;
 
   // Defaults: PRO månadsvis. Body kan override:a.
   let plan: PaidPlan = "pro";

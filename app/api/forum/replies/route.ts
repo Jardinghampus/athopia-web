@@ -1,6 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import { enforceRateLimit } from "@/lib/ratelimit";
+import { parseBody, z } from "@/lib/validation";
+import { sanitizeText } from "@/lib/sanitize";
+
+const ReplySchema = z.object({
+  thread_id: z.string().uuid("Ogiltigt thread_id"),
+  content: z.string().trim().min(1, "content krävs").max(5000, "Svar får max vara 5000 tecken"),
+  author_name: z.string().max(100).optional(),
+});
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,23 +22,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "DB ej konfigurerad" }, { status: 503 });
     }
 
-    const body = await req.json() as {
-      thread_id?: string;
-      content?: string;
-      author_id?: string;
-      author_name?: string;
-    };
+    const blocked = await enforceRateLimit("write", req, user.id);
+    if (blocked) return blocked;
 
-    const { thread_id, content, author_id, author_name } = body;
-
-    if (!thread_id || !content?.trim()) {
-      return NextResponse.json({ message: "Saknade fält: thread_id, content" }, { status: 400 });
-    }
-    if (author_id !== user.id) {
-      return NextResponse.json({ message: "Ogiltig author_id" }, { status: 403 });
-    }
-    if (content.trim().length > 5000) {
-      return NextResponse.json({ message: "Svar får max vara 5000 tecken" }, { status: 400 });
+    const parsed = await parseBody(req, ReplySchema);
+    if (!parsed.ok) return parsed.response;
+    const { thread_id, author_name } = parsed.data;
+    // author_id härleds ALLTID från sessionen — aldrig från klient-body (IDOR-skydd)
+    const author_id = user.id;
+    const content = sanitizeText(parsed.data.content);
+    if (!content) {
+      return NextResponse.json({ message: "content krävs" }, { status: 400 });
     }
 
     const supabase = createServerClient();

@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import { enforceRateLimit } from "@/lib/ratelimit";
+import { parseBody, z } from "@/lib/validation";
+
+const LikeSchema = z.object({ postId: z.string().uuid("Ogiltigt postId") });
 
 export async function POST(req: NextRequest) {
   try {
@@ -8,8 +12,12 @@ export async function POST(req: NextRequest) {
     if (!user) return NextResponse.json({ message: "Ej inloggad" }, { status: 401 });
     if (!isSupabaseConfigured()) return NextResponse.json({ message: "DB ej konfigurerad" }, { status: 503 });
 
-    const { postId } = await req.json() as { postId?: string };
-    if (!postId) return NextResponse.json({ message: "postId krävs" }, { status: 400 });
+    const blocked = await enforceRateLimit("write", req, user.id);
+    if (blocked) return blocked;
+
+    const parsed = await parseBody(req, LikeSchema);
+    if (!parsed.ok) return parsed.response;
+    const { postId } = parsed.data;
 
     const supabase = createServerClient();
 

@@ -110,5 +110,59 @@ export async function POST(req: Request) {
     await mirrorProfile(event.data);
   }
 
+  // GDPR: rätt att bli glömd. Radera/anonymisera all PII när kontot tas bort.
+  if (event.type === "user.deleted") {
+    const clerkUserId = (event.data as { id?: string }).id;
+    if (!clerkUserId) return NextResponse.json({ received: true });
+
+    const supabase = createServiceClient();
+
+    // Kör varje radering isolerat så en saknad tabell inte stoppar resten.
+    const run = async (label: string, fn: () => PromiseLike<{ error: unknown }>) => {
+      try {
+        const { error } = await fn();
+        if (error) console.error(`[clerk-webhook] delete ${label}:`, error);
+      } catch (err) {
+        console.error(`[clerk-webhook] delete ${label} kastade:`, err);
+      }
+    };
+
+    // 1. Hård-radera rader som bara är personliga (ingen delad integritet)
+    await run("user_feed_config", () =>
+      supabase.from("user_feed_config").delete().eq("clerk_user_id", clerkUserId));
+    await run("user_feed_usage", () =>
+      supabase.from("user_feed_usage").delete().eq("clerk_user_id", clerkUserId));
+    await run("profiles", () =>
+      supabase.from("profiles").delete().eq("clerk_user_id", clerkUserId));
+    await run("push_subscriptions", () =>
+      supabase.from("push_subscriptions").delete().eq("user_id", clerkUserId));
+    await run("cookie_consents", () =>
+      supabase.from("cookie_consents").delete().eq("clerk_user_id", clerkUserId));
+    await run("user_football_iq", () =>
+      supabase.from("user_football_iq").delete().eq("clerk_user_id", clerkUserId));
+
+    // 2. Anonymisera foruminnehåll (bevarar trådar, tar bort identitet)
+    const anon = { author_id: `deleted::${clerkUserId.slice(-6)}`, author_name: "Borttagen användare", author_avatar: null };
+    await run("forum_posts anon", () =>
+      supabase.from("forum_posts").update(anon).eq("author_id", clerkUserId));
+    await run("forum_replies anon", () =>
+      supabase.from("forum_replies").update({ author_id: anon.author_id, author_name: anon.author_name }).eq("author_id", clerkUserId));
+    await run("forum_reports", () =>
+      supabase.from("forum_reports").delete().eq("reporter_id", clerkUserId));
+
+    // 3. Radera Stripe-kund (om den finns) — tar med betalnings-PII hos Stripe
+    if (process.env.STRIPE_SECRET_KEY) {
+      try {
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2026-04-22.dahlia" });
+        const customers = await stripe.customers.search({ query: `metadata['clerkUserId']:'${clerkUserId}'` });
+        for (const c of customers.data) await stripe.customers.del(c.id);
+      } catch (err) {
+        console.error("[clerk-webhook] Stripe customer deletion failed:", err);
+      }
+    }
+
+    console.log(`[clerk-webhook] GDPR-radering klar för ${clerkUserId}`);
+  }
+
   return NextResponse.json({ received: true });
 }

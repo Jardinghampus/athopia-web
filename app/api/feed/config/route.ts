@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { enforceRateLimit } from "@/lib/ratelimit";
 
 function getDb() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -33,6 +34,9 @@ export async function GET() {
 export async function PATCH(req: Request) {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const blocked = await enforceRateLimit("write", req, userId);
+  if (blocked) return blocked;
 
   let body: Record<string, unknown>;
   try {

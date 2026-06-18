@@ -5,6 +5,7 @@
  */
 
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   // Turbopack root — fix för pnpm workspace med mehrere lockfiles
@@ -36,4 +37,22 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+/**
+ * Sentry wrappas BARA när source-map-upload är konfigurerat (org+projekt+token).
+ * Saknas något → ren Next-config, så builden aldrig kan fela pga Sentry-pluginen.
+ * Runtime-felrapportering (instrumentation*.ts) fungerar oavsett.
+ */
+const sentryReady =
+  !!process.env.SENTRY_AUTH_TOKEN &&
+  !!process.env.SENTRY_ORG &&
+  !!process.env.SENTRY_PROJECT;
+
+export default sentryReady
+  ? withSentryConfig(nextConfig, {
+      org: process.env.SENTRY_ORG,
+      project: process.env.SENTRY_PROJECT,
+      silent: !process.env.CI,
+      widenClientFileUpload: true,
+      disableLogger: true,
+    })
+  : nextConfig;

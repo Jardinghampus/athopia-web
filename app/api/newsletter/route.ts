@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import { createServiceClient, isSupabaseConfigured } from "@/lib/supabase";
+import { enforceRateLimit } from "@/lib/ratelimit";
 
 export async function POST(req: Request) {
+  // Anonym endpoint → rate-limit per IP (skydd mot spam-signups)
+  const blocked = await enforceRateLimit("write", req);
+  if (blocked) return blocked;
+
   let email = "";
   try {
     const body = await req.json();
@@ -10,7 +15,8 @@ export async function POST(req: Request) {
     // ignore
   }
 
-  if (!email || !email.includes("@")) {
+  // Enkel men robust e-postvalidering
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || email.length > 254) {
     return NextResponse.json({ ok: false, error: "Ogiltig e-post" }, { status: 400 });
   }
 

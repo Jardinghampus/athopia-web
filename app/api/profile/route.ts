@@ -1,6 +1,8 @@
 import { auth, currentUser, clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import { enforceRateLimit } from "@/lib/ratelimit";
+import { sanitizeInline } from "@/lib/sanitize";
 
 // GET /api/profile — egen fullständig profil (privat)
 export async function GET() {
@@ -30,11 +32,14 @@ export async function PATCH(req: Request) {
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   if (!isSupabaseConfigured()) return NextResponse.json({ error: "DB ej konfigurerad" }, { status: 500 });
 
+  const blocked = await enforceRateLimit("write", req, userId);
+  if (blocked) return blocked;
+
   let body: Record<string, unknown>;
   try { body = await req.json(); } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }); }
 
-  const nickname = typeof body.nickname === "string" ? body.nickname.trim() : undefined;
-  const bio = typeof body.bio === "string" ? body.bio.trim().slice(0, 280) : undefined;
+  const nickname = typeof body.nickname === "string" ? sanitizeInline(body.nickname) : undefined;
+  const bio = typeof body.bio === "string" ? sanitizeInline(body.bio).slice(0, 280) : undefined;
   const firstName = typeof body.firstName === "string" ? body.firstName.trim() : undefined;
   const lastName = typeof body.lastName === "string" ? body.lastName.trim() : undefined;
   const avatarUrl = typeof body.avatar_url === "string" ? body.avatar_url : undefined;

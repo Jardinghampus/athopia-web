@@ -1,10 +1,14 @@
 import { auth } from '@clerk/nextjs/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { revealMatchCard } from '@/lib/gamification/cards'
+import { enforceRateLimit } from '@/lib/ratelimit'
 
 export async function POST(req: NextRequest) {
   const { userId } = await auth()
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const blocked = await enforceRateLimit('write', req, userId)
+  if (blocked) return blocked
 
   const { matchId, actual } = await req.json()
 

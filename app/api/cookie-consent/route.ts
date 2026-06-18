@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { auth } from "@clerk/nextjs/server";
 import { createHash } from "crypto";
+import { enforceRateLimit } from "@/lib/ratelimit";
 
 function supabase() {
   return createClient(
@@ -11,6 +12,9 @@ function supabase() {
 }
 
 export async function POST(req: NextRequest) {
+  const blocked = await enforceRateLimit("write", req);
+  if (blocked) return blocked;
+
   const body = await req.json();
   const { analytics, marketing, version, savedAt } = body;
 
