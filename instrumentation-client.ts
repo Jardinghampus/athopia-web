@@ -1,20 +1,18 @@
-/**
- * instrumentation-client.ts — Sentry browser-init (Next.js 16).
- *
- * Initierar BARA om NEXT_PUBLIC_SENTRY_DSN finns och endast i produktion.
- */
 import * as Sentry from "@sentry/nextjs";
 
 const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
+const isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === "production";
 
-if (dsn && process.env.NEXT_PUBLIC_VERCEL_ENV === "production") {
+if (dsn) {
   Sentry.init({
     dsn,
-    environment: process.env.NEXT_PUBLIC_VERCEL_ENV ?? "production",
-    tracesSampleRate: 0.05,
-    // Session replay endast vid fel — håller volymen nere vid skala.
-    replaysOnErrorSampleRate: 0.1,
+    environment: process.env.NEXT_PUBLIC_VERCEL_ENV ?? process.env.NODE_ENV,
+    tracesSampleRate: isProduction ? 0.05 : 1.0,
+    integrations: [Sentry.replayIntegration()],
     replaysSessionSampleRate: 0,
+    replaysOnErrorSampleRate: 1.0,
+    enableLogs: true,
+    sendDefaultPii: true,
   });
 }
 
