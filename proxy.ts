@@ -1,11 +1,10 @@
 /**
- * proxy.ts (f.d. middleware.ts — byt namn i Next.js 16)
+ * proxy.ts (f.d. middleware.ts — Next.js 16-konvention)
  * ─────────────────────────────────────────────────────────────────────────────
- * Clerk-baserat route-skydd för Athopia.
+ * Clerk-baserat route-skydd för Athopia (publik webb).
  *
  * Beslut:
- * - Admin-routes (/admin/*, /api/admin/*): kräver inloggning OCH att Clerk
- *   user-ID finns i ADMIN_USER_IDS (allowlist). Sidor → redirect, API → 403.
+ * - Athopia-web har INGEN admin. All admin ligger i athopia-admin (os.athopia.se).
  * - Skyddade routes (/dashboard, /konto, /feed, /onboarding): kräver inloggning.
  * - Allt annat är öppet (publik nyhetswebb).
  *
@@ -14,14 +13,8 @@
  */
 
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
-import { isAdminUser } from "@/lib/admin";
 
-// Admin — kräver inloggning OCH allowlist (ADMIN_USER_IDS)
-const isAdminRoute = createRouteMatcher(["/admin(.*)", "/api/admin(.*)"]);
-const isAdminApiRoute = createRouteMatcher(["/api/admin(.*)"]);
-
-// Inloggning krävs (utan admin-allowlist)
+// Inloggning krävs
 const isProtectedRoute = createRouteMatcher([
   "/dashboard(.*)",
   "/konto(.*)",
@@ -30,18 +23,6 @@ const isProtectedRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
-  if (isAdminRoute(req)) {
-    const { userId, redirectToSignIn } = await auth();
-    if (!isAdminUser(userId)) {
-      if (isAdminApiRoute(req)) {
-        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-      }
-      if (!userId) return redirectToSignIn();
-      return NextResponse.redirect(new URL("/", req.url));
-    }
-    return;
-  }
-
   if (isProtectedRoute(req)) {
     await auth.protect();
   }

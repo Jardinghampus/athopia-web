@@ -55,6 +55,8 @@ Skillnad:
   /clear   → raderar allt ❌
 
 ## Regler
+- INGEN admin i athopia-web. All admin ligger i athopia-admin (os.athopia.se).
+  Back-end (RSS, artiklar, agenter) ligger i athopia-os. Web = endast publik visning.
 - Server components som default, client bara när nödvändigt
 - generateMetadata() på alla sidor
 - Alla bilder via next/image
