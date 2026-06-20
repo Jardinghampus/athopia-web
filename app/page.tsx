@@ -12,14 +12,14 @@ const SEO_KEYWORDS = [
   "Allsvenskan matcher", "Allsvenskan statistik", "Allsvenskan live", "Allsvenskan idag",
   "Allsvenskan spelschema", "Allsvenskan skytteliga", "svensk fotboll", "fotboll Allsvenskan",
   "AIK", "Djurgården", "Hammarby", "Malmö FF", "IFK Göteborg", "Häcken",
-  "Allsvenskan nyheter", "Allsvenskan matchanalys", "Allsvenskan poängliga", "Allsvenskan xG",
+  "Allsvenskan nyheter", "Allsvenskan matchanalys", "Allsvenskan poängliga", "Allsvenskan statistik",
 ];
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.athopia.se"),
   title: "Allsvenskan 2026 – Tabell, Resultat, Matcher & Statistik | Athopia",
   description:
-    "Allt om Allsvenskan 2026: live-tabell, resultat, spelschema, skytteliga, xG och djupstatistik för alla 16 lag. Matchanalyser, nyhetsflöde och forum för ditt lag — samlat på ett ställe.",
+    "Allt om Allsvenskan 2026: live-tabell, resultat, spelschema, skytteliga och djupstatistik för alla 16 lag. Matchanalyser, nyhetsflöde och forum för ditt lag — samlat på ett ställe.",
   keywords: SEO_KEYWORDS,
   alternates: { canonical: "/" },
   openGraph: {

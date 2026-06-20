@@ -64,7 +64,6 @@ interface HubPayload {
     goals_for: number;
     goals_against: number;
     goal_diff: number;
-    xg: number | null;
   } | null;
   form: ("W" | "D" | "L")[];
   topScorers: PlayerRow[];

@@ -184,7 +184,7 @@ export function MittLagDashboard({ teams, initialSlug }: { teams: TeamListItem[]
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <KeyStat label="Mål­skillnad" value={hub.stats.goal_diff} signed />
-                    <KeyStat label="xG" value={hub.stats.xg != null ? Number(hub.stats.xg) : null} decimals={1} />
+                    <KeyStat label="Vinster" value={hub.stats.wins} />
                   </div>
                 </div>
               )}
@@ -324,7 +324,6 @@ function Statistik({ hub }: { hub: TeamHubPayload }) {
             <StatTextRow label="Vinster / Oavgjorda / Förluster" value={`${s.wins} / ${s.draws} / ${s.losses}`} />
             <StatTextRow label="Mål gjorda / insläppta" value={`${s.goals_for} / ${s.goals_against}`} />
             <StatTextRow label="Målskillnad"><StatNumber value={s.goal_diff} format={{ signDisplay: "exceptZero" }} className="text-sm" /></StatTextRow>
-            <StatTextRow label="xG">{s.xg != null ? <StatNumber value={Number(s.xg)} format={{ minimumFractionDigits: 2, maximumFractionDigits: 2 }} className="text-sm" /> : <span className="text-sm font-semibold">–</span>}</StatTextRow>
             <StatTextRow label="Bollinnehav" value={s.possession != null ? `${Number(s.possession).toFixed(0)}%` : "–"} />
           </div>
         )}
@@ -348,7 +347,7 @@ function Trupp({ squad }: { squad: LeaderRow[] }) {
               <th className="text-center py-2">Min</th>
               <th className="text-center py-2">Mål</th>
               <th className="text-center py-2">Ast</th>
-              <th className="text-center py-2">xG</th>
+              <th className="text-center py-2">Skott</th>
               <th className="text-center py-2">Betyg</th>
             </tr>
           </thead>
@@ -366,7 +365,7 @@ function Trupp({ squad }: { squad: LeaderRow[] }) {
                 <td className="text-center text-muted-foreground">{p.minutes}</td>
                 <td className="text-center font-semibold text-foreground">{p.goals}</td>
                 <td className="text-center text-foreground">{p.assists}</td>
-                <td className="text-center text-muted-foreground">{p.xg ? p.xg.toFixed(1) : "–"}</td>
+                <td className="text-center text-muted-foreground">{p.shots}</td>
                 <td className="text-center text-muted-foreground">{p.rating != null ? p.rating.toFixed(2) : "–"}</td>
               </tr>
             ))}

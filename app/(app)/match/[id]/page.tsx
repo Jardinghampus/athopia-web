@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 
 export const revalidate = 60;
@@ -17,14 +18,15 @@ async function getData(fixtureId: number) {
   ]);
   // Hämta spelarnamn separat för de player_ids som finns i players-tabellen
   const playerIds = (lups ?? []).map((l: Record<string, unknown>) => l.player_id as number).filter(Boolean);
-  let playerMap: Record<number, { fullname: string; image: string | null; position: string | null }> = {};
+  let playerMap: Record<number, { fullname: string; image: string | null; position: string | null; slug: string | null }> = {};
   if (playerIds.length > 0) {
-    const { data: players } = await db.from("players").select("sportmonks_id,fullname,image,position").in("sportmonks_id", playerIds);
+    const { data: players } = await db.from("players").select("sportmonks_id,fullname,image,position,slug").in("sportmonks_id", playerIds);
     for (const p of players ?? []) {
       playerMap[(p as Record<string, unknown>).sportmonks_id as number] = {
         fullname: (p as Record<string, unknown>).fullname as string,
         image: (p as Record<string, unknown>).image as string | null,
         position: (p as Record<string, unknown>).position as string | null,
+        slug: (p as Record<string, unknown>).slug as string | null,
       };
     }
   }
@@ -121,7 +123,6 @@ export default async function MatchPage({ params }: PageProps) {
             <div className="bg-card border border-border rounded-xl p-4 space-y-3">
               <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Matchstatistik</h3>
               {[
-                { label: "xG", h: Number(homeStat?.xg ?? 0).toFixed(2), a: Number(awayStat?.xg ?? 0).toFixed(2), hv: Number(homeStat?.xg ?? 0), av: Number(awayStat?.xg ?? 0) },
                 { label: "Bollinnehav %", h: homeStat?.possession, a: awayStat?.possession, hv: Number(homeStat?.possession ?? 50), av: Number(awayStat?.possession ?? 50) },
                 { label: "Skott", h: homeStat?.shots, a: awayStat?.shots, hv: Number(homeStat?.shots ?? 0), av: Number(awayStat?.shots ?? 0) },
                 { label: "Skott på mål", h: homeStat?.shots_on_target, a: awayStat?.shots_on_target, hv: Number(homeStat?.shots_on_target ?? 0), av: Number(awayStat?.shots_on_target ?? 0) },
@@ -178,10 +179,17 @@ export default async function MatchPage({ params }: PageProps) {
                   <p className="text-xs font-semibold text-foreground mb-2 truncate">{name}</p>
                   {players.map((p, i) => {
                     const pl = p.players as Record<string, unknown> | null;
+                    const href = `/spelare/${(pl?.slug as string | null) ?? String(p.player_id ?? "")}`;
                     return (
                       <div key={i} className="text-xs text-muted-foreground py-0.5 flex items-center gap-1">
                         <span className="text-foreground/50">{p.jersey as number ?? "—"}</span>
-                        <span className="truncate">{(pl?.fullname as string) ?? "–"}</span>
+                        {pl ? (
+                          <Link href={href} className="truncate hover:text-pitch">
+                            {pl.fullname as string}
+                          </Link>
+                        ) : (
+                          <span className="truncate">–</span>
+                        )}
                       </div>
                     );
                   })}

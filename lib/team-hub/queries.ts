@@ -27,8 +27,6 @@ export interface TeamSeasonRow {
   goal_diff: number;
   points: number;
   position: number | null;
-  xg: number | null;
-  xga: number | null;
   possession: number | null;
   [k: string]: unknown;
 }
@@ -37,8 +35,6 @@ function shapeLeagueSeasonStats(rows: Record<string, unknown>[]): TeamSeasonRow[
   const shaped = rows.map((row) => ({
     ...row,
     goal_diff: Number(row.goal_diff ?? Number(row.goals_for ?? 0) - Number(row.goals_against ?? 0)),
-    xg: row.xg ?? row.xg_for ?? null,
-    xga: row.xga ?? row.xg_against ?? null,
   })) as TeamSeasonRow[];
 
   const ranked = [...shaped].sort(
@@ -67,8 +63,6 @@ export interface LeaderRow {
   minutes: number;
   shots: number;
   shots_on_target: number;
-  xg: number;
-  xa: number;
   rating: number | null;
   yellow_cards: number;
   red_cards: number;
@@ -107,7 +101,7 @@ export async function getTeamLeaders(teamSmId: number): Promise<LeaderRow[]> {
     const db = createServerClient();
     const { data: stats } = await db
       .from("player_season_stats")
-      .select("player_id,goals,assists,appearances,minutes,shots,shots_on_target,xg,xa,rating,yellow_cards,red_cards")
+      .select("player_id,goals,assists,appearances,minutes,shots,shots_on_target,rating,yellow_cards,red_cards")
       .eq("team_id", teamSmId)
       .eq("season_id", SEASON_2026);
 
@@ -135,8 +129,6 @@ export async function getTeamLeaders(teamSmId: number): Promise<LeaderRow[]> {
         minutes: Number(r.minutes ?? 0),
         shots: Number(r.shots ?? 0),
         shots_on_target: Number(r.shots_on_target ?? 0),
-        xg: Number(r.xg ?? 0),
-        xa: Number(r.xa ?? 0),
         rating: r.rating == null ? null : Number(r.rating),
         yellow_cards: Number(r.yellow_cards ?? 0),
         red_cards: Number(r.red_cards ?? 0),
@@ -201,9 +193,9 @@ const RADAR_DEF: { key: keyof TeamSeasonRow; label: string; invert?: boolean }[]
   { key: "goals_for", label: "Anfall" },
   { key: "goals_against", label: "Försvar", invert: true },
   { key: "points", label: "Poäng" },
-  { key: "xg", label: "xG" },
   { key: "possession", label: "Boll%" },
   { key: "goal_diff", label: "Målskillnad" },
+  { key: "wins", label: "Vinster" },
 ];
 
 /** Hämtar och aggregerar hela hub-payloaden för ett lag (slug). */

@@ -205,14 +205,14 @@ export function ScreenMatch() {
               <p className="font-heading text-[30px] leading-none tracking-wider text-zinc-900">
                 2–1
               </p>
-              <p className="mt-1 text-[8px] font-medium text-zinc-400">xG 1.82 – 0.94</p>
+              <p className="mt-1 text-[8px] font-medium text-zinc-400">Skott 12 – 7</p>
             </div>
             <div className="flex flex-col items-center gap-1.5">
               <Monogram text="HIF" className="h-9 w-9 bg-emerald-700 text-[8px]" />
               <span className="text-[9px] font-semibold text-zinc-600">Hammarby</span>
             </div>
           </div>
-          {/* xG-bar */}
+          {/* Skott-bar */}
           <div className="px-5 pb-3">
             <div className="flex h-1.5 overflow-hidden rounded-full bg-zinc-100">
               <div className="w-[66%] rounded-full bg-pitch" />
@@ -269,7 +269,7 @@ export function ScreenMatch() {
 // ── 3. Utforska / filter ──────────────────────────────────────────────────────
 
 export function ScreenExplore() {
-  const pills = ["Alla", "Transfers", "Skador", "xG", "Rykten"];
+  const pills = ["Alla", "Transfers", "Skador", "Statistik", "Rykten"];
   const table = [
     { pos: 1, team: "Malmö FF", short: "MFF", pts: 34, tone: "bg-sky-600" },
     { pos: 2, team: "AIK", short: "AIK", pts: 31, tone: "bg-zinc-900" },

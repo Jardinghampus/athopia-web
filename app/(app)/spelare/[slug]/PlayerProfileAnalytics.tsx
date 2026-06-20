@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "motion/react";
 import {
   Bar,
   BarChart,
@@ -51,16 +52,29 @@ export function PlayerProfileAnalytics({
     Number.isFinite(value) ? value.toLocaleString("sv-SE", { maximumFractionDigits: decimals, minimumFractionDigits: decimals }) : "-";
 
   return (
-    <section className="space-y-4">
-      <div>
+    <motion.section
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+      className="space-y-4"
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.04, duration: 0.36, ease: [0.22, 1, 0.36, 1] }}
+      >
         <h2 className="font-semibold text-xl text-foreground">PROFILKORT</h2>
         <p className="text-sm text-muted-foreground">
-          Jämförd mot allsvenska spelare med minst {qualifyingMinutes} minuter. {minutes >= qualifyingMinutes ? "Kvalificerad sample." : "Under kvalgränsen, tolka percentiler försiktigt."}
+          Jämförd mot snittet för allsvenska spelare med minst {qualifyingMinutes} minuter. {minutes >= qualifyingMinutes ? "Kvalificerad sample." : "Under kvalgränsen, tolka percentiler försiktigt."}
         </p>
-      </div>
+      </motion.div>
 
       <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="rounded-2xl border border-border bg-card p-4">
+        <motion.div
+          whileHover={{ y: -2 }}
+          transition={{ duration: 0.2 }}
+          className="rounded-2xl border border-border bg-card p-4 shadow-sm"
+        >
           <div className="mb-3 flex items-center justify-between gap-3">
             <div>
               <p className="text-xs uppercase tracking-wider text-muted-foreground">Percentilprofil</p>
@@ -82,9 +96,13 @@ export function PlayerProfileAnalytics({
             </RadarChart>
           </ResponsiveContainer>
           <p className="text-center text-[11px] text-muted-foreground">50 = ligasnitt, 90+ = elitnivå i Allsvenskan.</p>
-        </div>
+        </motion.div>
 
-        <div className="rounded-2xl border border-border bg-card p-4">
+        <motion.div
+          whileHover={{ y: -2 }}
+          transition={{ duration: 0.2 }}
+          className="rounded-2xl border border-border bg-card p-4 shadow-sm"
+        >
           <p className="mb-3 text-xs uppercase tracking-wider text-muted-foreground">Per 90 mot snittspelaren</p>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={barData} margin={{ top: 8, right: 12, bottom: 8, left: 0 }}>
@@ -98,12 +116,19 @@ export function PlayerProfileAnalytics({
               <Bar dataKey="spelare" name={playerName} fill="var(--color-pitch)" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
-        </div>
+        </motion.div>
       </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        {metrics.map((metric) => (
-          <div key={metric.key} className="rounded-2xl border border-border bg-card p-4">
+        {metrics.map((metric, index) => (
+          <motion.div
+            key={metric.key}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.06 + index * 0.035, duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
+            whileHover={{ y: -2 }}
+            className="rounded-2xl border border-border bg-card p-4 shadow-sm"
+          >
             <p className="text-xs text-muted-foreground">{metric.label}</p>
             <p className="mt-1 text-2xl font-bold tabular-nums text-foreground">
               {fmt(metric.value, metric.decimals ?? 2)}{metric.suffix ?? ""}
@@ -111,9 +136,9 @@ export function PlayerProfileAnalytics({
             <p className="mt-1 text-xs text-muted-foreground">
               Snitt {fmt(metric.average, metric.decimals ?? 2)} · P{metric.percentile}
             </p>
-          </div>
+          </motion.div>
         ))}
       </div>
-    </section>
+    </motion.section>
   );
 }

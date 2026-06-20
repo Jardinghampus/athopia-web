@@ -21,17 +21,21 @@ export interface ScoutPlayer {
   goals: number;
   assists: number;
   shots: number;
-  xg: number;
-  xa: number;
+  key_passes: number;
+  passes: number;
+  tackles: number;
+  interceptions: number;
   rating: number;
 }
 
 export const SCOUT_METRICS = [
   { key: "goals", label: "Mål" },
   { key: "assists", label: "Assist" },
-  { key: "xg", label: "xG" },
-  { key: "xa", label: "xA" },
   { key: "shots", label: "Skott" },
+  { key: "key_passes", label: "Nyckelpass" },
+  { key: "passes", label: "Passningar" },
+  { key: "tackles", label: "Tacklingar" },
+  { key: "interceptions", label: "Brytningar" },
   { key: "minutes", label: "Speltid" },
   { key: "rating", label: "Betyg" },
 ] as const;
@@ -45,7 +49,7 @@ export async function getScoutPool(): Promise<ScoutPlayer[]> {
     const db = createServerClient();
     const [{ data: stats }, { data: teams }] = await Promise.all([
       db.from("player_season_stats")
-        .select("player_id,team_id,appearances,minutes,goals,assists,shots,xg,xa,rating")
+        .select("player_id,team_id,appearances,minutes,goals,assists,shots,key_passes,passes,tackles,interceptions,rating")
         .eq("season_id", SEASON_2026),
       db.from("entities").select("name,metadata").eq("type", "team"),
     ]);
@@ -82,8 +86,10 @@ export async function getScoutPool(): Promise<ScoutPlayer[]> {
         goals: Number(r.goals ?? 0),
         assists: Number(r.assists ?? 0),
         shots: Number(r.shots ?? 0),
-        xg: Number(r.xg ?? 0),
-        xa: Number(r.xa ?? 0),
+        key_passes: Number(r.key_passes ?? 0),
+        passes: Number(r.passes ?? 0),
+        tackles: Number(r.tackles ?? 0),
+        interceptions: Number(r.interceptions ?? 0),
         rating: Number(r.rating ?? 0),
       };
     });

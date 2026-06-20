@@ -30,7 +30,7 @@ const PLANS = [
       "Obegränsat flöde",
       "AI-sammanfattningar per lag & match",
       "Smart ranking — viktigast först",
-      "Filter: transfers, skador, xG",
+      "Filter: transfers, skador, statistik",
       "Push-notiser",
       "Skriv i forumet",
     ],

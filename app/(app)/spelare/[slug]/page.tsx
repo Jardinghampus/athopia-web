@@ -48,7 +48,7 @@ async function getMatchHistory(playerId: number) {
   const db = createServerClient();
   const { data } = await db
     .from("player_match_stats")
-    .select("fixture_id,minutes_played,goals,assists,yellow_cards,red_cards,rating,xg")
+    .select("fixture_id,minutes_played,goals,assists,yellow_cards,red_cards,rating")
     .eq("sportsmonks_player_id", playerId)
     .order("created_at", { ascending: false })
     .limit(10);
@@ -87,7 +87,7 @@ async function getProfileMetrics(playerStats: SeasonStat | null): Promise<Profil
   const db = createServerClient();
   const { data } = await db
     .from("player_season_stats")
-    .select("minutes,goals,assists,shots,shots_on_target,passes,tackles,interceptions,rating,xg,xa")
+    .select("minutes,goals,assists,shots,shots_on_target,passes,tackles,interceptions,rating")
     .eq("season_id", SEASON_2026)
     .gte("minutes", QUALIFYING_MINUTES);
 
@@ -104,14 +104,6 @@ async function getProfileMetrics(playerStats: SeasonStat | null): Promise<Profil
     { key: "interceptions90", label: "Brytningar/90", value: per90(playerStats, "interceptions"), values: pool.map((p) => per90(p, "interceptions")) },
     { key: "rating", label: "Betyg", value: n(playerStats, "rating"), values: pool.map((p) => n(p, "rating")), decimals: 2 },
   ];
-
-  const reliableXg = pool.some((p) => n(p, "xg") > 0) && n(playerStats, "xg") > 0;
-  if (reliableXg) {
-    metricDefs.splice(2, 0,
-      { key: "xg90", label: "xG/90", value: per90(playerStats, "xg"), values: pool.map((p) => per90(p, "xg")) },
-      { key: "xa90", label: "xA/90", value: per90(playerStats, "xa"), values: pool.map((p) => per90(p, "xa")) },
-    );
-  }
 
   return metricDefs.map((metric) => {
     const average = metric.values.reduce((sum, v) => sum + v, 0) / metric.values.length;
@@ -188,8 +180,8 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
           <h2 className="font-semibold text-xl text-foreground mb-3">ALLSVENSKAN 2026</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
             <StatBox label="Matcher"    value={(stats.appearances as number) ?? 0} />
-            <StatBox label="Mål"        value={(stats.goals as number) ?? 0} sub={stats.xg ? `xG ${Number(stats.xg).toFixed(1)}` : undefined} />
-            <StatBox label="Assist"     value={(stats.assists as number) ?? 0} sub={stats.xa ? `xA ${Number(stats.xa).toFixed(1)}` : undefined} />
+            <StatBox label="Mål"        value={(stats.goals as number) ?? 0} />
+            <StatBox label="Assist"     value={(stats.assists as number) ?? 0} />
             <StatBox label="Speltid"    value={(stats.minutes as number) ?? 0} suffix="′" />
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -231,7 +223,6 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
               const reds = (m.red_cards as number) ?? 0;
               const parts = [
                 `${(m.minutes_played as number) ?? 0}′`,
-                m.xg ? `xG ${Number(m.xg).toFixed(2)}` : null,
                 yellows > 0 ? `${yellows} gult` : null,
                 reds > 0 ? `${reds} rött` : null,
               ].filter(Boolean);

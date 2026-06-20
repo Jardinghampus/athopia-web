@@ -29,7 +29,7 @@ const PRO_FEATURES = [
   "Obegränsat flöde",
   "AI-sammanfattningar",
   "Smart ranking",
-  "Avancerade filter (transfer, skador, xG)",
+  "Avancerade filter (transfer, skador, statistik)",
   "Push-notiser",
   "Forum (skriva)",
 ];

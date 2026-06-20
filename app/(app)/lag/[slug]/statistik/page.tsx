@@ -27,8 +27,6 @@ async function getTeamStandings(smId: number) {
   return {
     ...data,
     goal_diff: Number(data.goal_diff ?? Number(data.goals_for ?? 0) - Number(data.goals_against ?? 0)),
-    xg: data.xg ?? data.xg_for ?? null,
-    xga: data.xga ?? data.xg_against ?? null,
   } as Record<string, unknown>;
 }
 
@@ -37,7 +35,7 @@ async function getPlayerStats(smId: number) {
   const db = createServerClient();
   const { data } = await db
     .from("player_season_stats")
-    .select("player_id,goals,assists,appearances,minutes,yellow_cards,red_cards,shots,shots_on_target,xg,xa,rating,passes,tackles,interceptions")
+    .select("player_id,goals,assists,appearances,minutes,yellow_cards,red_cards,shots,shots_on_target,rating,passes,tackles,interceptions")
     .eq("team_id", smId)
     .eq("season_id", SEASON_2026)
     .order("goals", { ascending: false });
@@ -177,9 +175,9 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
                 <th className="text-center px-3 py-2 text-xs text-muted-foreground">M</th>
                 <th className="text-center px-3 py-2 text-xs text-muted-foreground">Mål</th>
                 <th className="text-center px-3 py-2 text-xs text-muted-foreground">Ast</th>
-                <th className="text-center px-3 py-2 text-xs text-muted-foreground">xG</th>
-                <th className="text-center px-3 py-2 text-xs text-muted-foreground">xA</th>
                 <th className="text-center px-3 py-2 text-xs text-muted-foreground">Skott</th>
+                <th className="text-center px-3 py-2 text-xs text-muted-foreground">Pass</th>
+                <th className="text-center px-3 py-2 text-xs text-muted-foreground">Tackl</th>
                 <th className="text-center px-3 py-2 text-xs text-muted-foreground">Betyg</th>
                 <th className="text-center px-3 py-2 text-xs text-muted-foreground">🟨</th>
                 <th className="text-center px-3 py-2 text-xs text-muted-foreground">🟥</th>
@@ -200,9 +198,9 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
                     <td className="text-center px-3 py-2 text-muted-foreground">{row.appearances as number ?? 0}</td>
                     <td className="text-center px-3 py-2 font-semibold text-foreground">{row.goals as number ?? 0}</td>
                     <td className="text-center px-3 py-2 text-foreground">{row.assists as number ?? 0}</td>
-                    <td className="text-center px-3 py-2 text-muted-foreground">{row.xg ? Number(row.xg).toFixed(1) : "–"}</td>
-                    <td className="text-center px-3 py-2 text-muted-foreground">{row.xa ? Number(row.xa).toFixed(1) : "–"}</td>
                     <td className="text-center px-3 py-2 text-muted-foreground">{row.shots as number ?? 0}</td>
+                    <td className="text-center px-3 py-2 text-muted-foreground">{row.passes as number ?? 0}</td>
+                    <td className="text-center px-3 py-2 text-muted-foreground">{row.tackles as number ?? 0}</td>
                     <td className="text-center px-3 py-2 text-muted-foreground">{row.rating ? Number(row.rating).toFixed(2) : "–"}</td>
                     <td className="text-center px-3 py-2 text-yellow-500">{row.yellow_cards as number ?? 0}</td>
                     <td className="text-center px-3 py-2 text-red-500">{row.red_cards as number ?? 0}</td>

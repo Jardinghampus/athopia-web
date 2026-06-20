@@ -13,7 +13,7 @@ const PlayerRadar = dynamic(
 );
 import { SCOUT_METRICS, type ScoutPlayer, type ScoutMetricKey } from "@/lib/team-hub/scout";
 
-const RADAR_METRICS: ScoutMetricKey[] = ["goals", "assists", "xg", "xa", "shots", "rating"];
+const RADAR_METRICS: ScoutMetricKey[] = ["goals", "assists", "shots", "key_passes", "passes", "rating"];
 const COLOR_A = "var(--color-pitch)";
 const COLOR_B = "#3B82F6";
 
@@ -72,7 +72,7 @@ export function PlayerCompareClient({ pool }: { pool: ScoutPlayer[] }) {
   if (playerA) series.push(toSeries(playerA, playerA.fullname, COLOR_A));
   if (playerB) series.push(toSeries(playerB, playerB.fullname, COLOR_B));
 
-  const fmt = (k: ScoutMetricKey, v: number) => (k === "xg" || k === "xa" || k === "rating" ? v.toFixed(2) : v);
+  const fmt = (k: ScoutMetricKey, v: number) => (k === "rating" ? v.toFixed(2) : v);
 
   return (
     <div className="space-y-5">

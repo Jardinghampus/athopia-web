@@ -18,10 +18,9 @@ import {
   getStandingsFromDb,
   getTopScorersFromDb,
   getTopAssistsFromDb,
-  getTopXgFromDb,
-  getTopXaFromDb,
   getTopRatingsFromDb,
   getTopShotsFromDb,
+  getTopKeyPassesFromDb,
   getTopPassersFromDb,
   getTopDefendersFromDb,
   getMostCardsFromDb,
@@ -37,9 +36,9 @@ async function getScorers(seasonId: string) {
 async function getAssists(seasonId: string) {
   return getTopAssistsFromDb(seasonId);
 }
-async function getXg(seasonId: string) {
-  const [xg, xa] = await Promise.all([getTopXgFromDb(seasonId), getTopXaFromDb(seasonId)]);
-  return { xg, xa };
+async function getCreation(seasonId: string) {
+  const [shots, keyPasses] = await Promise.all([getTopShotsFromDb(seasonId), getTopKeyPassesFromDb(seasonId)]);
+  return { shots, keyPasses };
 }
 async function getPlayerOverview(seasonId: string) {
   const [ratings, shots, passers, defenders, cards] = await Promise.all([
@@ -57,7 +56,7 @@ export const revalidate = 300;
 export const metadata: Metadata = {
   title: "Statistik | Athopia",
   description:
-    "Allsvenskan-statistik — tabell, skytteliga, assistligan, xG, form, press och H2H.",
+    "Allsvenskan-statistik — tabell, skytteliga, assistligan, skott, passningar, form och H2H.",
 };
 
 type TabId = "tabell" | "skytteliga" | "assistligan" | "xg" | "form" | "press" | "h2h";
@@ -300,38 +299,36 @@ async function AssistliganTab({ seasonId }: { seasonId: string }) {
   return <PlayerLeaderboard rows={assists} primary="assists" primaryLabel="Ast" />;
 }
 
-// ── xG-tabell ─────────────────────────────────────────────────────────────────
+// ── Skott & kreativitet ──────────────────────────────────────────────────────
 
-async function XGTab({ seasonId }: { seasonId: string }) {
-  const { xg, xa } = await getXg(seasonId);
+async function CreationTab({ seasonId }: { seasonId: string }) {
+  const { shots, keyPasses } = await getCreation(seasonId);
   return (
     <div className="grid gap-8 xl:grid-cols-2">
       <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">xG-ledare</h2>
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Skottledare</h2>
         <PlayerLeaderboard
-          rows={xg}
-          primary="xg"
-          primaryLabel="xG"
-          primaryDecimals={2}
+          rows={shots}
+          primary="shots"
+          primaryLabel="Skott"
           secondary={[
             { key: "goals", label: "Mål" },
-            { key: "shots", label: "Skott" },
             { key: "shots_on_target", label: "På mål" },
+            { key: "assists", label: "Ast" },
             { key: "minutes", label: "Min" },
           ]}
         />
       </section>
       <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">xA-ledare</h2>
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Kreativa passningar</h2>
         <PlayerLeaderboard
-          rows={xa}
-          primary="xa"
-          primaryLabel="xA"
-          primaryDecimals={2}
+          rows={keyPasses}
+          primary="key_passes"
+          primaryLabel="Nyckelpass"
           secondary={[
             { key: "assists", label: "Ast" },
-            { key: "key_passes", label: "Nyckelpass" },
             { key: "passes", label: "Pass" },
+            { key: "goals", label: "Mål" },
             { key: "minutes", label: "Min" },
           ]}
         />
@@ -479,7 +476,7 @@ export default async function StatistikPage({
     case "tabell":      tabContent = <TabelTab seasonId={seasonId} />;       break;
     case "skytteliga":  tabContent = <SkytteligaTab seasonId={seasonId} />;  break;
     case "assistligan": tabContent = <AssistliganTab seasonId={seasonId} />; break;
-    case "xg":          tabContent = <XGTab seasonId={seasonId} />;          break;
+    case "xg":          tabContent = <CreationTab seasonId={seasonId} />;    break;
     case "form":        tabContent = <FormTab seasonId={seasonId} />;        break;
     case "press":       tabContent = <PressTab seasonId={seasonId} />;       break;
     case "h2h":         tabContent = <H2HTab />;         break;

@@ -119,13 +119,13 @@ export function BentoFeatures() {
             </CardShell>
           </Reveal>
 
-          {/* 3. Live & xG */}
+          {/* 3. Live & matchstatistik */}
           <Reveal delay={0.06}>
             <CardShell>
               <CardHead
                 icon={Activity}
-                title="Live-resultat & xG"
-                text="Mål, minuter och förväntade mål i realtid — direkt i flödet, utan att byta flik."
+                title="Live-resultat & statistik"
+                text="Mål, minuter, skott och matchhändelser i realtid — direkt i flödet, utan att byta flik."
               />
               <div className="mt-5 flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.03] px-4 py-3">
                 <span className="text-sm font-bold text-white/80">AIK</span>

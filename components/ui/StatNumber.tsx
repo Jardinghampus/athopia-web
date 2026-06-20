@@ -16,7 +16,7 @@ interface StatNumberProps {
 
 /**
  * Animerad siffra (NumberFlow) för statistik — ticker-känsla när
- * värdet uppdateras (live-resultat, xG, poäng).
+ * värdet uppdateras (live-resultat, tabellpoäng, matchstatistik).
  */
 export function StatNumber({
   value,

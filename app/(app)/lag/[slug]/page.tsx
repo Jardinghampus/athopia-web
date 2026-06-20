@@ -131,9 +131,9 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
         { key: "goals_for", label: "Anfall" },
         { key: "goals_against", label: "Försvar", invert: true },
         { key: "points", label: "Poäng" },
-        { key: "xg", label: "xG" },
         { key: "possession", label: "Boll%" },
         { key: "goal_diff", label: "Målskillnad" },
+        { key: "wins", label: "Vinster" },
       ])
     : [];
 
@@ -171,7 +171,7 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
           <KeyStat label="Gjorda" value={myStats.goals_for} />
           <KeyStat label="Insläppta" value={myStats.goals_against} />
           <KeyStat label="Målskillnad" value={`${myStats.goal_diff >= 0 ? "+" : ""}${myStats.goal_diff}`} />
-          <KeyStat label="xG" value={myStats.xg != null ? Number(myStats.xg).toFixed(1) : "–"} />
+          <KeyStat label="Vinster" value={myStats.wins} />
         </div>
       )}
 

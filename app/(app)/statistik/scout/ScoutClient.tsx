@@ -71,7 +71,7 @@ function FilterControls({ f, set }: { f: Filters; set: (patch: Partial<Filters>)
 export function ScoutClient({ pool }: { pool: ScoutPlayer[] }) {
   const [filters, setFilters] = useState<Filters>({
     position: "all",
-    metric: "xg",
+    metric: "shots",
     aboveMedian: true,
     minMinutes: 0,
   });
@@ -102,8 +102,8 @@ export function ScoutClient({ pool }: { pool: ScoutPlayer[] }) {
   }, [cohort, metric, medians, aboveMedian, minMinutes, query]);
 
   const metricLabel = SCOUT_METRICS.find((m) => m.key === metric)?.label ?? metric;
-  const fmt = (v: number) => (metric === "xg" || metric === "xa" || metric === "rating" ? v.toFixed(2) : v);
-  const filterActive = position !== "all" || metric !== "xg" || !aboveMedian || minMinutes > 0;
+  const fmt = (v: number) => (metric === "rating" ? v.toFixed(2) : v);
+  const filterActive = position !== "all" || metric !== "shots" || !aboveMedian || minMinutes > 0;
 
   const summary = (
     <p className="text-xs text-muted-foreground">
@@ -164,7 +164,7 @@ export function ScoutClient({ pool }: { pool: ScoutPlayer[] }) {
         <div className="py-12 text-center space-y-2">
           <p className="text-sm text-muted-foreground">Inga spelare matchar filtret.</p>
           <button
-            onClick={() => { setFilters({ position: "all", metric: "xg", aboveMedian: true, minMinutes: 0 }); setQuery(""); }}
+            onClick={() => { setFilters({ position: "all", metric: "shots", aboveMedian: true, minMinutes: 0 }); setQuery(""); }}
             className="text-sm text-pitch hover:underline"
           >
             Återställ filter

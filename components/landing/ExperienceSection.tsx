@@ -14,7 +14,7 @@ const SCREENS = [
   {
     key: "matchdag",
     title: "Matchdag live",
-    text: "Liveresultat, xG i realtid och forumet som kokar.",
+    text: "Liveresultat, matchstatistik och forumet som kokar.",
     Screen: ScreenMatch,
   },
   {

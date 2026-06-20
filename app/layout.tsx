@@ -31,11 +31,11 @@ export const metadata: Metadata = {
     template: "%s | Athopia",
   },
   description:
-    "Allt om Allsvenskan 2026 — live-tabell, resultat, spelschema, skytteliga, xG och djupstatistik för alla 16 lag. Matchanalyser, nyhetsflöde och forum för ditt lag, samlat på ett ställe.",
+    "Allt om Allsvenskan 2026 — live-tabell, resultat, spelschema, skytteliga och djupstatistik för alla 16 lag. Matchanalyser, nyhetsflöde och forum för ditt lag, samlat på ett ställe.",
   keywords: [
     "Allsvenskan", "Allsvenskan 2026", "Allsvenskan tabell", "Allsvenskan resultat",
     "Allsvenskan matcher", "Allsvenskan statistik", "Allsvenskan live", "Allsvenskan spelschema",
-    "Allsvenskan skytteliga", "svensk fotboll", "fotboll Allsvenskan", "Allsvenskan xG",
+    "Allsvenskan skytteliga", "svensk fotboll", "fotboll Allsvenskan", "Allsvenskan statistik",
   ],
   openGraph: {
     type: "website",

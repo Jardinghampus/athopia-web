@@ -3,15 +3,6 @@
 import useSWR from "swr";
 import { useEffect, useRef, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  ReferenceLine,
-} from "recharts";
 
 // ── Typer ─────────────────────────────────────────────────────────────────────
 
@@ -20,8 +11,6 @@ interface MatchStats {
   away_team_name: string;
   home_score: number;
   away_score: number;
-  home_xg: number | null;
-  away_xg: number | null;
   home_possession: number | null;
   away_possession: number | null;
   home_shots: number | null;
@@ -42,52 +31,6 @@ interface ForumReply {
 // ── SWR fetcher ───────────────────────────────────────────────────────────────
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json()) as Promise<MatchStats | null>;
-
-// ── Live xG Area Chart ────────────────────────────────────────────────────────
-
-function LiveXgChart({ homeXg, awayXg, homeName, awayName }: {
-  homeXg: number;
-  awayXg: number;
-  homeName: string;
-  awayName: string;
-}) {
-  const data = [
-    { name: "Start", home: 0, away: 0 },
-    { name: "Nu", home: homeXg, away: awayXg },
-  ];
-
-  return (
-    <div>
-      <div className="flex justify-between text-xs text-muted-foreground mb-2">
-        <span className="text-pitch font-medium">{homeName}</span>
-        <span className="font-medium text-foreground">xG</span>
-        <span className="text-[#3B82F6] font-medium">{awayName}</span>
-      </div>
-      <div className="flex items-center gap-3 mb-3">
-        <span className="text-3xl font-bold text-pitch">{homeXg.toFixed(2)}</span>
-        <span className="text-muted-foreground text-sm flex-1 text-center">–</span>
-        <span className="text-3xl font-bold text-[#3B82F6]">{awayXg.toFixed(2)}</span>
-      </div>
-      <ResponsiveContainer width="100%" height={80}>
-        <AreaChart data={data} margin={{ top: 4, right: 4, left: 4, bottom: 4 }}>
-          <XAxis dataKey="name" hide />
-          <YAxis hide />
-          <Tooltip
-            contentStyle={{
-              background: "hsl(var(--card))",
-              border: "1px solid hsl(var(--border))",
-              borderRadius: 6,
-              fontSize: 11,
-            }}
-          />
-          <ReferenceLine y={1.5} stroke="hsl(var(--border))" strokeDasharray="3 3" />
-          <Area type="monotone" dataKey="home" name={homeName} stroke="var(--color-pitch)" fill="var(--color-pitch)" fillOpacity={0.15} strokeWidth={2} />
-          <Area type="monotone" dataKey="away" name={awayName} stroke="#3B82F6" fill="#3B82F6" fillOpacity={0.15} strokeWidth={2} />
-        </AreaChart>
-      </ResponsiveContainer>
-    </div>
-  );
-}
 
 // ── Stat-rad ──────────────────────────────────────────────────────────────────
 
@@ -199,9 +142,6 @@ export function LiveMatchClient({ fixtureId, initialStats, isLive, teamIds }: Li
     );
   }
 
-  const homeXg = match.home_xg ?? 0;
-  const awayXg = match.away_xg ?? 0;
-
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Vänster: match-statistik */}
@@ -231,19 +171,6 @@ export function LiveMatchClient({ fixtureId, initialStats, isLive, teamIds }: Li
               <span className="text-xs text-red-500 font-medium uppercase tracking-wide">Live</span>
             </div>
           )}
-        </div>
-
-        {/* xG */}
-        <div className="bg-card border border-border rounded-xl p-4">
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-            Expected Goals (xG)
-          </h3>
-          <LiveXgChart
-            homeXg={homeXg}
-            awayXg={awayXg}
-            homeName={match.home_team_name}
-            awayName={match.away_team_name}
-          />
         </div>
 
         {/* Statistik */}

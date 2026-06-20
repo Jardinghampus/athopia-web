@@ -49,8 +49,6 @@ export interface ScorerRow {
   goals: number;
   assists: number;
   penalties: number;
-  xg: number;
-  xa: number;
   shots: number;
   shots_on_target: number;
   key_passes: number;
@@ -82,8 +80,6 @@ type PlayerLite = {
 type LeaderMetric =
   | "goals"
   | "assists"
-  | "xg"
-  | "xa"
   | "rating"
   | "shots"
   | "key_passes"
@@ -235,7 +231,7 @@ const cachedLeaderRows = unstable_cache(
       const db = createServerClient();
       let query = db
         .from("player_season_stats")
-        .select("player_id,team_id,appearances,minutes,goals,assists,xg,xa,shots,shots_on_target,key_passes,passes,pass_accuracy,tackles,interceptions,rating,yellow_cards,red_cards")
+        .select("player_id,team_id,appearances,minutes,goals,assists,shots,shots_on_target,key_passes,passes,pass_accuracy,tackles,interceptions,rating,yellow_cards,red_cards")
         .eq("season_id", Number(seasonId))
         .order(orderCol, { ascending: false, nullsFirst: false })
         .order("minutes", { ascending: false })
@@ -278,8 +274,6 @@ async function getLeaders(
         goals: Number(r.goals ?? 0),
         assists: Number(r.assists ?? 0),
         penalties: 0, // dedikerad kolumn saknas i player_season_stats (finns ev. i raw_stats)
-        xg: Number(r.xg ?? 0),
-        xa: Number(r.xa ?? 0),
         shots: Number(r.shots ?? 0),
         shots_on_target: Number(r.shots_on_target ?? 0),
         key_passes: Number(r.key_passes ?? 0),
@@ -299,10 +293,9 @@ async function getLeaders(
 
 export const getTopScorersFromDb = (seasonId: string) => getLeaders(seasonId, "goals");
 export const getTopAssistsFromDb = (seasonId: string) => getLeaders(seasonId, "assists");
-export const getTopXgFromDb = (seasonId: string) => getLeaders(seasonId, "xg");
-export const getTopXaFromDb = (seasonId: string) => getLeaders(seasonId, "xa");
 export const getTopRatingsFromDb = (seasonId: string) => getLeaders(seasonId, "rating");
 export const getTopShotsFromDb = (seasonId: string) => getLeaders(seasonId, "shots");
+export const getTopKeyPassesFromDb = (seasonId: string) => getLeaders(seasonId, "key_passes");
 export const getTopPassersFromDb = (seasonId: string) => getLeaders(seasonId, "passes");
 export const getTopDefendersFromDb = (seasonId: string) => getLeaders(seasonId, "tackles");
 export const getMostCardsFromDb = (seasonId: string) => getLeaders(seasonId, "yellow_cards");

@@ -40,7 +40,7 @@ const mockStats: TeamSeasonRow = {
   team_id: MOCK_TEAM_SM_ID,
   played: 12, wins: 7, draws: 3, losses: 2,
   goals_for: 26, goals_against: 13, goal_diff: 13, points: 24,
-  position: 2, xg: 22.4, xga: 12.8, possession: 57,
+  position: 2, possession: 57,
 };
 
 const mockLeader = (row: Partial<LeaderRow> & Pick<LeaderRow, "player_id" | "fullname" | "goals" | "assists" | "appearances">): LeaderRow => ({
@@ -50,8 +50,6 @@ const mockLeader = (row: Partial<LeaderRow> & Pick<LeaderRow, "player_id" | "ful
   minutes: row.appearances * 82,
   shots: row.goals * 3,
   shots_on_target: row.goals * 2,
-  xg: row.goals * 0.8,
-  xa: row.assists * 0.7,
   rating: 6.8,
   yellow_cards: 0,
   red_cards: 0,
@@ -97,9 +95,9 @@ export function mockTeamHub(): TeamHubPayload {
       { metric: "Anfall", value: 78, raw: 26 },
       { metric: "Försvar", value: 71, raw: 13 },
       { metric: "Poäng", value: 82, raw: 24 },
-      { metric: "xG", value: 75, raw: 22.4 },
       { metric: "Boll%", value: 68, raw: 57 },
       { metric: "Målskillnad", value: 80, raw: 13 },
+      { metric: "Vinster", value: 77, raw: 7 },
     ],
     topScorers: [...mockLeaders].sort((a, b) => b.goals - a.goals).slice(0, 5),
     topAssists: [...mockLeaders].sort((a, b) => b.assists - a.assists).slice(0, 5),
@@ -143,8 +141,10 @@ export function mockScoutPool(): ScoutPlayer[] {
       goals: Math.round(rnd(i + 11, 0, 11) * attack),
       assists: Math.round(rnd(i + 17, 0, 8) * (attack + 0.2)),
       shots: Math.round(rnd(i + 23, 4, 45) * attack + 4),
-      xg: Number((rnd(i + 31, 0, 9) * attack).toFixed(2)),
-      xa: Number((rnd(i + 41, 0, 6) * (attack + 0.2)).toFixed(2)),
+      key_passes: Math.round(rnd(i + 31, 0, 28) * (attack + 0.5)),
+      passes: Math.round(rnd(i + 41, 80, 520)),
+      tackles: Math.round(rnd(i + 45, 0, 38)),
+      interceptions: Math.round(rnd(i + 49, 0, 26)),
       rating: Number(rnd(i + 53, 6.4, 7.9).toFixed(2)),
     };
   });
@@ -168,7 +168,7 @@ export function mockPlayer(): Record<string, unknown> {
 export function mockPlayerSeason(): Record<string, unknown> {
   return {
     appearances: 12, goals: 9, assists: 4, minutes: 1024,
-    xg: 8.6, xa: 3.9, shots: 38, shots_on_target: 19,
+    shots: 38, shots_on_target: 19,
     yellow_cards: 2, red_cards: 0,
     passes: 312, tackles: 14, interceptions: 9, dribbles: 41,
   };
@@ -185,7 +185,6 @@ export function mockPlayerMatches(): Record<string, unknown>[] {
       yellow_cards: rnd(i + 91, 0, 1) > 0.8 ? 1 : 0,
       red_cards: 0,
       rating: Number(rnd(i + 101, 6.3, 8.4).toFixed(2)),
-      xg: Number(rnd(i + 111, 0, 1.4).toFixed(2)),
       fixture: {
         sportmonks_id: f.sportmonks_id,
         home_team_name: f.home_team_name,

@@ -4,7 +4,6 @@ import { createServerClient } from "@/lib/supabase";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import { fetchStandingsFull } from "@/lib/db/fixtures";
 import { TeamSearchBar } from "./TeamSearchBar";
-import { XgChart } from "./XgChart";
 
 export const dynamic = 'force-dynamic';
 
@@ -17,12 +16,12 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
   if (a && b) {
     return {
       title: `${a} vs ${b} — Statistikjämförelse | Athopia`,
-      description: `xG, form, H2H och nyckelstatistik för ${a} och ${b} i Allsvenskan.`,
+      description: `Form, H2H och nyckelstatistik för ${a} och ${b} i Allsvenskan.`,
     };
   }
   return {
     title: "Statistikjämförelse | Athopia",
-    description: "Jämför Allsvenskan-lag sida vid sida — xG, form, H2H och nyckeltal.",
+    description: "Jämför Allsvenskan-lag sida vid sida — form, H2H och nyckeltal.",
   };
 }
 
@@ -41,9 +40,6 @@ interface TeamStats {
   goals_against: number;
   goal_diff: number;
   form: string[];
-  xg_total: number;
-  xg_against_total: number;
-  xg_data: { match: string; xg: number }[];
 }
 
 interface MatchRow {
@@ -51,8 +47,6 @@ interface MatchRow {
   away_team_name: string;
   home_score: number;
   away_score: number;
-  home_xg: number | null;
-  away_xg: number | null;
   played_at: string | null;
 }
 
@@ -80,7 +74,7 @@ async function getTeamStats(slug: string): Promise<TeamStats | null> {
     const { data } = await db
       .from("match_stats")
       .select(
-        "home_team_name, away_team_name, home_score, away_score, home_xg, away_xg, played_at",
+        "home_team_name, away_team_name, home_score, away_score, played_at",
       )
       .or(
         `home_sportsmonks_id.eq.${sportsmonksId},away_sportsmonks_id.eq.${sportsmonksId}`,
@@ -92,25 +86,18 @@ async function getTeamStats(slug: string): Promise<TeamStats | null> {
   }
 
   // Beräkna aggregat
-  let xgTotal = 0;
-  let xgAgainstTotal = 0;
   let won = 0;
   let drawn = 0;
   let lost = 0;
   let goalsFor = 0;
   let goalsAgainst = 0;
   const form: string[] = [];
-  const xgData: { match: string; xg: number }[] = [];
 
   for (const m of matches) {
     const isHome = m.home_team_name.toLowerCase() === (entity.name as string).toLowerCase();
-    const myXg = isHome ? (m.home_xg ?? 0) : (m.away_xg ?? 0);
-    const oppXg = isHome ? (m.away_xg ?? 0) : (m.home_xg ?? 0);
     const myGoals = isHome ? m.home_score : m.away_score;
     const oppGoals = isHome ? m.away_score : m.home_score;
 
-    xgTotal += myXg;
-    xgAgainstTotal += oppXg;
     goalsFor += myGoals;
     goalsAgainst += oppGoals;
 
@@ -118,9 +105,7 @@ async function getTeamStats(slug: string): Promise<TeamStats | null> {
     else if (myGoals === oppGoals) drawn++;
     else lost++;
 
-    const opp = isHome ? m.away_team_name : m.home_team_name;
     form.push(myGoals > oppGoals ? "W" : myGoals === oppGoals ? "D" : "L");
-    xgData.push({ match: opp.slice(0, 6), xg: Math.round(myXg * 10) / 10 });
   }
 
   // Försök hämta standings från Sportsmonks för position och poäng
@@ -156,9 +141,6 @@ async function getTeamStats(slug: string): Promise<TeamStats | null> {
     goals_against: goalsAgainst,
     goal_diff: goalsFor - goalsAgainst,
     form: form.slice(-5),
-    xg_total: Math.round(xgTotal * 10) / 10,
-    xg_against_total: Math.round(xgAgainstTotal * 10) / 10,
-    xg_data: xgData,
   };
 }
 
@@ -267,16 +249,6 @@ export default async function JamforPage({ searchParams }: PageProps) {
     ]);
   }
 
-  // Bygg xG-chart data (slå ihop per match-index)
-  const xgChartData =
-    statsA && statsB
-      ? statsA.xg_data.slice(0, 10).map((d, i) => ({
-          match: d.match,
-          teamA: d.xg,
-          teamB: statsB!.xg_data[i]?.xg ?? 0,
-        }))
-      : [];
-
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
       {/* Header */}
@@ -288,7 +260,7 @@ export default async function JamforPage({ searchParams }: PageProps) {
           STATISTIKJÄMFÖRELSE
         </h1>
         <p className="text-muted-foreground text-sm">
-          xG, form, H2H och nyckeltal sida vid sida.
+          Form, tabelläge och nyckeltal sida vid sida.
         </p>
       </div>
 
@@ -346,24 +318,8 @@ export default async function JamforPage({ searchParams }: PageProps) {
             <StatRow label="Mål gjorda" a={statsA.goals_for} b={statsB.goals_for} />
             <StatRow label="Mål insläppta" a={statsA.goals_against} b={statsB.goals_against} higherIsBetter={false} />
             <StatRow label="Målskillnad" a={statsA.goal_diff} b={statsB.goal_diff} />
-            <StatRow label="xG totalt" a={statsA.xg_total} b={statsB.xg_total} />
-            <StatRow label="xG mot (insläppt)" a={statsA.xg_against_total} b={statsB.xg_against_total} higherIsBetter={false} />
             <FormRow label="Form (5 sista)" a={statsA.form} b={statsB.form} />
           </div>
-
-          {/* xG-graf */}
-          {xgChartData.length > 0 && (
-            <div className="bg-card border border-border rounded-xl p-4">
-              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-                xG per match (trend)
-              </h2>
-              <XgChart
-                data={xgChartData}
-                nameA={statsA.name}
-                nameB={statsB.name}
-              />
-            </div>
-          )}
 
           {/* AI-analys */}
           {aiAnalysis ? (
