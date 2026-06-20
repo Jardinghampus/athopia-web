@@ -12,10 +12,27 @@ async function getData(fixtureId: number) {
     db.from("fixtures").select("*").eq("sportmonks_id", fixtureId).maybeSingle(),
     db.from("team_match_stats").select("*").eq("fixture_id", fixtureId),
     db.from("fixture_events").select("*").eq("fixture_id", fixtureId).order("minute"),
-    db.from("fixture_lineups").select("*, players(fullname,image,position,sportmonks_id)").eq("fixture_id", fixtureId).order("starter", { ascending: false }),
+    db.from("fixture_lineups").select("*").eq("fixture_id", fixtureId).order("starter", { ascending: false }),
     db.from("match_summaries").select("summary,generated_at").eq("fixture_id", fixtureId).maybeSingle(),
   ]);
-  return { fix, tms: tms ?? [], evts: evts ?? [], lups: lups ?? [], sum };
+  // Hämta spelarnamn separat för de player_ids som finns i players-tabellen
+  const playerIds = (lups ?? []).map((l: Record<string, unknown>) => l.player_id as number).filter(Boolean);
+  let playerMap: Record<number, { fullname: string; image: string | null; position: string | null }> = {};
+  if (playerIds.length > 0) {
+    const { data: players } = await db.from("players").select("sportmonks_id,fullname,image,position").in("sportmonks_id", playerIds);
+    for (const p of players ?? []) {
+      playerMap[(p as Record<string, unknown>).sportmonks_id as number] = {
+        fullname: (p as Record<string, unknown>).fullname as string,
+        image: (p as Record<string, unknown>).image as string | null,
+        position: (p as Record<string, unknown>).position as string | null,
+      };
+    }
+  }
+  const lupsWithPlayers = (lups ?? []).map((l: Record<string, unknown>) => ({
+    ...l,
+    players: playerMap[l.player_id as number] ?? null,
+  }));
+  return { fix, tms: tms ?? [], evts: evts ?? [], lups: lupsWithPlayers, sum };
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
