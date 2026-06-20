@@ -43,12 +43,27 @@ const mockStats: TeamSeasonRow = {
   position: 2, xg: 22.4, xga: 12.8, possession: 57,
 };
 
+const mockLeader = (row: Partial<LeaderRow> & Pick<LeaderRow, "player_id" | "fullname" | "goals" | "assists" | "appearances">): LeaderRow => ({
+  slug: null,
+  image: null,
+  position: null,
+  minutes: row.appearances * 82,
+  shots: row.goals * 3,
+  shots_on_target: row.goals * 2,
+  xg: row.goals * 0.8,
+  xa: row.assists * 0.7,
+  rating: 6.8,
+  yellow_cards: 0,
+  red_cards: 0,
+  ...row,
+});
+
 const mockLeaders: LeaderRow[] = [
-  { player_id: MOCK_PLAYER_SM_ID, fullname: "Demo Spelare", slug: MOCK_PLAYER_SLUG, image: null, position: "attacker", goals: 9, assists: 4, appearances: 12 },
-  { player_id: 991002, fullname: "Liam Karlsson", slug: null, image: null, position: "midfielder", goals: 5, assists: 7, appearances: 12 },
-  { player_id: 991003, fullname: "Noah Eriksson", slug: null, image: null, position: "attacker", goals: 6, assists: 2, appearances: 11 },
-  { player_id: 991004, fullname: "Elias Berg", slug: null, image: null, position: "midfielder", goals: 3, assists: 5, appearances: 12 },
-  { player_id: 991005, fullname: "Hugo Lindqvist", slug: null, image: null, position: "defender", goals: 2, assists: 1, appearances: 12 },
+  mockLeader({ player_id: MOCK_PLAYER_SM_ID, fullname: "Demo Spelare", slug: MOCK_PLAYER_SLUG, position: "attacker", goals: 9, assists: 4, appearances: 12 }),
+  mockLeader({ player_id: 991002, fullname: "Liam Karlsson", position: "midfielder", goals: 5, assists: 7, appearances: 12 }),
+  mockLeader({ player_id: 991003, fullname: "Noah Eriksson", position: "attacker", goals: 6, assists: 2, appearances: 11 }),
+  mockLeader({ player_id: 991004, fullname: "Elias Berg", position: "midfielder", goals: 3, assists: 5, appearances: 12 }),
+  mockLeader({ player_id: 991005, fullname: "Hugo Lindqvist", position: "defender", goals: 2, assists: 1, appearances: 12 }),
 ];
 
 function mockFixture(i: number, played: boolean): FixtureRow {

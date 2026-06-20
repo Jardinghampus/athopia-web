@@ -33,6 +33,28 @@ export interface TeamSeasonRow {
   [k: string]: unknown;
 }
 
+function shapeLeagueSeasonStats(rows: Record<string, unknown>[]): TeamSeasonRow[] {
+  const shaped = rows.map((row) => ({
+    ...row,
+    goal_diff: Number(row.goal_diff ?? Number(row.goals_for ?? 0) - Number(row.goals_against ?? 0)),
+    xg: row.xg ?? row.xg_for ?? null,
+    xga: row.xga ?? row.xg_against ?? null,
+  })) as TeamSeasonRow[];
+
+  const ranked = [...shaped].sort(
+    (a, b) =>
+      Number(b.points ?? 0) - Number(a.points ?? 0) ||
+      Number(b.goal_diff ?? 0) - Number(a.goal_diff ?? 0) ||
+      Number(b.goals_for ?? 0) - Number(a.goals_for ?? 0)
+  );
+  const positionByTeam = new Map(ranked.map((team, index) => [team.team_id, index + 1]));
+
+  return shaped.map((row) => ({
+    ...row,
+    position: row.position ?? positionByTeam.get(row.team_id) ?? null,
+  }));
+}
+
 export interface LeaderRow {
   player_id: number;
   fullname: string;
@@ -42,6 +64,14 @@ export interface LeaderRow {
   goals: number;
   assists: number;
   appearances: number;
+  minutes: number;
+  shots: number;
+  shots_on_target: number;
+  xg: number;
+  xa: number;
+  rating: number | null;
+  yellow_cards: number;
+  red_cards: number;
 }
 
 export interface FixtureRow {
@@ -65,7 +95,7 @@ export async function getLeagueSeasonStats(): Promise<TeamSeasonRow[]> {
       .from("team_season_stats")
       .select("*")
       .eq("season_id", SEASON_2026);
-    return (data ?? []) as TeamSeasonRow[];
+    return shapeLeagueSeasonStats((data ?? []) as Record<string, unknown>[]);
   } catch {
     return [];
   }
@@ -75,22 +105,41 @@ export async function getTeamLeaders(teamSmId: number): Promise<LeaderRow[]> {
   if (!isSupabaseConfigured()) return [];
   try {
     const db = createServerClient();
-    const { data } = await db
+    const { data: stats } = await db
       .from("player_season_stats")
-      .select("goals,assists,appearances,players(sportmonks_id,fullname,position,image,slug)")
+      .select("player_id,goals,assists,appearances,minutes,shots,shots_on_target,xg,xa,rating,yellow_cards,red_cards")
       .eq("team_id", teamSmId)
       .eq("season_id", SEASON_2026);
-    return (data ?? []).map((r: Record<string, unknown>) => {
-      const p = (r.players ?? {}) as Record<string, unknown>;
+
+    const rows = (stats ?? []) as Record<string, unknown>[];
+    const playerIds = rows.map((r) => Number(r.player_id)).filter(Boolean);
+    const { data: players } = playerIds.length
+      ? await db.from("players").select("sportmonks_id,fullname,position,image,slug").in("sportmonks_id", playerIds)
+      : { data: [] };
+    const playerById = new Map(
+      ((players ?? []) as Record<string, unknown>[]).map((p) => [Number(p.sportmonks_id), p])
+    );
+
+    return rows.map((r: Record<string, unknown>) => {
+      const playerId = Number(r.player_id ?? 0);
+      const p = playerById.get(playerId);
       return {
-        player_id: (p.sportmonks_id as number) ?? 0,
-        fullname: (p.fullname as string) ?? "–",
-        slug: (p.slug as string | null) ?? null,
-        image: (p.image as string | null) ?? null,
-        position: (p.position as string | null) ?? null,
-        goals: (r.goals as number) ?? 0,
-        assists: (r.assists as number) ?? 0,
-        appearances: (r.appearances as number) ?? 0,
+        player_id: playerId,
+        fullname: (p?.fullname as string) ?? `Spelare ${playerId}`,
+        slug: (p?.slug as string | null) ?? null,
+        image: (p?.image as string | null) ?? null,
+        position: (p?.position as string | null) ?? null,
+        goals: Number(r.goals ?? 0),
+        assists: Number(r.assists ?? 0),
+        appearances: Number(r.appearances ?? 0),
+        minutes: Number(r.minutes ?? 0),
+        shots: Number(r.shots ?? 0),
+        shots_on_target: Number(r.shots_on_target ?? 0),
+        xg: Number(r.xg ?? 0),
+        xa: Number(r.xa ?? 0),
+        rating: r.rating == null ? null : Number(r.rating),
+        yellow_cards: Number(r.yellow_cards ?? 0),
+        red_cards: Number(r.red_cards ?? 0),
       };
     });
   } catch {

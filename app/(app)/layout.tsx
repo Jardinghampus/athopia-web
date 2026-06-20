@@ -26,8 +26,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <Footer />
       <MobileNav />
       <CommandPalette />
-      <TeamSelectionModal />
-      <PwaInstallBanner />
+      {clerkEnabled && (
+        <>
+          <TeamSelectionModal />
+          <PwaInstallBanner />
+        </>
+      )}
       <ForumSummaryPopup />
     </>
   );

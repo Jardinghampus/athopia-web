@@ -45,7 +45,7 @@ export async function getScoutPool(): Promise<ScoutPlayer[]> {
     const db = createServerClient();
     const [{ data: stats }, { data: teams }] = await Promise.all([
       db.from("player_season_stats")
-        .select("team_id,appearances,minutes,goals,assists,shots,xg,xa,rating,players(sportmonks_id,fullname,position,slug)")
+        .select("player_id,team_id,appearances,minutes,goals,assists,shots,xg,xa,rating")
         .eq("season_id", SEASON_2026),
       db.from("entities").select("name,metadata").eq("type", "team"),
     ]);
@@ -57,14 +57,24 @@ export async function getScoutPool(): Promise<ScoutPlayer[]> {
       if (smId != null) teamName.set(smId, String(t.name));
     }
 
-    const pool = ((stats ?? []) as Record<string, unknown>[]).map((r) => {
-      const p = (r.players ?? {}) as Record<string, unknown>;
+    const rows = (stats ?? []) as Record<string, unknown>[];
+    const playerIds = rows.map((r) => Number(r.player_id)).filter(Boolean);
+    const { data: players } = playerIds.length
+      ? await db.from("players").select("sportmonks_id,fullname,position,slug").in("sportmonks_id", playerIds)
+      : { data: [] };
+    const playerById = new Map(
+      ((players ?? []) as Record<string, unknown>[]).map((p) => [Number(p.sportmonks_id), p])
+    );
+
+    const pool = rows.map((r) => {
+      const playerId = Number(r.player_id ?? 0);
+      const p = playerById.get(playerId);
       const tid = Number(r.team_id ?? 0);
       return {
-        player_id: (p.sportmonks_id as number) ?? 0,
-        fullname: (p.fullname as string) ?? "–",
-        slug: (p.slug as string | null) ?? null,
-        position: (p.position as string | null) ?? null,
+        player_id: playerId,
+        fullname: (p?.fullname as string) ?? `Spelare ${playerId}`,
+        slug: (p?.slug as string | null) ?? null,
+        position: (p?.position as string | null) ?? null,
         team_id: tid,
         team_name: teamName.get(tid) ?? "Okänt lag",
         appearances: Number(r.appearances ?? 0),

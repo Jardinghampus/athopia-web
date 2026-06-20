@@ -7,6 +7,10 @@ export const revalidate = 60;
 
 const SEASON_2026 = 26806;
 
+type PlayerStatRow = Record<string, unknown> & {
+  player: Record<string, unknown> | null;
+};
+
 async function getTeamSmId(slug: string): Promise<{ name: string; smId: number | null }> {
   if (!isSupabaseConfigured()) return { name: slug, smId: null };
   const db = createServerClient();
@@ -19,7 +23,13 @@ async function getTeamStandings(smId: number) {
   if (!isSupabaseConfigured()) return null;
   const db = createServerClient();
   const { data } = await db.from("team_season_stats").select("*").eq("team_id", smId).eq("season_id", SEASON_2026).maybeSingle();
-  return data as Record<string, unknown> | null;
+  if (!data) return null;
+  return {
+    ...data,
+    goal_diff: Number(data.goal_diff ?? Number(data.goals_for ?? 0) - Number(data.goals_against ?? 0)),
+    xg: data.xg ?? data.xg_for ?? null,
+    xga: data.xga ?? data.xg_against ?? null,
+  } as Record<string, unknown>;
 }
 
 async function getPlayerStats(smId: number) {
@@ -27,11 +37,19 @@ async function getPlayerStats(smId: number) {
   const db = createServerClient();
   const { data } = await db
     .from("player_season_stats")
-    .select("goals,assists,appearances,minutes,yellow_cards,red_cards,shots,xg,rating,players(sportmonks_id,fullname,position,image,slug)")
+    .select("player_id,goals,assists,appearances,minutes,yellow_cards,red_cards,shots,shots_on_target,xg,xa,rating,passes,tackles,interceptions")
     .eq("team_id", smId)
     .eq("season_id", SEASON_2026)
     .order("goals", { ascending: false });
-  return (data ?? []) as Record<string, unknown>[];
+  const rows = (data ?? []) as Record<string, unknown>[];
+  const playerIds = rows.map((r) => Number(r.player_id)).filter(Boolean);
+  const { data: players } = playerIds.length
+    ? await db.from("players").select("sportmonks_id,fullname,position,image,slug").in("sportmonks_id", playerIds)
+    : { data: [] };
+  const playerById = new Map(
+    ((players ?? []) as Record<string, unknown>[]).map((p) => [Number(p.sportmonks_id), p])
+  );
+  return rows.map((row) => ({ ...row, player: playerById.get(Number(row.player_id)) ?? null })) as PlayerStatRow[];
 }
 
 async function getTeamFixtures(smId: number) {
@@ -121,8 +139,8 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
               </div>
               <div className="divide-y divide-border/50">
                 {rows.map((row, i) => {
-                  const pl = row.players as Record<string, unknown> | null;
-                  const playerSlug = (pl?.slug as string) ?? String(pl?.sportmonks_id ?? "");
+                  const pl = row.player as Record<string, unknown> | null;
+                  const playerSlug = (pl?.slug as string) ?? String(row.player_id ?? "");
                   return (
                     <div key={i} className="flex items-center gap-3 px-4 py-2.5">
                       <span className="text-xs text-muted-foreground w-4">{i + 1}</span>
@@ -132,7 +150,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
                         </div>
                       )}
                       <Link href={`/spelare/${playerSlug}`} className="flex-1 text-sm text-foreground hover:text-pitch truncate">
-                        {(pl?.fullname as string) ?? "–"}
+                        {(pl?.fullname as string) ?? `Spelare ${row.player_id}`}
                       </Link>
                       <span className="text-sm font-bold text-foreground">{String(row[key] ?? 0)}</span>
                       <span className="text-xs text-muted-foreground w-6">{label}</span>
@@ -149,7 +167,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
       {players.length > 0 && (
         <div className="rounded-2xl border border-border bg-card overflow-x-auto">
           <div className="px-4 py-3 border-b border-border">
-            <h3 className="font-semibold text-sm text-foreground">ALL SPELARTSTATISTIK</h3>
+            <h3 className="font-semibold text-sm text-foreground">ALL SPELARSTATISTIK</h3>
           </div>
           <table className="w-full text-sm min-w-[600px]">
             <thead>
@@ -160,20 +178,22 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
                 <th className="text-center px-3 py-2 text-xs text-muted-foreground">Mål</th>
                 <th className="text-center px-3 py-2 text-xs text-muted-foreground">Ast</th>
                 <th className="text-center px-3 py-2 text-xs text-muted-foreground">xG</th>
+                <th className="text-center px-3 py-2 text-xs text-muted-foreground">xA</th>
                 <th className="text-center px-3 py-2 text-xs text-muted-foreground">Skott</th>
+                <th className="text-center px-3 py-2 text-xs text-muted-foreground">Betyg</th>
                 <th className="text-center px-3 py-2 text-xs text-muted-foreground">🟨</th>
                 <th className="text-center px-3 py-2 text-xs text-muted-foreground">🟥</th>
               </tr>
             </thead>
             <tbody>
               {players.map((row, i) => {
-                const pl = row.players as Record<string, unknown> | null;
-                const playerSlug = (pl?.slug as string) ?? String(pl?.sportmonks_id ?? "");
+                const pl = row.player as Record<string, unknown> | null;
+                const playerSlug = (pl?.slug as string) ?? String(row.player_id ?? "");
                 return (
                   <tr key={i} className="border-b border-border/40 last:border-0 hover:bg-muted/20 transition-colors">
                     <td className="px-4 py-2">
                       <Link href={`/spelare/${playerSlug}`} className="text-foreground hover:text-pitch">
-                        {(pl?.fullname as string) ?? "–"}
+                        {(pl?.fullname as string) ?? `Spelare ${row.player_id}`}
                       </Link>
                     </td>
                     <td className="text-center px-3 py-2 text-muted-foreground capitalize">{(pl?.position as string)?.slice(0, 3) ?? "–"}</td>
@@ -181,7 +201,9 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
                     <td className="text-center px-3 py-2 font-semibold text-foreground">{row.goals as number ?? 0}</td>
                     <td className="text-center px-3 py-2 text-foreground">{row.assists as number ?? 0}</td>
                     <td className="text-center px-3 py-2 text-muted-foreground">{row.xg ? Number(row.xg).toFixed(1) : "–"}</td>
+                    <td className="text-center px-3 py-2 text-muted-foreground">{row.xa ? Number(row.xa).toFixed(1) : "–"}</td>
                     <td className="text-center px-3 py-2 text-muted-foreground">{row.shots as number ?? 0}</td>
+                    <td className="text-center px-3 py-2 text-muted-foreground">{row.rating ? Number(row.rating).toFixed(2) : "–"}</td>
                     <td className="text-center px-3 py-2 text-yellow-500">{row.yellow_cards as number ?? 0}</td>
                     <td className="text-center px-3 py-2 text-red-500">{row.red_cards as number ?? 0}</td>
                   </tr>

@@ -15,7 +15,51 @@ export interface FavoriteTeamState {
   markOnboardingDone: () => void;
 }
 
-export function useFavoriteTeam(): FavoriteTeamState {
+const clerkEnabled =
+  !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.match(/^pk_(test|live)_[A-Za-z0-9+/=]+$/);
+
+function useLocalFavoriteTeam(): FavoriteTeamState {
+  const [slug, setSlug] = useState<string | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [needsOnboarding, setNeedsOnboarding] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = window.localStorage.getItem(LS_KEY);
+      const done = window.localStorage.getItem(LS_ONBOARDING_KEY);
+      if (stored) setSlug(stored);
+      setNeedsOnboarding(!done && !stored);
+    }
+    setIsLoaded(true);
+  }, []);
+
+  const setFavoriteTeam = useCallback(async (newSlug: string) => {
+    setSlug(newSlug);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(LS_KEY, newSlug);
+      window.localStorage.setItem(LS_ONBOARDING_KEY, "1");
+    }
+    setNeedsOnboarding(false);
+  }, []);
+
+  const clearFavoriteTeam = useCallback(async () => {
+    setSlug(null);
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem(LS_KEY);
+    }
+  }, []);
+
+  const markOnboardingDone = useCallback(() => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(LS_ONBOARDING_KEY, "1");
+    }
+    setNeedsOnboarding(false);
+  }, []);
+
+  return { slug, isLoaded, setFavoriteTeam, clearFavoriteTeam, needsOnboarding, markOnboardingDone };
+}
+
+function useClerkFavoriteTeam(): FavoriteTeamState {
   const { user, isLoaded: clerkLoaded } = useUser();
   const [slug, setSlug] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -101,3 +145,5 @@ export function useFavoriteTeam(): FavoriteTeamState {
 
   return { slug, isLoaded, setFavoriteTeam, clearFavoriteTeam, needsOnboarding, markOnboardingDone };
 }
+
+export const useFavoriteTeam = clerkEnabled ? useClerkFavoriteTeam : useLocalFavoriteTeam;

@@ -345,8 +345,11 @@ function Trupp({ squad }: { squad: LeaderRow[] }) {
               <th className="text-left py-2">Spelare</th>
               <th className="text-center py-2">Pos</th>
               <th className="text-center py-2">M</th>
+              <th className="text-center py-2">Min</th>
               <th className="text-center py-2">Mål</th>
               <th className="text-center py-2">Ast</th>
+              <th className="text-center py-2">xG</th>
+              <th className="text-center py-2">Betyg</th>
             </tr>
           </thead>
           <tbody>
@@ -360,8 +363,11 @@ function Trupp({ squad }: { squad: LeaderRow[] }) {
                 </td>
                 <td className="text-center text-muted-foreground capitalize">{p.position?.slice(0, 3) ?? "–"}</td>
                 <td className="text-center text-muted-foreground">{p.appearances}</td>
+                <td className="text-center text-muted-foreground">{p.minutes}</td>
                 <td className="text-center font-semibold text-foreground">{p.goals}</td>
                 <td className="text-center text-foreground">{p.assists}</td>
+                <td className="text-center text-muted-foreground">{p.xg ? p.xg.toFixed(1) : "–"}</td>
+                <td className="text-center text-muted-foreground">{p.rating != null ? p.rating.toFixed(2) : "–"}</td>
               </tr>
             ))}
           </tbody>
