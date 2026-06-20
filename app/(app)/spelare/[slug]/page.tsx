@@ -6,10 +6,12 @@ import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import { ListGroup } from "@/components/ui/ListGroup";
 import { ListRow } from "@/components/ui/ListRow";
 import { StatNumber } from "@/components/ui/StatNumber";
+import { PlayerProfileAnalytics, type ProfileMetric } from "./PlayerProfileAnalytics";
 
 export const revalidate = 60;
 
 const SEASON_2026 = 26806;
+const QUALIFYING_MINUTES = 300;
 
 const POS_SV: Record<string, string> = {
   goalkeeper: "Målvakt", defender: "Försvarare",
@@ -61,6 +63,69 @@ async function getMatchHistory(playerId: number) {
   return data.map(r => ({ ...r, fixture: fixMap[r.fixture_id as number] ?? null })) as Record<string, unknown>[];
 }
 
+type SeasonStat = Record<string, unknown>;
+
+function n(row: SeasonStat | null | undefined, key: string): number {
+  return Number(row?.[key] ?? 0) || 0;
+}
+
+function per90(row: SeasonStat, key: string): number {
+  const minutes = n(row, "minutes");
+  return minutes > 0 ? (n(row, key) / minutes) * 90 : 0;
+}
+
+function percentile(values: number[], value: number): number {
+  const clean = values.filter((v) => Number.isFinite(v)).sort((a, b) => a - b);
+  if (!clean.length) return 50;
+  const below = clean.filter((v) => v < value).length;
+  const equal = clean.filter((v) => v === value).length;
+  return Math.round(((below + equal / 2) / clean.length) * 100);
+}
+
+async function getProfileMetrics(playerStats: SeasonStat | null): Promise<ProfileMetric[]> {
+  if (!playerStats || !isSupabaseConfigured()) return [];
+  const db = createServerClient();
+  const { data } = await db
+    .from("player_season_stats")
+    .select("minutes,goals,assists,shots,shots_on_target,passes,tackles,interceptions,rating,xg,xa")
+    .eq("season_id", SEASON_2026)
+    .gte("minutes", QUALIFYING_MINUTES);
+
+  const pool = ((data ?? []) as SeasonStat[]).filter((row) => n(row, "minutes") >= QUALIFYING_MINUTES);
+  if (pool.length < 8) return [];
+
+  const metricDefs = [
+    { key: "goals90", label: "Mål/90", value: per90(playerStats, "goals"), values: pool.map((p) => per90(p, "goals")) },
+    { key: "assists90", label: "Assist/90", value: per90(playerStats, "assists"), values: pool.map((p) => per90(p, "assists")) },
+    { key: "shots90", label: "Skott/90", value: per90(playerStats, "shots"), values: pool.map((p) => per90(p, "shots")) },
+    { key: "sot90", label: "Skott på mål/90", value: per90(playerStats, "shots_on_target"), values: pool.map((p) => per90(p, "shots_on_target")) },
+    { key: "passes90", label: "Pass/90", value: per90(playerStats, "passes"), values: pool.map((p) => per90(p, "passes")) },
+    { key: "tackles90", label: "Tackl/90", value: per90(playerStats, "tackles"), values: pool.map((p) => per90(p, "tackles")) },
+    { key: "interceptions90", label: "Brytningar/90", value: per90(playerStats, "interceptions"), values: pool.map((p) => per90(p, "interceptions")) },
+    { key: "rating", label: "Betyg", value: n(playerStats, "rating"), values: pool.map((p) => n(p, "rating")), decimals: 2 },
+  ];
+
+  const reliableXg = pool.some((p) => n(p, "xg") > 0) && n(playerStats, "xg") > 0;
+  if (reliableXg) {
+    metricDefs.splice(2, 0,
+      { key: "xg90", label: "xG/90", value: per90(playerStats, "xg"), values: pool.map((p) => per90(p, "xg")) },
+      { key: "xa90", label: "xA/90", value: per90(playerStats, "xa"), values: pool.map((p) => per90(p, "xa")) },
+    );
+  }
+
+  return metricDefs.map((metric) => {
+    const average = metric.values.reduce((sum, v) => sum + v, 0) / metric.values.length;
+    return {
+      key: metric.key,
+      label: metric.label,
+      value: metric.value,
+      average,
+      percentile: percentile(metric.values, metric.value),
+      decimals: metric.decimals ?? 2,
+    };
+  });
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const player = await getPlayerBySlug(slug);
@@ -91,6 +156,7 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
     getSeasonStats(smId),
     getMatchHistory(smId),
   ]);
+  const profileMetrics = await getProfileMetrics(stats);
 
   const age = player.birthdate
     ? Math.floor((Date.now() - new Date(player.birthdate as string).getTime()) / 3.156e10)
@@ -141,6 +207,15 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
             </div>
           )}
         </div>
+      )}
+
+      {stats && (
+        <PlayerProfileAnalytics
+          playerName={player.fullname as string}
+          minutes={(stats.minutes as number) ?? 0}
+          qualifyingMinutes={QUALIFYING_MINUTES}
+          metrics={profileMetrics}
+        />
       )}
 
       {/* Match-för-match */}
