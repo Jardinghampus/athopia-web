@@ -14,9 +14,17 @@ import {
 } from "@/lib/db/fixtures";
 import {
   SEASON_IDS,
+  type ScorerRow,
   getStandingsFromDb,
   getTopScorersFromDb,
   getTopAssistsFromDb,
+  getTopXgFromDb,
+  getTopXaFromDb,
+  getTopRatingsFromDb,
+  getTopShotsFromDb,
+  getTopPassersFromDb,
+  getTopDefendersFromDb,
+  getMostCardsFromDb,
 } from "@/lib/statistik";
 
 // Data hämtas från Supabase (synkad av athopia-os från Sportmonks).
@@ -28,6 +36,20 @@ async function getScorers(seasonId: string) {
 }
 async function getAssists(seasonId: string) {
   return getTopAssistsFromDb(seasonId);
+}
+async function getXg(seasonId: string) {
+  const [xg, xa] = await Promise.all([getTopXgFromDb(seasonId), getTopXaFromDb(seasonId)]);
+  return { xg, xa };
+}
+async function getPlayerOverview(seasonId: string) {
+  const [ratings, shots, passers, defenders, cards] = await Promise.all([
+    getTopRatingsFromDb(seasonId),
+    getTopShotsFromDb(seasonId),
+    getTopPassersFromDb(seasonId),
+    getTopDefendersFromDb(seasonId),
+    getMostCardsFromDb(seasonId),
+  ]);
+  return { ratings, shots, passers, defenders, cards };
 }
 
 export const revalidate = 300;
@@ -89,6 +111,99 @@ function TeamCell({ name, image }: { name: string; image?: string }) {
         <div className="w-5 h-5 rounded-full bg-muted shrink-0" />
       )}
       <span className="truncate max-w-[110px] sm:max-w-[180px]">{name}</span>
+    </div>
+  );
+}
+
+function PlayerCell({ row }: { row: ScorerRow }) {
+  const href = row.slug ? `/spelare/${row.slug}` : undefined;
+  const content = (
+    <div className="flex min-w-0 items-center gap-3">
+      {row.image ? (
+        <Image
+          src={row.image}
+          alt=""
+          width={32}
+          height={32}
+          className="size-8 rounded-full object-cover bg-muted"
+          unoptimized
+        />
+      ) : (
+        <div className="size-8 rounded-full bg-muted" />
+      )}
+      <span className="min-w-0">
+        <span className="block truncate font-medium text-foreground">{row.player_name}</span>
+        <span className="block truncate text-xs text-muted-foreground">
+          {row.team_name}{row.position ? ` · ${row.position}` : ""}
+        </span>
+      </span>
+    </div>
+  );
+
+  return href ? (
+    <Link href={href} className="hover:text-pitch">
+      {content}
+    </Link>
+  ) : content;
+}
+
+function fmt(value: number | null | undefined, decimals = 0) {
+  if (value == null || Number.isNaN(Number(value))) return "–";
+  return decimals > 0 ? Number(value).toFixed(decimals) : String(Math.round(Number(value)));
+}
+
+function PlayerLeaderboard({
+  rows,
+  primary,
+  primaryLabel,
+  primaryDecimals = 0,
+  secondary,
+}: {
+  rows: ScorerRow[];
+  primary: keyof ScorerRow;
+  primaryLabel: string;
+  primaryDecimals?: number;
+  secondary?: Array<{ key: keyof ScorerRow; label: string; decimals?: number }>;
+}) {
+  if (rows.length === 0) return <EmptyState />;
+  const cols = secondary ?? [
+    { key: "appearances", label: "M" },
+    { key: "minutes", label: "Min" },
+    { key: "goals", label: "Mål" },
+    { key: "assists", label: "Ast" },
+    { key: "rating", label: "Betyg", decimals: 2 },
+  ];
+
+  return (
+    <div className="overflow-x-auto -mx-4 sm:mx-0">
+      <table className="w-full min-w-[760px] text-sm">
+        <thead>
+          <tr className="border-b border-border text-muted-foreground text-xs uppercase tracking-wider">
+            <th className="py-2 px-3 text-left w-10">#</th>
+            <th className="py-2 px-3 text-left min-w-[240px]">Spelare</th>
+            {cols.map((col) => (
+              <th key={String(col.key)} className="py-2 px-3 text-center">{col.label}</th>
+            ))}
+            <th className="py-2 px-3 text-center font-bold text-foreground">{primaryLabel}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.slice(0, 30).map((row) => (
+            <tr key={`${row.player_id}-${row.rank}`} className="border-b border-border/40 hover:bg-card/50 transition-colors">
+              <td className="py-3 px-3 text-xs font-semibold tabular-nums text-muted-foreground">{row.rank}</td>
+              <td className="py-3 px-3"><PlayerCell row={row} /></td>
+              {cols.map((col) => (
+                <td key={String(col.key)} className="py-3 px-3 text-center text-muted-foreground tabular-nums">
+                  {fmt(row[col.key] as number | null, col.decimals)}
+                </td>
+              ))}
+              <td className="py-3 px-3 text-center text-lg font-bold tabular-nums text-foreground">
+                {fmt(row[primary] as number | null, primaryDecimals)}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
@@ -175,68 +290,52 @@ async function TabelTab({ seasonId }: { seasonId: string }) {
 
 async function SkytteligaTab({ seasonId }: { seasonId: string }) {
   const scorers = await getScorers(seasonId);
-  if (scorers.length === 0) return <EmptyState />;
-  return (
-    <ListGroup className="max-w-2xl">
-      {scorers.slice(0, 30).map((s, i) => (
-        <ListRow
-          key={s.player_id || i}
-          leading={<span className="text-xs tabular-nums text-muted-foreground">{s.rank}</span>}
-          title={s.player_name}
-          subtitle={s.team_name}
-          trailing={
-            <span className="flex items-center gap-2">
-              {s.penalties > 0 && (
-                <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                  {s.penalties}P
-                </span>
-              )}
-              <span className="text-right">
-                <span className="block text-xl font-bold tabular-nums leading-none text-foreground">{s.goals}</span>
-                <span className="block text-[10px] text-muted-foreground">mål</span>
-              </span>
-            </span>
-          }
-        />
-      ))}
-    </ListGroup>
-  );
+  return <PlayerLeaderboard rows={scorers} primary="goals" primaryLabel="Mål" />;
 }
 
 // ── Assistligan ───────────────────────────────────────────────────────────────
 
 async function AssistliganTab({ seasonId }: { seasonId: string }) {
   const assists = await getAssists(seasonId);
-  if (assists.length === 0) return <EmptyState />;
-  return (
-    <ListGroup className="max-w-2xl">
-      {assists.slice(0, 30).map((a, i) => (
-        <ListRow
-          key={a.player_id || i}
-          leading={<span className="text-xs tabular-nums text-muted-foreground">{a.rank}</span>}
-          title={a.player_name}
-          subtitle={a.team_name}
-          trailing={
-            <span className="text-right">
-              <span className="block text-xl font-bold tabular-nums leading-none text-foreground">{a.assists}</span>
-              <span className="block text-[10px] text-muted-foreground">assist</span>
-            </span>
-          }
-        />
-      ))}
-    </ListGroup>
-  );
+  return <PlayerLeaderboard rows={assists} primary="assists" primaryLabel="Ast" />;
 }
 
 // ── xG-tabell ─────────────────────────────────────────────────────────────────
 
-function XGTab() {
+async function XGTab({ seasonId }: { seasonId: string }) {
+  const { xg, xa } = await getXg(seasonId);
   return (
-    <div className="text-center py-20 text-muted-foreground">
-      <p className="text-sm">xG-data ej tillgänglig ännu.</p>
-      <p className="text-xs mt-1 opacity-60">
-        Synkroniseras av athopia-os när xG-data finns i Supabase.
-      </p>
+    <div className="grid gap-8 xl:grid-cols-2">
+      <section>
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">xG-ledare</h2>
+        <PlayerLeaderboard
+          rows={xg}
+          primary="xg"
+          primaryLabel="xG"
+          primaryDecimals={2}
+          secondary={[
+            { key: "goals", label: "Mål" },
+            { key: "shots", label: "Skott" },
+            { key: "shots_on_target", label: "På mål" },
+            { key: "minutes", label: "Min" },
+          ]}
+        />
+      </section>
+      <section>
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">xA-ledare</h2>
+        <PlayerLeaderboard
+          rows={xa}
+          primary="xa"
+          primaryLabel="xA"
+          primaryDecimals={2}
+          secondary={[
+            { key: "assists", label: "Ast" },
+            { key: "key_passes", label: "Nyckelpass" },
+            { key: "passes", label: "Pass" },
+            { key: "minutes", label: "Min" },
+          ]}
+        />
+      </section>
     </div>
   );
 }
@@ -291,13 +390,42 @@ async function FormTab({ seasonId }: { seasonId: string }) {
 
 // ── Press ─────────────────────────────────────────────────────────────────────
 
-function PressTab() {
+async function PressTab({ seasonId }: { seasonId: string }) {
+  const { ratings, shots, passers, defenders, cards } = await getPlayerOverview(seasonId);
   return (
-    <div className="text-center py-20 text-muted-foreground">
-      <p className="text-sm">Press-statistik kräver data från Opta eller StatsBomb.</p>
-      <p className="text-xs mt-1 opacity-60">
-        Planerat för framtida integration.
-      </p>
+    <div className="space-y-8">
+      <section>
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Högst betyg</h2>
+        <PlayerLeaderboard rows={ratings} primary="rating" primaryLabel="Betyg" primaryDecimals={2} />
+      </section>
+      <div className="grid gap-8 xl:grid-cols-2">
+        <section>
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Flest skott</h2>
+          <PlayerLeaderboard rows={shots} primary="shots" primaryLabel="Skott" />
+        </section>
+        <section>
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Flest passningar</h2>
+          <PlayerLeaderboard rows={passers} primary="passes" primaryLabel="Pass" />
+        </section>
+        <section>
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Flest tacklingar</h2>
+          <PlayerLeaderboard rows={defenders} primary="tackles" primaryLabel="Tackl" />
+        </section>
+        <section>
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Kort</h2>
+          <PlayerLeaderboard
+            rows={cards}
+            primary="yellow_cards"
+            primaryLabel="Gula"
+            secondary={[
+              { key: "red_cards", label: "Röda" },
+              { key: "appearances", label: "M" },
+              { key: "minutes", label: "Min" },
+              { key: "rating", label: "Betyg", decimals: 2 },
+            ]}
+          />
+        </section>
+      </div>
     </div>
   );
 }
@@ -351,9 +479,9 @@ export default async function StatistikPage({
     case "tabell":      tabContent = <TabelTab seasonId={seasonId} />;       break;
     case "skytteliga":  tabContent = <SkytteligaTab seasonId={seasonId} />;  break;
     case "assistligan": tabContent = <AssistliganTab seasonId={seasonId} />; break;
-    case "xg":          tabContent = <XGTab />;          break;
+    case "xg":          tabContent = <XGTab seasonId={seasonId} />;          break;
     case "form":        tabContent = <FormTab seasonId={seasonId} />;        break;
-    case "press":       tabContent = <PressTab />;       break;
+    case "press":       tabContent = <PressTab seasonId={seasonId} />;       break;
     case "h2h":         tabContent = <H2HTab />;         break;
   }
 

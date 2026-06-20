@@ -41,9 +41,26 @@ export interface ScorerRow {
   player_id: number;
   player_name: string;
   team_name: string;
+  slug: string | null;
+  image: string | null;
+  position: string | null;
+  appearances: number;
+  minutes: number;
   goals: number;
   assists: number;
   penalties: number;
+  xg: number;
+  xa: number;
+  shots: number;
+  shots_on_target: number;
+  key_passes: number;
+  passes: number;
+  pass_accuracy: number | null;
+  tackles: number;
+  interceptions: number;
+  rating: number | null;
+  yellow_cards: number;
+  red_cards: number;
 }
 
 interface FixtureLite {
@@ -55,6 +72,24 @@ interface FixtureLite {
 }
 
 type TeamLite = { id: number; name: string | null; logo_path: string | null };
+type PlayerLite = {
+  id: number;
+  fullname: string;
+  slug: string | null;
+  image: string | null;
+  position: string | null;
+};
+type LeaderMetric =
+  | "goals"
+  | "assists"
+  | "xg"
+  | "xa"
+  | "rating"
+  | "shots"
+  | "key_passes"
+  | "passes"
+  | "tackles"
+  | "yellow_cards";
 
 // Cachead teams-lista (JSON-serialiserbar — Map byggs utanför cachen).
 // OBS: faktiska kolumner är sportmonks_id + logo (inte id + logo_path).
@@ -167,14 +202,22 @@ export async function getStandingsFromDb(seasonId: string): Promise<StandingRow[
 
 // Spelarnamn-map (players-PK = sportmonks_id, namnkolumn = fullname).
 const cachedPlayers = unstable_cache(
-  async (): Promise<Record<number, string>> => {
+  async (): Promise<Record<number, PlayerLite>> => {
     if (!isSupabaseConfigured()) return {};
     try {
       const db = createServerClient();
-      const { data } = await db.from("players").select("sportmonks_id,fullname");
-      const map: Record<number, string> = {};
-      for (const p of (data ?? []) as { sportmonks_id: number; fullname: string | null }[]) {
-        if (p.fullname) map[p.sportmonks_id] = p.fullname;
+      const { data } = await db.from("players").select("sportmonks_id,fullname,slug,image,position");
+      const map: Record<number, PlayerLite> = {};
+      for (const p of (data ?? []) as Record<string, unknown>[]) {
+        const id = Number(p.sportmonks_id);
+        if (!id) continue;
+        map[id] = {
+          id,
+          fullname: (p.fullname as string | null) ?? `Spelare ${id}`,
+          slug: (p.slug as string | null) ?? null,
+          image: (p.image as string | null) ?? null,
+          position: (p.position as string | null) ?? null,
+        };
       }
       return map;
     } catch {
@@ -186,17 +229,19 @@ const cachedPlayers = unstable_cache(
 );
 
 const cachedLeaderRows = unstable_cache(
-  async (seasonId: string, orderCol: "goals" | "assists"): Promise<Record<string, unknown>[]> => {
+  async (seasonId: string, orderCol: LeaderMetric): Promise<Record<string, unknown>[]> => {
     if (!isSupabaseConfigured()) return [];
     try {
       const db = createServerClient();
-      const { data } = await db
+      let query = db
         .from("player_season_stats")
-        .select("player_id,team_id,goals,assists")
+        .select("player_id,team_id,appearances,minutes,goals,assists,xg,xa,shots,shots_on_target,key_passes,passes,pass_accuracy,tackles,interceptions,rating,yellow_cards,red_cards")
         .eq("season_id", Number(seasonId))
-        .gt(orderCol, 0)
-        .order(orderCol, { ascending: false })
+        .order(orderCol, { ascending: false, nullsFirst: false })
+        .order("minutes", { ascending: false })
         .limit(30);
+      if (orderCol !== "rating") query = query.gt(orderCol, 0);
+      const { data } = await query;
       return (data ?? []) as Record<string, unknown>[];
     } catch {
       return [];
@@ -208,7 +253,7 @@ const cachedLeaderRows = unstable_cache(
 
 async function getLeaders(
   seasonId: string,
-  orderCol: "goals" | "assists"
+  orderCol: LeaderMetric
 ): Promise<ScorerRow[]> {
   if (!isSupabaseConfigured()) return [];
   try {
@@ -218,15 +263,33 @@ async function getLeaders(
       cachedPlayers(),
     ]);
     return (data as Record<string, unknown>[]).map((r, i) => {
-      const pid = (r.player_id as number) ?? 0;
+      const pid = Number(r.player_id ?? 0);
+      const player = playerMap[pid];
       return {
         rank: i + 1,
         player_id: pid,
-        player_name: playerMap[pid] ?? `Spelare ${pid}`,
-        team_name: teamMap.get(r.team_id as number)?.name ?? "–",
-        goals: (r.goals as number) ?? 0,
-        assists: (r.assists as number) ?? 0,
+        player_name: player?.fullname ?? `Spelare ${pid}`,
+        team_name: teamMap.get(Number(r.team_id))?.name ?? "–",
+        slug: player?.slug ?? null,
+        image: player?.image ?? null,
+        position: player?.position ?? null,
+        appearances: Number(r.appearances ?? 0),
+        minutes: Number(r.minutes ?? 0),
+        goals: Number(r.goals ?? 0),
+        assists: Number(r.assists ?? 0),
         penalties: 0, // dedikerad kolumn saknas i player_season_stats (finns ev. i raw_stats)
+        xg: Number(r.xg ?? 0),
+        xa: Number(r.xa ?? 0),
+        shots: Number(r.shots ?? 0),
+        shots_on_target: Number(r.shots_on_target ?? 0),
+        key_passes: Number(r.key_passes ?? 0),
+        passes: Number(r.passes ?? 0),
+        pass_accuracy: r.pass_accuracy == null ? null : Number(r.pass_accuracy),
+        tackles: Number(r.tackles ?? 0),
+        interceptions: Number(r.interceptions ?? 0),
+        rating: r.rating == null ? null : Number(r.rating),
+        yellow_cards: Number(r.yellow_cards ?? 0),
+        red_cards: Number(r.red_cards ?? 0),
       };
     });
   } catch {
@@ -236,3 +299,10 @@ async function getLeaders(
 
 export const getTopScorersFromDb = (seasonId: string) => getLeaders(seasonId, "goals");
 export const getTopAssistsFromDb = (seasonId: string) => getLeaders(seasonId, "assists");
+export const getTopXgFromDb = (seasonId: string) => getLeaders(seasonId, "xg");
+export const getTopXaFromDb = (seasonId: string) => getLeaders(seasonId, "xa");
+export const getTopRatingsFromDb = (seasonId: string) => getLeaders(seasonId, "rating");
+export const getTopShotsFromDb = (seasonId: string) => getLeaders(seasonId, "shots");
+export const getTopPassersFromDb = (seasonId: string) => getLeaders(seasonId, "passes");
+export const getTopDefendersFromDb = (seasonId: string) => getLeaders(seasonId, "tackles");
+export const getMostCardsFromDb = (seasonId: string) => getLeaders(seasonId, "yellow_cards");

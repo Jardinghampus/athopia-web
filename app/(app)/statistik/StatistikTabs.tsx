@@ -16,7 +16,7 @@ const TABS = [
   { id: "assistligan", label: "Assistligan" },
   { id: "xg", label: "xG-tabell" },
   { id: "form", label: "Form" },
-  { id: "press", label: "Press" },
+  { id: "press", label: "Spelarstats" },
   { id: "h2h", label: "H2H" },
 ];
 
