@@ -21,6 +21,7 @@ import type {
   Article,
   ContentQueueItem,
   Entity,
+  EntityInsight,
   Narrative,
   Podcast,
   PodcastChunk,
@@ -136,6 +137,25 @@ function mapNarrative(row: any): Narrative {
     entities: Array.isArray(row.entities) ? row.entities.map(mapEntity) : [],
     createdAt: String(row.created_at ?? row.createdAt ?? new Date().toISOString()),
     updatedAt: String(row.updated_at ?? row.updatedAt ?? new Date().toISOString()),
+  };
+}
+
+function mapEntityInsight(row: any): EntityInsight {
+  return {
+    id: String(row.id),
+    entityId: String(row.entity_id),
+    entityName: String(row.entity_name ?? ""),
+    entitySlug: row.entity_slug ? String(row.entity_slug) : null,
+    insightType: (row.insight_type ?? "stat_news_fusion") as EntityInsight["insightType"],
+    title: String(row.title ?? ""),
+    summary: String(row.summary ?? ""),
+    body: row.body ?? null,
+    confidence: Number(row.confidence ?? 0),
+    severity: (row.severity ?? "info") as EntityInsight["severity"],
+    sourceArticleIds: Array.isArray(row.source_article_ids) ? row.source_article_ids.map(String) : [],
+    metricSnapshot: (row.metric_snapshot ?? {}) as Record<string, unknown>,
+    evidence: (row.evidence ?? {}) as Record<string, unknown>,
+    generatedAt: String(row.generated_at ?? row.created_at ?? new Date().toISOString()),
   };
 }
 
@@ -478,3 +498,26 @@ export async function getTeamPushPopups(teamEntityIds: string[], limit = 5): Pro
     return [];
   }
 }
+
+export const getTeamEntityInsights = unstable_cache(
+  async (teamEntityId: string, limit = 3): Promise<EntityInsight[]> => {
+    if (!isSupabaseConfigured()) return [];
+    try {
+      const supabase = createServerClient();
+      const { data } = await supabase
+        .from("published_entity_insights")
+        .select("*")
+        .eq("entity_id", teamEntityId)
+        .eq("sport", "football")
+        .order("confidence", { ascending: false, nullsFirst: false })
+        .order("generated_at", { ascending: false })
+        .limit(limit);
+
+      return (data ?? []).map(mapEntityInsight);
+    } catch {
+      return [];
+    }
+  },
+  ["team-entity-insights"],
+  { revalidate: 120, tags: ["entity-insights"] }
+);

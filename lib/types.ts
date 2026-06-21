@@ -59,6 +59,23 @@ export interface TeamPushPopup {
   createdAt: string;
 }
 
+export interface EntityInsight {
+  id: string;
+  entityId: string;
+  entityName: string;
+  entitySlug: string | null;
+  insightType: "stat_news_fusion" | "form_context" | "news_pressure" | "pre_match";
+  title: string;
+  summary: string;
+  body: string | null;
+  confidence: number;
+  severity: "info" | "watch" | "strong";
+  sourceArticleIds: string[];
+  metricSnapshot: Record<string, unknown>;
+  evidence: Record<string, unknown>;
+  generatedAt: string;
+}
+
 export interface Podcast {
   id: string;
   showName: string;
