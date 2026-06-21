@@ -5,6 +5,7 @@ import { ArticleCard } from "@/components/ui/ArticleCard";
 import { NewsFilterPanel } from "@/components/ui/NewsFilterPanel";
 import { NyheterRealtimeBanner } from "@/components/NyheterRealtimeBanner";
 import { NewsStream } from "@/components/news/NewsStream";
+import { TeamPushPopups } from "@/components/news/TeamPushPopups";
 import { getFilteredArticles, getActiveSources } from "@/lib/supabase";
 import { filterStateToParams } from "@/lib/filters";
 
@@ -109,7 +110,13 @@ export default async function NyheterPage({
         </p>
       </div>
 
-      {/* NewsStream — RSS-signaler från content_queue (revalidate 30s) */}
+      <div className="mb-8">
+        <Suspense fallback={null}>
+          <TeamPushPopups />
+        </Suspense>
+      </div>
+
+      {/* NewsStream — Echo-rankade nyhetssignaler från news_feed */}
       <div className="mb-10">
         <h2 className="text-xs font-semibold text-muted-foreground mb-3">Senaste signaler</h2>
         <Suspense fallback={<div className="h-40 rounded-xl bg-card skeleton-wave" />}>

@@ -24,6 +24,7 @@ import type {
   Narrative,
   Podcast,
   PodcastChunk,
+  TeamPushPopup,
 } from "@/lib/types";
 
 // ─── Miljövariabler ────────────────────────────────────────────────────────────
@@ -99,19 +100,26 @@ function mapEntity(row: any): Entity {
 }
 
 function mapArticle(row: any): Article {
+  const slug = row.slug ? String(row.slug) : "";
+  const sourceUrl = row.source_url ?? row.sourceUrl ?? row.url ?? null;
   return {
     id: String(row.id),
-    slug: String(row.slug),
+    slug,
     title: String(row.title ?? ""),
     summary: String(row.summary ?? ""),
     content: row.content ?? null,
-    sourceUrl: row.source_url ?? row.sourceUrl ?? null,
+    sourceUrl,
+    url: row.url ?? sourceUrl,
     sourceName: String(row.source_name ?? row.sourceName ?? "Okänd källa"),
     sourceType: row.source_type ?? row.sourceType ?? null,
     imageUrl: row.image_url ?? row.imageUrl ?? null,
     publishedAt: String(row.published_at ?? row.publishedAt ?? new Date().toISOString()),
     updatedAt: row.updated_at ?? row.updatedAt ?? null,
     importanceScore: row.importance_score ?? row.importanceScore ?? null,
+    feedScore: row.feed_score ?? row.feedScore ?? null,
+    pushPriority: row.push_priority ?? row.pushPriority ?? null,
+    newsTag: row.news_tag ?? row.newsTag ?? null,
+    eventType: row.event_type ?? row.eventType ?? null,
     sentimentScore: row.sentiment_score ?? row.sentimentScore ?? null,
     entities: Array.isArray(row.entities) ? row.entities.map(mapEntity) : [],
   };
@@ -194,14 +202,15 @@ export async function getFilteredArticles(filters: ArticleFilters = {}): Promise
     const offset = ((filters.page ?? 1) - 1) * limit;
 
     let q = supabase
-      .from("articles")
+      .from("news_feed")
       .select("*", { count: "exact" })
       .eq("sport", "football")
-      .order("published_at", { ascending: false })
+      .order("feed_score", { ascending: false, nullsFirst: false })
+      .order("published_at", { ascending: false, nullsFirst: false })
       .range(offset, offset + limit - 1);
 
     if (filters.visa === "ai") {
-      q = q.eq("is_processed", true).not("summary", "is", null);
+      q = q.not("summary", "is", null);
     } else if (filters.visa === "source") {
       q = q.not("source_name", "is", null);
     }
@@ -215,7 +224,7 @@ export async function getFilteredArticles(filters: ArticleFilters = {}): Promise
     }
 
     if (filters.teams && filters.teams.length > 0) {
-      const orClauses = filters.teams.map(t => `title.ilike.%${t}%`).join(",");
+      const orClauses = filters.teams.map(t => `title.ilike.%${t.replace(/[,()]/g, " ")}%`).join(",");
       q = (q as any).or(orClauses);
     }
 
@@ -400,27 +409,28 @@ export const getNewsStream = unstable_cache(
     try {
       const supabase = createServerClient();
       let q = supabase
-        .from("articles")
-        .select("id, source_name, source_url, importance_score, title, summary, published_at, url")
+        .from("news_feed")
+        .select("id, source_name, url, importance_score, feed_score, push_priority, title, summary, published_at")
         .eq("sport", sport)
-        .eq("is_processed", true)
         .not("importance_score", "is", null)
         .limit(limit);
 
       q = orderBy === "signal_score"
-        ? q.order("importance_score", { ascending: false })
+        ? q.order("feed_score", { ascending: false, nullsFirst: false })
         : q.order("published_at", { ascending: false });
 
       const { data } = await q;
       return (data ?? []).map((row) => ({
         id: String(row.id),
         source_name: row.source_name ?? null,
-        source_url: row.source_url ?? row.url ?? null,
-        signal_score: row.importance_score ?? null,
-        importance_tier: mapImportanceTier(row.importance_score ?? null),
+        source_url: row.url ?? null,
+        signal_score: row.feed_score ?? row.importance_score ?? null,
+        importance_tier: row.push_priority === "breaking"
+          ? "breaking"
+          : mapImportanceTier(row.importance_score ?? null),
         content: {
           title: row.title ?? "",
-          link: row.source_url ?? row.url ?? "",
+          link: row.url ?? "",
           published_at: row.published_at ?? null,
           snippet: row.summary ?? null,
         },
@@ -433,3 +443,38 @@ export const getNewsStream = unstable_cache(
   ["news-stream"],
   { revalidate: 60, tags: ["news"] }
 );
+
+export async function getTeamPushPopups(teamEntityIds: string[], limit = 5): Promise<TeamPushPopup[]> {
+  if (!isSupabaseConfigured()) return [];
+  try {
+    const supabase = createServerClient();
+    let q = supabase
+      .from("team_push_popups")
+      .select("*")
+      .order("feed_score", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false })
+      .limit(limit);
+    if (teamEntityIds.length > 0) q = q.in("team_entity_id", teamEntityIds);
+
+    const { data } = await q;
+
+    return (data ?? []).map((row: any) => ({
+      id: String(row.id),
+      articleId: row.article_id ?? null,
+      storyKey: String(row.story_key ?? ""),
+      sport: String(row.sport ?? "football"),
+      teamEntityId: row.team_entity_id ?? null,
+      title: String(row.title ?? ""),
+      body: String(row.body ?? ""),
+      url: row.url ?? null,
+      importanceScore: row.importance_score ?? null,
+      feedScore: row.feed_score ?? null,
+      eventType: row.event_type ?? null,
+      newsTag: row.news_tag ?? null,
+      sourceName: row.source_name ?? null,
+      createdAt: String(row.created_at ?? new Date().toISOString()),
+    }));
+  } catch {
+    return [];
+  }
+}

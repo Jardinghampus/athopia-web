@@ -107,13 +107,11 @@ export async function GET(req: Request) {
   let items: FeedItem[] = [];
 
   try {
-    // Echo skriver till articles (is_processed=true) — inte content_queue
     let aq = db
-      .from("articles")
-      .select("id, title, source_name, source_url, published_at, summary, importance_score")
+      .from("news_feed")
+      .select("id, title, source_name, url, published_at, summary, importance_score, feed_score")
       .eq("sport", "football")
-      .eq("is_processed", true)
-      .order(isPro ? "importance_score" : "published_at", { ascending: false, nullsFirst: false })
+      .order(isPro ? "feed_score" : "published_at", { ascending: false, nullsFirst: false })
       .range(offset, offset + effectiveLimit - 1);
 
     if (teamSlug) {
@@ -133,7 +131,7 @@ export async function GET(req: Request) {
       title: a.title,
       source: a.source_name ?? null,
       time: a.published_at,
-      href: a.source_url ?? "#",
+      href: a.url ?? "#",
       subtitle: a.summary ?? null,
     }));
   } catch (err) {

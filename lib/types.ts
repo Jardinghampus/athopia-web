@@ -34,8 +34,29 @@ export interface Article {
   publishedAt: string;
   updatedAt?: string | null;
   importanceScore?: number | null;
+  feedScore?: number | null;
+  pushPriority?: "none" | "watch" | "team_popup" | "breaking" | null;
+  newsTag?: string | null;
+  eventType?: string | null;
   sentimentScore?: number | null; // -1..1
   entities: Entity[];
+}
+
+export interface TeamPushPopup {
+  id: string;
+  articleId: string | null;
+  storyKey: string;
+  sport: string;
+  teamEntityId: string | null;
+  title: string;
+  body: string;
+  url: string | null;
+  importanceScore: number | null;
+  feedScore: number | null;
+  eventType: string | null;
+  newsTag: string | null;
+  sourceName: string | null;
+  createdAt: string;
 }
 
 export interface Podcast {
