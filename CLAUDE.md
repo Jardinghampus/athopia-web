@@ -66,6 +66,13 @@ Skillnad:
 - Lazy-init för Stripe, Clerk och Supabase — ALDRIG module-level
 - Tailwind v4: CSS-konfiguration via @theme i globals.css, ingen tailwind.config.ts
 
+## Cross-Agent Stats Sync
+- `athopia-web` är produktreferensen för hur statistik presenteras för användare.
+- Läs rotfilen `C:\Users\jardi\Athopia Build\AGENTS.md` vid cross-repo arbete.
+- xG/pressure får visas när riktiga synced values finns i Supabase/API payload.
+- Visa inte placeholder `0.00 xG` och hitta inte på xA om expected-data saknas.
+- Använd `/plan-design-review`, `/review` och `/qa` när gstack är installerat och synliga statistikytor ändras.
+
 <!-- rtk-instructions v2 -->
 # RTK (Rust Token Killer) - Token-Optimized Commands
 
