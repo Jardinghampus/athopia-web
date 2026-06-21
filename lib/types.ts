@@ -76,6 +76,25 @@ export interface EntityInsight {
   generatedAt: string;
 }
 
+export interface TeamDailyPulse {
+  id: string;
+  teamEntityId: string;
+  teamName: string;
+  teamSlug: string | null;
+  pulseDate: string;
+  headline: string;
+  dek: string;
+  body: string;
+  editorialNote: string | null;
+  matchContextLabel: "normal" | "post_match_hold" | "pre_match";
+  tone: "measured" | "watch" | "strong";
+  sourceArticleIds: string[];
+  sourceFixtureIds: number[];
+  metricSnapshot: Record<string, unknown>;
+  evidence: Record<string, unknown>;
+  generatedAt: string;
+}
+
 export interface Podcast {
   id: string;
   showName: string;

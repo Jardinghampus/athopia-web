@@ -16,7 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { ArticleCard } from "@/components/ui/ArticleCard";
 import { FollowButton } from "@/components/dashboard/follow-button";
 import { isFollowing } from "@/app/actions/follows";
-import { createServerClient, getTeamEntityInsights, isSupabaseConfigured } from "@/lib/supabase";
+import { createServerClient, getTeamDailyPulse, getTeamEntityInsights, isSupabaseConfigured } from "@/lib/supabase";
 import { getTeamNews, getTeamThreads } from "@/lib/dashboard/queries";
 import {
   getLeagueSeasonStats, getTeamLeaders, getTeamFixtures,
@@ -25,6 +25,7 @@ import {
 import { TeamRadar } from "@/components/team-hub/TeamRadar";
 import { TeamContextTracker } from "@/components/team-hub/TeamContextTracker";
 import { EntityInsightsPanel } from "@/components/team-hub/EntityInsightsPanel";
+import { TeamDailyPulseCard } from "@/components/team-hub/TeamDailyPulseCard";
 
 export const revalidate = 60;
 
@@ -109,7 +110,7 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
   }
 
   const smId = team.sportsmonks_id;
-  const [league, leaders, fixtures, news, threads, following, insights] = await Promise.all([
+  const [league, leaders, fixtures, news, threads, following, insights, dailyPulse] = await Promise.all([
     smId ? getLeagueSeasonStats() : Promise.resolve([] as TeamSeasonRow[]),
     smId ? getTeamLeaders(smId) : Promise.resolve([]),
     smId ? getTeamFixtures(smId) : Promise.resolve({ recent: [], upcoming: [] }),
@@ -117,6 +118,7 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
     getTeamThreads(team.id),
     isFollowing(team.id),
     getTeamEntityInsights(team.id, 2),
+    getTeamDailyPulse(team.id),
   ]);
 
   const myStats = league.find((t) => t.team_id === smId) ?? null;
@@ -176,6 +178,8 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
           <KeyStat label="Vinster" value={myStats.wins} />
         </div>
       )}
+
+      <TeamDailyPulseCard pulse={dailyPulse} />
 
       <EntityInsightsPanel insights={insights} />
 

@@ -25,6 +25,7 @@ import type {
   Narrative,
   Podcast,
   PodcastChunk,
+  TeamDailyPulse,
   TeamPushPopup,
 } from "@/lib/types";
 
@@ -153,6 +154,27 @@ function mapEntityInsight(row: any): EntityInsight {
     confidence: Number(row.confidence ?? 0),
     severity: (row.severity ?? "info") as EntityInsight["severity"],
     sourceArticleIds: Array.isArray(row.source_article_ids) ? row.source_article_ids.map(String) : [],
+    metricSnapshot: (row.metric_snapshot ?? {}) as Record<string, unknown>,
+    evidence: (row.evidence ?? {}) as Record<string, unknown>,
+    generatedAt: String(row.generated_at ?? row.created_at ?? new Date().toISOString()),
+  };
+}
+
+function mapTeamDailyPulse(row: any): TeamDailyPulse {
+  return {
+    id: String(row.id),
+    teamEntityId: String(row.team_entity_id),
+    teamName: String(row.team_name ?? ""),
+    teamSlug: row.team_slug ? String(row.team_slug) : null,
+    pulseDate: String(row.pulse_date ?? ""),
+    headline: String(row.headline ?? ""),
+    dek: String(row.dek ?? ""),
+    body: String(row.body ?? ""),
+    editorialNote: row.editorial_note ?? null,
+    matchContextLabel: (row.match_context_label ?? "normal") as TeamDailyPulse["matchContextLabel"],
+    tone: (row.tone ?? "measured") as TeamDailyPulse["tone"],
+    sourceArticleIds: Array.isArray(row.source_article_ids) ? row.source_article_ids.map(String) : [],
+    sourceFixtureIds: Array.isArray(row.source_fixture_ids) ? row.source_fixture_ids.map(Number) : [],
     metricSnapshot: (row.metric_snapshot ?? {}) as Record<string, unknown>,
     evidence: (row.evidence ?? {}) as Record<string, unknown>,
     generatedAt: String(row.generated_at ?? row.created_at ?? new Date().toISOString()),
@@ -520,4 +542,28 @@ export const getTeamEntityInsights = unstable_cache(
   },
   ["team-entity-insights"],
   { revalidate: 120, tags: ["entity-insights"] }
+);
+
+export const getTeamDailyPulse = unstable_cache(
+  async (teamEntityId: string): Promise<TeamDailyPulse | null> => {
+    if (!isSupabaseConfigured()) return null;
+    try {
+      const supabase = createServerClient();
+      const { data } = await supabase
+        .from("published_team_daily_pulses")
+        .select("*")
+        .eq("team_entity_id", teamEntityId)
+        .eq("sport", "football")
+        .order("pulse_date", { ascending: false })
+        .order("generated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      return data ? mapTeamDailyPulse(data) : null;
+    } catch {
+      return null;
+    }
+  },
+  ["team-daily-pulse"],
+  { revalidate: 120, tags: ["team-daily-pulse"] }
 );
