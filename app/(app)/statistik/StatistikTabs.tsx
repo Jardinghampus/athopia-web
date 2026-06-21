@@ -14,7 +14,7 @@ const TABS = [
   { id: "tabell", label: "Tabell" },
   { id: "skytteliga", label: "Skytteliga" },
   { id: "assistligan", label: "Assistligan" },
-  { id: "xg", label: "Skott & kreativitet" },
+  { id: "xg", label: "xG-tabell" },
   { id: "form", label: "Form" },
   { id: "press", label: "Spelarstats" },
   { id: "h2h", label: "H2H" },

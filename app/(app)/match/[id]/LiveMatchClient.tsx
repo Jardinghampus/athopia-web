@@ -11,6 +11,10 @@ interface MatchStats {
   away_team_name: string;
   home_score: number;
   away_score: number;
+  home_xg: number | null;
+  away_xg: number | null;
+  home_pressure: number | null;
+  away_pressure: number | null;
   home_possession: number | null;
   away_possession: number | null;
   home_shots: number | null;
@@ -34,15 +38,15 @@ const fetcher = (url: string) => fetch(url).then((r) => r.json()) as Promise<Mat
 
 // ── Stat-rad ──────────────────────────────────────────────────────────────────
 
-function StatBar({ label, home, away }: { label: string; home: number; away: number }) {
+function StatBar({ label, home, away, format = (v: number) => String(v) }: { label: string; home: number; away: number; format?: (value: number) => string }) {
   const total = home + away || 1;
   const homeW = Math.round((home / total) * 100);
   return (
     <div className="mb-3">
       <div className="flex justify-between text-xs text-muted-foreground mb-1">
-        <span className="font-semibold text-foreground">{home}</span>
+        <span className="font-semibold text-foreground">{format(home)}</span>
         <span>{label}</span>
-        <span className="font-semibold text-foreground">{away}</span>
+        <span className="font-semibold text-foreground">{format(away)}</span>
       </div>
       <div className="h-1.5 bg-muted rounded-full overflow-hidden flex">
         <div className="bg-pitch transition-all duration-700" style={{ width: `${homeW}%` }} />
@@ -142,6 +146,10 @@ export function LiveMatchClient({ fixtureId, initialStats, isLive, teamIds }: Li
     );
   }
 
+  const homeXg = match.home_xg ?? 0;
+  const awayXg = match.away_xg ?? 0;
+  const hasXg = homeXg > 0 || awayXg > 0;
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Vänster: match-statistik */}
@@ -174,11 +182,14 @@ export function LiveMatchClient({ fixtureId, initialStats, isLive, teamIds }: Li
         </div>
 
         {/* Statistik */}
-        {(match.home_possession ?? 0) > 0 && (
+        {(hasXg || (match.home_possession ?? 0) > 0) && (
           <div className="bg-card border border-border rounded-xl p-4">
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-4">
               Matchstatistik
             </h3>
+            {hasXg && (
+              <StatBar label="xG" home={homeXg} away={awayXg} format={(v) => v.toFixed(2)} />
+            )}
             {match.home_possession != null && (
               <StatBar label="Bollinnehav %" home={match.home_possession} away={match.away_possession ?? 0} />
             )}

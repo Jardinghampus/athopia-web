@@ -59,6 +59,8 @@ export interface ScorerRow {
   rating: number | null;
   yellow_cards: number;
   red_cards: number;
+  xg?: number;
+  xa?: number;
 }
 
 interface FixtureLite {
@@ -80,6 +82,7 @@ type PlayerLite = {
 type LeaderMetric =
   | "goals"
   | "assists"
+  | "xg"
   | "rating"
   | "shots"
   | "key_passes"
@@ -231,7 +234,7 @@ const cachedLeaderRows = unstable_cache(
       const db = createServerClient();
       let query = db
         .from("player_season_stats")
-        .select("player_id,team_id,appearances,minutes,goals,assists,shots,shots_on_target,key_passes,passes,pass_accuracy,tackles,interceptions,rating,yellow_cards,red_cards")
+        .select("player_id,team_id,appearances,minutes,goals,assists,xg,xa,shots,shots_on_target,key_passes,passes,pass_accuracy,tackles,interceptions,rating,yellow_cards,red_cards")
         .eq("season_id", Number(seasonId))
         .order(orderCol, { ascending: false, nullsFirst: false })
         .order("minutes", { ascending: false })
@@ -273,6 +276,8 @@ async function getLeaders(
         minutes: Number(r.minutes ?? 0),
         goals: Number(r.goals ?? 0),
         assists: Number(r.assists ?? 0),
+        xg: r.xg != null ? Number(r.xg) : undefined,
+        xa: r.xa != null ? Number(r.xa) : undefined,
         penalties: 0, // dedikerad kolumn saknas i player_season_stats (finns ev. i raw_stats)
         shots: Number(r.shots ?? 0),
         shots_on_target: Number(r.shots_on_target ?? 0),
@@ -293,6 +298,7 @@ async function getLeaders(
 
 export const getTopScorersFromDb = (seasonId: string) => getLeaders(seasonId, "goals");
 export const getTopAssistsFromDb = (seasonId: string) => getLeaders(seasonId, "assists");
+export const getTopXgFromDb = (seasonId: string) => getLeaders(seasonId, "xg");
 export const getTopRatingsFromDb = (seasonId: string) => getLeaders(seasonId, "rating");
 export const getTopShotsFromDb = (seasonId: string) => getLeaders(seasonId, "shots");
 export const getTopKeyPassesFromDb = (seasonId: string) => getLeaders(seasonId, "key_passes");

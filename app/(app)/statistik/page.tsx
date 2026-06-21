@@ -18,9 +18,9 @@ import {
   getStandingsFromDb,
   getTopScorersFromDb,
   getTopAssistsFromDb,
+  getTopXgFromDb,
   getTopRatingsFromDb,
   getTopShotsFromDb,
-  getTopKeyPassesFromDb,
   getTopPassersFromDb,
   getTopDefendersFromDb,
   getMostCardsFromDb,
@@ -36,9 +36,8 @@ async function getScorers(seasonId: string) {
 async function getAssists(seasonId: string) {
   return getTopAssistsFromDb(seasonId);
 }
-async function getCreation(seasonId: string) {
-  const [shots, keyPasses] = await Promise.all([getTopShotsFromDb(seasonId), getTopKeyPassesFromDb(seasonId)]);
-  return { shots, keyPasses };
+async function getXgLeaders(seasonId: string) {
+  return getTopXgFromDb(seasonId);
 }
 async function getPlayerOverview(seasonId: string) {
   const [ratings, shots, passers, defenders, cards] = await Promise.all([
@@ -299,41 +298,28 @@ async function AssistliganTab({ seasonId }: { seasonId: string }) {
   return <PlayerLeaderboard rows={assists} primary="assists" primaryLabel="Ast" />;
 }
 
-// ── Skott & kreativitet ──────────────────────────────────────────────────────
+// ── xG-tabell ────────────────────────────────────────────────────────────────
 
-async function CreationTab({ seasonId }: { seasonId: string }) {
-  const { shots, keyPasses } = await getCreation(seasonId);
+async function XGTab({ seasonId }: { seasonId: string }) {
+  const rows = await getXgLeaders(seasonId);
+  if (rows.length === 0) {
+    return (
+      <EmptyState message="xG finns i produkten men saknar verifierade värden i Supabase ännu." />
+    );
+  }
   return (
-    <div className="grid gap-8 xl:grid-cols-2">
-      <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Skottledare</h2>
-        <PlayerLeaderboard
-          rows={shots}
-          primary="shots"
-          primaryLabel="Skott"
-          secondary={[
-            { key: "goals", label: "Mål" },
-            { key: "shots_on_target", label: "På mål" },
-            { key: "assists", label: "Ast" },
-            { key: "minutes", label: "Min" },
-          ]}
-        />
-      </section>
-      <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Kreativa passningar</h2>
-        <PlayerLeaderboard
-          rows={keyPasses}
-          primary="key_passes"
-          primaryLabel="Nyckelpass"
-          secondary={[
-            { key: "assists", label: "Ast" },
-            { key: "passes", label: "Pass" },
-            { key: "goals", label: "Mål" },
-            { key: "minutes", label: "Min" },
-          ]}
-        />
-      </section>
-    </div>
+    <PlayerLeaderboard
+      rows={rows}
+      primary="xg"
+      primaryLabel="xG"
+      primaryDecimals={2}
+      secondary={[
+        { key: "goals", label: "Mål" },
+        { key: "shots", label: "Skott" },
+        { key: "minutes", label: "Min" },
+        { key: "rating", label: "Betyg", decimals: 2 },
+      ]}
+    />
   );
 }
 
@@ -476,7 +462,7 @@ export default async function StatistikPage({
     case "tabell":      tabContent = <TabelTab seasonId={seasonId} />;       break;
     case "skytteliga":  tabContent = <SkytteligaTab seasonId={seasonId} />;  break;
     case "assistligan": tabContent = <AssistliganTab seasonId={seasonId} />; break;
-    case "xg":          tabContent = <CreationTab seasonId={seasonId} />;    break;
+    case "xg":          tabContent = <XGTab seasonId={seasonId} />;          break;
     case "form":        tabContent = <FormTab seasonId={seasonId} />;        break;
     case "press":       tabContent = <PressTab seasonId={seasonId} />;       break;
     case "h2h":         tabContent = <H2HTab />;         break;

@@ -88,6 +88,9 @@ export default async function MatchPage({ params }: PageProps) {
   const homeLup   = starters.filter(l => String(l.team_id) === homeTeamId);
   const awayLup   = starters.filter(l => String(l.team_id) === awayTeamId);
   const summary   = d?.sum?.summary as string | null;
+  const homeXg = Number(homeStat?.xg ?? 0);
+  const awayXg = Number(awayStat?.xg ?? 0);
+  const hasXg = homeXg > 0 || awayXg > 0;
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
@@ -123,12 +126,14 @@ export default async function MatchPage({ params }: PageProps) {
             <div className="bg-card border border-border rounded-xl p-4 space-y-3">
               <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Matchstatistik</h3>
               {[
+                hasXg ? { label: "xG", h: homeXg.toFixed(2), a: awayXg.toFixed(2), hv: homeXg, av: awayXg } : null,
                 { label: "Bollinnehav %", h: homeStat?.possession, a: awayStat?.possession, hv: Number(homeStat?.possession ?? 50), av: Number(awayStat?.possession ?? 50) },
                 { label: "Skott", h: homeStat?.shots, a: awayStat?.shots, hv: Number(homeStat?.shots ?? 0), av: Number(awayStat?.shots ?? 0) },
                 { label: "Skott på mål", h: homeStat?.shots_on_target, a: awayStat?.shots_on_target, hv: Number(homeStat?.shots_on_target ?? 0), av: Number(awayStat?.shots_on_target ?? 0) },
                 { label: "Hörnsparkar", h: homeStat?.corners, a: awayStat?.corners, hv: Number(homeStat?.corners ?? 0), av: Number(awayStat?.corners ?? 0) },
                 { label: "Passningar", h: homeStat?.passes, a: awayStat?.passes, hv: Number(homeStat?.passes ?? 0), av: Number(awayStat?.passes ?? 0) },
-              ].map(({ label, h, a, hv, av }) => {
+              ].filter(Boolean).map((row) => {
+                const { label, h, a, hv, av } = row!;
                 const total = hv + av || 1;
                 const pct = Math.round((hv / total) * 100);
                 return (
