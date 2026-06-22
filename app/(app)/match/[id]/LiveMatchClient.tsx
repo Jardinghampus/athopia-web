@@ -146,9 +146,9 @@ export function LiveMatchClient({ fixtureId, initialStats, isLive, teamIds }: Li
     );
   }
 
+  const hasXg = match.home_xg != null && match.away_xg != null;
   const homeXg = match.home_xg ?? 0;
   const awayXg = match.away_xg ?? 0;
-  const hasXg = homeXg > 0 || awayXg > 0;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
