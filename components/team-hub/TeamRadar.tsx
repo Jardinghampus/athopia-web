@@ -28,9 +28,11 @@ export function TeamRadar({ data, color = "var(--color-pitch)" }: { data: RadarP
     );
   }
 
+  const chartData = data.map((point) => ({ ...point, baseline: 50 }));
+
   return (
     <ResponsiveContainer width="100%" height={240}>
-      <RadarChart data={data} margin={{ top: 10, right: 30, bottom: 10, left: 30 }}>
+      <RadarChart data={chartData} margin={{ top: 10, right: 30, bottom: 10, left: 30 }}>
         <PolarGrid stroke="hsl(var(--border))" />
         <PolarAngleAxis
           dataKey="metric"
@@ -49,7 +51,17 @@ export function TeamRadar({ data, color = "var(--color-pitch)" }: { data: RadarP
           }}
         />
         <Radar
+          dataKey="baseline"
+          name="Allsvenskan baseline"
+          stroke="#f59e0b"
+          fill="#f59e0b"
+          fillOpacity={0.08}
+          strokeDasharray="4 4"
+          strokeWidth={1.5}
+        />
+        <Radar
           dataKey="value"
+          name="Lagprofil"
           stroke={color}
           fill={color}
           fillOpacity={0.35}

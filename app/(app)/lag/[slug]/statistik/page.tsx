@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import { TeamPlayerStatsTable, type TeamPlayerStat } from "./TeamPlayerStatsTable";
 
 export const revalidate = 60;
 
@@ -92,6 +93,24 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
   const byGoals   = [...players].sort((a, b) => (b.goals as number) - (a.goals as number)).slice(0, 5);
   const byAssists = [...players].sort((a, b) => (b.assists as number) - (a.assists as number)).slice(0, 5);
   const byApps    = [...players].sort((a, b) => (b.appearances as number) - (a.appearances as number)).slice(0, 5);
+  const playerTableRows: TeamPlayerStat[] = players.map((row) => {
+    const pl = row.player as Record<string, unknown> | null;
+    return {
+      player_id: Number(row.player_id ?? 0),
+      fullname: (pl?.fullname as string) ?? `Spelare ${row.player_id}`,
+      slug: (pl?.slug as string) ?? String(row.player_id ?? ""),
+      position: (pl?.position as string | null) ?? null,
+      appearances: Number(row.appearances ?? 0),
+      goals: Number(row.goals ?? 0),
+      assists: Number(row.assists ?? 0),
+      shots: Number(row.shots ?? 0),
+      passes: Number(row.passes ?? 0),
+      tackles: Number(row.tackles ?? 0),
+      rating: row.rating == null ? null : Number(row.rating),
+      yellow_cards: Number(row.yellow_cards ?? 0),
+      red_cards: Number(row.red_cards ?? 0),
+    };
+  });
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
@@ -163,53 +182,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
 
       {/* Full spelarstatistik-tabell */}
       {players.length > 0 && (
-        <div className="rounded-2xl border border-border bg-card overflow-x-auto">
-          <div className="px-4 py-3 border-b border-border">
-            <h3 className="font-semibold text-sm text-foreground">ALL SPELARSTATISTIK</h3>
-          </div>
-          <table className="w-full text-sm min-w-[600px]">
-            <thead>
-              <tr className="border-b border-border bg-muted/40">
-                <th className="text-left px-4 py-2 text-xs text-muted-foreground">Spelare</th>
-                <th className="text-center px-3 py-2 text-xs text-muted-foreground">Pos</th>
-                <th className="text-center px-3 py-2 text-xs text-muted-foreground">M</th>
-                <th className="text-center px-3 py-2 text-xs text-muted-foreground">Mål</th>
-                <th className="text-center px-3 py-2 text-xs text-muted-foreground">Ast</th>
-                <th className="text-center px-3 py-2 text-xs text-muted-foreground">Skott</th>
-                <th className="text-center px-3 py-2 text-xs text-muted-foreground">Pass</th>
-                <th className="text-center px-3 py-2 text-xs text-muted-foreground">Tackl</th>
-                <th className="text-center px-3 py-2 text-xs text-muted-foreground">Betyg</th>
-                <th className="text-center px-3 py-2 text-xs text-muted-foreground">🟨</th>
-                <th className="text-center px-3 py-2 text-xs text-muted-foreground">🟥</th>
-              </tr>
-            </thead>
-            <tbody>
-              {players.map((row, i) => {
-                const pl = row.player as Record<string, unknown> | null;
-                const playerSlug = (pl?.slug as string) ?? String(row.player_id ?? "");
-                return (
-                  <tr key={i} className="border-b border-border/40 last:border-0 hover:bg-muted/20 transition-colors">
-                    <td className="px-4 py-2">
-                      <Link href={`/spelare/${playerSlug}`} className="text-foreground hover:text-pitch">
-                        {(pl?.fullname as string) ?? `Spelare ${row.player_id}`}
-                      </Link>
-                    </td>
-                    <td className="text-center px-3 py-2 text-muted-foreground capitalize">{(pl?.position as string)?.slice(0, 3) ?? "–"}</td>
-                    <td className="text-center px-3 py-2 text-muted-foreground">{row.appearances as number ?? 0}</td>
-                    <td className="text-center px-3 py-2 font-semibold text-foreground">{row.goals as number ?? 0}</td>
-                    <td className="text-center px-3 py-2 text-foreground">{row.assists as number ?? 0}</td>
-                    <td className="text-center px-3 py-2 text-muted-foreground">{row.shots as number ?? 0}</td>
-                    <td className="text-center px-3 py-2 text-muted-foreground">{row.passes as number ?? 0}</td>
-                    <td className="text-center px-3 py-2 text-muted-foreground">{row.tackles as number ?? 0}</td>
-                    <td className="text-center px-3 py-2 text-muted-foreground">{row.rating ? Number(row.rating).toFixed(2) : "–"}</td>
-                    <td className="text-center px-3 py-2 text-yellow-500">{row.yellow_cards as number ?? 0}</td>
-                    <td className="text-center px-3 py-2 text-red-500">{row.red_cards as number ?? 0}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        <TeamPlayerStatsTable players={playerTableRows} />
       )}
 
       {/* Senaste matcher */}

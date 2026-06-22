@@ -21,23 +21,35 @@ export interface ScoutPlayer {
   goals: number;
   assists: number;
   shots: number;
+  shots_on_target: number;
   key_passes: number;
   passes: number;
+  pass_accuracy: number;
   tackles: number;
   interceptions: number;
   rating: number;
+  xg: number;
+  xa: number;
+  yellow_cards: number;
+  red_cards: number;
 }
 
 export const SCOUT_METRICS = [
   { key: "goals", label: "Mål" },
   { key: "assists", label: "Assist" },
+  { key: "xg", label: "xG" },
+  { key: "xa", label: "xA" },
   { key: "shots", label: "Skott" },
+  { key: "shots_on_target", label: "Skott på mål" },
   { key: "key_passes", label: "Nyckelpass" },
   { key: "passes", label: "Passningar" },
+  { key: "pass_accuracy", label: "Pass%" },
   { key: "tackles", label: "Tacklingar" },
   { key: "interceptions", label: "Brytningar" },
   { key: "minutes", label: "Speltid" },
   { key: "rating", label: "Betyg" },
+  { key: "yellow_cards", label: "Gula kort" },
+  { key: "red_cards", label: "Röda kort" },
 ] as const;
 
 export type ScoutMetricKey = (typeof SCOUT_METRICS)[number]["key"];
@@ -49,7 +61,7 @@ export async function getScoutPool(): Promise<ScoutPlayer[]> {
     const db = createServerClient();
     const [{ data: stats }, { data: teams }] = await Promise.all([
       db.from("player_season_stats")
-        .select("player_id,team_id,appearances,minutes,goals,assists,shots,key_passes,passes,tackles,interceptions,rating")
+        .select("player_id,team_id,appearances,minutes,goals,assists,xg,xa,shots,shots_on_target,key_passes,passes,pass_accuracy,tackles,interceptions,rating,yellow_cards,red_cards")
         .eq("season_id", SEASON_2026),
       db.from("entities").select("name,metadata").eq("type", "team"),
     ]);
@@ -85,12 +97,18 @@ export async function getScoutPool(): Promise<ScoutPlayer[]> {
         minutes: Number(r.minutes ?? 0),
         goals: Number(r.goals ?? 0),
         assists: Number(r.assists ?? 0),
+        xg: Number(r.xg ?? 0),
+        xa: Number(r.xa ?? 0),
         shots: Number(r.shots ?? 0),
+        shots_on_target: Number(r.shots_on_target ?? 0),
         key_passes: Number(r.key_passes ?? 0),
         passes: Number(r.passes ?? 0),
+        pass_accuracy: Number(r.pass_accuracy ?? 0),
         tackles: Number(r.tackles ?? 0),
         interceptions: Number(r.interceptions ?? 0),
         rating: Number(r.rating ?? 0),
+        yellow_cards: Number(r.yellow_cards ?? 0),
+        red_cards: Number(r.red_cards ?? 0),
       };
     });
     // Fallback till mock medan DB är tom/onåbar så UI:t går att jobba med.

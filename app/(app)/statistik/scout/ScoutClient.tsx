@@ -18,7 +18,7 @@ const POSITIONS = [
 
 interface Filters {
   position: string;
-  metric: ScoutMetricKey;
+  metrics: ScoutMetricKey[];
   aboveMedian: boolean;
   minMinutes: number;
 }
@@ -36,12 +36,30 @@ function FilterControls({ f, set }: { f: Filters; set: (patch: Partial<Filters>)
         </select>
       </label>
 
-      <label className="text-xs text-muted-foreground space-y-1">
-        <span>Mätvärde</span>
-        <select value={f.metric} onChange={(e) => set({ metric: e.target.value as ScoutMetricKey })} className={selectClass}>
-          {SCOUT_METRICS.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}
-        </select>
-      </label>
+      <div className="text-xs text-muted-foreground space-y-1">
+        <span>Mätvärden</span>
+        <div className="grid max-h-36 grid-cols-2 gap-1 overflow-y-auto rounded-lg border border-border bg-background p-2">
+          {SCOUT_METRICS.map((m) => {
+            const checked = f.metrics.includes(m.key);
+            return (
+              <label key={m.key} className="flex min-h-8 items-center gap-2 rounded-md px-2 text-xs text-foreground hover:bg-muted/50">
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={() => {
+                    const next = checked
+                      ? f.metrics.filter((key) => key !== m.key)
+                      : [...f.metrics, m.key];
+                    set({ metrics: next.length ? next : [m.key] });
+                  }}
+                  className="size-4 accent-pitch"
+                />
+                <span>{m.label}</span>
+              </label>
+            );
+          })}
+        </div>
+      </div>
 
       <div className="text-xs text-muted-foreground space-y-1">
         <span>Riktning</span>
@@ -71,14 +89,14 @@ function FilterControls({ f, set }: { f: Filters; set: (patch: Partial<Filters>)
 export function ScoutClient({ pool }: { pool: ScoutPlayer[] }) {
   const [filters, setFilters] = useState<Filters>({
     position: "all",
-    metric: "shots",
+    metrics: ["shots"],
     aboveMedian: true,
     minMinutes: 0,
   });
   const [query, setQuery] = useState("");
   const [sheetOpen, setSheetOpen] = useState(false);
   const set = (patch: Partial<Filters>) => setFilters((f) => ({ ...f, ...patch }));
-  const { position, metric, aboveMedian, minMinutes } = filters;
+  const { position, metrics, aboveMedian, minMinutes } = filters;
 
   // Jämförelsegrupp = ligan, eller positionen om vald → positionsmedian.
   const cohort = useMemo(
@@ -93,22 +111,36 @@ export function ScoutClient({ pool }: { pool: ScoutPlayer[] }) {
   }, [cohort]);
 
   const results = useMemo(() => {
-    const ref = medians[metric];
+    const activeMetrics: ScoutMetricKey[] = metrics.length ? metrics : ["shots"];
     return cohort
       .filter((p) => p.minutes >= minMinutes)
       .filter((p) => (query ? p.fullname.toLowerCase().includes(query.toLowerCase()) : true))
-      .filter((p) => (aboveMedian ? p[metric] >= ref : p[metric] <= ref))
-      .sort((a, b) => (aboveMedian ? b[metric] - a[metric] : a[metric] - b[metric]));
-  }, [cohort, metric, medians, aboveMedian, minMinutes, query]);
+      .filter((p) =>
+        activeMetrics.every((metric) =>
+          aboveMedian ? p[metric] >= medians[metric] : p[metric] <= medians[metric],
+        ),
+      )
+      .sort((a, b) => {
+        const score = (p: ScoutPlayer) =>
+          activeMetrics.reduce((sum, metric) => {
+            const ref = medians[metric] || 1;
+            const delta = (p[metric] - medians[metric]) / Math.max(1, Math.abs(ref));
+            return sum + delta;
+          }, 0);
+        return aboveMedian ? score(b) - score(a) : score(a) - score(b);
+      });
+  }, [cohort, metrics, medians, aboveMedian, minMinutes, query]);
 
-  const metricLabel = SCOUT_METRICS.find((m) => m.key === metric)?.label ?? metric;
-  const fmt = (v: number) => (metric === "rating" ? v.toFixed(2) : v);
-  const filterActive = position !== "all" || metric !== "shots" || !aboveMedian || minMinutes > 0;
+  const metricLabels = metrics
+    .map((metric) => SCOUT_METRICS.find((m) => m.key === metric)?.label ?? metric)
+    .join(", ");
+  const fmtMetric = (metric: ScoutMetricKey, v: number) => (metric === "rating" || metric === "xg" || metric === "xa" ? v.toFixed(2) : v);
+  const filterActive = position !== "all" || metrics.length !== 1 || metrics[0] !== "shots" || !aboveMedian || minMinutes > 0;
 
   const summary = (
     <p className="text-xs text-muted-foreground">
       Visar spelare <strong className="text-foreground">{aboveMedian ? "över" : "under"}</strong> {position === "all" ? "liga" : "positions"}median i{" "}
-      <strong className="text-foreground">{metricLabel}</strong> ({fmt(medians[metric])}) ·{" "}
+      <strong className="text-foreground">{metricLabels}</strong> ·{" "}
       <strong className="text-pitch">{results.length}</strong> träffar
     </p>
   );
@@ -164,7 +196,7 @@ export function ScoutClient({ pool }: { pool: ScoutPlayer[] }) {
         <div className="py-12 text-center space-y-2">
           <p className="text-sm text-muted-foreground">Inga spelare matchar filtret.</p>
           <button
-            onClick={() => { setFilters({ position: "all", metric: "shots", aboveMedian: true, minMinutes: 0 }); setQuery(""); }}
+            onClick={() => { setFilters({ position: "all", metrics: ["shots"], aboveMedian: true, minMinutes: 0 }); setQuery(""); }}
             className="text-sm text-pitch hover:underline"
           >
             Återställ filter
@@ -173,11 +205,12 @@ export function ScoutClient({ pool }: { pool: ScoutPlayer[] }) {
       ) : (
         <ListGroup
           className="max-w-3xl"
-          header={`${metricLabel} — ${aboveMedian ? "över" : "under"} median`}
-          footer={`Avvikelsen visas mot ${position === "all" ? "ligans" : "positionens"} median (${fmt(medians[metric])}).`}
+          header={`${metricLabels} — ${aboveMedian ? "över" : "under"} median`}
+          footer={`Alla valda mätvärden måste passera ${position === "all" ? "ligans" : "positionens"} median.`}
         >
           {results.slice(0, 60).map((p, i) => {
-            const delta = p[metric] - medians[metric];
+            const primaryMetric: ScoutMetricKey = metrics[0] ?? "shots";
+            const delta = p[primaryMetric] - medians[primaryMetric];
             return (
               <ListRow
                 key={`${p.player_id}-${i}`}
@@ -187,9 +220,9 @@ export function ScoutClient({ pool }: { pool: ScoutPlayer[] }) {
                 subtitle={`${p.team_name} · ${p.position?.slice(0, 3) ?? "–"} · ${p.minutes}′`}
                 trailing={
                   <span className="tabular-nums">
-                    <span className="font-bold text-foreground">{fmt(p[metric])}</span>
+                    <span className="font-bold text-foreground">{fmtMetric(primaryMetric, p[primaryMetric])}</span>
                     <span className={`ml-1.5 text-[11px] ${delta >= 0 ? "text-pitch" : "text-red-400"}`}>
-                      {delta >= 0 ? "+" : ""}{fmt(delta)}
+                      {delta >= 0 ? "+" : ""}{fmtMetric(primaryMetric, delta)}
                     </span>
                   </span>
                 }

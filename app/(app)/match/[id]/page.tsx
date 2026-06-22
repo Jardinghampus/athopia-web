@@ -16,8 +16,11 @@ async function getData(fixtureId: number) {
     db.from("fixture_lineups").select("*").eq("fixture_id", fixtureId).order("starter", { ascending: false }),
     db.from("match_summaries").select("summary,generated_at").eq("fixture_id", fixtureId).maybeSingle(),
   ]);
-  // Hämta spelarnamn separat för de player_ids som finns i players-tabellen
-  const playerIds = (lups ?? []).map((l: Record<string, unknown>) => l.player_id as number).filter(Boolean);
+  // Hämta spelarnamn separat för de player_ids som finns i lineups och händelser.
+  const playerIds = Array.from(new Set([
+    ...(lups ?? []).flatMap((l: Record<string, unknown>) => [l.player_id as number]),
+    ...(evts ?? []).flatMap((e: Record<string, unknown>) => [e.player_id as number, e.related_player_id as number]),
+  ].filter(Boolean)));
   let playerMap: Record<number, { fullname: string; image: string | null; position: string | null; slug: string | null }> = {};
   if (playerIds.length > 0) {
     const { data: players } = await db.from("players").select("sportmonks_id,fullname,image,position,slug").in("sportmonks_id", playerIds);
@@ -34,7 +37,7 @@ async function getData(fixtureId: number) {
     ...l,
     players: playerMap[l.player_id as number] ?? null,
   }));
-  return { fix, tms: tms ?? [], evts: evts ?? [], lups: lupsWithPlayers, sum };
+  return { fix, tms: tms ?? [], evts: evts ?? [], lups: lupsWithPlayers, sum, playerMap };
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -51,6 +54,28 @@ const EVENT_ICONS: Record<string, string> = {
   goal: "⚽", own_goal: "⚽🔴", yellow_card: "🟨", red_card: "🟥", sub: "🔄", missed_pen: "❌",
   GOAL: "⚽", OWN_GOAL: "⚽🔴", YELLOWCARD: "🟨", REDCARD: "🟥", YELLOW_RED_CARD: "🟥", SUBSTITUTION: "🔄", PENALTY_MISSED: "❌",
 };
+
+const EVENT_LABELS: Record<string, string> = {
+  GOAL: "Mål",
+  OWN_GOAL: "Självmål",
+  YELLOWCARD: "Gult kort",
+  REDCARD: "Rött kort",
+  YELLOW_RED_CARD: "Andra gula",
+  SUBSTITUTION: "Byte",
+  PENALTY_MISSED: "Missad straff",
+};
+
+function statValue(value: unknown, suffix = "") {
+  if (value == null || value === "") return "Ej synkad";
+  const number = Number(value);
+  if (!Number.isFinite(number)) return String(value);
+  return `${number}${suffix}`;
+}
+
+function eventPlayerName(playerMap: Record<number, { fullname: string }>, id: unknown) {
+  const playerId = Number(id ?? 0);
+  return playerId ? playerMap[playerId]?.fullname ?? `Spelare ${playerId}` : null;
+}
 
 export default async function MatchPage({ params }: PageProps) {
   const { id } = await params;
@@ -86,8 +111,10 @@ export default async function MatchPage({ params }: PageProps) {
   const evts  = (d?.evts ?? []) as Record<string, unknown>[];
   const lups  = (d?.lups ?? []) as Record<string, unknown>[];
   const starters  = lups.filter(l => l.starter);
-  const homeLup   = starters.filter(l => String(l.team_id) === homeTeamId);
-  const awayLup   = starters.filter(l => String(l.team_id) === awayTeamId);
+  const byJersey = (a: Record<string, unknown>, b: Record<string, unknown>) => Number(a.jersey ?? 999) - Number(b.jersey ?? 999);
+  const homeLup   = starters.filter(l => String(l.team_id) === homeTeamId).sort(byJersey);
+  const awayLup   = starters.filter(l => String(l.team_id) === awayTeamId).sort(byJersey);
+  const playerMap = (d?.playerMap ?? {}) as Record<number, { fullname: string }>;
   const summary   = d?.sum?.summary as string | null;
   const hasXg = homeStat?.xg != null && awayStat?.xg != null;
   const homeXg = hasXg ? Number(homeStat?.xg) : null;
@@ -128,25 +155,32 @@ export default async function MatchPage({ params }: PageProps) {
               <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Matchstatistik</h3>
               {[
                 hasXg ? { label: "xG", h: homeXg!.toFixed(2), a: awayXg!.toFixed(2), hv: homeXg!, av: awayXg! } : null,
-                { label: "Bollinnehav %", h: homeStat?.possession, a: awayStat?.possession, hv: Number(homeStat?.possession ?? 50), av: Number(awayStat?.possession ?? 50) },
+                { label: "Bollinnehav", suffix: "%", h: homeStat?.possession, a: awayStat?.possession, hv: Number(homeStat?.possession ?? 50), av: Number(awayStat?.possession ?? 50) },
                 { label: "Skott", h: homeStat?.shots, a: awayStat?.shots, hv: Number(homeStat?.shots ?? 0), av: Number(awayStat?.shots ?? 0) },
                 { label: "Skott på mål", h: homeStat?.shots_on_target, a: awayStat?.shots_on_target, hv: Number(homeStat?.shots_on_target ?? 0), av: Number(awayStat?.shots_on_target ?? 0) },
                 { label: "Hörnsparkar", h: homeStat?.corners, a: awayStat?.corners, hv: Number(homeStat?.corners ?? 0), av: Number(awayStat?.corners ?? 0) },
                 { label: "Passningar", h: homeStat?.passes, a: awayStat?.passes, hv: Number(homeStat?.passes ?? 0), av: Number(awayStat?.passes ?? 0) },
               ].filter(Boolean).map((row) => {
-                const { label, h, a, hv, av } = row!;
-                const total = hv + av || 1;
+                const { label, suffix = "", h, a, hv, av } = row!;
+                const hasValues = h != null || a != null;
+                const total = hasValues ? hv + av || 1 : 1;
                 const pct = Math.round((hv / total) * 100);
                 return (
                   <div key={label}>
                     <div className="flex justify-between text-xs mb-1">
-                      <span className="font-semibold text-foreground">{String(h ?? "–")}</span>
+                      <span className="font-semibold text-foreground">{statValue(h, suffix)}</span>
                       <span className="text-muted-foreground">{label}</span>
-                      <span className="font-semibold text-foreground">{String(a ?? "–")}</span>
+                      <span className="font-semibold text-foreground">{statValue(a, suffix)}</span>
                     </div>
                     <div className="h-1.5 bg-muted rounded-full flex overflow-hidden">
-                      <div className="bg-pitch" style={{ width: `${pct}%` }} />
-                      <div className="bg-blue-500" style={{ width: `${100 - pct}%` }} />
+                      {hasValues ? (
+                        <>
+                          <div className="bg-pitch" style={{ width: `${pct}%` }} />
+                          <div className="bg-blue-500" style={{ width: `${100 - pct}%` }} />
+                        </>
+                      ) : (
+                        <div className="w-full bg-muted-foreground/20" />
+                      )}
                     </div>
                   </div>
                 );
@@ -162,11 +196,19 @@ export default async function MatchPage({ params }: PageProps) {
                 {evts.map((e, i) => {
                   const isHome = String(e.team_id) === homeTeamId;
                   const icon = EVENT_ICONS[e.event_type as string] ?? "•";
+                  const type = String(e.event_type ?? "");
+                  const player = eventPlayerName(playerMap, e.player_id);
+                  const related = eventPlayerName(playerMap, e.related_player_id);
+                  const label = type === "SUBSTITUTION"
+                    ? `${related ? `${related} in` : "Inbytt"}${player ? `, ${player} ut` : ""}`
+                    : `${EVENT_LABELS[type] ?? type}${player ? ` · ${player}` : ""}${related && type === "GOAL" ? ` (${related})` : ""}`;
                   return (
                     <div key={i} className={`flex items-center gap-2 text-sm ${isHome ? "flex-row" : "flex-row-reverse"}`}>
                       <span className="text-xs text-muted-foreground w-8 text-center">{String(e.minute ?? "?")}′</span>
                       <span>{icon}</span>
-                      <span className="text-foreground/80 flex-1 truncate">{String(e.result ?? e.event_type ?? "")}</span>
+                      <span className="text-foreground/80 flex-1 truncate">
+                        {e.result ? `${e.result} · ` : ""}{label}
+                      </span>
                     </div>
                   );
                 })}

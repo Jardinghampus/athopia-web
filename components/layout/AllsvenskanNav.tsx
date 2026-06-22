@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getEntities } from "@/lib/supabase";
+import { AllsvenskanMobileSelect } from "./AllsvenskanMobileSelect";
 
 export async function AllsvenskanNav() {
   const teams = await getEntities("team");
@@ -8,7 +9,8 @@ export async function AllsvenskanNav() {
   return (
     <div className="border-b border-border/40 bg-background/95 backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex gap-1.5 overflow-x-auto scrollbar-none py-2">
+        <AllsvenskanMobileSelect teams={teams.map((team) => ({ slug: team.slug, name: team.name }))} />
+        <div className="hidden min-[640px]:flex gap-1.5 overflow-x-auto scrollbar-none py-2">
           {teams.map((team) => (
             <Link
               key={team.id}

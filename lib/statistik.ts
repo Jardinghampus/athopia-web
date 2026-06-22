@@ -72,6 +72,18 @@ interface FixtureLite {
 }
 
 type TeamLite = { id: number; name: string | null; logo_path: string | null };
+type TeamSeasonLite = {
+  team_id: number | string;
+  played: number | null;
+  wins: number | null;
+  draws: number | null;
+  losses: number | null;
+  points: number | null;
+  goals_for: number | null;
+  goals_against: number | null;
+  goal_diff?: number | null;
+  form?: string | string[] | null;
+};
 type PlayerLite = {
   id: number;
   fullname: string;
@@ -138,14 +150,75 @@ const cachedSeasonFixtures = unstable_cache(
   { revalidate: STATS_REVALIDATE, tags: ["statistik"] }
 );
 
+const cachedSeasonTeamStats = unstable_cache(
+  async (seasonId: string): Promise<TeamSeasonLite[]> => {
+    if (!isSupabaseConfigured()) return [];
+    try {
+      const db = createServerClient();
+      const { data } = await db
+        .from("team_season_stats")
+        .select("team_id,played,wins,draws,losses,points,goals_for,goals_against,goal_diff,form")
+        .eq("season_id", Number(seasonId));
+      return (data ?? []) as TeamSeasonLite[];
+    } catch {
+      return [];
+    }
+  },
+  ["statistik:team-season-stats"],
+  { revalidate: STATS_REVALIDATE, tags: ["statistik"] }
+);
+
+function normalizeForm(form: TeamSeasonLite["form"]): string[] {
+  if (Array.isArray(form)) return form.map(String).filter(Boolean).slice(-5);
+  if (typeof form === "string") return form.split("").filter(Boolean).slice(-5);
+  return [];
+}
+
 /** Ligatabell härledd ur spelade matcher i Supabase. Tom array = ingen data. */
 export async function getStandingsFromDb(seasonId: string): Promise<StandingRow[]> {
   if (!isSupabaseConfigured()) return [];
   try {
-    const [played, teamMap] = await Promise.all([
+    const [teamStats, played, teamMap] = await Promise.all([
+      cachedSeasonTeamStats(seasonId),
       cachedSeasonFixtures(seasonId),
       getTeamMap(),
     ]);
+
+    if (teamStats.length > 0) {
+      const rows = teamStats
+        .map((r) => {
+          const id = Number(r.team_id);
+          if (!id) return null;
+          const t = teamMap.get(id);
+          const goalsFor = Number(r.goals_for ?? 0);
+          const goalsAgainst = Number(r.goals_against ?? 0);
+          return {
+            position: 0,
+            team: { id, name: t?.name ?? `Lag ${id}`, image_path: t?.image_path ?? null },
+            played: Number(r.played ?? 0),
+            wins: Number(r.wins ?? 0),
+            draws: Number(r.draws ?? 0),
+            losses: Number(r.losses ?? 0),
+            goals_for: goalsFor,
+            goals_against: goalsAgainst,
+            goal_diff: r.goal_diff == null ? goalsFor - goalsAgainst : Number(r.goal_diff),
+            points: Number(r.points ?? 0),
+            form: normalizeForm(r.form),
+          } satisfies StandingRow;
+        })
+        .filter((row): row is StandingRow => Boolean(row));
+
+      rows.sort(
+        (a, b) =>
+          b.points - a.points ||
+          b.goal_diff - a.goal_diff ||
+          b.goals_for - a.goals_for ||
+          a.team.name.localeCompare(b.team.name, "sv")
+      );
+      rows.forEach((r, i) => { r.position = i + 1; });
+      return rows;
+    }
+
     if (played.length === 0) return [];
 
     const acc = new Map<number, StandingRow>();
@@ -250,6 +323,24 @@ const cachedLeaderRows = unstable_cache(
   { revalidate: STATS_REVALIDATE, tags: ["statistik"] }
 );
 
+const cachedAllPlayerRows = unstable_cache(
+  async (seasonId: string): Promise<Record<string, unknown>[]> => {
+    if (!isSupabaseConfigured()) return [];
+    try {
+      const db = createServerClient();
+      const { data } = await db
+        .from("player_season_stats")
+        .select("player_id,team_id,appearances,minutes,goals,assists,xg,xa,shots,shots_on_target,key_passes,passes,pass_accuracy,tackles,interceptions,rating,yellow_cards,red_cards")
+        .eq("season_id", Number(seasonId));
+      return (data ?? []) as Record<string, unknown>[];
+    } catch {
+      return [];
+    }
+  },
+  ["statistik:all-player-rows"],
+  { revalidate: STATS_REVALIDATE, tags: ["statistik"] }
+);
+
 async function getLeaders(
   seasonId: string,
   orderCol: LeaderMetric
@@ -305,3 +396,46 @@ export const getTopKeyPassesFromDb = (seasonId: string) => getLeaders(seasonId, 
 export const getTopPassersFromDb = (seasonId: string) => getLeaders(seasonId, "passes");
 export const getTopDefendersFromDb = (seasonId: string) => getLeaders(seasonId, "tackles");
 export const getMostCardsFromDb = (seasonId: string) => getLeaders(seasonId, "yellow_cards");
+
+export async function getAllPlayerStatsFromDb(seasonId: string): Promise<ScorerRow[]> {
+  if (!isSupabaseConfigured()) return [];
+  try {
+    const [data, teamMap, playerMap] = await Promise.all([
+      cachedAllPlayerRows(seasonId),
+      getTeamMap(),
+      cachedPlayers(),
+    ]);
+    return data.map((r, i) => {
+      const pid = Number(r.player_id ?? 0);
+      const player = playerMap[pid];
+      return {
+        rank: i + 1,
+        player_id: pid,
+        player_name: player?.fullname ?? `Spelare ${pid}`,
+        team_name: teamMap.get(Number(r.team_id))?.name ?? "–",
+        slug: player?.slug ?? null,
+        image: player?.image ?? null,
+        position: player?.position ?? null,
+        appearances: Number(r.appearances ?? 0),
+        minutes: Number(r.minutes ?? 0),
+        goals: Number(r.goals ?? 0),
+        assists: Number(r.assists ?? 0),
+        xg: r.xg != null ? Number(r.xg) : undefined,
+        xa: r.xa != null ? Number(r.xa) : undefined,
+        penalties: 0,
+        shots: Number(r.shots ?? 0),
+        shots_on_target: Number(r.shots_on_target ?? 0),
+        key_passes: Number(r.key_passes ?? 0),
+        passes: Number(r.passes ?? 0),
+        pass_accuracy: r.pass_accuracy == null ? null : Number(r.pass_accuracy),
+        tackles: Number(r.tackles ?? 0),
+        interceptions: Number(r.interceptions ?? 0),
+        rating: r.rating == null ? null : Number(r.rating),
+        yellow_cards: Number(r.yellow_cards ?? 0),
+        red_cards: Number(r.red_cards ?? 0),
+      };
+    });
+  } catch {
+    return [];
+  }
+}

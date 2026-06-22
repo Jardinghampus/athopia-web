@@ -41,6 +41,7 @@ export function PlayerProfileAnalytics({
   const radarData = metrics.map((metric) => ({
     metric: metric.label,
     percentile: metric.percentile,
+    baseline: 50,
   }));
   const barData = metrics.slice(0, 6).map((metric) => ({
     metric: metric.label,
@@ -92,10 +93,13 @@ export function PlayerProfileAnalytics({
                 formatter={(value) => [`${value}`, "Percentil"]}
                 contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
               />
-              <Radar dataKey="percentile" name="Percentil" stroke="var(--color-pitch)" fill="var(--color-pitch)" fillOpacity={0.24} strokeWidth={2} />
+              <Radar dataKey="baseline" name="Allsvenskan baseline" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.08} strokeWidth={1.5} strokeDasharray="4 4" />
+              <Radar dataKey="percentile" name={playerName} stroke="var(--color-pitch)" fill="var(--color-pitch)" fillOpacity={0.24} strokeWidth={2} />
             </RadarChart>
           </ResponsiveContainer>
-          <p className="text-center text-[11px] text-muted-foreground">50 = ligasnitt, 90+ = elitnivå i Allsvenskan.</p>
+          <p className="text-center text-[11px] text-muted-foreground">
+            <span className="text-amber-500">Gul linje</span> = Allsvenskan baseline (P50). Grönt = spelarens profil.
+          </p>
         </motion.div>
 
         <motion.div

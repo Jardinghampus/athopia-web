@@ -140,12 +140,18 @@ export function mockScoutPool(): ScoutPlayer[] {
       minutes,
       goals: Math.round(rnd(i + 11, 0, 11) * attack),
       assists: Math.round(rnd(i + 17, 0, 8) * (attack + 0.2)),
+      xg: Number((rnd(i + 19, 0, 9) * attack).toFixed(2)),
+      xa: Number((rnd(i + 21, 0, 6) * (attack + 0.2)).toFixed(2)),
       shots: Math.round(rnd(i + 23, 4, 45) * attack + 4),
+      shots_on_target: Math.round(rnd(i + 25, 1, 22) * attack + 1),
       key_passes: Math.round(rnd(i + 31, 0, 28) * (attack + 0.5)),
       passes: Math.round(rnd(i + 41, 80, 520)),
+      pass_accuracy: Number(rnd(i + 43, 68, 91).toFixed(1)),
       tackles: Math.round(rnd(i + 45, 0, 38)),
       interceptions: Math.round(rnd(i + 49, 0, 26)),
       rating: Number(rnd(i + 53, 6.4, 7.9).toFixed(2)),
+      yellow_cards: Math.round(rnd(i + 55, 0, 5)),
+      red_cards: rnd(i + 57, 0, 1) > 0.9 ? 1 : 0,
     };
   });
 }

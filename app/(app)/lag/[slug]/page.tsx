@@ -96,6 +96,45 @@ function fixtureResult(f: FixtureRow, teamSmId: number) {
   return { opp, gf, ga, isHome };
 }
 
+function avg(league: TeamSeasonRow[], key: keyof TeamSeasonRow) {
+  const vals = league.map((team) => Number(team[key] ?? 0)).filter((value) => Number.isFinite(value));
+  return vals.length ? vals.reduce((sum, value) => sum + value, 0) / vals.length : 0;
+}
+
+function MiniComparisonBars({
+  title,
+  rows,
+}: {
+  title: string;
+  rows: Array<{ label: string; value: number; baseline: number; invert?: boolean; suffix?: string }>;
+}) {
+  return (
+    <div className="space-y-2">
+      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{title}</p>
+      {rows.map((row) => {
+        const max = Math.max(row.value, row.baseline, 1);
+        const valueWidth = Math.max(4, Math.min(100, (row.value / max) * 100));
+        const baselineWidth = Math.max(4, Math.min(100, (row.baseline / max) * 100));
+        const good = row.invert ? row.value <= row.baseline : row.value >= row.baseline;
+        return (
+          <div key={row.label} className="space-y-1">
+            <div className="flex items-center justify-between gap-3 text-xs">
+              <span className="text-muted-foreground">{row.label}</span>
+              <span className={good ? "text-pitch" : "text-amber-500"}>
+                {row.value.toFixed(row.value % 1 ? 1 : 0)}{row.suffix ?? ""} · snitt {row.baseline.toFixed(row.baseline % 1 ? 1 : 0)}{row.suffix ?? ""}
+              </span>
+            </div>
+            <div className="relative h-2 rounded-full bg-muted">
+              <div className="absolute left-0 top-0 h-2 rounded-full bg-amber-500/70" style={{ width: `${baselineWidth}%` }} />
+              <div className="absolute left-0 top-0 h-2 rounded-full bg-pitch" style={{ width: `${valueWidth}%` }} />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default async function TeamHubPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const team = await getTeam(slug);
@@ -140,6 +179,12 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
         { key: "wins", label: "Vinster" },
       ])
     : [];
+  const pointsPerMatch = myStats && myStats.played ? myStats.points / myStats.played : 0;
+  const leaguePointsPerMatch = avg(league, "points") / Math.max(1, avg(league, "played"));
+  const goalsForPerMatch = myStats && myStats.played ? myStats.goals_for / myStats.played : 0;
+  const goalsAgainstPerMatch = myStats && myStats.played ? myStats.goals_against / myStats.played : 0;
+  const leagueGoalsForPerMatch = avg(league, "goals_for") / Math.max(1, avg(league, "played"));
+  const leagueGoalsAgainstPerMatch = avg(league, "goals_against") / Math.max(1, avg(league, "played"));
 
   return (
     <div className="w-full px-6 sm:px-8 py-8 space-y-6">
@@ -194,8 +239,26 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
           <CardContent className="flex-1">
             <TeamRadar data={radar} />
             <p className="text-[11px] text-muted-foreground text-center mt-1">
-              Normaliserat (z-score → 0–100) mot ligasnittet. 50 = snitt.
+              <span className="text-amber-500">Gul linje</span> = Allsvenskan baseline. Grönt = {team.name}.
             </p>
+            {myStats && (
+              <div className="mt-5 grid gap-5 md:grid-cols-2">
+                <MiniComparisonBars
+                  title="Matchsnitt"
+                  rows={[
+                    { label: "Poäng/match", value: pointsPerMatch, baseline: leaguePointsPerMatch },
+                    { label: "Gjorda mål/match", value: goalsForPerMatch, baseline: leagueGoalsForPerMatch },
+                  ]}
+                />
+                <MiniComparisonBars
+                  title="Balans"
+                  rows={[
+                    { label: "Insläppta/match", value: goalsAgainstPerMatch, baseline: leagueGoalsAgainstPerMatch, invert: true },
+                    { label: "Målskillnad", value: myStats.goal_diff, baseline: avg(league, "goal_diff") },
+                  ]}
+                />
+              </div>
+            )}
           </CardContent>
           <CardFooter className="pt-2">
             <Link href={`/lag/${slug}/statistik`} className="ml-auto flex items-center text-sm text-muted-foreground hover:text-foreground">

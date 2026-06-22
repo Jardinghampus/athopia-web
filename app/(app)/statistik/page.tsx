@@ -5,6 +5,7 @@ import Link from "next/link";
 import { StatistikTabs } from "./StatistikTabs";
 import { FavoriteTeamHighlight } from "./FavoriteTeamHighlight";
 import { H2HSearch } from "./H2HSearch";
+import { PlayerStatsExplorer } from "./PlayerStatsExplorer";
 import { ListGroup } from "@/components/ui/ListGroup";
 import { ListRow } from "@/components/ui/ListRow";
 import type { H2HFixture } from "./H2HSearch";
@@ -24,6 +25,7 @@ import {
   getTopPassersFromDb,
   getTopDefendersFromDb,
   getMostCardsFromDb,
+  getAllPlayerStatsFromDb,
 } from "@/lib/statistik";
 
 // Data hämtas från Supabase (synkad av athopia-os från Sportmonks).
@@ -40,14 +42,15 @@ async function getXgLeaders(seasonId: string) {
   return getTopXgFromDb(seasonId);
 }
 async function getPlayerOverview(seasonId: string) {
-  const [ratings, shots, passers, defenders, cards] = await Promise.all([
+  const [ratings, shots, passers, defenders, cards, allPlayers] = await Promise.all([
     getTopRatingsFromDb(seasonId),
     getTopShotsFromDb(seasonId),
     getTopPassersFromDb(seasonId),
     getTopDefendersFromDb(seasonId),
     getMostCardsFromDb(seasonId),
+    getAllPlayerStatsFromDb(seasonId),
   ]);
-  return { ratings, shots, passers, defenders, cards };
+  return { ratings, shots, passers, defenders, cards, allPlayers };
 }
 
 export const revalidate = 300;
@@ -374,9 +377,10 @@ async function FormTab({ seasonId }: { seasonId: string }) {
 // ── Press ─────────────────────────────────────────────────────────────────────
 
 async function PressTab({ seasonId }: { seasonId: string }) {
-  const { ratings, shots, passers, defenders, cards } = await getPlayerOverview(seasonId);
+  const { ratings, shots, passers, defenders, cards, allPlayers } = await getPlayerOverview(seasonId);
   return (
     <div className="space-y-8">
+      <PlayerStatsExplorer players={allPlayers} />
       <section>
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Högst betyg</h2>
         <PlayerLeaderboard rows={ratings} primary="rating" primaryLabel="Betyg" primaryDecimals={2} />
