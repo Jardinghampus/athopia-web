@@ -25,30 +25,31 @@ function mapArticle(row: any): Article {
   };
 }
 
-async function getTeamName(slug: string): Promise<string> {
-  if (!isSupabaseConfigured()) return slug;
+async function getTeam(slug: string): Promise<{ id: string; name: string } | null> {
+  if (!isSupabaseConfigured()) return null;
   try {
     const supabase = createServerClient();
     const { data } = await supabase
       .from("entities")
-      .select("name")
+      .select("id,name")
       .eq("slug", slug)
       .eq("type", "team")
       .maybeSingle();
-    return data?.name ?? slug;
+    return data ? { id: String(data.id), name: String(data.name) } : null;
   } catch {
-    return slug;
+    return null;
   }
 }
 
-async function getTeamArticles(teamName: string): Promise<Article[]> {
+async function getTeamArticles(teamId: string): Promise<Article[]> {
   if (!isSupabaseConfigured()) return [];
   try {
     const supabase = createServerClient();
     const { data } = await supabase
       .from("articles")
       .select("*")
-      .ilike("title", `%${teamName}%`)
+      .eq("status", "published")
+      .contains("entity_ids", [teamId])
       .order("published_at", { ascending: false })
       .limit(24);
     return (data ?? []).map(mapArticle);
@@ -63,7 +64,8 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const name = await getTeamName(slug);
+  const team = await getTeam(slug);
+  const name = team?.name ?? slug;
   return {
     title: `${name} — Nyheter`,
     description: `Senaste fotbollsnyheter om ${name} på Athopia.`,
@@ -76,8 +78,9 @@ export default async function LagNyheterPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const teamName = await getTeamName(slug);
-  const articles = await getTeamArticles(teamName);
+  const team = await getTeam(slug);
+  const teamName = team?.name ?? slug;
+  const articles = team ? await getTeamArticles(team.id) : [];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">

@@ -93,12 +93,20 @@ export const getTeamNews = unstable_cache(
     if (!isSupabaseConfigured()) return []
     try {
       const supabase = createServerClient()
+      const { data: team } = await supabase
+        .from('entities')
+        .select('id')
+        .eq('type', 'team')
+        .eq('slug', teamSlug)
+        .maybeSingle()
+      if (!team?.id) return []
+
       const { data } = await supabase
         .from('articles')
         .select('id, title, slug, summary, image_url, published_at')
         .eq('sport', SPORT)
         .eq('status', 'published')
-        .contains('entities', [{ slug: teamSlug, type: 'team' }])
+        .contains('entity_ids', [String(team.id)])
         .order('published_at', { ascending: false })
         .limit(5)
       return (data as DashArticle[]) ?? []

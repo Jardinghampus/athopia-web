@@ -85,8 +85,18 @@ export async function GET(req: Request) {
   }
   const effectiveLimit = Math.min(PAGE_SIZE, remaining);
 
+  let filterTeamIds: string[] = [];
+  if (teamSlug) {
+    const { data: team } = await db
+      .from("entities")
+      .select("id")
+      .eq("type", "team")
+      .eq("slug", teamSlug)
+      .maybeSingle();
+    if (team?.id) filterTeamIds = [String(team.id)];
+  }
+
   // PRO: hämta followed_team_ids från user_feed_config
-  let followedTeamNames: string[] = [];
   if (isPro && userId && !teamSlug) {
     const { data: feedConfig } = await db
       .from("user_feed_config")
@@ -94,14 +104,7 @@ export async function GET(req: Request) {
       .eq("clerk_user_id", userId)
       .maybeSingle();
     const teamIds: string[] = feedConfig?.followed_team_ids ?? [];
-    if (teamIds.length > 0) {
-      const { data: entities } = await db
-        .from("entities")
-        .select("name")
-        .in("id", teamIds)
-        .eq("type", "team");
-      followedTeamNames = (entities ?? []).map((e: { name: string }) => e.name);
-    }
+    filterTeamIds = teamIds;
   }
 
   let items: FeedItem[] = [];
@@ -109,19 +112,15 @@ export async function GET(req: Request) {
   try {
     let aq = db
       .from("news_feed")
-      .select("id, title, source_name, url, published_at, summary, importance_score, feed_score")
+      .select("id, title, source_name, url, published_at, summary, importance_score, feed_score, entity_ids")
       .eq("sport", "football")
       .order(isPro ? "feed_score" : "published_at", { ascending: false, nullsFirst: false })
       .range(offset, offset + effectiveLimit - 1);
 
-    if (teamSlug) {
-      aq = aq.ilike("title", `%${teamSlug.replace(/-/g, " ")}%`);
-    } else if (followedTeamNames.length > 0) {
-      // PRO med följda lag: filtrera på lagnamn i titeln (OR-logik via Supabase or())
-      const orFilter = followedTeamNames
-        .map((name) => `title.ilike.%${name}%`)
-        .join(",");
-      aq = aq.or(orFilter);
+    if (filterTeamIds.length === 1) {
+      aq = aq.contains("entity_ids", [filterTeamIds[0]]);
+    } else if (filterTeamIds.length > 1) {
+      aq = aq.overlaps("entity_ids", filterTeamIds);
     }
 
     const { data: articleData } = await aq;
