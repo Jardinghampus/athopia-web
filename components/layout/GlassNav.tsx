@@ -14,9 +14,9 @@ const ITEMS = [
 ] as const;
 
 /**
- * Floating glass tab bar — replaces the old top/bottom navs.
- * - Desktop (md+): centered near the top, a touch below the edge.
- * - Mobile: pinned to the bottom (safe-area aware), icons only.
+ * Floating glass tab bar — bottom dock on every viewport (mobile, iPad, desktop).
+ * Pinned to the bottom (safe-area aware), icons only. The desktop top Header
+ * keeps its own text links; this is the quick-access dock beneath them.
  * Active route is highlighted by the sliding glass thumb.
  */
 export function GlassNav() {
@@ -30,8 +30,7 @@ export function GlassNav() {
     <div
       className="
         pointer-events-none fixed inset-x-0 z-50 flex justify-center
-        top-auto bottom-[calc(env(safe-area-inset-bottom)+1rem)]
-        md:bottom-auto md:top-3
+        bottom-[calc(env(safe-area-inset-bottom)+1rem)]
       "
     >
       <nav
