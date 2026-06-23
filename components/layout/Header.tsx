@@ -36,18 +36,7 @@ export function Header({ clerkEnabled }: { clerkEnabled: boolean }) {
             </Link>
           </div>
 
-          {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-5 text-sm text-muted-foreground">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="hover:text-foreground transition-colors duration-150"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
+          {/* Primary nav now handled by the floating GlassNav (top-center on desktop). */}
 
           {/* Actions */}
           <div className="flex items-center gap-2">

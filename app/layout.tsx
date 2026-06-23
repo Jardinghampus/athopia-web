@@ -55,7 +55,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   // viewport-fit=cover → env(safe-area-inset-*) får värden på notch-enheter
-  // (annars är MobileNav:s safe-area-padding en no-op).
+  // (annars är GlassNav:s safe-area-padding en no-op).
   viewportFit: "cover",
   themeColor: [
     { media: "(prefers-color-scheme: dark)", color: "#0A0A0A" },
