@@ -68,7 +68,7 @@ export default function NotificationBell({ teamSlug }: { teamSlug: string }) {
         onClick={() => setOpen(!open)}
         className="relative w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted/60 transition-colors"
       >
-        <Bell className="w-4.5 h-4.5 text-muted-foreground" />
+        <Bell className="w-[18px] h-[18px] text-muted-foreground" />
         {unread > 0 && (
           <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-pitch border border-background" />
         )}
@@ -83,7 +83,7 @@ export default function NotificationBell({ teamSlug }: { teamSlug: string }) {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -8, scale: 0.96 }}
               transition={{ duration: 0.15, ease: "easeOut" }}
-              className="absolute right-0 top-full mt-2 z-50 w-80 rounded-2xl border border-border/60 bg-popover shadow-lg shadow-black/30 overflow-hidden"
+              className="absolute right-0 top-full mt-2 z-50 w-80 max-w-[calc(100vw-2rem)] rounded-2xl border border-border/60 bg-popover shadow-lg shadow-black/30 overflow-hidden"
             >
               <div className="flex items-center justify-between px-4 py-3 border-b border-border/30">
                 <span className="text-sm font-semibold">Notifikationer</span>

@@ -5,7 +5,7 @@ import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import { Heart, MessageCircle, Repeat2, Share2, Flag, ChevronDown } from "lucide-react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import type { ForumPost } from "@/lib/types";
 import QuoteBox from "./QuoteBox";
 import ComposeDrawer from "./ComposeDrawer";
@@ -66,6 +66,7 @@ export default function PostItem({
     (s: number, d: number) => s + d
   );
 
+  const prefersReduced = useReducedMotion();
   const animDelay = depth === 0 ? Math.min(index * 0.055, 0.28) : 0;
   const needsTruncation = post.content.length > PREVIEW_LENGTH;
   const displayContent =
@@ -163,8 +164,8 @@ export default function PostItem({
   return (
     <>
       <motion.div
-        initial={{ opacity: 0, y: 16, filter: "blur(8px)" }}
-        whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+        initial={prefersReduced ? false : { opacity: 0, y: 16, filter: "blur(8px)" }}
+        whileInView={prefersReduced ? undefined : { opacity: 1, y: 0, filter: "blur(0px)" }}
         viewport={{ once: true, margin: "-40px" }}
         transition={{ duration: 0.36, delay: animDelay, ease: [0.25, 0.46, 0.45, 0.94] }}
         className={depth > 0 ? "ml-10" : ""}
@@ -174,7 +175,7 @@ export default function PostItem({
           className={
             depth === 0
               ? "rounded-2xl border border-border/40 bg-card/30 px-4 py-4 hover:bg-card/50 transition-colors"
-              : "pl-3 border-l-2 border-border/30 py-2"
+              : "rounded-xl bg-muted/20 px-3 py-2"
           }
         >
           <div className="flex gap-3">
@@ -319,7 +320,7 @@ export default function PostItem({
                   <Heart
                     className={`w-4 h-4 ${liked ? "fill-current" : ""}`}
                     style={{
-                      transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1), color 0.15s ease",
+                      transition: "transform 0.22s cubic-bezier(0.22,1,0.36,1), color 0.15s ease",
                       transform: likeAnimating ? "scale(1.4)" : "scale(1)",
                     }}
                   />

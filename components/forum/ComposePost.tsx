@@ -67,8 +67,7 @@ export default function ComposePost({
       await onPost({ content: content.trim(), label, parentId, rootId, teamSlug, sport });
       setContent("");
       setLabel(undefined);
-    } catch (err) {
-      console.error("Failed to post:", err);
+    } catch {
     } finally {
       setLoading(false);
     }

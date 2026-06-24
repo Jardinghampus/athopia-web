@@ -52,7 +52,7 @@ export default function TeamDropdown({ teams, currentSlug }: Props) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.97 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
-            className="absolute left-0 top-full mt-2 z-50 w-52 rounded-2xl border border-border/60 bg-popover shadow-lg shadow-black/30 overflow-hidden"
+            className="absolute right-0 top-full mt-2 z-50 w-52 rounded-2xl border border-border/60 bg-popover shadow-lg shadow-black/30 overflow-hidden"
           >
             <div className="max-h-72 overflow-y-auto overscroll-contain py-1">
               {teams.map((team) => (

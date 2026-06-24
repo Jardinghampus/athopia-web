@@ -15,7 +15,6 @@ interface Props {
 export default function ForumClient({ teamSlug, sport, initialPosts }: Props) {
   const { user } = useUser();
   const [posts, setPosts] = useState<ForumPost[]>(initialPosts);
-  const [composeOpen, setComposeOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const refresh = useCallback(async () => {
