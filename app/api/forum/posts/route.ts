@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
           actor_id: user.id,
           actor_name: user.fullName ?? user.username ?? "Anonym",
           post_id: (post as any).id,
-        }).throwOnError().then(() => {}).catch(() => {});
+        }).then(() => {}).catch(() => {});
       }
     }
 
