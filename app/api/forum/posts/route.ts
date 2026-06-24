@@ -12,6 +12,7 @@ const ForumPostSchema = z.object({
   quoted_post_id: z.string().uuid().optional(),
   team_slug: z.string().max(100).optional(),
   sport: z.enum(["football", "golf"]).default("football"),
+  label: z.enum(["transfer", "taktik", "match", "rykte", "diskussion"]).nullable().optional(),
 });
 
 export async function GET(req: NextRequest) {
@@ -67,7 +68,7 @@ export async function POST(req: NextRequest) {
 
     const parsed = await parseBody(req, ForumPostSchema);
     if (!parsed.ok) return parsed.response;
-    const { parent_id, root_id, quoted_post_id, team_slug, sport } = parsed.data;
+    const { parent_id, root_id, quoted_post_id, team_slug, sport, label } = parsed.data;
     const content = sanitizeText(parsed.data.content);
     if (!content) {
       return NextResponse.json({ message: "content krävs" }, { status: 400 });
@@ -95,6 +96,7 @@ export async function POST(req: NextRequest) {
         team_slug: team_slug ?? null,
         sport,
         depth,
+        label: label ?? null,
         author_id: user.id,
         author_name: user.fullName ?? user.username ?? "Anonym",
         author_avatar: user.imageUrl ?? null,
@@ -106,6 +108,23 @@ export async function POST(req: NextRequest) {
 
     if (parent_id) {
       await supabase.rpc("increment_reply_count", { row_id: parent_id });
+
+      // Notify parent post author (skip if replying to own post)
+      const { data: parentPost } = await supabase
+        .from("forum_posts")
+        .select("author_id")
+        .eq("id", parent_id)
+        .maybeSingle();
+      const parentAuthorId = (parentPost as any)?.author_id;
+      if (parentAuthorId && parentAuthorId !== user.id) {
+        await supabase.from("notifications").insert({
+          user_id: parentAuthorId,
+          type: "reply",
+          actor_id: user.id,
+          actor_name: user.fullName ?? user.username ?? "Anonym",
+          post_id: (post as any).id,
+        }).throwOnError().then(() => {}).catch(() => {});
+      }
     }
 
     return NextResponse.json(post, { status: 201 });

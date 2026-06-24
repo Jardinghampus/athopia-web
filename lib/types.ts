@@ -243,6 +243,7 @@ export interface ForumPost {
   pinned: boolean;
   hot_score: number;
   status: string;
+  label?: 'transfer' | 'taktik' | 'match' | 'rykte' | 'diskussion' | null;
   created_at: string;
   replies?: ForumPost[];
   quoted_post?: ForumPost | null;

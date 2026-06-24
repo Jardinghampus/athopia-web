@@ -2,7 +2,8 @@
 
 import { Drawer } from "vaul";
 import ComposePost from "./ComposePost";
-import type { ForumPost } from "@/lib/types";
+
+type PostLabel = 'transfer' | 'taktik' | 'match' | 'rykte' | 'diskussion';
 
 interface Props {
   open: boolean;
@@ -14,6 +15,7 @@ interface Props {
   replyTo?: string;
   onPost: (data: {
     content: string;
+    label?: PostLabel;
     parentId?: string;
     rootId?: string;
     teamSlug: string;
@@ -43,7 +45,9 @@ export default function ComposeDrawer({
           {replyTo && (
             <p className="px-4 pt-2 pb-1 text-xs text-muted-foreground">
               Svarar{" "}
-              <span className="text-pitch font-semibold">@{replyTo.toLowerCase().replace(/\s+/g, "")}</span>
+              <span className="text-pitch font-semibold">
+                @{replyTo.toLowerCase().replace(/\s+/g, "")}
+              </span>
             </p>
           )}
           <div className="px-4 pt-3 pb-2">

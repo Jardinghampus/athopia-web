@@ -6,48 +6,43 @@ import { motion } from "motion/react";
 import { useUser } from "@clerk/nextjs";
 import PostItem from "@/components/forum/PostItem";
 import ComposeDrawer from "@/components/forum/ComposeDrawer";
-import TagFilter from "@/components/forum/TagFilter";
 import type { ForumPost } from "@/lib/types";
 
 interface Props {
   teamSlug: string;
   sport: string;
   initialPosts: ForumPost[];
-  initialSort: string;
 }
 
-export default function ForumClient({ teamSlug, sport, initialPosts, initialSort }: Props) {
+export default function ForumClient({ teamSlug, sport, initialPosts }: Props) {
   const { user } = useUser();
   const [posts, setPosts] = useState<ForumPost[]>(initialPosts);
-  const [sort, setSort] = useState(initialSort);
   const [composeOpen, setComposeOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const fetchPosts = useCallback(async (s: string) => {
+  const refresh = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch(
-        `/api/forum/posts?teamSlug=${teamSlug}&sport=${sport}&sort=${s}`
+        `/api/forum/posts?teamSlug=${teamSlug}&sport=${sport}&sort=hot`
       );
-      if (!res.ok) {
-        setPosts([]);
-        return;
+      if (res.ok) {
+        const json = (await res.json()) as { posts: ForumPost[] };
+        setPosts(json.posts ?? []);
       }
-      const json = (await res.json()) as { posts: ForumPost[] };
-      setPosts(json.posts ?? []);
-    } catch {
-      setPosts([]);
     } finally {
       setLoading(false);
     }
   }, [teamSlug, sport]);
 
+  // Keep posts in sync if user navigates back
   useEffect(() => {
-    fetchPosts(sort);
-  }, [sort, fetchPosts]);
+    setPosts(initialPosts);
+  }, [initialPosts]);
 
   async function handlePost(data: {
     content: string;
+    label?: string;
     parentId?: string;
     rootId?: string;
     teamSlug: string;
@@ -58,6 +53,7 @@ export default function ForumClient({ teamSlug, sport, initialPosts, initialSort
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         content: data.content,
+        label: data.label ?? null,
         team_slug: data.teamSlug,
         sport: data.sport,
       }),
@@ -72,42 +68,38 @@ export default function ForumClient({ teamSlug, sport, initialPosts, initialSort
 
   return (
     <div>
-      <TagFilter active={sort} onChange={setSort} />
-
-      <div className="mt-5 flex flex-col divide-y divide-border/25">
-        {loading ? (
-          <div className="space-y-4 py-4">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="flex gap-3">
-                <div className="w-9 h-9 rounded-full bg-card skeleton-wave shrink-0" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-3 w-28 rounded bg-card skeleton-wave" />
-                  <div className="h-3 w-full rounded bg-card skeleton-wave" />
-                  <div className="h-3 w-3/4 rounded bg-card skeleton-wave" />
-                </div>
+      {loading ? (
+        <div className="space-y-3 py-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="rounded-2xl border border-border/30 bg-card/20 p-4 flex gap-3">
+              <div className="w-8 h-8 rounded-full bg-muted skeleton-wave shrink-0" />
+              <div className="flex-1 space-y-2">
+                <div className="h-3 w-28 rounded bg-muted skeleton-wave" />
+                <div className="h-3 w-full rounded bg-muted skeleton-wave" />
+                <div className="h-3 w-2/3 rounded bg-muted skeleton-wave" />
               </div>
-            ))}
-          </div>
-        ) : posts.length === 0 ? (
-          <div className="py-20 text-center text-muted-foreground text-sm">
-            Inga inlägg ännu. Var först att starta diskussionen!
-          </div>
-        ) : (
-          posts.map((post, i) => (
-            <div key={post.id} className="py-4">
-              <PostItem
-                post={post}
-                depth={0}
-                showThread={post.reply_count > 0}
-                onReply={() => fetchPosts(sort)}
-                index={i}
-              />
             </div>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      ) : posts.length === 0 ? (
+        <div className="py-20 text-center text-muted-foreground text-sm">
+          Inga inlägg ännu. Var första att starta diskussionen!
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3 py-2">
+          {posts.map((post, i) => (
+            <PostItem
+              key={post.id}
+              post={post}
+              depth={0}
+              showThread={post.reply_count > 0}
+              onReply={() => refresh()}
+              index={i}
+            />
+          ))}
+        </div>
+      )}
 
-      {/* New post drawer */}
       <ComposeDrawer
         open={composeOpen}
         onOpenChange={setComposeOpen}
@@ -116,7 +108,6 @@ export default function ForumClient({ teamSlug, sport, initialPosts, initialSort
         onPost={handlePost}
       />
 
-      {/* FAB */}
       {user && (
         <motion.button
           onClick={() => setComposeOpen(true)}
