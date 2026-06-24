@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
+import { MessageCircle } from "lucide-react";
 import PostItem from "@/components/forum/PostItem";
 import { AIInputWithLoading } from "@/components/ui/ai-input-with-loading";
 import type { ForumPost } from "@/lib/types";
