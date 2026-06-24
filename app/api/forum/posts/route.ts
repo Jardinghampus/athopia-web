@@ -117,13 +117,15 @@ export async function POST(req: NextRequest) {
         .maybeSingle();
       const parentAuthorId = (parentPost as any)?.author_id;
       if (parentAuthorId && parentAuthorId !== user.id) {
-        await supabase.from("notifications").insert({
-          user_id: parentAuthorId,
-          type: "reply",
-          actor_id: user.id,
-          actor_name: user.fullName ?? user.username ?? "Anonym",
-          post_id: (post as any).id,
-        }).then(() => {}).catch(() => {});
+        try {
+          await supabase.from("notifications").insert({
+            user_id: parentAuthorId,
+            type: "reply",
+            actor_id: user.id,
+            actor_name: user.fullName ?? user.username ?? "Anonym",
+            post_id: (post as any).id,
+          });
+        } catch {}
       }
     }
 
