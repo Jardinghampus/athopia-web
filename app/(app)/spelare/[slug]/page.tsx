@@ -133,7 +133,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 function StatBox({ label, value, suffix, sub }: { label: string; value: number; suffix?: string; sub?: string }) {
   return (
-    <div className="bg-card dark:bg-white/[0.025] border border-border rounded-2xl p-4 text-center">
+    <div className="bg-card border border-border rounded-2xl p-4 text-center">
       <StatNumber value={value} suffix={suffix} className="text-3xl text-foreground" />
       <p className="text-xs text-muted-foreground mt-1">{label}</p>
       {sub && <p className="text-xs text-pitch mt-0.5">{sub}</p>}

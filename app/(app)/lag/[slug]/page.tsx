@@ -358,7 +358,7 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {threads.slice(0, 6).map((t) => (
-                  <Link key={t.id} href={`/lag/${slug}/forum/${t.id}`} className="group flex items-center justify-between gap-3 rounded-lg border border-border/60 px-3 py-2.5 hover:border-pitch/50 transition-colors">
+                  <Link key={t.id} href={`/forum/${slug}`} className="group flex items-center justify-between gap-3 rounded-lg border border-border/60 px-3 py-2.5 hover:border-pitch/50 transition-colors">
                     <span className="text-sm text-foreground group-hover:text-pitch line-clamp-1">{t.title}</span>
                     <span className="flex items-center gap-1 text-[11px] text-muted-foreground shrink-0">
                       <MessageSquare className="h-3 w-3" /> {t.reply_count ?? 0}
@@ -369,7 +369,7 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
             )}
           </CardContent>
           <CardFooter className="pt-2">
-            <Link href={`/lag/${slug}/forum`} className="ml-auto flex items-center text-sm text-muted-foreground hover:text-foreground">
+            <Link href={`/forum/${slug}`} className="ml-auto flex items-center text-sm text-muted-foreground hover:text-foreground">
               Till forumet <ArrowRight className="ml-1 h-3 w-3" />
             </Link>
           </CardFooter>

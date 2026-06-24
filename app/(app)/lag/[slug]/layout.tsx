@@ -10,7 +10,6 @@ const TABS = [
   { label: "Nyheter", href: "/nyheter" },
   { label: "Statistik", href: "/statistik" },
   { label: "Podcasts", href: "/podcasts" },
-  { label: "Forum", href: "/forum" },
   { label: "Sammanfattning", href: "/sammanfattning" },
 ];
 
