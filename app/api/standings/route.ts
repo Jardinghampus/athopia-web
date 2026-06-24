@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { fetchStandingsFull } from "@/lib/db/fixtures";
 
-export const revalidate = 3600;
+export const revalidate = 300;
 
 export async function GET() {
   const rows = await fetchStandingsFull();
@@ -22,6 +22,6 @@ export async function GET() {
 
   return NextResponse.json(
     { standings },
-    { headers: { "Cache-Control": "public, max-age=3600, stale-while-revalidate=7200" } }
+    { headers: { "Cache-Control": "public, max-age=300, stale-while-revalidate=600" } }
   );
 }

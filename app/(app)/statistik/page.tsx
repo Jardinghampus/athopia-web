@@ -307,7 +307,7 @@ async function XGTab({ seasonId }: { seasonId: string }) {
   const rows = await getXgLeaders(seasonId);
   if (rows.length === 0) {
     return (
-      <EmptyState message="xG finns i produkten men saknar verifierade värden i Supabase ännu." />
+      <EmptyState message="xG-data saknas för nuvarande säsong — uppdateras när data finns." />
     );
   }
   return (
