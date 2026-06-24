@@ -18,6 +18,9 @@ const TABS = [
   { id: "form", label: "Form" },
   { id: "press", label: "Spelarstats" },
   { id: "h2h", label: "H2H" },
+  { id: "projektion", label: "Titel %" },
+  { id: "luck", label: "Tur/Otur" },
+  { id: "clutch", label: "Clutch" },
 ];
 
 const SEASONS = ["2026", "2025"];

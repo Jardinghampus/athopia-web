@@ -61,8 +61,8 @@ export const metadata: Metadata = {
     "Allsvenskan-statistik — tabell, skytteliga, assistligan, skott, passningar, form och H2H.",
 };
 
-type TabId = "tabell" | "skytteliga" | "assistligan" | "xg" | "form" | "press" | "h2h";
-const VALID_TABS: TabId[] = ["tabell", "skytteliga", "assistligan", "xg", "form", "press", "h2h"];
+type TabId = "tabell" | "skytteliga" | "assistligan" | "xg" | "form" | "press" | "h2h" | "projektion" | "luck" | "clutch";
+const VALID_TABS: TabId[] = ["tabell", "skytteliga", "assistligan", "xg", "form", "press", "h2h", "projektion", "luck", "clutch"];
 
 const VALID_SEASONS = Object.keys(SEASON_IDS);
 
@@ -449,6 +449,129 @@ function TabSkeleton() {
   );
 }
 
+// ── Projektion ────────────────────────────────────────────────────────────────
+
+async function ProjektionTab() {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000"}/api/stats/projection`, { next: { revalidate: 3600 } });
+  const { rows } = res.ok ? (await res.json() as { rows: Array<{ teamId: number; teamName: string; logoUrl: string | null; points: number; elo: number; pChampion: number; pTop3: number; pRelegation: number }> }) : { rows: [] };
+  if (rows.length === 0) return <EmptyState message="Projektion beräknas kl 05:00 — inga simuleringar ännu." />;
+  return (
+    <div>
+      <p className="text-sm text-muted-foreground mb-4">Vi simulerar resten av säsongen 10 000 gånger utifrån lagens styrka. Siffrorna visar hur ofta varje lag vann titeln, tog topp-3 eller åkte ur.</p>
+      <div className="overflow-x-auto -mx-4 sm:mx-0">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border text-muted-foreground text-xs uppercase tracking-wider">
+              <th className="py-2 px-3 text-left">Lag</th>
+              <th className="py-2 px-3 text-center">Poäng</th>
+              <th className="py-2 px-3 text-center">Elo</th>
+              <th className="py-2 px-3 text-center text-pitch font-bold">Titel %</th>
+              <th className="py-2 px-3 text-center">Topp 3 %</th>
+              <th className="py-2 px-3 text-center text-red-400">Nedflyttning %</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.teamId} className="border-b border-border/40 hover:bg-card/50 transition-colors">
+                <td className="py-3 px-3 font-medium">{r.teamName}</td>
+                <td className="py-3 px-3 text-center tabular-nums">{r.points}</td>
+                <td className="py-3 px-3 text-center tabular-nums text-muted-foreground">{r.elo}</td>
+                <td className="py-3 px-3 text-center tabular-nums font-bold text-pitch">{(r.pChampion * 100).toFixed(1)}%</td>
+                <td className="py-3 px-3 text-center tabular-nums">{(r.pTop3 * 100).toFixed(1)}%</td>
+                <td className="py-3 px-3 text-center tabular-nums text-red-400">{(r.pRelegation * 100).toFixed(1)}%</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// ── Tur/otur (schema-form) ────────────────────────────────────────────────────
+
+async function LuckTab() {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000"}/api/stats/schedule-form`, { next: { revalidate: 3600 } });
+  const { rows } = res.ok ? (await res.json() as { rows: Array<{ teamId: number; teamName: string; actualPoints: number; xpts: number | null; luck: number | null; sos: number | null }> }) : { rows: [] };
+  if (rows.length === 0) return <EmptyState message="Schema-form beräknas kl 05:00 — inga data ännu." />;
+  return (
+    <div>
+      <p className="text-sm text-muted-foreground mb-4">xP är förväntade poäng baserat på motståndarnas styrka. Positivt &quot;tur&quot; betyder laget tagit fler poäng än svårighetsgraden motiverar.</p>
+      <div className="overflow-x-auto -mx-4 sm:mx-0">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border text-muted-foreground text-xs uppercase tracking-wider">
+              <th className="py-2 px-3 text-left">Lag</th>
+              <th className="py-2 px-3 text-center">Faktiska P</th>
+              <th className="py-2 px-3 text-center">xP</th>
+              <th className="py-2 px-3 text-center font-bold">Tur/Otur</th>
+              <th className="py-2 px-3 text-center">Schemastyrka (Elo)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => {
+              const luck = r.luck ?? 0;
+              return (
+                <tr key={r.teamId} className="border-b border-border/40 hover:bg-card/50 transition-colors">
+                  <td className="py-3 px-3 font-medium">{r.teamName}</td>
+                  <td className="py-3 px-3 text-center tabular-nums">{r.actualPoints}</td>
+                  <td className="py-3 px-3 text-center tabular-nums text-muted-foreground">{r.xpts != null ? r.xpts.toFixed(1) : "–"}</td>
+                  <td className={`py-3 px-3 text-center tabular-nums font-bold ${luck > 0 ? "text-pitch" : luck < 0 ? "text-red-400" : ""}`}>
+                    {luck > 0 ? "+" : ""}{luck.toFixed(1)}
+                  </td>
+                  <td className="py-3 px-3 text-center tabular-nums text-muted-foreground">{r.sos ?? "–"}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// ── Clutch ────────────────────────────────────────────────────────────────────
+
+async function ClutchTab() {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000"}/api/stats/clutch`, { next: { revalidate: 3600 } });
+  const { rows } = res.ok ? (await res.json() as { rows: Array<{ rank: number; playerId: number; playerName: string; teamName: string; goals: number; clutchScore: number; trailingGoals: number; levelGoals: number }> }) : { rows: [] };
+  if (rows.length === 0) return <EmptyState message="Clutch-index beräknas kl 05:00 — inga data ännu." />;
+  return (
+    <div>
+      <p className="text-sm text-muted-foreground mb-4">Inte alla mål är lika mycket värda. Mål bakifrån eller vid oavgjort väger tyngre. Clutch-poäng mäter hur avgörande en spelares mål faktiskt var.</p>
+      <div className="overflow-x-auto -mx-4 sm:mx-0">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border text-muted-foreground text-xs uppercase tracking-wider">
+              <th className="py-2 px-3 text-left w-10">#</th>
+              <th className="py-2 px-3 text-left">Spelare</th>
+              <th className="py-2 px-3 text-center">Mål</th>
+              <th className="py-2 px-3 text-center">Bakifrån</th>
+              <th className="py-2 px-3 text-center">Vid oavgjort</th>
+              <th className="py-2 px-3 text-center font-bold text-foreground">Clutch</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.playerId} className="border-b border-border/40 hover:bg-card/50 transition-colors">
+                <td className="py-3 px-3 text-xs font-semibold tabular-nums text-muted-foreground">{r.rank}</td>
+                <td className="py-3 px-3">
+                  <span className="font-medium">{r.playerName}</span>
+                  <span className="ml-2 text-xs text-muted-foreground">{r.teamName}</span>
+                </td>
+                <td className="py-3 px-3 text-center tabular-nums">{r.goals}</td>
+                <td className="py-3 px-3 text-center tabular-nums text-pitch">{r.trailingGoals}</td>
+                <td className="py-3 px-3 text-center tabular-nums">{r.levelGoals}</td>
+                <td className="py-3 px-3 text-center text-lg font-bold tabular-nums text-foreground">{r.clutchScore}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default async function StatistikPage({
@@ -469,7 +592,10 @@ export default async function StatistikPage({
     case "xg":          tabContent = <XGTab seasonId={seasonId} />;          break;
     case "form":        tabContent = <FormTab seasonId={seasonId} />;        break;
     case "press":       tabContent = <PressTab seasonId={seasonId} />;       break;
-    case "h2h":         tabContent = <H2HTab />;         break;
+    case "h2h":         tabContent = <H2HTab />;              break;
+    case "projektion":  tabContent = <ProjektionTab />;        break;
+    case "luck":        tabContent = <LuckTab />;              break;
+    case "clutch":      tabContent = <ClutchTab />;            break;
   }
 
   return (
