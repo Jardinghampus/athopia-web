@@ -86,7 +86,7 @@ function HeroNarrative({ narrative }: { narrative: Narrative }) {
             Trending narrativ
           </span>
         </div>
-        <h1 className="font-bold text-4xl sm:text-6xl text-foreground mb-4 leading-none">
+        <h1 className="font-bold text-3xl text-foreground mb-4 leading-tight">
           {narrative.topic}
         </h1>
         <div className="flex items-center gap-6 text-sm text-muted-foreground">
@@ -160,7 +160,7 @@ async function ArticlesSection() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="font-bold text-3xl text-foreground">SENASTE NYTT</h2>
+        <h2 className="font-bold text-2xl text-foreground">Senaste nytt</h2>
         <Link href="/nyheter" className="flex items-center gap-1 text-sm text-pitch hover:text-pitch-light transition-colors">
           Alla nyheter <ArrowRight className="w-4 h-4" />
         </Link>
@@ -183,7 +183,7 @@ async function NarrativesSection() {
   const narratives = await getTrendingNarratives();
   return (
     <div>
-      <h2 className="font-semibold text-2xl text-foreground mb-4">TRENDANDE NARRATIV</h2>
+      <h2 className="font-semibold text-xl text-foreground mb-4">Trendande narrativ</h2>
       <div className="flex flex-col gap-3">
         {narratives.map((n) => <NarrativeCard key={n.id} narrative={n} />)}
       </div>
@@ -217,7 +217,7 @@ const SidebarSkeleton = () => (
 export default function AppHomePage() {
   return (
     <div className="w-full px-6 sm:px-8 py-8">
-      <Suspense fallback={null}>
+      <Suspense fallback={<div className="h-28 rounded-2xl mb-8 bg-card animate-pulse" />}>
         <DailySummarySection />
       </Suspense>
 

@@ -73,7 +73,7 @@ function EmptyState({ message = "Data ej tillgänglig." }: { message?: string })
     <div className="text-center py-20 text-muted-foreground">
       <p className="text-sm">{message}</p>
       <p className="text-xs mt-1 opacity-60">
-        Data synkroniseras via athopia-os. Kontrollera att sync-jobbet är igång.
+        Data synkroniseras — prova igen om en stund.
       </p>
     </div>
   );
@@ -382,24 +382,24 @@ async function PressTab({ seasonId }: { seasonId: string }) {
     <div className="space-y-8">
       <PlayerStatsExplorer players={allPlayers} />
       <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Högst betyg</h2>
+        <h2 className="mb-3 text-base font-semibold text-foreground">Högst betyg</h2>
         <PlayerLeaderboard rows={ratings} primary="rating" primaryLabel="Betyg" primaryDecimals={2} />
       </section>
       <div className="grid gap-8 xl:grid-cols-2">
         <section>
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Flest skott</h2>
+          <h2 className="mb-3 text-base font-semibold text-foreground">Flest skott</h2>
           <PlayerLeaderboard rows={shots} primary="shots" primaryLabel="Skott" />
         </section>
         <section>
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Flest passningar</h2>
+          <h2 className="mb-3 text-base font-semibold text-foreground">Flest passningar</h2>
           <PlayerLeaderboard rows={passers} primary="passes" primaryLabel="Pass" />
         </section>
         <section>
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Flest tacklingar</h2>
+          <h2 className="mb-3 text-base font-semibold text-foreground">Flest tacklingar</h2>
           <PlayerLeaderboard rows={defenders} primary="tackles" primaryLabel="Tackl" />
         </section>
         <section>
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Kort</h2>
+          <h2 className="mb-3 text-base font-semibold text-foreground">Kort</h2>
           <PlayerLeaderboard
             rows={cards}
             primary="yellow_cards"
@@ -490,7 +490,7 @@ export default async function StatistikPage({
       <div className="w-full px-6 sm:px-8 py-8">
         <div className="mb-6 flex items-end justify-between">
           <div>
-            <h1 className="font-bold text-5xl text-foreground">STATISTIK</h1>
+            <h1 className="font-bold text-3xl text-foreground">Statistik</h1>
             <p className="text-muted-foreground mt-1 text-sm">Allsvenskan {sasong}</p>
           </div>
           <div className="flex items-center gap-2">

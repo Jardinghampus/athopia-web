@@ -104,7 +104,7 @@ export default async function NyheterPage({
       <NyheterRealtimeBanner />
 
       <div className="mb-8">
-        <h1 className="font-bold text-5xl text-foreground">NYHETER</h1>
+        <h1 className="font-bold text-3xl text-foreground">Nyheter</h1>
         <p className="text-muted-foreground mt-2 text-sm">
           {total > 0 ? `${total} artiklar` : "Inga artiklar"} — filtrera per lag, källa eller eventtyp.
         </p>

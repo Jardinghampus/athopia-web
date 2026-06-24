@@ -77,7 +77,7 @@ export default async function ForumIndexPage() {
   return (
     <div className="w-full px-6 sm:px-8 py-8">
       <div className="mb-8">
-        <h1 className="font-bold text-4xl text-foreground">FORUM</h1>
+        <h1 className="font-bold text-3xl text-foreground">Forum</h1>
         <p className="text-muted-foreground text-sm mt-1">
           Välj ett lag för att se och delta i diskussioner
         </p>
