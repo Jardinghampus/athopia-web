@@ -26,12 +26,12 @@ export default async function MatcherPage() {
 
   return (
     <div className="w-full px-6 sm:px-8 py-8">
-      <h1 className="font-bold text-4xl text-foreground mb-6">MATCHER</h1>
+      <h1 className="font-bold text-3xl text-foreground mb-6">Matcher</h1>
 
       {fixtures.length === 0 ? (
         <div className="rounded-2xl border border-border bg-card p-8 text-center text-muted-foreground">
           <p>Inga matcher att visa just nu.</p>
-          <p className="text-sm mt-2">Data synkroniseras från Supabase via athopia-os.</p>
+          <p className="text-sm mt-2">Matchdata synkroniseras — kom tillbaka om en stund.</p>
         </div>
       ) : (
         <div className="flex flex-col gap-2">
