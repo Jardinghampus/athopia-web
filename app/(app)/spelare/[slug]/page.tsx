@@ -103,6 +103,9 @@ async function getProfileMetrics(playerStats: SeasonStat | null): Promise<Profil
     { key: "tackles90", label: "Tackl/90", value: per90(playerStats, "tackles"), values: pool.map((p) => per90(p, "tackles")) },
     { key: "interceptions90", label: "Brytningar/90", value: per90(playerStats, "interceptions"), values: pool.map((p) => per90(p, "interceptions")) },
     { key: "rating", label: "Betyg", value: n(playerStats, "rating"), values: pool.map((p) => n(p, "rating")), decimals: 2 },
+    ...(n(playerStats, "xg") > 0
+      ? [{ key: "xg90", label: "xG/90", value: per90(playerStats, "xg"), values: pool.filter(p => n(p, "xg") > 0).map((p) => per90(p, "xg")), decimals: 2 }]
+      : []),
   ];
 
   return metricDefs.map((metric) => {
@@ -190,6 +193,12 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
             <StatBox label="Gula kort"  value={(stats.yellow_cards as number) ?? 0} />
             <StatBox label="Röda kort"  value={(stats.red_cards as number) ?? 0} />
           </div>
+          {(stats.xg as number) > 0 && (
+            <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <StatBox label="xG" value={stats.xg as number} suffix="" sub="Expected goals" />
+              <StatBox label="xG/90" value={stats.minutes as number > 0 ? Math.round(((stats.xg as number) / (stats.minutes as number)) * 90 * 100) / 100 : 0} sub="Per 90 min" />
+            </div>
+          )}
           {(stats.passes as number > 0) && (
             <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-3">
               <StatBox label="Passningar"    value={(stats.passes as number) ?? 0} />
