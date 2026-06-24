@@ -1,17 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 import { createServerClient, isSupabaseConfigured, getEntities } from "@/lib/supabase";
 import type { ForumPost } from "@/lib/types";
 import ForumSummaryBar from "@/components/forum/ForumSummaryBar";
 import ForumDailySummary from "@/components/forum/ForumDailySummary";
+import CommunityGuidelines from "@/components/forum/CommunityGuidelines";
 import ForumClient from "./ForumClient";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 const DIF_MOCK_POSTS: ForumPost[] = [
   {
     id: "mock-1",
-    content: "Vilken match igår! Isaks header i 89:an var rent gudomlig. Vi förtjänade verkligen de tre poängen mot Hammarby. ALDRIG KAPITULERA 💙💛",
+    content:
+      "Vilken match igår! Isaks header i 89:an var rent gudomlig. Vi förtjänade verkligen de tre poängen mot Hammarby. ALDRIG KAPITULERA 💙💛",
     images: [],
     parent_id: null,
     root_id: null,
@@ -34,7 +37,8 @@ const DIF_MOCK_POSTS: ForumPost[] = [
     replies: [
       {
         id: "mock-1-reply-1",
-        content: "Håller med! Och Brorsson håller nollan för tredje matchen i rad. Defensiven är stenhård nu.",
+        content:
+          "Håller med! Och Brorsson håller nollan för tredje matchen i rad. Defensiven är stenhård nu.",
         images: [],
         parent_id: "mock-1",
         root_id: "mock-1",
@@ -59,7 +63,8 @@ const DIF_MOCK_POSTS: ForumPost[] = [
   },
   {
     id: "mock-2",
-    content: "Läste precis att Klaesson är aktuell för en flytt till Premier League i januari. Hoppas vi kan hålla kvar honom till säsongsslut åtminstone. Vad tror ni?",
+    content:
+      "Läste precis att Klaesson är aktuell för en flytt till Premier League i januari. Hoppas vi kan hålla kvar honom till säsongsslut åtminstone. Vad tror ni?",
     images: [],
     parent_id: null,
     root_id: null,
@@ -82,7 +87,8 @@ const DIF_MOCK_POSTS: ForumPost[] = [
   },
   {
     id: "mock-3",
-    content: "Taktiken mot Häcken förra veckan var lite konstig. Varför spelade vi med en så hög linje mot deras kontringar? Kim Bergström verkar inte ha hittat rätt formation ännu den här säsongen.",
+    content:
+      "Taktiken mot Häcken förra veckan var lite konstig. Varför spelade vi med en så hög linje mot deras kontringar? Kim Bergström verkar inte ha hittat rätt formation ännu den här säsongen.",
     images: [],
     parent_id: null,
     root_id: null,
@@ -105,7 +111,8 @@ const DIF_MOCK_POSTS: ForumPost[] = [
   },
   {
     id: "mock-4",
-    content: "Inför söndagens match mot Sirius: tror ni vi kör 4-3-3 eller 4-2-3-1? Hoppas Radetinac får starta från start, han var bäste man från bänken senast.",
+    content:
+      "Inför söndagens match mot Sirius: tror ni vi kör 4-3-3 eller 4-2-3-1? Hoppas Radetinac får starta från start, han var bäste man från bänken senast.",
     images: [],
     parent_id: null,
     root_id: null,
@@ -144,7 +151,8 @@ const DIF_DAILY_SUMMARY = {
 };
 
 async function getPosts(teamSlug: string, sort: string): Promise<ForumPost[]> {
-  if (!isSupabaseConfigured()) return teamSlug === "djurgardens-if" ? DIF_MOCK_POSTS : [];
+  if (!isSupabaseConfigured())
+    return teamSlug === "djurgardens-if" ? DIF_MOCK_POSTS : [];
   try {
     const supabase = createServerClient();
     let q = supabase
@@ -163,7 +171,8 @@ async function getPosts(teamSlug: string, sort: string): Promise<ForumPost[]> {
 
     const { data } = await q.limit(50);
     const posts = (data as ForumPost[]) ?? [];
-    if (posts.length === 0 && teamSlug === "djurgardens-if") return DIF_MOCK_POSTS;
+    if (posts.length === 0 && teamSlug === "djurgardens-if")
+      return DIF_MOCK_POSTS;
     return posts;
   } catch {
     if (teamSlug === "djurgardens-if") return DIF_MOCK_POSTS;
@@ -194,9 +203,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { teamSlug } = await params;
   const teams = await getEntities("team");
-  const name = teams.find((t) => t.slug === teamSlug)?.name ?? teamSlug;
+  const name =
+    teams.find((t) => t.slug === teamSlug)?.name ?? teamSlug;
   return {
-    title: `${name} Forum | Athopia`,
+    title: `${name} · Community | Athopia`,
     description: `Diskutera ${name} med andra supportrar på Athopia.`,
   };
 }
@@ -210,7 +220,11 @@ export default async function ForumTeamPage({
 }) {
   const { teamSlug } = await params;
   const { sort = "hot" } = await searchParams;
-  const validSort = ["hot", "latest", "transfers", "taktik", "match"].includes(sort) ? sort : "hot";
+  const validSort = ["hot", "latest", "transfers", "taktik", "match"].includes(
+    sort
+  )
+    ? sort
+    : "hot";
 
   const [posts, aiSummary, allTeams] = await Promise.all([
     getPosts(teamSlug, validSort),
@@ -218,50 +232,75 @@ export default async function ForumTeamPage({
     getEntities("team"),
   ]);
 
-  const teamName = allTeams.find((t) => t.slug === teamSlug)?.name ?? teamSlug.replace(/-/g, " ").toUpperCase();
+  const teamName =
+    allTeams.find((t) => t.slug === teamSlug)?.name ??
+    teamSlug.replace(/-/g, " ").toUpperCase();
 
   return (
-    <div className="w-full px-6 sm:px-8 py-6">
-      {/* Lag-tabs */}
-      <div className="flex gap-1.5 overflow-x-auto scrollbar-none mb-6 pb-1">
-        {allTeams.map((t) => (
+    /* Max-width lock — native iOS column feel */
+    <div className="w-full min-h-screen">
+      <div className="mx-auto w-full max-w-[600px] border-x border-border/20">
+
+        {/* Top nav */}
+        <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/30 px-4 py-3 flex items-center gap-3">
           <Link
-            key={t.slug}
-            href={`/forum/${t.slug}`}
-            className={`shrink-0 px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
-              t.slug === teamSlug
-                ? "bg-pitch text-white border-pitch"
-                : "border-border/60 text-muted-foreground hover:border-pitch hover:text-pitch"
-            }`}
+            href="/forum"
+            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted/60 transition-colors shrink-0"
           >
-            {t.name}
+            <ChevronLeft className="w-5 h-5 text-muted-foreground" />
           </Link>
-        ))}
+          <div className="flex-1 min-w-0">
+            <h1 className="font-semibold text-base text-foreground truncate">
+              {teamName}
+            </h1>
+            <p className="text-[11px] text-muted-foreground">Community</p>
+          </div>
+        </div>
+
+        {/* Team switcher strip */}
+        <div className="flex gap-1.5 overflow-x-auto scrollbar-none px-4 py-3 border-b border-border/20">
+          {allTeams.map((t) => (
+            <Link
+              key={t.slug}
+              href={`/forum/${t.slug}`}
+              className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-medium border transition-colors touch-manipulation ${
+                t.slug === teamSlug
+                  ? "bg-pitch text-white border-pitch"
+                  : "border-border/50 text-muted-foreground hover:border-pitch/60 hover:text-pitch"
+              }`}
+            >
+              {t.name}
+            </Link>
+          ))}
+        </div>
+
+        <div className="px-4 pt-5 pb-24 space-y-0">
+          {/* AI summarizer — shown when available or for DIF demo */}
+          {aiSummary && <ForumSummaryBar summary={aiSummary} />}
+
+          {teamSlug === "djurgardens-if" && (
+            <ForumDailySummary
+              teamName={teamName}
+              summary={DIF_DAILY_SUMMARY.summary}
+              topics={DIF_DAILY_SUMMARY.topics}
+              postCount={DIF_DAILY_SUMMARY.postCount}
+              activeUsers={DIF_DAILY_SUMMARY.activeUsers}
+              generatedAt={DIF_DAILY_SUMMARY.generatedAt}
+            />
+          )}
+
+          {/* Community guidelines — collapsible, below summarizer */}
+          <CommunityGuidelines />
+
+          {/* Post feed */}
+          <ForumClient
+            teamSlug={teamSlug}
+            sport="football"
+            initialPosts={posts}
+            initialSort={validSort}
+          />
+        </div>
       </div>
-
-      <h1 className="font-semibold text-2xl text-foreground mb-4">
-        {teamName}
-      </h1>
-
-      {aiSummary && <ForumSummaryBar summary={aiSummary} />}
-
-      {teamSlug === "djurgardens-if" && (
-        <ForumDailySummary
-          teamName="Djurgårdens IF"
-          summary={DIF_DAILY_SUMMARY.summary}
-          topics={DIF_DAILY_SUMMARY.topics}
-          postCount={DIF_DAILY_SUMMARY.postCount}
-          activeUsers={DIF_DAILY_SUMMARY.activeUsers}
-          generatedAt={DIF_DAILY_SUMMARY.generatedAt}
-        />
-      )}
-
-      <ForumClient
-        teamSlug={teamSlug}
-        sport="football"
-        initialPosts={posts}
-        initialSort={validSort}
-      />
     </div>
   );
 }

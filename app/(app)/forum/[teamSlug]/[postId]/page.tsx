@@ -70,21 +70,28 @@ export default async function ThreadPage({
   const replies = await getReplies(root.root_id ?? root.id);
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6">
-      <Link
-        href={`/forum/${teamSlug}`}
-        className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
-      >
-        <ChevronLeft className="w-4 h-4" />
-        Tillbaka till forumet
-      </Link>
+    <div className="w-full min-h-screen">
+      <div className="mx-auto w-full max-w-[600px] border-x border-border/20">
+        {/* Sticky top nav */}
+        <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/30 px-4 py-3 flex items-center gap-3">
+          <Link
+            href={`/forum/${teamSlug}`}
+            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted/60 transition-colors shrink-0"
+          >
+            <ChevronLeft className="w-5 h-5 text-muted-foreground" />
+          </Link>
+          <span className="font-semibold text-base text-foreground">Tråd</span>
+        </div>
 
-      <ThreadClient
-        root={root}
-        replies={replies}
-        teamSlug={teamSlug}
-        sport={root.sport ?? "football"}
-      />
+        <div className="px-4 pt-5 pb-28">
+          <ThreadClient
+            root={root}
+            replies={replies}
+            teamSlug={teamSlug}
+            sport={root.sport ?? "football"}
+          />
+        </div>
+      </div>
     </div>
   );
 }

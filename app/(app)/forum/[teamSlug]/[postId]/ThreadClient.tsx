@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { MessageCircle } from "lucide-react";
+import { useUser } from "@clerk/nextjs";
 import PostItem from "@/components/forum/PostItem";
-import ComposePost from "@/components/forum/ComposePost";
+import ComposeDrawer from "@/components/forum/ComposeDrawer";
 import type { ForumPost } from "@/lib/types";
 
 interface Props {
@@ -12,8 +14,15 @@ interface Props {
   sport: string;
 }
 
-export default function ThreadClient({ root, replies: initialReplies, teamSlug, sport }: Props) {
+export default function ThreadClient({
+  root,
+  replies: initialReplies,
+  teamSlug,
+  sport,
+}: Props) {
+  const { user } = useUser();
   const [replies, setReplies] = useState<ForumPost[]>(initialReplies);
+  const [composeOpen, setComposeOpen] = useState(false);
 
   async function handleReply(data: {
     content: string;
@@ -22,27 +31,21 @@ export default function ThreadClient({ root, replies: initialReplies, teamSlug, 
     teamSlug: string;
     sport: string;
   }) {
-    try {
-      const res = await fetch("/api/forum/posts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          content: data.content,
-          parent_id: root.id,
-          root_id: root.id,
-          team_slug: data.teamSlug,
-          sport: data.sport,
-        }),
-      });
-      if (!res.ok) {
-        console.error("Failed to create reply:", await res.text());
-        alert("Det gick inte att skapa svaret. Försök igen.");
-        return;
-      }
-      const newPost = await res.json() as ForumPost;
+    const res = await fetch("/api/forum/posts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        content: data.content,
+        parent_id: root.id,
+        root_id: root.id,
+        team_slug: data.teamSlug,
+        sport: data.sport,
+      }),
+    });
+    if (res.ok) {
+      const newPost = (await res.json()) as ForumPost;
       setReplies((prev) => [...prev, newPost]);
-    } catch (error) {
-      console.error("Error creating reply:", error);
+    } else {
       alert("Det gick inte att skapa svaret. Försök igen.");
     }
   }
@@ -50,35 +53,62 @@ export default function ThreadClient({ root, replies: initialReplies, teamSlug, 
   return (
     <div>
       {/* Root post */}
-      <div className="pb-4 border-b border-border/40">
-        <PostItem post={root} depth={0} showThread={replies.length > 0} />
+      <div className="pb-4 border-b border-border/30">
+        <PostItem post={root} depth={0} showThread={replies.length > 0} index={0} />
       </div>
 
       {/* Replies */}
-      <div className="mt-4 flex flex-col divide-y divide-border/20">
-        {replies.map((reply) => (
-          <div key={reply.id} className="py-3">
-            <PostItem
-              post={reply}
-              depth={1}
-              showThread={(reply.reply_count ?? 0) > 0}
-              onReply={(newPost) => setReplies((prev) => [...prev, newPost])}
-            />
-          </div>
-        ))}
-      </div>
+      {replies.length > 0 && (
+        <div className="mt-1 flex flex-col divide-y divide-border/20">
+          {replies.map((reply, i) => (
+            <div key={reply.id} className="py-3">
+              <PostItem
+                post={reply}
+                depth={1}
+                showThread={(reply.reply_count ?? 0) > 0}
+                onReply={(newPost) =>
+                  setReplies((prev) => [...prev, newPost])
+                }
+                index={i}
+              />
+            </div>
+          ))}
+        </div>
+      )}
 
-      {/* Compose reply */}
-      <div className="mt-6 pt-4 border-t border-border/40">
-        <ComposePost
-          parentId={root.id}
-          rootId={root.id}
-          teamSlug={teamSlug}
-          sport={sport}
-          onPost={handleReply}
-          placeholder={`Svara ${root.author_name}…`}
-        />
-      </div>
+      {/* Empty replies state */}
+      {replies.length === 0 && (
+        <div className="py-10 text-center">
+          <MessageCircle className="w-8 h-8 mx-auto mb-2 text-muted-foreground/30" />
+          <p className="text-sm text-muted-foreground">
+            Inga svar än. Var första att svara!
+          </p>
+        </div>
+      )}
+
+      {/* Sticky reply bar */}
+      {user && (
+        <div className="fixed bottom-[max(env(safe-area-inset-bottom),0px)] inset-x-0 z-30 border-t border-border/40 bg-background/90 backdrop-blur-xl px-4 py-3 max-w-[600px] mx-auto">
+          <button
+            onClick={() => setComposeOpen(true)}
+            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-full bg-muted/50 border border-border/50 text-sm text-muted-foreground text-left hover:bg-muted/80 transition-colors touch-manipulation"
+          >
+            <MessageCircle className="w-4 h-4 shrink-0" />
+            Svara {root.author_name}…
+          </button>
+        </div>
+      )}
+
+      <ComposeDrawer
+        open={composeOpen}
+        onOpenChange={setComposeOpen}
+        parentId={root.id}
+        rootId={root.id}
+        teamSlug={teamSlug}
+        sport={sport}
+        replyTo={root.author_name}
+        onPost={handleReply}
+      />
     </div>
   );
 }
