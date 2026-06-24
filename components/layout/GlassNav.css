@@ -38,7 +38,7 @@
     0 1px 1px 0 color-mix(in srgb, var(--foreground) 14%, transparent) inset,
     0 4px 12px -4px rgba(0, 0, 0, 0.35);
   transform: translateX(calc((var(--opt-size) + var(--opt-gap)) * var(--active)));
-  transition: transform 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1);
   pointer-events: none;
 }
 
