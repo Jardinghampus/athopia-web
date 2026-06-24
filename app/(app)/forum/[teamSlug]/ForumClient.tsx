@@ -97,9 +97,10 @@ export default function ForumClient({ teamSlug, sport, initialPosts }: Props) {
         </div>
       )}
 
-      {/* Sticky bottom compose bar */}
+      {/* Sticky bottom compose bar — sits above the GlassNav dock */}
       {user && (
-        <div className="fixed bottom-0 inset-x-0 z-40 max-w-[600px] mx-auto border-t border-border/30 bg-background/95 backdrop-blur-xl px-4 py-3 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
+        <div className="fixed inset-x-0 z-40 max-w-[600px] mx-auto border-t border-border/30 bg-background/95 backdrop-blur-xl px-4 py-3
+          bottom-[calc(env(safe-area-inset-bottom)+5rem)]">
           <AIInputWithLoading
             placeholder="Skriv ett inlägg…"
             onSubmit={async (val) => {

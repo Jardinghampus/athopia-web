@@ -2,51 +2,58 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Star, Newspaper, BarChart3, MessageSquare, User } from "lucide-react";
+import { Search, Newspaper, BarChart3, MessageSquare, User, Users2 } from "lucide-react";
+import { useCommandPalette } from "@/hooks/useCommandPalette";
 import "./GlassNav.css";
 
-const ITEMS = [
-  { href: "/mitt-lag", label: "Mitt lag", icon: Star },
-  { href: "/nyheter", label: "Nyheter", icon: Newspaper },
-  { href: "/statistik", label: "Statistik", icon: BarChart3 },
-  { href: "/forum", label: "Forum", icon: MessageSquare },
-  { href: "/konto", label: "Profil", icon: User },
+// Nav links — active state tracked by --active CSS variable
+const NAV_ITEMS = [
+  { href: "/nyheter",   label: "Nyheter",   icon: Newspaper },
+  { href: "/statistik", label: "Statistik",  icon: BarChart3 },
+  { href: "/forum",     label: "Forum",      icon: MessageSquare },
+  { href: "/konto",     label: "Profil",     icon: User },
 ] as const;
 
-/**
- * Floating glass tab bar — bottom dock on every viewport (mobile, iPad, desktop).
- * Pinned to the bottom (safe-area aware), icons only. The desktop top Header
- * keeps its own text links; this is the quick-access dock beneath them.
- * Active route is highlighted by the sliding glass thumb.
- */
-export function GlassNav() {
+export function GlassNav({ clerkEnabled: _clerkEnabled }: { clerkEnabled?: boolean }) {
   const pathname = usePathname();
+  const { openPalette } = useCommandPalette();
 
-  const activeIndex = ITEMS.findIndex(
+  // On thread pages the compose bar owns the bottom — hide GlassNav
+  const hideOnThread = /^\/forum\/.+\/.+/.test(pathname);
+
+  const activeIndex = NAV_ITEMS.findIndex(
     ({ href }) => pathname === href || pathname.startsWith(href + "/")
   );
 
+  function openTeamSelect() {
+    window.dispatchEvent(new CustomEvent("athopia:open-team-select"));
+  }
+
   return (
     <div
-      className="
-        pointer-events-none fixed inset-x-0 z-50 flex justify-center
-        bottom-[calc(env(safe-area-inset-bottom)+1rem)]
-      "
+      aria-hidden={hideOnThread}
+      className={[
+        "pointer-events-none fixed inset-x-0 z-50 flex justify-center",
+        "bottom-[calc(env(safe-area-inset-bottom)+1rem)]",
+        "transition-opacity duration-200",
+        hideOnThread ? "opacity-0 pointer-events-none" : "opacity-100",
+      ].join(" ")}
     >
       <nav
         className="glassnav pointer-events-auto"
         aria-label="Huvudnavigation"
         style={{ ["--active" as string]: Math.max(activeIndex, 0) }}
       >
+        {/* Sliding glass thumb — only visible for NAV_ITEMS */}
         <span
           className="glassnav__thumb"
           aria-hidden
           style={{ opacity: activeIndex === -1 ? 0 : 1 }}
         />
 
-        {ITEMS.map(({ href, label, icon: Icon }) => {
-          const active =
-            pathname === href || pathname.startsWith(href + "/");
+        {/* Nav links */}
+        {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+          const active = pathname === href || pathname.startsWith(href + "/");
           return (
             <Link
               key={href}
@@ -61,6 +68,28 @@ export function GlassNav() {
             </Link>
           );
         })}
+
+        {/* Action: Välj lag */}
+        <button
+          type="button"
+          onClick={openTeamSelect}
+          title="Välj lag"
+          aria-label="Välj lag"
+          className="glassnav__item"
+        >
+          <Users2 strokeWidth={2} />
+        </button>
+
+        {/* Action: Sök */}
+        <button
+          type="button"
+          onClick={openPalette}
+          title="Sök"
+          aria-label="Sök"
+          className="glassnav__item"
+        >
+          <Search strokeWidth={2} />
+        </button>
       </nav>
     </div>
   );

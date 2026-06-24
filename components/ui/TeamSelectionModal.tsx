@@ -43,6 +43,13 @@ export function TeamSelectionModal({ forceVisible = false }: TeamSelectionModalP
     return () => clearTimeout(t);
   }, [needsOnboarding, forceVisible]);
 
+  // Öppnas från GlassNav via custom event
+  useEffect(() => {
+    const handler = () => setVisible(true);
+    window.addEventListener("athopia:open-team-select", handler);
+    return () => window.removeEventListener("athopia:open-team-select", handler);
+  }, []);
+
   // Hämta lag från Supabase
   useEffect(() => {
     if (!visible) return;

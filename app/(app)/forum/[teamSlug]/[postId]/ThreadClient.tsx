@@ -85,8 +85,9 @@ export default function ThreadClient({
         </div>
       )}
 
+      {/* GlassNav is hidden on thread pages so compose bar can use full bottom */}
       {user && (
-        <div className="fixed bottom-0 inset-x-0 z-40 max-w-[600px] mx-auto border-t border-border/30 bg-background/95 backdrop-blur-xl px-4 py-3 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
+        <div className="fixed bottom-0 inset-x-0 z-40 max-w-[600px] mx-auto border-t border-border/30 bg-background/95 backdrop-blur-xl px-4 pt-3 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
           <AIInputWithLoading
             placeholder={`Svara ${root.author_name}…`}
             onSubmit={async (val) => {
