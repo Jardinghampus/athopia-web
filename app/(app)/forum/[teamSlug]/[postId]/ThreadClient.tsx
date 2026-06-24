@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { MessageCircle } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
 import PostItem from "@/components/forum/PostItem";
-import ComposeDrawer from "@/components/forum/ComposeDrawer";
+import { AIInputWithLoading } from "@/components/ui/ai-input-with-loading";
 import type { ForumPost } from "@/lib/types";
 
 interface Props {
@@ -22,7 +21,6 @@ export default function ThreadClient({
 }: Props) {
   const { user } = useUser();
   const [replies, setReplies] = useState<ForumPost[]>(initialReplies);
-  const [composeOpen, setComposeOpen] = useState(false);
 
   async function handleReply(data: {
     content: string;
@@ -86,29 +84,16 @@ export default function ThreadClient({
         </div>
       )}
 
-      {/* Sticky reply bar */}
       {user && (
-        <div className="fixed bottom-[max(env(safe-area-inset-bottom),0px)] inset-x-0 z-30 border-t border-border/40 bg-background/90 backdrop-blur-xl px-4 py-3 max-w-[600px] mx-auto">
-          <button
-            onClick={() => setComposeOpen(true)}
-            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-full bg-muted/50 border border-border/50 text-sm text-muted-foreground text-left hover:bg-muted/80 transition-colors touch-manipulation"
-          >
-            <MessageCircle className="w-4 h-4 shrink-0" />
-            Svara {root.author_name}…
-          </button>
+        <div className="fixed bottom-0 inset-x-0 z-40 max-w-[600px] mx-auto border-t border-border/30 bg-background/95 backdrop-blur-xl px-4 py-3 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
+          <AIInputWithLoading
+            placeholder={`Svara ${root.author_name}…`}
+            onSubmit={async (val) => {
+              await handleReply({ content: val, teamSlug, sport });
+            }}
+          />
         </div>
       )}
-
-      <ComposeDrawer
-        open={composeOpen}
-        onOpenChange={setComposeOpen}
-        parentId={root.id}
-        rootId={root.id}
-        teamSlug={teamSlug}
-        sport={sport}
-        replyTo={root.author_name}
-        onPost={handleReply}
-      />
     </div>
   );
 }

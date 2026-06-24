@@ -1,11 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Plus } from "lucide-react";
-import { motion } from "motion/react";
 import { useUser } from "@clerk/nextjs";
 import PostItem from "@/components/forum/PostItem";
-import ComposeDrawer from "@/components/forum/ComposeDrawer";
+import { AIInputWithLoading } from "@/components/ui/ai-input-with-loading";
 import type { ForumPost } from "@/lib/types";
 
 interface Props {
@@ -100,24 +98,16 @@ export default function ForumClient({ teamSlug, sport, initialPosts }: Props) {
         </div>
       )}
 
-      <ComposeDrawer
-        open={composeOpen}
-        onOpenChange={setComposeOpen}
-        teamSlug={teamSlug}
-        sport={sport}
-        onPost={handlePost}
-      />
-
+      {/* Sticky bottom compose bar */}
       {user && (
-        <motion.button
-          onClick={() => setComposeOpen(true)}
-          whileTap={{ scale: 0.88 }}
-          transition={{ type: "spring", stiffness: 500, damping: 30, mass: 0.6 }}
-          className="fixed right-5 bottom-[calc(max(1.5rem,env(safe-area-inset-bottom))+4rem)] w-14 h-14 bg-pitch text-white rounded-full shadow-[0_4px_24px_rgba(29,158,117,0.5)] flex items-center justify-center hover:bg-pitch/90 transition-colors z-40 touch-manipulation"
-          aria-label="Nytt inlägg"
-        >
-          <Plus className="w-6 h-6" strokeWidth={2.5} />
-        </motion.button>
+        <div className="fixed bottom-0 inset-x-0 z-40 max-w-[600px] mx-auto border-t border-border/30 bg-background/95 backdrop-blur-xl px-4 py-3 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
+          <AIInputWithLoading
+            placeholder="Skriv ett inlägg…"
+            onSubmit={async (val) => {
+              await handlePost({ content: val, teamSlug, sport });
+            }}
+          />
+        </div>
       )}
     </div>
   );
