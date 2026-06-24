@@ -115,14 +115,16 @@ export async function POST(req: NextRequest) {
     const inputTokens: number = result.usage?.input_tokens ?? 0;
     const outputTokens: number = result.usage?.output_tokens ?? 0;
     const costUsd = inputTokens * 0.00000025 + outputTokens * 0.00000125;
-    await supabase.from("agent_logs").insert({
-      agent_id: "forum-summarizer",
-      action: `summarize_forum_${teamSlug}`,
-      tokens_input: inputTokens,
-      tokens_output: outputTokens,
-      cost_usd: costUsd,
-      metadata: { teamSlug, postCount: posts.length },
-    }).throwOnError().then(() => {}).catch(() => {});
+    try {
+      await supabase.from("agent_logs").insert({
+        agent_id: "forum-summarizer",
+        action: `summarize_forum_${teamSlug}`,
+        tokens_input: inputTokens,
+        tokens_output: outputTokens,
+        cost_usd: costUsd,
+        metadata: { teamSlug, postCount: posts.length },
+      });
+    } catch {}
 
     return NextResponse.json({ ok: true, teamSlug, summary, postCount: posts.length });
   } catch (err) {
