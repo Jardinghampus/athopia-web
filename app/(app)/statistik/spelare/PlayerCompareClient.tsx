@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Users } from "lucide-react";
 import dynamic from "next/dynamic";
 import type { PlayerRadarSeries } from "@/components/team-hub/PlayerRadar";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
+import { cn } from "@/lib/utils";
 
-// recharts är tungt — ladda radarn först när en spelare valts
 const PlayerRadar = dynamic(
   () => import("@/components/team-hub/PlayerRadar").then((m) => m.PlayerRadar),
   { ssr: false, loading: () => <div className="h-64 rounded-xl skeleton-wave bg-muted/40" /> }
@@ -17,7 +18,15 @@ const RADAR_METRICS: ScoutMetricKey[] = ["goals", "assists", "shots", "key_passe
 const COLOR_A = "var(--color-pitch)";
 const COLOR_B = "#3B82F6";
 
-/** Percentilrank (0–100) för ett värde inom poolen. */
+type PositionFilter = "all" | "goalkeeper" | "defender" | "midfielder" | "attacker";
+const POSITION_OPTIONS: { value: PositionFilter; label: string }[] = [
+  { value: "all", label: "Alla" },
+  { value: "attacker", label: "Forwards" },
+  { value: "midfielder", label: "Mittfältare" },
+  { value: "defender", label: "Försvarare" },
+  { value: "goalkeeper", label: "Målvakter" },
+];
+
 function percentile(values: number[], v: number): number {
   if (values.length === 0) return 50;
   const below = values.filter((x) => x < v).length;
@@ -25,35 +34,137 @@ function percentile(values: number[], v: number): number {
   return Math.round(((below + equal / 2) / values.length) * 100);
 }
 
-function PlayerPicker({ pool, value, onChange, label, color }: {
-  pool: ScoutPlayer[]; value: string; onChange: (v: string) => void; label: string; color: string;
+/** Sökbar combobox för spelarvalet — ersätter native <select>. */
+function PlayerCombobox({ pool, value, onChange, label, color }: {
+  pool: ScoutPlayer[];
+  value: string;
+  onChange: (v: string) => void;
+  label: string;
+  color: string;
 }) {
+  const [query, setQuery] = useState("");
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const selected = pool.find((p) => String(p.player_id) === value) ?? null;
+
+  // Stäng vid klick utanför
+  useEffect(() => {
+    function onPointerDown(e: PointerEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+        setQuery("");
+      }
+    }
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, []);
+
+  const filtered = useMemo(() => {
+    const q = query.toLowerCase().trim();
+    if (!q) return pool.slice(0, 50); // visa 50 när ingen sökning
+    return pool.filter(
+      (p) => p.fullname.toLowerCase().includes(q) || p.team_name.toLowerCase().includes(q)
+    ).slice(0, 30);
+  }, [pool, query]);
+
+  const select = useCallback((p: ScoutPlayer) => {
+    onChange(String(p.player_id));
+    setQuery("");
+    setOpen(false);
+  }, [onChange]);
+
   return (
-    <div className="space-y-1">
+    <div ref={containerRef} className="relative space-y-1">
       <span className="text-xs font-semibold" style={{ color }}>{label}</span>
-      <select value={value} onChange={(e) => onChange(e.target.value)} aria-label={label}
-        className="w-full text-sm bg-background border border-border rounded-lg px-2.5 min-h-11 sm:min-h-9 text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer">
-        <option value="">Välj spelare…</option>
-        {pool.map((p) => (
-          <option key={p.player_id} value={String(p.player_id)}>{p.fullname} · {p.team_name}</option>
-        ))}
-      </select>
+      <div
+        className={cn(
+          "flex items-center gap-2 rounded-lg border bg-background px-2.5 min-h-11 sm:min-h-9 transition-colors",
+          open ? "border-ring ring-2 ring-ring/30" : "border-border"
+        )}
+        onClick={() => { setOpen(true); inputRef.current?.focus(); }}
+      >
+        {!open && selected ? (
+          <span className="flex-1 text-sm text-foreground truncate py-1.5 cursor-pointer">
+            {selected.fullname}
+            <span className="text-muted-foreground ml-1 text-xs">· {selected.team_name}</span>
+          </span>
+        ) : (
+          <input
+            ref={inputRef}
+            type="text"
+            value={query}
+            placeholder={selected ? selected.fullname : "Sök spelare eller lag…"}
+            onFocus={() => setOpen(true)}
+            onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
+            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none py-1.5"
+            aria-label={label}
+            autoComplete="off"
+          />
+        )}
+        {selected && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onChange(""); setQuery(""); }}
+            className="text-muted-foreground hover:text-foreground text-xs px-1"
+            aria-label="Rensa val"
+          >
+            ✕
+          </button>
+        )}
+      </div>
+
+      {open && filtered.length > 0 && (
+        <ul
+          role="listbox"
+          className="absolute z-50 top-full mt-1 w-full max-h-56 overflow-y-auto rounded-xl border border-border bg-popover shadow-lg"
+        >
+          {filtered.map((p) => (
+            <li
+              key={p.player_id}
+              role="option"
+              aria-selected={String(p.player_id) === value}
+              onPointerDown={(e) => { e.preventDefault(); select(p); }}
+              className={cn(
+                "flex items-center justify-between px-3 py-2 text-sm cursor-pointer select-none",
+                String(p.player_id) === value
+                  ? "bg-muted text-foreground"
+                  : "hover:bg-muted/60 text-foreground"
+              )}
+            >
+              <span className="font-medium truncate">{p.fullname}</span>
+              <span className="text-muted-foreground text-xs ml-2 shrink-0">{p.team_name}</span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
 
 export function PlayerCompareClient({ pool }: { pool: ScoutPlayer[] }) {
-  const ranked = useMemo(() => [...pool].sort((a, b) => a.fullname.localeCompare(b.fullname, "sv")), [pool]);
+  const [posFilter, setPosFilter] = useState<PositionFilter>("all");
   const [idA, setIdA] = useState("");
   const [idB, setIdB] = useState("");
 
-  // Poolvärden per metric (endast spelare med speltid) → normaliseringsbas.
+  const filteredPool = useMemo(() => {
+    const base = [...pool].sort((a, b) => a.fullname.localeCompare(b.fullname, "sv"));
+    if (posFilter === "all") return base;
+    return base.filter((p) => p.position === posFilter);
+  }, [pool, posFilter]);
+
+  // Nollställ val vid positions-byte om spelaren inte finns i den nya poolen
+  useEffect(() => {
+    if (idA && !filteredPool.find((p) => String(p.player_id) === idA)) setIdA("");
+    if (idB && !filteredPool.find((p) => String(p.player_id) === idB)) setIdB("");
+  }, [filteredPool, idA, idB]);
+
   const cols = useMemo(() => {
     const out = {} as Record<ScoutMetricKey, number[]>;
-    const active = pool.filter((p) => p.minutes > 0);
+    const active = filteredPool.filter((p) => p.minutes > 0);
     for (const m of SCOUT_METRICS) out[m.key] = active.map((p) => p[m.key]);
     return out;
-  }, [pool]);
+  }, [filteredPool]);
 
   const playerA = pool.find((p) => String(p.player_id) === idA) ?? null;
   const playerB = pool.find((p) => String(p.player_id) === idB) ?? null;
@@ -76,32 +187,42 @@ export function PlayerCompareClient({ pool }: { pool: ScoutPlayer[] }) {
 
   return (
     <div className="space-y-5">
+      {/* Positions-filter */}
+      <SegmentedControl
+        options={POSITION_OPTIONS}
+        value={posFilter}
+        onChange={setPosFilter}
+        aria-label="Filtrera på position"
+      />
+
+      {/* Spelarpickers */}
       <div className="rounded-2xl border border-border bg-card p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <PlayerPicker pool={ranked} value={idA} onChange={setIdA} label="Spelare A" color={COLOR_A} />
-        <PlayerPicker pool={ranked} value={idB} onChange={setIdB} label="Spelare B" color={COLOR_B} />
+        <PlayerCombobox pool={filteredPool} value={idA} onChange={setIdA} label="Spelare A" color={COLOR_A} />
+        <PlayerCombobox pool={filteredPool} value={idB} onChange={setIdB} label="Spelare B" color={COLOR_B} />
       </div>
 
       {!playerA && !playerB ? (
         <div className="text-center py-16 text-muted-foreground">
-          <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
-          <p className="text-sm">Välj en eller två spelare att jämföra mot ligan.</p>
+          <Users className="h-8 w-8 mx-auto mb-3 opacity-40" />
+          <p className="text-sm font-medium text-foreground">Välj en spelare att jämföra mot ligan</p>
+          <p className="text-xs text-muted-foreground mt-1">Lägg till en andra spelare för head-to-head.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {/* Radar */}
           <div className="rounded-2xl border border-border bg-card p-4">
-            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">Profil (percentil vs ligan)</h2>
+            <p className="text-sm font-semibold text-muted-foreground mb-2">Profil · percentil vs ligan</p>
             <PlayerRadar series={series} />
-            <p className="text-[11px] text-muted-foreground text-center mt-1">100 = bäst i ligan, 50 = median.</p>
+            <p className="text-xs text-muted-foreground text-center mt-1">100 = bäst i ligan · 50 = median</p>
           </div>
 
           {/* Stat-rader */}
           <div className="rounded-2xl border border-border bg-card p-4">
-            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Råvärden</h2>
+            <p className="text-sm font-semibold text-muted-foreground mb-3">Råvärden</p>
             <div className="grid grid-cols-3 items-center py-2 border-b border-border/60 text-xs text-muted-foreground">
-              <span className="text-right pr-4 font-semibold" style={{ color: COLOR_A }}>{playerA?.fullname ?? "—"}</span>
+              <span className="text-right pr-4 font-semibold truncate" style={{ color: COLOR_A }}>{playerA?.fullname ?? "—"}</span>
               <span className="text-center">Mätvärde</span>
-              <span className="text-left pl-4 font-semibold" style={{ color: COLOR_B }}>{playerB?.fullname ?? "—"}</span>
+              <span className="text-left pl-4 font-semibold truncate" style={{ color: COLOR_B }}>{playerB?.fullname ?? "—"}</span>
             </div>
             {SCOUT_METRICS.map((m) => {
               const a = playerA ? playerA[m.key] : null;
@@ -110,16 +231,28 @@ export function PlayerCompareClient({ pool }: { pool: ScoutPlayer[] }) {
               const bWins = a != null && b != null && b > a;
               return (
                 <div key={m.key} className="grid grid-cols-3 items-center py-2 border-b border-border/40 last:border-0">
-                  <span className={`text-sm font-semibold text-right pr-4 ${aWins ? "text-pitch" : "text-foreground"}`}>{a != null ? fmt(m.key, a) : "—"}</span>
+                  <span className={cn(
+                    "text-sm font-semibold tabular-nums text-right pr-4",
+                    aWins ? "text-pitch" : "text-foreground"
+                  )}>{a != null ? fmt(m.key, a) : "—"}</span>
                   <span className="text-xs text-center text-muted-foreground">{m.label}</span>
-                  <span className={`text-sm font-semibold text-left pl-4 ${bWins ? "text-blue-400" : "text-foreground"}`}>{b != null ? fmt(m.key, b) : "—"}</span>
+                  <span className={cn(
+                    "text-sm font-semibold tabular-nums text-left pl-4",
+                    bWins ? "text-blue-400" : "text-foreground"
+                  )}>{b != null ? fmt(m.key, b) : "—"}</span>
                 </div>
               );
             })}
             <div className="grid grid-cols-3 items-center pt-3 text-xs">
-              <Link href={playerA ? `/spelare/${playerA.slug ?? playerA.player_id}` : "#"} className="text-right pr-4 text-muted-foreground hover:text-pitch">{playerA ? "Profil →" : ""}</Link>
+              <Link
+                href={playerA ? `/spelare/${playerA.slug ?? playerA.player_id}` : "#"}
+                className="text-right pr-4 text-muted-foreground hover:text-pitch"
+              >{playerA ? "Profil →" : ""}</Link>
               <span />
-              <Link href={playerB ? `/spelare/${playerB.slug ?? playerB.player_id}` : "#"} className="text-left pl-4 text-muted-foreground hover:text-blue-400">{playerB ? "Profil →" : ""}</Link>
+              <Link
+                href={playerB ? `/spelare/${playerB.slug ?? playerB.player_id}` : "#"}
+                className="text-left pl-4 text-muted-foreground hover:text-blue-400"
+              >{playerB ? "Profil →" : ""}</Link>
             </div>
           </div>
         </div>
