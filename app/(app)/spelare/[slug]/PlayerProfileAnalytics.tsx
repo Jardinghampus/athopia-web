@@ -88,7 +88,7 @@ export function PlayerProfileAnalytics({
           <ResponsiveContainer width="100%" height={270}>
             <RadarChart data={radarData} margin={{ top: 8, right: 28, bottom: 8, left: 28 }}>
               <PolarGrid stroke="hsl(var(--border))" />
-              <PolarAngleAxis dataKey="metric" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
+              <PolarAngleAxis dataKey="metric" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
               <Tooltip
                 formatter={(value) => [`${value}`, "Percentil"]}
                 contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
@@ -111,8 +111,8 @@ export function PlayerProfileAnalytics({
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={barData} margin={{ top: 8, right: 12, bottom: 8, left: 0 }}>
               <CartesianGrid vertical={false} stroke="hsl(var(--border))" opacity={0.55} />
-              <XAxis dataKey="metric" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
-              <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} width={34} />
+              <XAxis dataKey="metric" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
+              <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} width={34} />
               <Tooltip
                 contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
               />
@@ -146,3 +146,4 @@ export function PlayerProfileAnalytics({
     </motion.section>
   );
 }
+

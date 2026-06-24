@@ -36,7 +36,7 @@ export function TeamRadar({ data, color = "var(--color-pitch)" }: { data: RadarP
         <PolarGrid stroke="hsl(var(--border))" />
         <PolarAngleAxis
           dataKey="metric"
-          tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+          tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
         />
         <Tooltip
           contentStyle={{
@@ -71,3 +71,4 @@ export function TeamRadar({ data, color = "var(--color-pitch)" }: { data: RadarP
     </ResponsiveContainer>
   );
 }
+
