@@ -6,7 +6,7 @@ import { MittLagDashboard } from "./MittLagDashboard";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Mitt lag | Athopia",
+  title: "Mitt lag",
   description: "Din personliga lag-dashboard — statistik, trupp, matcher, nyheter och forum samlat.",
 };
 

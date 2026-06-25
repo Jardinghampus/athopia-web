@@ -67,8 +67,9 @@ export async function generateMetadata({
   const team = await getTeam(slug);
   const name = team?.name ?? slug;
   return {
-    title: `${name} — Nyheter`,
-    description: `Senaste fotbollsnyheter om ${name} på Athopia.`,
+    title: `${name} Nyheter – Allsvenskan 2026`,
+    description: `Senaste nyheterna om ${name} i Allsvenskan 2026 — matcher, transferer och matchanalyser.`,
+    alternates: { canonical: `https://athopia.se/lag/${slug}/nyheter` },
   };
 }
 

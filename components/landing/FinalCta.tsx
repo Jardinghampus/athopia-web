@@ -1,10 +1,20 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Container, Label, Reveal, Section } from "./primitives";
+import { WaitlistModal } from "./WaitlistModal";
 
 export function FinalCta() {
+  const [modalOpen, setModalOpen] = useState(false);
+
+  function handleCta(e: React.MouseEvent) {
+    if (typeof window !== "undefined" && localStorage.getItem("athopia_access") === "1") return;
+    e.preventDefault();
+    setModalOpen(true);
+  }
+
   return (
     <Section>
       <Container>
@@ -53,6 +63,7 @@ export function FinalCta() {
             <Reveal delay={0.24}>
               <Link
                 href="/onboarding"
+                onClick={handleCta}
                 className="inline-flex h-16 items-center justify-center gap-2 rounded-2xl bg-pitch px-10 text-lg font-bold text-black transition-transform duration-200 hover:scale-[1.02] active:scale-[0.97]"
               >
                 Välj ditt lag <ArrowRight className="h-5 w-5" />
@@ -61,6 +72,7 @@ export function FinalCta() {
                 Allsvenskan 2026 · 291 artiklar · Uppdateras varje omgång
               </p>
             </Reveal>
+            <WaitlistModal open={modalOpen} onClose={() => setModalOpen(false)} redirectTo="/onboarding" />
           </div>
         </div>
       </Container>

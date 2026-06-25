@@ -16,7 +16,7 @@ const SEO_KEYWORDS = [
 ];
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.athopia.se"),
+  metadataBase: new URL("https://athopia.se"),
   title: "Allsvenskan 2026 – Tabell, Resultat, Matcher & Statistik | Athopia",
   description:
     "Allt om Allsvenskan 2026: live-tabell, resultat, spelschema, skytteliga och djupstatistik för alla 16 lag. Matchanalyser, nyhetsflöde och forum för ditt lag — samlat på ett ställe.",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "sv_SE",
-    url: "https://www.athopia.se",
+    url: "https://athopia.se",
     siteName: "Athopia",
     title: "Allsvenskan 2026 – Tabell, Resultat, Matcher & Statistik | Athopia",
     description:
@@ -72,24 +72,24 @@ function LandingJsonLd() {
     "@graph": [
       {
         "@type": "WebSite",
-        "@id": "https://www.athopia.se/#website",
+        "@id": "https://athopia.se/#website",
         name: "Athopia",
-        url: "https://www.athopia.se",
+        url: "https://athopia.se",
         inLanguage: "sv-SE",
         description:
           "Allsvenskan 2026 — tabell, resultat, matcher, skytteliga, statistik, matchanalyser och forum för alla 16 lag.",
         potentialAction: {
           "@type": "SearchAction",
-          target: { "@type": "EntryPoint", urlTemplate: "https://www.athopia.se/nyheter?q={search_term_string}" },
+          target: { "@type": "EntryPoint", urlTemplate: "https://athopia.se/nyheter?q={search_term_string}" },
           "query-input": "required name=search_term_string",
         },
       },
       {
         "@type": "SportsOrganization",
-        "@id": "https://www.athopia.se/#allsvenskan",
+        "@id": "https://athopia.se/#allsvenskan",
         name: "Allsvenskan",
         sport: "Soccer",
-        url: "https://www.athopia.se/allsvenskan",
+        url: "https://athopia.se/allsvenskan",
       },
     ],
   };

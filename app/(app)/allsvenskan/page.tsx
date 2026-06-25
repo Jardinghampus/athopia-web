@@ -7,9 +7,31 @@ import { Separator } from "@/components/ui/separator";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Allsvenskan",
-  description: "Tabell, matcher och live scores för Allsvenskan på Athopia.",
+  title: "Allsvenskan 2026 – Tabell, Resultat & Matcher",
+  description: "Live-tabell, matchresultat, spelschema och statistik för Allsvenskan 2026. Uppdateras löpande.",
+  alternates: { canonical: "https://athopia.se/allsvenskan" },
+  openGraph: {
+    type: "website",
+    locale: "sv_SE",
+    url: "https://athopia.se/allsvenskan",
+    title: "Allsvenskan 2026 – Tabell, Resultat & Matcher",
+    description: "Live-tabell, matchresultat, spelschema och statistik för Allsvenskan 2026.",
+  },
 };
+
+function AllsvenskanJsonLd() {
+  return (
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "SportsOrganization",
+      "@id": "https://athopia.se/allsvenskan#allsvenskan",
+      name: "Allsvenskan",
+      sport: "Soccer",
+      url: "https://athopia.se/allsvenskan",
+      description: "Allsvenskan är den högsta divisionen i svensk klubbfotboll för herrar.",
+    })}} />
+  );
+}
 
 export default async function AllsvenskanPage() {
   const [standings, fixtures] = await Promise.all([
@@ -19,10 +41,17 @@ export default async function AllsvenskanPage() {
 
   return (
     <div className="w-full px-6 sm:px-8 py-10">
+      <AllsvenskanJsonLd />
       <div className="flex items-end justify-between gap-6 mb-8">
         <div>
           <h1 className="font-bold text-5xl text-foreground">ALLSVENSKAN</h1>
           <p className="text-muted-foreground mt-2">Tabell och matchschema — uppdateras löpande.</p>
+          <div className="flex gap-4 flex-wrap mt-3">
+            <Link href="/allsvenskan/tabell" className="text-sm text-pitch hover:underline">Tabell</Link>
+            <Link href="/allsvenskan/spelschema" className="text-sm text-pitch hover:underline">Spelschema</Link>
+            <Link href="/allsvenskan/skytteliga" className="text-sm text-pitch hover:underline">Skytteliga</Link>
+            <Link href="/allsvenskan/resultat" className="text-sm text-pitch hover:underline">Resultat</Link>
+          </div>
         </div>
       </div>
 

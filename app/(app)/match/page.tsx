@@ -6,8 +6,8 @@ import type { SMFixture } from "@/lib/db/fixtures";
 import { ScoreWidget } from "@/components/ui/ScoreWidget";
 
 export const metadata: Metadata = {
-  title: "Matcher | Athopia",
-  description: "Allsvenskan matchschema, resultat och livescore.",
+  title: "Allsvenskan-matcher 2026 – Schema & Resultat",
+  description: "Allsvenskan matchschema, resultat och livescore för hela 2026-säsongen.",
 };
 
 export const revalidate = 60;

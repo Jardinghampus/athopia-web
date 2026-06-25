@@ -8,7 +8,7 @@ import type { PublicProfile } from "@/components/profile/ProfileCard";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Min profil | Athopia",
+  title: "Min profil",
   robots: { index: false, follow: false },
 };
 

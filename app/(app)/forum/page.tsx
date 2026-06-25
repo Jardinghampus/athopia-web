@@ -5,7 +5,7 @@ import { MessageSquare, Flame, TrendingUp } from "lucide-react";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 
 export const metadata: Metadata = {
-  title: "Forum — Allsvenskan | Athopia",
+  title: "Forum — Allsvenskan",
   description: "Diskutera Allsvenskan med supportrar från alla 16 lag.",
 };
 

@@ -11,9 +11,30 @@ import { filterStateToParams } from "@/lib/filters";
 
 export const dynamic = 'force-dynamic';
 
+function NyheterBreadcrumb() {
+  return (
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Hem", item: "https://athopia.se" },
+        { "@type": "ListItem", position: 2, name: "Nyheter", item: "https://athopia.se/nyheter" },
+      ],
+    })}} />
+  );
+}
+
 export const metadata: Metadata = {
-  title: "Nyheter | Athopia",
-  description: "Senaste fotbollsnyheterna — AI-kurerat för Allsvenskan på Athopia.",
+  title: "Allsvenskan-nyheter 2026 – Senaste signaler",
+  description: "Senaste fotbollsnyheterna från Allsvenskan — signalscorerade och AI-kurerade i realtid.",
+  alternates: { canonical: "https://athopia.se/nyheter" },
+  openGraph: {
+    type: "website",
+    locale: "sv_SE",
+    url: "https://athopia.se/nyheter",
+    title: "Allsvenskan-nyheter 2026 – Senaste signaler",
+    description: "Senaste fotbollsnyheterna från Allsvenskan — signalscorerade och AI-kurerade i realtid.",
+  },
 };
 
 const LIMIT = 24;
@@ -101,6 +122,7 @@ export default async function NyheterPage({
 
   return (
     <div className="w-full px-6 sm:px-8 py-10">
+      <NyheterBreadcrumb />
       <NyheterRealtimeBanner />
 
       <div className="mb-8">

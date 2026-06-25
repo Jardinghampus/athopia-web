@@ -15,7 +15,7 @@ import Link from "next/link";
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: "Podcast | Athopia",
+  title: "Allsvenskan-podcasts – Lyssna & Filtrera",
   description: "Lyssna på Sveriges bästa fotbollspodcasts — filtrera per lag, show och datum.",
 };
 
@@ -251,6 +251,14 @@ export default async function PodcastListPage({
 
   return (
     <div className="w-full px-6 sm:px-8 py-10">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "PodcastSeries",
+        name: "Allsvenskan-podcasts",
+        description: "Sveriges bästa fotbollspodcasts om Allsvenskan — filtrera per lag, show och datum.",
+        url: "https://athopia.se/podcast",
+        inLanguage: "sv",
+      })}} />
       <div className="flex items-center gap-3 mb-2">
         <div className="w-10 h-10 rounded-xl pitch-gradient flex items-center justify-center">
           <Mic className="w-5 h-5 text-white" />

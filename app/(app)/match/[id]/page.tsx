@@ -46,8 +46,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (isNaN(fid)) return { title: "Match | Athopia" };
   const db = createServerClient();
   const { data } = await db.from("fixtures").select("home_team_name,away_team_name,home_score,away_score").eq("sportmonks_id", fid).maybeSingle();
-  if (!data) return { title: "Match | Athopia" };
-  return { title: `${data.home_team_name} ${data.home_score}–${data.away_score} ${data.away_team_name} | Athopia` };
+  if (!data) return { title: "Match" };
+  const title = `${data.home_team_name} ${data.home_score}–${data.away_score} ${data.away_team_name}`;
+  return {
+    title,
+    description: `Matchrapport: ${data.home_team_name} mot ${data.away_team_name} i Allsvenskan 2026 — mål, händelser, statistik och AI-analys.`,
+    alternates: { canonical: `https://athopia.se/match/${fid}` },
+    openGraph: {
+      type: "article",
+      title,
+      description: `${data.home_team_name} ${data.home_score}–${data.away_score} ${data.away_team_name} — Allsvenskan 2026`,
+      url: `https://athopia.se/match/${fid}`,
+    },
+  };
 }
 
 const EVENT_ICONS: Record<string, string> = {
@@ -120,8 +131,27 @@ export default async function MatchPage({ params }: PageProps) {
   const homeXg = hasXg ? Number(homeStat?.xg) : null;
   const awayXg = hasXg ? Number(awayStat?.xg) : null;
 
+  const matchJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SportsEvent",
+    name: `${homeName} – ${awayName}`,
+    sport: "Soccer",
+    url: `https://athopia.se/match/${fid}`,
+    ...(kickoff ? { startDate: kickoff } : {}),
+    homeTeam: { "@type": "SportsTeam", name: homeName },
+    awayTeam: { "@type": "SportsTeam", name: awayName },
+    location: { "@type": "Place", name: "Allsvenskan" },
+    ...(fix.status === "FT" ? {
+      subEvent: [{
+        "@type": "Report",
+        description: `${homeName} ${homeScore}–${awayScore} ${awayName}`,
+      }],
+    } : {}),
+  };
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(matchJsonLd) }} />
       {/* Resultat-header */}
       <div className="bg-card border border-border rounded-2xl p-6">
         <p className="text-xs text-muted-foreground text-center mb-3">

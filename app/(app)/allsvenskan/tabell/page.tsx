@@ -1,0 +1,83 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { fetchStandingsFull } from "@/lib/db/fixtures";
+import type { SMStandingRow } from "@/lib/db/fixtures";
+
+export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "Allsvenskan Tabell 2026 – Poängtabell & Ställning",
+  description: "Aktuell Allsvenskan-tabell 2026 med poäng, målskillnad och form för alla 16 lag. Uppdateras automatiskt efter varje match.",
+  alternates: { canonical: "https://athopia.se/allsvenskan/tabell" },
+  openGraph: {
+    type: "website",
+    locale: "sv_SE",
+    url: "https://athopia.se/allsvenskan/tabell",
+    title: "Allsvenskan Tabell 2026 – Poängtabell & Ställning",
+    description: "Aktuell Allsvenskan-tabell 2026 med poäng, målskillnad och form.",
+  },
+};
+
+export default async function AllsvenskanTabellPage() {
+  const standings = await fetchStandingsFull().catch(() => [] as SMStandingRow[]);
+
+  return (
+    <div className="w-full px-4 sm:px-8 py-10 max-w-3xl mx-auto">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Table",
+        about: { "@type": "SportsOrganization", name: "Allsvenskan 2026", sport: "Soccer", url: "https://athopia.se/allsvenskan" },
+        description: standings[0] ? `Allsvenskan-tabell 2026. Ledare: ${standings[0].team.name}` : "Allsvenskan-tabell 2026",
+      })}} />
+
+      <nav className="text-xs text-muted-foreground mb-6 flex gap-2">
+        <Link href="/allsvenskan" className="hover:text-foreground">Allsvenskan</Link>
+        <span>›</span>
+        <span className="text-foreground">Tabell</span>
+      </nav>
+
+      <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2">ALLSVENSKAN TABELL 2026</h1>
+      <p className="text-muted-foreground mb-8">Uppdateras löpande under säsongen.</p>
+
+      <div className="rounded-2xl border border-border overflow-hidden">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border bg-muted/30 text-muted-foreground">
+              <th className="text-left py-3 px-4 font-medium w-8">#</th>
+              <th className="text-left py-3 px-4 font-medium">Lag</th>
+              <th className="text-center py-3 px-3 font-medium">M</th>
+              <th className="text-center py-3 px-3 font-medium">V</th>
+              <th className="text-center py-3 px-3 font-medium">O</th>
+              <th className="text-center py-3 px-3 font-medium">F</th>
+              <th className="text-center py-3 px-3 font-medium">+/-</th>
+              <th className="text-center py-3 px-4 font-medium font-bold">P</th>
+            </tr>
+          </thead>
+          <tbody>
+            {standings.map((row) => (
+              <tr key={row.team.name} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
+                <td className="py-3 px-4 text-muted-foreground">{row.position}</td>
+                <td className="py-3 px-4">
+                  <Link href={`/lag/${row.team.name.toLowerCase().replace(/\s+/g, "-").replace(/[åä]/g, "a").replace(/ö/g, "o")}`} className="font-medium hover:text-pitch transition-colors">
+                    {row.team.name}
+                  </Link>
+                </td>
+                <td className="py-3 px-3 text-center text-muted-foreground">{row.played}</td>
+                <td className="py-3 px-3 text-center text-muted-foreground">{row.wins}</td>
+                <td className="py-3 px-3 text-center text-muted-foreground">{row.draws}</td>
+                <td className="py-3 px-3 text-center text-muted-foreground">{row.losses}</td>
+                <td className="py-3 px-3 text-center text-muted-foreground">{row.goal_diff > 0 ? `+${row.goal_diff}` : row.goal_diff}</td>
+                <td className="py-3 px-4 text-center font-bold text-foreground">{row.points}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="mt-6 flex gap-4 text-sm">
+        <Link href="/allsvenskan/spelschema" className="text-pitch hover:underline">Spelschema →</Link>
+        <Link href="/allsvenskan/skytteliga" className="text-pitch hover:underline">Skytteliga →</Link>
+      </div>
+    </div>
+  );
+}

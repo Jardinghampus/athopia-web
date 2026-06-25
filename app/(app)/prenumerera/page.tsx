@@ -13,14 +13,47 @@ import { PricingPlans } from "./PricingPlans";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Priser — Athopia",
+  title: "Priser & Prenumeration",
   description:
-    "Uppgradera till Athopia PRO (89 kr/mån) eller Elite (169 kr/mån) — obegränsat flöde, AI-sammanfattningar, smart ranking och mer. 25 % rabatt på årsplan.",
+    "Uppgradera till PRO (89 kr/mån) eller Elite (169 kr/mån) — obegränsat flöde, AI-sammanfattningar, smart ranking och mer. 25 % rabatt på årsplan.",
+  alternates: { canonical: "https://athopia.se/prenumerera" },
+  openGraph: {
+    type: "website",
+    locale: "sv_SE",
+    url: "https://athopia.se/prenumerera",
+    title: "Priser & Prenumeration",
+    description: "Gratis, PRO eller Elite — välj din plan för Allsvenskan-bevakning på djupet.",
+  },
 };
+
+function PricingJsonLd() {
+  return (
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      name: "Athopia prenumerationsplaner",
+      itemListElement: [
+        {
+          "@type": "ListItem", position: 1,
+          item: { "@type": "Product", name: "Athopia Gratis", offers: { "@type": "Offer", price: "0", priceCurrency: "SEK", availability: "https://schema.org/InStock" } },
+        },
+        {
+          "@type": "ListItem", position: 2,
+          item: { "@type": "Product", name: "Athopia PRO", offers: { "@type": "Offer", price: "89", priceCurrency: "SEK", availability: "https://schema.org/InStock" } },
+        },
+        {
+          "@type": "ListItem", position: 3,
+          item: { "@type": "Product", name: "Athopia Elite", offers: { "@type": "Offer", price: "169", priceCurrency: "SEK", availability: "https://schema.org/InStock" } },
+        },
+      ],
+    })}} />
+  );
+}
 
 export default function PrenumereraPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-20">
+      <PricingJsonLd />
       {/* Rubrik */}
       <div className="text-center mb-12">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-pitch/15 border border-pitch/30 text-pitch text-sm font-medium mb-6">

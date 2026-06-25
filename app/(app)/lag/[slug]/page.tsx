@@ -61,9 +61,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const team = await getTeam(slug);
   if (!team) return { title: "Lag hittades inte" };
   return {
-    title: `${team.name} — Hub | Athopia`,
-    description: `Nyheter, statistik, ledare och forum för ${team.name} på Athopia.`,
-    openGraph: { images: team.logo_url ? [{ url: team.logo_url }] : [] },
+    title: `${team.name} – Allsvenskan 2026: Nyheter, Statistik & Matcher`,
+    description: `Allt om ${team.name} i Allsvenskan 2026 — senaste nyheter, matchresultat, spelartrupp, statistik och lagforum.`,
+    alternates: { canonical: `https://athopia.se/lag/${slug}` },
+    openGraph: {
+      type: "website",
+      title: `${team.name} | Allsvenskan 2026`,
+      description: `Nyheter, statistik och forum för ${team.name} i Allsvenskan.`,
+      url: `https://athopia.se/lag/${slug}`,
+      images: team.logo_url ? [{ url: team.logo_url, width: 400, height: 400, alt: `${team.name} logotyp` }] : [],
+    },
   };
 }
 
@@ -186,8 +193,23 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
   const leagueGoalsForPerMatch = avg(league, "goals_for") / Math.max(1, avg(league, "played"));
   const leagueGoalsAgainstPerMatch = avg(league, "goals_against") / Math.max(1, avg(league, "played"));
 
+  const teamJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SportsTeam",
+    name: team.name,
+    sport: "Soccer",
+    url: `https://athopia.se/lag/${team.slug}`,
+    memberOf: {
+      "@type": "SportsOrganization",
+      name: "Allsvenskan",
+      url: "https://athopia.se/allsvenskan",
+    },
+    ...(team.logo_url ? { logo: team.logo_url, image: team.logo_url } : {}),
+  };
+
   return (
     <div className="w-full px-6 sm:px-8 py-8 space-y-6">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(teamJsonLd) }} />
       <TeamContextTracker slug={team.slug} name={team.name} logo_url={team.logo_url} />
       {/* ── Header ─────────────────────────────────────────────── */}
       <div className="flex items-start gap-5">

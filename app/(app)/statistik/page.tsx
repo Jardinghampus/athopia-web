@@ -56,10 +56,23 @@ async function getPlayerOverview(seasonId: string) {
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "Statistik | Athopia",
+  title: "Allsvenskan-statistik 2026 – Skytteliga, Tabell & Mer",
   description:
     "Allsvenskan-statistik — tabell, skytteliga, assistligan, skott, passningar, form och H2H.",
 };
+
+function StatistikBreadcrumb() {
+  return (
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Hem", item: "https://athopia.se" },
+        { "@type": "ListItem", position: 2, name: "Statistik", item: "https://athopia.se/statistik" },
+      ],
+    })}} />
+  );
+}
 
 type TabId = "tabell" | "skytteliga" | "assistligan" | "xg" | "form" | "press" | "h2h" | "projektion" | "luck" | "clutch";
 const VALID_TABS: TabId[] = ["tabell", "skytteliga", "assistligan", "xg", "form", "press", "h2h", "projektion", "luck", "clutch"];
@@ -600,6 +613,7 @@ export default async function StatistikPage({
 
   return (
     <div>
+      <StatistikBreadcrumb />
       {/* Sticky tab-nav + filter */}
       <Suspense
         fallback={

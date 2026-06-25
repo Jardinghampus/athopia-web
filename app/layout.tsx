@@ -24,7 +24,7 @@ const lora = Lora({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.athopia.se"),
+  metadataBase: new URL("https://athopia.se"),
   manifest: "/manifest.json",
   title: {
     default: "Athopia — Allsvenskan 2026: tabell, resultat & statistik",
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "sv_SE",
-    url: "https://www.athopia.se",
+    url: "https://athopia.se",
     siteName: "Athopia",
     images: [{ url: "/og-default.png", width: 1200, height: 630 }],
   },
@@ -63,6 +63,21 @@ export const viewport: Viewport = {
   ],
 };
 
+function NewsMediaJsonLd() {
+  return (
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "NewsMediaOrganization",
+      name: "Athopia",
+      url: "https://athopia.se",
+      foundingDate: "2026",
+      contactPoint: { "@type": "ContactPoint", email: "hej@athopia.se", contactType: "editorial" },
+      publishingPrinciples: "https://athopia.se/om-oss",
+      inLanguage: "sv",
+    })}} />
+  );
+}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const clerkEnabled =
     !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.match(/^pk_(test|live)_[A-Za-z0-9+/=]+$/);
@@ -74,6 +89,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       suppressHydrationWarning
     >
       <body className="min-h-dvh flex flex-col">
+        <NewsMediaJsonLd />
         <ThemeProvider>
           <Providers>
             {children}

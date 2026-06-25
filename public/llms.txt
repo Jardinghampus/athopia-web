@@ -1,0 +1,19 @@
+# Athopia
+> Svensk fotbollsintelligens för Allsvenskan 2026.
+
+Athopia är en signalstyrd nyhetsplattform för svensk fotboll med AI-sammanfattningar, live-tabell, matchresultat och lagforum för Allsvenskan.
+
+## Kontakt
+- E-post: hej@athopia.se
+- Webb: https://athopia.se
+
+## Innehåll
+- Nyheter: https://athopia.se/nyheter
+- Allsvenskan: https://athopia.se/allsvenskan
+- Matcher: https://athopia.se/match
+- Statistik: https://athopia.se/statistik
+- Podcast: https://athopia.se/podcast
+- Prenumerera: https://athopia.se/prenumerera
+
+## Om tjänsten
+Athopia aggregerar signaler från 40+ fotbollskällor, klassificerar nyhetsvärde med AI och presenterar Allsvenskan-bevakning utan brus. Gratis för grundfunktioner; PRO och Elite för djupanalys och obegränsat flöde.
