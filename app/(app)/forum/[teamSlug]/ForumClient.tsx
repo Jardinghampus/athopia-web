@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useUser } from "@clerk/nextjs";
+import { toast } from "sonner";
 import PostItem from "@/components/forum/PostItem";
 import { AIInputWithLoading } from "@/components/ui/ai-input-with-loading";
 import type { ForumPost } from "@/lib/types";
@@ -56,7 +57,7 @@ export default function ForumClient({ teamSlug, sport, initialPosts }: Props) {
       }),
     });
     if (!res.ok) {
-      alert("Det gick inte att skapa inlägget. Försök igen.");
+      toast.error("Det gick inte att skapa inlägget. Försök igen.");
       return;
     }
     const newPost = (await res.json()) as ForumPost;

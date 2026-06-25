@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
+import { toast } from "sonner";
 import { MessageCircle } from "lucide-react";
 import PostItem from "@/components/forum/PostItem";
 import { AIInputWithLoading } from "@/components/ui/ai-input-with-loading";
@@ -45,7 +46,7 @@ export default function ThreadClient({
       const newPost = (await res.json()) as ForumPost;
       setReplies((prev) => [...prev, newPost]);
     } else {
-      alert("Det gick inte att skapa svaret. Försök igen.");
+      toast.error("Det gick inte att skapa svaret. Försök igen.");
     }
   }
 
