@@ -41,6 +41,7 @@ const mockStats: TeamSeasonRow = {
   played: 12, wins: 7, draws: 3, losses: 2,
   goals_for: 26, goals_against: 13, goal_diff: 13, points: 24,
   position: 2, possession: 57,
+  xg_for: 22.4, xg_against: 15.1,
 };
 
 const mockLeader = (row: Partial<LeaderRow> & Pick<LeaderRow, "player_id" | "fullname" | "goals" | "assists" | "appearances">): LeaderRow => ({

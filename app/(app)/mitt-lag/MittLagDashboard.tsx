@@ -19,6 +19,8 @@ const TeamRadar = dynamic(
 import { MittLagSkeleton } from "./MittLagSkeleton";
 import { getStoredTeam, setStoredTeam } from "@/lib/team-hub/teamContext";
 import type { TeamHubPayload, LeaderRow, FixtureRow } from "@/lib/team-hub/queries";
+import { type Plan, canAccess } from "@/lib/access";
+import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { Card as TactileCard } from "@/components/ui/TactileCard";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { StatNumber } from "@/components/ui/StatNumber";
@@ -50,7 +52,7 @@ async function fetchHub(slug: string): Promise<TeamHubPayload> {
 
 const TAB_IDS = TAB_OPTIONS.map((t) => t.value);
 
-export function MittLagDashboard({ teams, initialSlug }: { teams: TeamListItem[]; initialSlug: string | null }) {
+export function MittLagDashboard({ teams, initialSlug, plan = "free" }: { teams: TeamListItem[]; initialSlug: string | null; plan?: Plan }) {
   const [slug, setSlug] = useState<string | null>(initialSlug);
   const [resolved, setResolved] = useState(initialSlug != null);
   const [quickview, setQuickview] = useState<FixtureRow | null>(null);
@@ -200,7 +202,7 @@ export function MittLagDashboard({ teams, initialSlug }: { teams: TeamListItem[]
               {/* ── Innehåll ─────────────────────────────────────── */}
               <div className="space-y-5">
                 {tab === "oversikt" && <Oversikt hub={hub} onFixture={setQuickview} />}
-                {tab === "statistik" && <Statistik hub={hub} />}
+                {tab === "statistik" && <Statistik hub={hub} plan={plan} />}
                 {tab === "trupp" && <Trupp squad={hub.squad} />}
                 {tab === "matcher" && <Matcher recent={hub.recent} upcoming={hub.upcoming} smId={smId} onFixture={setQuickview} />}
                 {tab === "forum" && <Forum hub={hub} />}
@@ -311,10 +313,15 @@ function Oversikt({ hub, onFixture }: { hub: TeamHubPayload; onFixture: (f: Fixt
 }
 
 // ─── Tab: Statistik ─────────────────────────────────────────────────────────
-function Statistik({ hub }: { hub: TeamHubPayload }) {
+function Statistik({ hub, plan }: { hub: TeamHubPayload; plan: Plan }) {
   const s = hub.stats;
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <SectionCard title="xG-form" icon={Activity}>
+        {canAccess("advancedFilter", plan)
+          ? <TeamXgForm stats={s} />
+          : <UpgradePrompt feature="advancedFilter" />}
+      </SectionCard>
       <SectionCard title="Profilradar" icon={BarChart3}><RadarOrEmpty data={hub.radar} /></SectionCard>
       <SectionCard title="Säsongsstatistik" icon={Trophy}>
         {!s ? <p className="text-sm text-muted-foreground">Ingen statistik ännu.</p> : (
@@ -413,6 +420,45 @@ function Forum({ hub }: { hub: TeamHubPayload }) {
 }
 
 // ─── Delade byggstenar ──────────────────────────────────────────────────────
+/** Lagets xG-form: skapat vs insläppt + finishing/regression-signal mot faktiska mål. */
+function TeamXgForm({ stats }: { stats: TeamHubPayload["stats"] }) {
+  const xgFor = stats?.xg_for;
+  const xgAgainst = stats?.xg_against;
+  if (xgFor == null && xgAgainst == null) {
+    return <p className="py-6 text-center text-sm text-muted-foreground">xG-data saknas ännu för säsongen.</p>;
+  }
+  // Finishing: faktiska mål mot förväntade. >0 = överpresterar (regression väntar), <0 = otur/sämre avslut.
+  const finishing = xgFor != null && stats?.goals_for != null ? stats.goals_for - xgFor : null;
+  const defending = xgAgainst != null && stats?.goals_against != null ? stats.goals_against - xgAgainst : null;
+  const verdict = (d: number | null) =>
+    d == null ? "" : d >= 2 ? "överpresterar — regression möjlig" : d <= -2 ? "underpresterar — otur i avsluten" : "i linje med xG";
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-2">
+        <KeyStat label="xG skapat" value={xgFor != null ? +xgFor.toFixed(1) : null} accent decimals={1} />
+        <KeyStat label="xG insläppt" value={xgAgainst != null ? +xgAgainst.toFixed(1) : null} decimals={1} />
+      </div>
+      <div className="divide-y divide-border/40">
+        {finishing != null && (
+          <StatTextRow label={`Mål mot xG (${stats?.goals_for ?? 0} vs ${xgFor!.toFixed(1)})`}>
+            <span className={`text-sm font-semibold ${finishing >= 0 ? "text-pitch" : "text-red-400"}`}>
+              {finishing >= 0 ? "+" : ""}{finishing.toFixed(1)} · {verdict(finishing)}
+            </span>
+          </StatTextRow>
+        )}
+        {defending != null && (
+          <StatTextRow label={`Insläppt mot xGA (${stats?.goals_against ?? 0} vs ${xgAgainst!.toFixed(1)})`}>
+            <span className={`text-sm font-semibold ${defending <= 0 ? "text-pitch" : "text-red-400"}`}>
+              {defending >= 0 ? "+" : ""}{defending.toFixed(1)}
+            </span>
+          </StatTextRow>
+        )}
+      </div>
+      <p className="text-[11px] text-muted-foreground">xG = förväntade mål utifrån chansernas kvalitet. Stor avvikelse mot faktiska mål signalerar tur/otur eller form som ofta normaliseras.</p>
+    </div>
+  );
+}
+
 function RadarOrEmpty({ data }: { data: TeamHubPayload["radar"] }) {
   if (!data || data.length === 0) {
     return (

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import { MOCK_TEAM_LIST_ITEM } from "@/lib/team-hub/mock";
+import { getUserPlan } from "@/lib/access";
 import { MittLagDashboard } from "./MittLagDashboard";
 
 export const dynamic = "force-dynamic";
@@ -28,6 +29,6 @@ async function getTeams(): Promise<{ name: string; slug: string; logo_url: strin
 }
 
 export default async function MittLagPage() {
-  const teams = await getTeams();
-  return <MittLagDashboard teams={teams} initialSlug={null} />;
+  const [teams, plan] = await Promise.all([getTeams(), getUserPlan()]);
+  return <MittLagDashboard teams={teams} initialSlug={null} plan={plan} />;
 }

@@ -28,6 +28,8 @@ export interface TeamSeasonRow {
   points: number;
   position: number | null;
   possession: number | null;
+  xg_for: number | null;
+  xg_against: number | null;
   [k: string]: unknown;
 }
 

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import { MatchXgChart } from "./MatchXgChart";
 
 export const revalidate = 60;
 
@@ -216,6 +217,18 @@ export default async function MatchPage({ params }: PageProps) {
                 );
               })}
             </div>
+          )}
+
+          {/* Mål mot förväntan (xG) — endast när äkta xG finns */}
+          {hasXg && (
+            <MatchXgChart
+              homeName={homeName}
+              awayName={awayName}
+              homeGoals={homeScore}
+              awayGoals={awayScore}
+              homeXg={homeXg!}
+              awayXg={awayXg!}
+            />
           )}
 
           {/* Händelsetidslinje */}
