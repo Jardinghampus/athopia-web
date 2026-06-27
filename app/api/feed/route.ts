@@ -54,6 +54,7 @@ export async function GET(req: Request) {
   const { userId } = await auth();
   const { searchParams } = new URL(req.url);
   const teamSlug = searchParams.get("team");
+  const typeFilter = searchParams.get("type"); // "transfer" | "injury" | "match" | null
   const offset = Math.max(0, parseInt(searchParams.get("offset") ?? "0", 10));
 
   const db = getDb();
@@ -112,7 +113,7 @@ export async function GET(req: Request) {
   try {
     let aq = db
       .from("news_feed")
-      .select("id, title, source_name, url, published_at, summary, importance_score, feed_score, entity_ids")
+      .select("id, title, source_name, url, published_at, summary, importance_score, feed_score, entity_ids, news_tag")
       .eq("sport", "football")
       .order(isPro ? "feed_score" : "published_at", { ascending: false, nullsFirst: false })
       .range(offset, offset + effectiveLimit - 1);
@@ -121,6 +122,10 @@ export async function GET(req: Request) {
       aq = aq.contains("entity_ids", [filterTeamIds[0]]);
     } else if (filterTeamIds.length > 1) {
       aq = aq.overlaps("entity_ids", filterTeamIds);
+    }
+
+    if (typeFilter) {
+      aq = aq.eq("news_tag", typeFilter);
     }
 
     const { data: articleData } = await aq;
@@ -132,6 +137,7 @@ export async function GET(req: Request) {
       time: a.published_at,
       href: a.url ?? "#",
       subtitle: a.summary ?? null,
+      newsTag: a.news_tag ?? null,
     }));
   } catch (err) {
     console.error("[feed] DB-fel:", err);

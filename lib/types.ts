@@ -259,6 +259,7 @@ export interface FeedItem {
   source?: string | null;
   time: string;
   href: string;
+  newsTag?: string | null;
 }
 
 export interface ForumReply {
