@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+import { currentUser } from "@clerk/nextjs/server";
 import type { Metadata } from "next";
 import AthopiaLanding, { type LandingArticle } from "@/components/landing/AthopiaLanding";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
@@ -97,6 +99,8 @@ function LandingJsonLd() {
 }
 
 export default async function LandingPage() {
+  const user = await currentUser();
+  if (user) redirect("/mitt-lag");
   const articles = await getLatestArticles();
   return (
     <>

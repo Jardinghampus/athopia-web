@@ -6,24 +6,18 @@ import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
 import {
   IconHome,
-  IconNews,
   IconTrophy,
-  IconHeadphones,
   IconChartBar,
   IconFlame,
-  IconCalendarEvent,
 } from "@tabler/icons-react";
 import { Sidebar, DesktopSidebar, useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
-  { href: "/hem", label: "Hem", Icon: IconHome, exact: true },
-  { href: "/nyheter", label: "Nyheter", Icon: IconNews, exact: false },
+  { href: "/mitt-lag", label: "Mitt lag", Icon: IconHome, exact: true },
   { href: "/allsvenskan", label: "Allsvenskan", Icon: IconTrophy, exact: false },
-  { href: "/match", label: "Matcher", Icon: IconCalendarEvent, exact: false },
-  { href: "/podcast", label: "Podcasts", Icon: IconHeadphones, exact: false },
   { href: "/statistik", label: "Statistik", Icon: IconChartBar, exact: false },
-  { href: "/analys", label: "Analys", Icon: IconFlame, exact: false },
+  { href: "/forum", label: "Forum", Icon: IconFlame, exact: false },
 ];
 
 function NavItem({
