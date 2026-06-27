@@ -86,7 +86,9 @@ export function PlayerStatsExplorer({ players }: { players: ScorerRow[] }) {
                 <td className="px-3 py-2 font-medium">
                   <Link href={`/spelare/${row.slug ?? row.player_id}`} className="hover:text-pitch">{row.player_name}</Link>
                 </td>
-                <td className="px-3 py-2 text-muted-foreground">{row.team_name}</td>
+                <td className="px-3 py-2 text-muted-foreground">
+                  <Link href={`/lag/${row.team_name.toLowerCase().replace(/\s+/g, "-").replace(/[åä]/g, "a").replace(/ö/g, "o")}`} className="hover:text-pitch transition-colors">{row.team_name}</Link>
+                </td>
                 <td className="px-3 py-2 text-center text-muted-foreground">{row.position?.slice(0, 3) ?? "-"}</td>
                 <td className="px-3 py-2 text-center text-muted-foreground tabular-nums">{row.minutes}</td>
                 <td className="px-3 py-2 text-center font-bold tabular-nums text-foreground">

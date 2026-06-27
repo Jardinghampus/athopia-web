@@ -48,16 +48,20 @@ export default async function AllsvenskanSkytteligaPage() {
               <tr key={s.player_id ?? i} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
                 <td className="py-3 px-4 text-muted-foreground">{i + 1}</td>
                 <td className="py-3 px-4">
-                  <div className="flex items-center gap-3">
+                  <Link href={`/spelare/${s.slug ?? s.player_id}`} className="flex items-center gap-3 hover:text-pitch transition-colors">
                     {s.image && (
                       <div className="relative w-8 h-8 rounded-full overflow-hidden bg-muted shrink-0">
                         <Image src={s.image} alt={s.player_name ?? ""} fill className="object-cover" sizes="32px" />
                       </div>
                     )}
                     <span className="font-medium">{s.player_name}</span>
-                  </div>
+                  </Link>
                 </td>
-                <td className="py-3 px-4 text-muted-foreground hidden sm:table-cell">{s.team_name}</td>
+                <td className="py-3 px-4 text-muted-foreground hidden sm:table-cell">
+                  <Link href={`/lag/${s.team_name.toLowerCase().replace(/\s+/g, "-").replace(/[åä]/g, "a").replace(/ö/g, "o")}`} className="hover:text-pitch transition-colors">
+                    {s.team_name}
+                  </Link>
+                </td>
                 <td className="py-3 px-4 text-center font-bold text-foreground">{s.goals}</td>
               </tr>
             ))}
