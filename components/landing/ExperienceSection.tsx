@@ -51,7 +51,7 @@ export function ExperienceSection() {
 
       {/* Mobil: horisontell snap-karusell med peek. Desktop: 3-up, mitten upphöjd. */}
       <Reveal delay={0.1}>
-        <div className="scrollbar-none flex snap-x snap-mandatory gap-8 overflow-x-auto px-[max(calc(50vw-150px),20px)] pb-4 pt-2 lg:justify-center lg:overflow-visible lg:px-8">
+        <div className="scrollbar-none flex snap-x snap-mandatory gap-8 overflow-x-auto px-6 pb-4 pt-2 lg:justify-center lg:overflow-visible lg:px-8">
           {SCREENS.map(({ key, title, text, Screen }, i) => (
             <div
               key={key}

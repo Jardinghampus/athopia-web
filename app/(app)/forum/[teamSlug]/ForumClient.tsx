@@ -80,8 +80,20 @@ export default function ForumClient({ teamSlug, sport, initialPosts }: Props) {
           ))}
         </div>
       ) : posts.length === 0 ? (
-        <div className="py-20 text-center text-muted-foreground text-sm">
-          Inga inlägg ännu. Var första att starta diskussionen!
+        <div className="py-16 flex flex-col items-center gap-4 text-center">
+          <p className="text-muted-foreground text-sm">Inga inlägg ännu.</p>
+          {user ? (
+            <p className="text-sm text-foreground font-medium">
+              Var den som startar diskussionen — skriv det första inlägget nedan.
+            </p>
+          ) : (
+            <a
+              href="/sign-up"
+              className="inline-flex h-10 items-center gap-2 rounded-xl bg-pitch px-5 text-sm font-bold text-black hover:bg-pitch/90 transition-colors"
+            >
+              Skapa konto för att skriva
+            </a>
+          )}
         </div>
       ) : (
         <div className="flex flex-col gap-3 py-2">
