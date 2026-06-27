@@ -281,6 +281,7 @@ function MatchQuickview({ fixture, smId, onClose }: { fixture: FixtureRow | null
 // ponytail: utöka med fler lag-IDs när de tillkommer
 const SPOTIFY_SHOW_IDS: Record<string, string> = {
   "djurgardens-if": "2HgojaL9cFu9YCp1wDGO43",
+  "aik": "5vqApRVsoU1Vd6Xv0N9hJq",
 };
 
 function SpotifyPodcast({ slug }: { slug: string }) {
