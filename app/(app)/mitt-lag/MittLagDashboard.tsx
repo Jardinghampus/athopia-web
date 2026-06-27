@@ -278,6 +278,30 @@ function MatchQuickview({ fixture, smId, onClose }: { fixture: FixtureRow | null
   );
 }
 
+// ponytail: utöka med fler lag-IDs när de tillkommer
+const SPOTIFY_SHOW_IDS: Record<string, string> = {
+  "djurgardens-if": "2HgojaL9cFu9YCp1wDGO43",
+};
+
+function SpotifyPodcast({ slug }: { slug: string }) {
+  const showId = SPOTIFY_SHOW_IDS[slug];
+  if (!showId) return null;
+  return (
+    <SectionCard title="Podcast" icon={Activity}>
+      <iframe
+        src={`https://open.spotify.com/embed/show/${showId}?utm_source=generator`}
+        width="100%"
+        height="152"
+        frameBorder="0"
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        loading="lazy"
+        style={{ borderRadius: 12 }}
+        title="Podcast"
+      />
+    </SectionCard>
+  );
+}
+
 // ─── Tab: Översikt ──────────────────────────────────────────────────────────
 function Oversikt({ hub, plan, onFixture }: { hub: TeamHubPayload; plan: Plan; onFixture: (f: FixtureRow) => void }) {
   return (
@@ -314,6 +338,8 @@ function Oversikt({ hub, plan, onFixture }: { hub: TeamHubPayload; plan: Plan; o
       <SectionCard title="Händelser" icon={Activity}>
         <FixtureFeed recent={hub.recent} upcoming={hub.upcoming} smId={hub.team.sportsmonks_id} onFixture={onFixture} />
       </SectionCard>
+
+      <SpotifyPodcast slug={hub.team.slug} />
     </div>
   );
 }
