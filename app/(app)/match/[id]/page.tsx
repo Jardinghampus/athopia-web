@@ -10,12 +10,19 @@ interface PageProps { params: Promise<{ id: string }> }
 async function getData(fixtureId: number) {
   if (!isSupabaseConfigured()) return null;
   const db = createServerClient();
-  const [{ data: fix }, { data: tms }, { data: evts }, { data: lups }, { data: sum }] = await Promise.all([
+  const [{ data: fix }, { data: tms }, { data: evts }, { data: lups }, { data: cqAnalysis }] = await Promise.all([
     db.from("fixtures").select("*").eq("sportmonks_id", fixtureId).maybeSingle(),
     db.from("team_match_stats").select("*").eq("fixture_id", fixtureId),
     db.from("fixture_events").select("*").eq("fixture_id", fixtureId).order("minute"),
     db.from("fixture_lineups").select("*").eq("fixture_id", fixtureId).order("starter", { ascending: false }),
-    db.from("match_summaries").select("summary,generated_at").eq("fixture_id", fixtureId).maybeSingle(),
+    db.from("content_queue")
+      .select("content,created_at")
+      .eq("status", "approved")
+      .filter("metadata->>type", "eq", "post_match_analysis")
+      .filter("metadata->>fixture_id", "eq", String(fixtureId))
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
   ]);
   // Hämta spelarnamn separat för de player_ids som finns i lineups och händelser.
   const playerIds = Array.from(new Set([
@@ -38,6 +45,10 @@ async function getData(fixtureId: number) {
     ...l,
     players: playerMap[l.player_id as number] ?? null,
   }));
+  const analysisContent = cqAnalysis?.content as Record<string, string> | null;
+  const sum = analysisContent
+    ? { summary: analysisContent.body ?? null, title: analysisContent.title ?? null }
+    : null;
   return { fix, tms: tms ?? [], evts: evts ?? [], lups: lupsWithPlayers, sum, playerMap };
 }
 
@@ -127,7 +138,8 @@ export default async function MatchPage({ params }: PageProps) {
   const homeLup   = starters.filter(l => String(l.team_id) === homeTeamId).sort(byJersey);
   const awayLup   = starters.filter(l => String(l.team_id) === awayTeamId).sort(byJersey);
   const playerMap = (d?.playerMap ?? {}) as Record<number, { fullname: string }>;
-  const summary   = d?.sum?.summary as string | null;
+  const summary      = (d?.sum as Record<string, string> | null)?.summary ?? null;
+  const summaryTitle = (d?.sum as Record<string, string> | null)?.title ?? null;
   const hasXg = homeStat?.xg != null && awayStat?.xg != null;
   const homeXg = hasXg ? Number(homeStat?.xg) : null;
   const awayXg = hasXg ? Number(awayStat?.xg) : null;
@@ -173,7 +185,8 @@ export default async function MatchPage({ params }: PageProps) {
       {summary && (
         <div className="bg-amber-500/5 border border-amber-500/30 rounded-xl p-5">
           <p className="text-xs font-semibold text-amber-500 uppercase tracking-wide mb-2">Athopia AI · Matchanalys</p>
-          <p className="text-sm text-foreground/90 leading-relaxed">{summary}</p>
+          {summaryTitle && <p className="font-semibold text-foreground mb-2">{summaryTitle}</p>}
+          <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-line">{summary}</p>
         </div>
       )}
 
