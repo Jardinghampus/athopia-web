@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import { MatchXgChart } from "./MatchXgChart";
+import { MatchForum } from "./MatchForum";
 
 export const revalidate = 60;
 
@@ -302,6 +303,11 @@ export default async function MatchPage({ params }: PageProps) {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Forum */}
+      <div className="border-t border-border pt-6">
+        <MatchForum fixtureId={fid} homeName={homeName} awayName={awayName} />
       </div>
     </div>
   );
