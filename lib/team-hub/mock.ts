@@ -90,6 +90,13 @@ export function mockTeamHub(): TeamHubPayload {
   return {
     team: { id: "mock-team", name: "Demo IF", slug: MOCK_TEAM_SLUG, logo_url: null, sportsmonks_id: MOCK_TEAM_SM_ID },
     position: 2,
+    pulse: {
+      headline: "Formen håller — men xG-överskottet pekar mot regression",
+      dek: "Demo IF vinner trots ett xG sämre än motståndarnas senaste tre matcher.",
+      body: "Tre raka utan förlust döljer att Demo IF överpresterar sitt xG med +3.6. Avsluten har gått in i en takt som sällan håller över en hel säsong. Inför helgens möte är det värt att hålla ögonen på om chansskapandet kommer ikapp resultaten — annars väntar en korrigering.",
+      match_context_label: "pre_match",
+      pulse_date: new Date().toISOString().slice(0, 10),
+    },
     stats: mockStats,
     form: ["W", "W", "D", "L", "W"],
     radar: [

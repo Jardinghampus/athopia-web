@@ -201,7 +201,7 @@ export function MittLagDashboard({ teams, initialSlug, plan = "free" }: { teams:
 
               {/* ── Innehåll ─────────────────────────────────────── */}
               <div className="space-y-5">
-                {tab === "oversikt" && <Oversikt hub={hub} onFixture={setQuickview} />}
+                {tab === "oversikt" && <Oversikt hub={hub} plan={plan} onFixture={setQuickview} />}
                 {tab === "statistik" && <Statistik hub={hub} plan={plan} />}
                 {tab === "trupp" && <Trupp squad={hub.squad} />}
                 {tab === "matcher" && <Matcher recent={hub.recent} upcoming={hub.upcoming} smId={smId} onFixture={setQuickview} />}
@@ -279,9 +279,15 @@ function MatchQuickview({ fixture, smId, onClose }: { fixture: FixtureRow | null
 }
 
 // ─── Tab: Översikt ──────────────────────────────────────────────────────────
-function Oversikt({ hub, onFixture }: { hub: TeamHubPayload; onFixture: (f: FixtureRow) => void }) {
+function Oversikt({ hub, plan, onFixture }: { hub: TeamHubPayload; plan: Plan; onFixture: (f: FixtureRow) => void }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <SectionCard title="Vad du behöver veta idag" icon={Star} className="lg:col-span-3">
+        {canAccess("eliteBrief", plan)
+          ? <TeamDailyPulse pulse={hub.pulse} />
+          : <UpgradePrompt feature="eliteBrief" />}
+      </SectionCard>
+
       <SectionCard title="Lagprofil mot ligan" icon={BarChart3} className="lg:col-span-2">
         <RadarOrEmpty data={hub.radar} />
       </SectionCard>
@@ -420,6 +426,25 @@ function Forum({ hub }: { hub: TeamHubPayload }) {
 }
 
 // ─── Delade byggstenar ──────────────────────────────────────────────────────
+/** Dagens godkända AI-brief för laget ("vad du behöver veta idag"). Elite. */
+function TeamDailyPulse({ pulse }: { pulse: TeamHubPayload["pulse"] }) {
+  if (!pulse) {
+    return <p className="py-6 text-center text-sm text-muted-foreground">Ingen brief publicerad för ditt lag idag. Nya kort släpps på morgonen.</p>;
+  }
+  const ctx = pulse.match_context_label === "pre_match" ? "Inför match"
+    : pulse.match_context_label === "post_match_hold" ? "Efter match" : "Dagsläge";
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-2">
+        <span className="rounded-full bg-pitch/10 border border-pitch/30 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-pitch">Athopia AI · {ctx}</span>
+      </div>
+      <h3 className="text-lg font-bold leading-snug text-foreground">{pulse.headline}</h3>
+      {pulse.dek && <p className="text-sm font-medium text-muted-foreground">{pulse.dek}</p>}
+      <p className="text-sm leading-relaxed text-foreground/90 whitespace-pre-line">{pulse.body}</p>
+    </div>
+  );
+}
+
 /** Lagets xG-form: skapat vs insläppt + finishing/regression-signal mot faktiska mål. */
 function TeamXgForm({ stats }: { stats: TeamHubPayload["stats"] }) {
   const xgFor = stats?.xg_for;

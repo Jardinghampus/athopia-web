@@ -14,6 +14,7 @@ export const ACCESS = {
   aiSummaries:        (p: Plan) => p !== "free",
   smartRanking:       (p: Plan) => p !== "free",
   crossSourceCluster: (p: Plan) => p === "elite",
+  eliteBrief:         (p: Plan) => p === "elite",
   pushAlerts:         (p: Plan) => p !== "free",
   unlimitedFeed:      (p: Plan) => p !== "free",
 } as const;

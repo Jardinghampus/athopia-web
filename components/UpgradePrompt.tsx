@@ -7,6 +7,7 @@ const FEATURE_LABELS: Record<AccessFeature, string> = {
   aiSummaries:        "AI-sammanfattningar",
   smartRanking:       "smart ranking",
   crossSourceCluster: "cross-source clustering",
+  eliteBrief:         "daglig AI-brief för ditt lag",
   pushAlerts:         "push-notiser",
   unlimitedFeed:      "obegränsat flöde",
 };

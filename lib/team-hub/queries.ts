@@ -176,9 +176,37 @@ export function deriveForm(recent: FixtureRow[], teamSmId: number): ("W" | "D" |
 
 // ── Aggregerad hub-payload (för interaktiv dashboard + API) ───────────────────
 
+export interface TeamPulse {
+  headline: string;
+  dek: string | null;
+  body: string;
+  match_context_label: string | null;
+  pulse_date: string;
+}
+
+/** Dagens godkända AI-brief ("vad du behöver veta idag") för ett lag (entity-uuid). Elite-feature. */
+export async function getTeamPulse(teamEntityId: string): Promise<TeamPulse | null> {
+  if (!isSupabaseConfigured()) return null;
+  try {
+    const db = createServerClient();
+    const { data } = await db
+      .from("team_daily_pulses")
+      .select("headline,dek,body,match_context_label,pulse_date")
+      .eq("team_entity_id", teamEntityId)
+      .eq("status", "approved")
+      .order("pulse_date", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    return (data as TeamPulse | null) ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export interface TeamHubPayload {
   team: { id: string; name: string; slug: string; logo_url: string | null; sportsmonks_id: number | null };
   position: number | null;
+  pulse: TeamPulse | null;
   stats: TeamSeasonRow | null;
   form: ("W" | "D" | "L")[];
   radar: { metric: string; value: number; raw: number }[];
@@ -218,10 +246,10 @@ export async function getTeamHub(slug: string): Promise<TeamHubPayload | null> {
     sportsmonks_id: smId,
   };
 
-  const [news, threads] = await Promise.all([getTeamNews(slug), getTeamThreads(team.id)]);
+  const [news, threads, pulse] = await Promise.all([getTeamNews(slug), getTeamThreads(team.id), getTeamPulse(team.id)]);
 
   if (!smId) {
-    return { team, position: null, stats: null, form: [], radar: [], topScorers: [], topAssists: [], squad: [], recent: [], upcoming: [], news, threads };
+    return { team, position: null, pulse, stats: null, form: [], radar: [], topScorers: [], topAssists: [], squad: [], recent: [], upcoming: [], news, threads };
   }
 
   const [league, leaders, fixtures] = await Promise.all([
@@ -239,7 +267,7 @@ export async function getTeamHub(slug: string): Promise<TeamHubPayload | null> {
   const topAssists = [...leaders].sort((a, b) => b.assists - a.assists).slice(0, 5);
   const squad = [...leaders].sort((a, b) => b.appearances - a.appearances);
 
-  return { team, position, stats, form, radar, topScorers, topAssists, squad, recent: fixtures.recent, upcoming: fixtures.upcoming, news, threads };
+  return { team, position, pulse, stats, form, radar, topScorers, topAssists, squad, recent: fixtures.recent, upcoming: fixtures.upcoming, news, threads };
 }
 
 /** z-score-normalisering → 0–100-skala, för radar-profilering mot ligan. */
