@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
 import {
   IconHome,
+  IconNews,
   IconTrophy,
   IconChartBar,
   IconFlame,
@@ -15,6 +16,7 @@ import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
   { href: "/mitt-lag", label: "Mitt lag", Icon: IconHome, exact: true },
+  { href: "/nyheter", label: "Nyheter", Icon: IconNews, exact: false },
   { href: "/allsvenskan", label: "Allsvenskan", Icon: IconTrophy, exact: false },
   { href: "/statistik", label: "Statistik", Icon: IconChartBar, exact: false },
   { href: "/forum", label: "Forum", Icon: IconFlame, exact: false },
