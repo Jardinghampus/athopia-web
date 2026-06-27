@@ -1,8 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useFavoriteTeam } from "@/hooks/useFavoriteTeam";
+
+// Sidor där lagval faktiskt används — visa inte modalen på t.ex. /priser eller /forum
+const TEAM_REQUIRED_PREFIXES = ["/feed", "/statistik", "/spelare", "/match", "/profil"];
+
+function useRequiresTeam() {
+  const pathname = usePathname();
+  return TEAM_REQUIRED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+}
 import { createClient } from "@supabase/supabase-js";
 
 interface Team {
@@ -31,17 +40,19 @@ interface TeamSelectionModalProps {
 
 export function TeamSelectionModal({ forceVisible = false }: TeamSelectionModalProps) {
   const { needsOnboarding, setFavoriteTeam, markOnboardingDone } = useFavoriteTeam();
+  const requiresTeam = useRequiresTeam();
   const [teams, setTeams] = useState<Team[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [visible, setVisible] = useState(forceVisible);
 
   // Fördröj visning 800ms för att inte störa initial render (ignoreras om forceVisible)
+  // Visa bara på sidor där lagval faktiskt används
   useEffect(() => {
-    if (forceVisible || !needsOnboarding) return;
+    if (forceVisible || !needsOnboarding || !requiresTeam) return;
     const t = setTimeout(() => setVisible(true), 800);
     return () => clearTimeout(t);
-  }, [needsOnboarding, forceVisible]);
+  }, [needsOnboarding, forceVisible, requiresTeam]);
 
   // Öppnas från GlassNav via custom event
   useEffect(() => {
@@ -88,7 +99,7 @@ export function TeamSelectionModal({ forceVisible = false }: TeamSelectionModalP
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
       <div className="bg-background border border-border rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="p-6 border-b border-border">
