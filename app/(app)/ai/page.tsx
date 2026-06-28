@@ -68,10 +68,18 @@ export default function AiChatPage() {
     }
   }, [])
 
-  // ── Lock page scroll — this module owns its height ───────────────────────
+  // ── Lock page scroll + track visualViewport (mobile keyboard) ───────────
+  const [viewportH, setViewportH] = useState<number | null>(null)
   useEffect(() => {
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
+    const vv = window.visualViewport
+    if (vv) {
+      const update = () => setViewportH(vv.height)
+      vv.addEventListener('resize', update)
+      update()
+      return () => { vv.removeEventListener('resize', update); document.body.style.overflow = prev }
+    }
     return () => { document.body.style.overflow = prev }
   }, [])
 
@@ -129,7 +137,10 @@ export default function AiChatPage() {
   }
 
   return (
-    <div className="flex h-[calc(100svh-3.5rem)] items-start justify-center overflow-hidden p-0 pb-[calc(env(safe-area-inset-bottom)+5rem)] sm:items-center sm:pb-0 sm:p-6">
+    <div
+      className="flex items-start justify-center overflow-hidden p-0 pb-[calc(env(safe-area-inset-bottom)+5rem)] sm:items-center sm:pb-0 sm:p-6"
+      style={{ height: viewportH ? `${viewportH}px` : 'calc(100svh - 3.5rem)' }}
+    >
       {/* Window */}
       <motion.div
         initial={{ opacity: 0, scale: 0.985 }}

@@ -1,7 +1,11 @@
+'use client'
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 
 export function Footer() {
+  const pathname = usePathname();
+  if (pathname === '/ai') return null;
   return (
     <footer className="border-t border-border/50 mt-24 py-12 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-4 gap-10 text-sm">
