@@ -165,7 +165,7 @@ export default function AiChatPage() {
           background: 'color-mix(in srgb, var(--background) 58%, transparent)',
           backdropFilter: 'blur(24px) saturate(180%)',
           WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-          border: '1px solid rgba(29, 158, 117, 0.35)',
+          border: '2px solid rgba(29, 158, 117, 0.45)',
           boxShadow: '0 1px 0 0 color-mix(in srgb, var(--foreground) 8%, transparent) inset, 0 24px 60px -12px rgba(0,0,0,0.5)',
         }}
       >
