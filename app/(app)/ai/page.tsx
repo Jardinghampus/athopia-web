@@ -68,6 +68,13 @@ export default function AiChatPage() {
     }
   }, [])
 
+  // ── Lock page scroll — this module owns its height ───────────────────────
+  useEffect(() => {
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = prev }
+  }, [])
+
   // ── Scroll to bottom ────────────────────────────────────────────────────
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: prefersReduced ? 'instant' : 'smooth' })
@@ -122,7 +129,7 @@ export default function AiChatPage() {
   }
 
   return (
-    <div className="flex h-[calc(100svh-3.5rem)] items-start justify-center p-0 pb-[calc(env(safe-area-inset-bottom)+5rem)] sm:items-center sm:pb-0 sm:p-6">
+    <div className="flex h-[calc(100svh-3.5rem)] items-start justify-center overflow-hidden p-0 pb-[calc(env(safe-area-inset-bottom)+5rem)] sm:items-center sm:pb-0 sm:p-6">
       {/* Window */}
       <motion.div
         initial={{ opacity: 0, scale: 0.985 }}
