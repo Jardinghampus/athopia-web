@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Send, Sparkles, ChevronRight } from 'lucide-react'
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react'
+import { WavyBackground } from '@/components/ui/wavy-background'
 import Link from 'next/link'
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -138,18 +139,38 @@ export default function AiChatPage() {
 
   return (
     <div
-      className="flex items-start justify-center overflow-hidden p-0 pb-[calc(env(safe-area-inset-bottom)+5rem)] sm:items-center sm:pb-0 sm:p-6"
+      className="relative overflow-hidden flex items-start justify-center p-0 pb-[calc(env(safe-area-inset-bottom)+5rem)] sm:items-center sm:pb-0 sm:p-6"
       style={{ height: viewportH ? `${viewportH}px` : 'calc(100svh - 3.5rem)' }}
     >
+      {/* Wavy canvas background — only on sm+ (desktop) */}
+      {!prefersReduced && (
+        <WavyBackground
+          containerClassName="absolute inset-0 z-0 hidden sm:flex"
+          colors={['#1D9E75', '#25C48F', '#158A63', '#0d6b4e', '#47c99a']}
+          backgroundFill="oklch(0.06 0.015 160)"
+          blur={6}
+          speed="slow"
+          waveOpacity={0.35}
+          waveWidth={60}
+        />
+      )}
+
       {/* Window */}
       <motion.div
         initial={{ opacity: 0, scale: 0.985 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-        className="relative flex h-full w-full max-w-3xl flex-col overflow-hidden sm:h-[min(700px,calc(100svh-7rem))] sm:rounded-2xl sm:border sm:border-border sm:bg-card sm:shadow-lg"
+        className="relative z-10 flex h-full w-full max-w-3xl flex-col overflow-hidden sm:h-[min(700px,calc(100svh-7rem))] sm:rounded-2xl"
+        style={{
+          background: 'color-mix(in srgb, var(--background) 58%, transparent)',
+          backdropFilter: 'blur(24px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+          border: '1px solid color-mix(in srgb, var(--foreground) 10%, transparent)',
+          boxShadow: '0 1px 0 0 color-mix(in srgb, var(--foreground) 8%, transparent) inset, 0 24px 60px -12px rgba(0,0,0,0.5)',
+        }}
       >
         {/* Window chrome */}
-        <header className="flex shrink-0 items-center gap-3 border-b border-border px-5 py-3.5">
+        <header className="flex shrink-0 items-center gap-3 px-5 py-3.5" style={{ borderBottom: '1px solid color-mix(in srgb, var(--foreground) 8%, transparent)' }}>
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-pitch">
             <Sparkles size={14} className="text-white" aria-hidden />
           </div>
@@ -225,7 +246,8 @@ export default function AiChatPage() {
           <form
             onSubmit={(e) => { e.preventDefault(); ask(input) }}
             aria-label="Skriv en fråga"
-            className="flex items-end gap-2 rounded-xl border border-border bg-background px-4 py-2.5 transition-colors focus-within:border-pitch/50"
+            className="flex items-end gap-2 rounded-xl px-4 py-2.5 transition-colors focus-within:ring-1 focus-within:ring-pitch/40"
+            style={{ background: 'color-mix(in srgb, var(--background) 60%, transparent)', border: '1px solid color-mix(in srgb, var(--foreground) 10%, transparent)' }}
           >
             <textarea
               ref={textareaRef}
