@@ -146,8 +146,8 @@ export default function AiChatPage() {
       {!prefersReduced && (
         <WavyBackground
           containerClassName="absolute inset-0 z-0 hidden sm:flex"
-          colors={['#1D9E75', '#25C48F', '#158A63', '#0d6b4e', '#47c99a']}
-          backgroundFill="oklch(0.06 0.015 160)"
+          colors={['#1D9E75', '#25C48F', '#3B82F6', '#1e40af', '#47c99a', '#60a5fa']}
+          backgroundFill="oklch(0.07 0.03 240)"
           blur={6}
           speed="fast"
           waveOpacity={0.8}
@@ -165,8 +165,8 @@ export default function AiChatPage() {
           background: 'color-mix(in srgb, var(--background) 58%, transparent)',
           backdropFilter: 'blur(24px) saturate(180%)',
           WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-          border: '2px solid rgba(29, 158, 117, 0.45)',
-          boxShadow: '0 1px 0 0 color-mix(in srgb, var(--foreground) 8%, transparent) inset, 0 24px 60px -12px rgba(0,0,0,0.5)',
+          border: '2px solid rgba(29, 158, 117, 0.7)',
+          boxShadow: '0 0 18px 2px rgba(29, 158, 117, 0.25), 0 0 0 1px rgba(29,158,117,0.15) inset, 0 24px 60px -12px rgba(0,0,0,0.6)',
         }}
       >
         {/* Window chrome */}
