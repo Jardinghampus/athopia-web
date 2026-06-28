@@ -20,9 +20,13 @@ export const tools: Record<string, Tool> = {
     description: 'Sök senaste nyheter och artiklar om Allsvenskan, lag eller spelare.',
     inputSchema: z.object({ query: z.string() }),
     execute: async ({ query }: { query: string }) => {
-      const results = await searchArticles(query, 5)
-      if (!results.length) return { results: [], message: 'Inga nyheter hittades.' }
-      return { results: results.map((r) => ({ title: r.title, url: r.url, excerpt: r.chunk.slice(0, 300) })) }
+      try {
+        const results = await searchArticles(query, 5)
+        if (!results.length) return { results: [], message: 'Inga nyheter hittades.' }
+        return { results: results.map((r) => ({ title: r.title, url: r.url, excerpt: r.chunk.slice(0, 300) })) }
+      } catch {
+        return { results: [], message: 'Nyhetssökning tillfälligt otillgänglig.' }
+      }
     },
   },
 
