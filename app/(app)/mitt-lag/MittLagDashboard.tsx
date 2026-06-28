@@ -325,7 +325,7 @@ function Oversikt({ hub, plan, onFixture }: { hub: TeamHubPayload; plan: Plan; o
         {hub.topScorers.length === 0 && <p className="text-sm text-muted-foreground">Ingen spelardata ännu.</p>}
       </SectionCard>
 
-      <SectionCard title="Senaste nyheter" icon={Newspaper} className="lg:col-span-2">
+      <SectionCard title="Senaste nyheter" icon={Newspaper} className="lg:col-span-2" footer={<Link href={`/nyheter?lag=${encodeURIComponent(hub.team.name)}`} className="text-sm text-muted-foreground hover:text-foreground">Fler nyheter om {hub.team.name} →</Link>}>
         {hub.news.length === 0 ? <p className="text-sm text-muted-foreground">Inga artiklar ännu.</p> : (
           <div className="flex flex-col gap-2">
             {hub.news.slice(0, 4).map((a) => (
