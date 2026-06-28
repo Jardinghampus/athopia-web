@@ -39,12 +39,10 @@ type Msg = { role: 'user' | 'assistant'; text: string }
 // ── Main ─────────────────────────────────────────────────────────────────────
 
 export default function AiChatPage() {
-  const [messages, setMessages]       = useState<Msg[]>([])
-  const [input, setInput]             = useState('')
-  const [loading, setLoading]         = useState(false)
-  // Streaming: how many chars of the last assistant message to show (-1 = all)
-  const [streamChars, setStreamChars] = useState(-1)
-  const [thinkingMsg]                 = useState(
+  const [messages, setMessages] = useState<Msg[]>([])
+  const [input, setInput]       = useState('')
+  const [loading, setLoading]   = useState(false)
+  const [thinkingMsg]           = useState(
     () => THINKING_MESSAGES[Math.floor(Math.random() * THINKING_MESSAGES.length)]
   )
 
@@ -87,54 +85,60 @@ export default function AiChatPage() {
   // ── Scroll to bottom ────────────────────────────────────────────────────
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: prefersReduced ? 'instant' : 'smooth' })
-  }, [messages, loading, streamChars, prefersReduced])
-
-  // ── Stream in last assistant message ───────────────────────────────────
-  useEffect(() => {
-    const last = messages[messages.length - 1]
-    if (!last || last.role !== 'assistant') return
-    if (prefersReduced) { setStreamChars(-1); return }
-
-    const text = last.text
-    setStreamChars(0)
-    let i = 0
-    const id = setInterval(() => {
-      i += 4 // ~4 chars per frame at 60fps ≈ done in ~1.5s for 360 chars
-      setStreamChars(c => {
-        if (c >= text.length) { clearInterval(id); return -1 }
-        return Math.min(i, text.length)
-      })
-    }, 16)
-    return () => clearInterval(id)
-  }, [messages.length]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [messages, loading, prefersReduced])
 
   // ── Send ────────────────────────────────────────────────────────────────
-  const ask = useCallback((question: string) => {
+  const ask = useCallback(async (question: string) => {
     if (!question.trim() || loading) return
-    setMessages(prev => [...prev, { role: 'user', text: question.trim() }])
+    const q = question.trim()
     setInput('')
     if (textareaRef.current) textareaRef.current.style.height = 'auto'
+    setMessages(prev => [...prev, { role: 'user', text: q }])
     setLoading(true)
-    setTimeout(() => {
+
+    try {
+      const history = messages.map(m => ({ role: m.role, content: m.text }))
+      const res = await fetch('/api/elite/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [...history, { role: 'user', content: q }] }),
+      })
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        const errText = (data.error as string | undefined)?.includes('Elite')
+          ? UPGRADE_RESPONSE
+          : 'Ett fel uppstod. Försök igen om en stund.'
+        setMessages(prev => [...prev, { role: 'assistant', text: errText }])
+        return
+      }
+
+      // Stream text tokens into the last assistant message
+      setMessages(prev => [...prev, { role: 'assistant', text: '' }])
+      const reader = res.body!.getReader()
+      const dec = new TextDecoder()
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        const chunk = dec.decode(value, { stream: true })
+        setMessages(prev => {
+          const msgs = [...prev]
+          msgs[msgs.length - 1] = { role: 'assistant', text: msgs[msgs.length - 1].text + chunk }
+          return msgs
+        })
+      }
+    } catch {
+      setMessages(prev => [...prev, { role: 'assistant', text: 'Något gick fel. Försök igen.' }])
+    } finally {
       setLoading(false)
-      setMessages(prev => [...prev, { role: 'assistant', text: UPGRADE_RESPONSE }])
-    }, 1600)
-  }, [loading])
+    }
+  }, [loading, messages])
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       ask(input)
     }
-  }
-
-  // ── Rendered last-message text (streaming) ──────────────────────────────
-  const getDisplayText = (msg: Msg, index: number) => {
-    const isLast = index === messages.length - 1
-    if (isLast && msg.role === 'assistant' && streamChars >= 0) {
-      return msg.text.slice(0, streamChars)
-    }
-    return msg.text
   }
 
   return (
@@ -212,7 +216,7 @@ export default function AiChatPage() {
                       }`}
                     >
                       {m.role === 'assistant'
-                        ? <AssistantMessage text={getDisplayText(m, i)} isStreaming={i === messages.length - 1 && streamChars >= 0} />
+                        ? <AssistantMessage text={m.text} isStreaming={i === messages.length - 1 && loading} />
                         : m.text}
                     </div>
                   </motion.div>
@@ -394,8 +398,8 @@ function AssistantMessage({ text, isStreaming }: { text: string; isStreaming: bo
         return <p key={i} className="text-foreground/80">{line}</p>
       })}
 
-      {/* Only show CTA when streaming is done */}
-      {!isStreaming && (
+      {/* Show upgrade CTA only for paywall messages */}
+      {!isStreaming && text.includes('Elite-prenumeration krävs') && (
         <motion.div
           initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}

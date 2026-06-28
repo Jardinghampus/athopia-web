@@ -101,5 +101,5 @@ Citera källa (titel + URL) när du använder nyheter.`,
     },
   })
 
-  return result.toUIMessageStreamResponse()
+  return result.toTextStreamResponse()
 }
