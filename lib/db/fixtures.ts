@@ -273,12 +273,18 @@ export const fetchStandingsFull = unstable_cache(
 
       const { data } = await db
         .from("team_season_stats")
-        .select("*, teams(*)")
+        .select("*")
         .eq("season_id", season.sportmonks_id)
         .order("points", { ascending: false });
 
+      const teamIds = (data ?? []).map((r) => r.team_id as number).filter(Boolean);
+      const { data: teamsData } = teamIds.length
+        ? await db.from("teams").select("sportmonks_id,name,short_code,logo").in("sportmonks_id", teamIds)
+        : { data: [] };
+      const teamById = new Map((teamsData ?? []).map((t) => [Number(t.sportmonks_id), t]));
+
       return (data ?? []).map((row, i) => {
-        const team = row.teams as any;
+        const team = teamById.get(Number(row.team_id)) as any;
         const form = typeof row.form === "string"
           ? row.form.split("").filter((c: string) => ["W", "D", "L"].includes(c)).slice(-5)
           : [];

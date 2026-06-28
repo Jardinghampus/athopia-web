@@ -13,8 +13,10 @@ export type TeamPlayerStat = {
   goals: number;
   assists: number;
   shots: number;
+  shots_on_target: number;
   passes: number;
   tackles: number;
+  interceptions: number;
   rating: number | null;
   yellow_cards: number;
   red_cards: number;
@@ -25,8 +27,10 @@ const COLUMNS: Array<{ key: keyof TeamPlayerStat; label: string; numeric?: boole
   { key: "goals", label: "Mål", numeric: true },
   { key: "assists", label: "Ast", numeric: true },
   { key: "shots", label: "Skott", numeric: true },
+  { key: "shots_on_target", label: "Sk. mål", numeric: true },
   { key: "passes", label: "Pass", numeric: true },
   { key: "tackles", label: "Tackl", numeric: true },
+  { key: "interceptions", label: "Bry", numeric: true },
   { key: "rating", label: "Betyg", numeric: true },
   { key: "yellow_cards", label: "Gula", numeric: true },
   { key: "red_cards", label: "Röda", numeric: true },
@@ -140,7 +144,7 @@ export function TeamPlayerStatsTable({ players }: { players: TeamPlayerStat[] })
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={11} className="px-4 py-10 text-center text-sm text-muted-foreground">
+                <td colSpan={13} className="px-4 py-10 text-center text-sm text-muted-foreground">
                   Inga spelare matchar filtret.
                 </td>
               </tr>

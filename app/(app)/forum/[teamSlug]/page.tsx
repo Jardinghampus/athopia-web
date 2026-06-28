@@ -10,6 +10,7 @@ import CommunityGuidelines from "@/components/forum/CommunityGuidelines";
 import TeamDropdown from "@/components/forum/TeamDropdown";
 import NotificationBell from "@/components/forum/NotificationBell";
 import ForumClient from "./ForumClient";
+import ForumRightSidebar from "@/components/forum/ForumRightSidebar";
 
 export const dynamic = "force-dynamic";
 
@@ -251,49 +252,71 @@ export default async function ForumTeamPage({
     allsvenskanTeams.find((t) => t.slug === teamSlug)?.name ??
     teamSlug.replace(/-/g, " ").toUpperCase();
 
+  const sidebarTeams = allsvenskanTeams.map(t => ({ slug: t.slug ?? "", name: t.name ?? "" }));
+
   return (
     <div className="w-full min-h-screen">
-      <div className="mx-auto w-full max-w-[600px] border-x border-border/20">
+      {/* 3-col grid: left 20% | center 60% | right 20% — collapses to single on mobile */}
+      <div className="mx-auto w-full max-w-7xl px-4 xl:px-6">
+        <div className="flex gap-6 items-start">
 
-        {/* Sticky header */}
-        <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/25 px-4 py-3 flex items-center gap-3">
-          <Link
-            href="/forum"
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted/60 transition-colors shrink-0"
-          >
-            <ChevronLeft className="w-5 h-5 text-muted-foreground" />
-          </Link>
-          <div className="flex-1 min-w-0">
-            <h1 className="font-semibold text-base text-foreground truncate">{teamName}</h1>
-            <p className="text-[11px] text-muted-foreground">Community</p>
+          {/* Main feed column */}
+          <div className="flex-1 min-w-0 border-x border-border/40">
+
+            {/* Sticky header — offset by main Header height (h-12 = 3rem) */}
+            <div className="sticky top-12 z-30 bg-background/90 backdrop-blur-xl border-b border-border/40 px-4 py-3 flex items-center gap-3">
+              <Link
+                href="/forum"
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-800/60 transition-colors shrink-0"
+              >
+                <ChevronLeft className="w-5 h-5 text-zinc-400" />
+              </Link>
+              <div className="flex-1 min-w-0">
+                <h1 className="font-semibold text-[15px] text-white truncate">{teamName}</h1>
+                <p className="text-[12px] text-muted-foreground">Community</p>
+              </div>
+              <TeamDropdown teams={sidebarTeams} currentSlug={teamSlug} />
+              {clerkUser && <NotificationBell teamSlug={teamSlug} />}
+            </div>
+
+            <div className="pb-28">
+              {/* AI summarizer */}
+              {aiSummary && (
+                <div className="px-4 pt-4">
+                  <ForumSummaryBar summary={aiSummary} />
+                </div>
+              )}
+              {teamSlug === "djurgardens-if" && (
+                <div className="px-4 pt-4">
+                  <ForumDailySummary
+                    teamName={teamName}
+                    summary={DIF_DAILY_SUMMARY.summary}
+                    topics={DIF_DAILY_SUMMARY.topics}
+                    postCount={DIF_DAILY_SUMMARY.postCount}
+                    activeUsers={DIF_DAILY_SUMMARY.activeUsers}
+                    generatedAt={DIF_DAILY_SUMMARY.generatedAt}
+                  />
+                </div>
+              )}
+
+              <div className="px-4 pt-4 pb-2">
+                <CommunityGuidelines />
+              </div>
+
+              {/* Feed — no horizontal padding, posts use full-bleed border-b style */}
+              <ForumClient
+                teamSlug={teamSlug}
+                sport="football"
+                initialPosts={posts}
+              />
+            </div>
           </div>
-          <TeamDropdown teams={allsvenskanTeams.map(t => ({ slug: t.slug ?? "", name: t.name ?? "" }))} currentSlug={teamSlug} />
-          {clerkUser && <NotificationBell teamSlug={teamSlug} />}
-        </div>
 
-        <div className="px-4 pt-5 pb-28 space-y-4">
-          {/* AI summarizer */}
-          {aiSummary && <ForumSummaryBar summary={aiSummary} />}
-          {teamSlug === "djurgardens-if" && (
-            <ForumDailySummary
-              teamName={teamName}
-              summary={DIF_DAILY_SUMMARY.summary}
-              topics={DIF_DAILY_SUMMARY.topics}
-              postCount={DIF_DAILY_SUMMARY.postCount}
-              activeUsers={DIF_DAILY_SUMMARY.activeUsers}
-              generatedAt={DIF_DAILY_SUMMARY.generatedAt}
-            />
-          )}
+          {/* Right sidebar — hidden on mobile/tablet */}
+          <aside className="hidden lg:block w-[280px] shrink-0 sticky top-4 py-4 max-h-[calc(100vh-2rem)] overflow-y-auto">
+            <ForumRightSidebar teamName={teamName} teamSlug={teamSlug} aiSummary={aiSummary} />
+          </aside>
 
-          {/* Community guidelines */}
-          <CommunityGuidelines />
-
-          {/* Feed */}
-          <ForumClient
-            teamSlug={teamSlug}
-            sport="football"
-            initialPosts={posts}
-          />
         </div>
       </div>
     </div>

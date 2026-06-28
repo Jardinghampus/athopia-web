@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useUser } from "@clerk/nextjs";
 import { toast } from "sonner";
 import PostItem from "@/components/forum/PostItem";
-import { AIInputWithLoading } from "@/components/ui/ai-input-with-loading";
+import ComposeDrawer from "@/components/forum/ComposeDrawer";
 import type { ForumPost } from "@/lib/types";
 
 interface Props {
@@ -17,6 +17,7 @@ export default function ForumClient({ teamSlug, sport, initialPosts }: Props) {
   const { user } = useUser();
   const [posts, setPosts] = useState<ForumPost[]>(initialPosts);
   const [loading, setLoading] = useState(false);
+  const [composeOpen, setComposeOpen] = useState(false);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -33,7 +34,6 @@ export default function ForumClient({ teamSlug, sport, initialPosts }: Props) {
     }
   }, [teamSlug, sport]);
 
-  // Keep posts in sync if user navigates back
   useEffect(() => {
     setPosts(initialPosts);
   }, [initialPosts]);
@@ -64,17 +64,53 @@ export default function ForumClient({ teamSlug, sport, initialPosts }: Props) {
     setPosts((prev) => [newPost, ...prev]);
   }
 
+  // Initials from Clerk user name
+  const userInitials = [user?.firstName, user?.lastName]
+    .filter(Boolean)
+    .map((n) => n![0])
+    .join("")
+    .toUpperCase() || "?";
+
   return (
     <div>
+      {/* Inline compose — Threads-style tap-to-open row */}
+      {user && (
+        <>
+          <button
+            onClick={() => setComposeOpen(true)}
+            className="w-full flex items-center gap-3 px-4 py-3.5 border-b border-border/40 hover:bg-card/30 transition-colors text-left touch-manipulation"
+            aria-label="Skriv ett inlägg"
+          >
+            <div className="w-9 h-9 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-300 text-[13px] font-semibold shrink-0">
+              {user.imageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={user.imageUrl} alt="" className="w-full h-full rounded-full object-cover" />
+              ) : userInitials}
+            </div>
+            <span className="flex-1 text-[15px] text-muted-foreground/50">Vad tänker du på?</span>
+            <span className="text-[13px] font-semibold text-pitch px-3 py-1.5 rounded-full border border-pitch/30 shrink-0">
+              Skriv
+            </span>
+          </button>
+          <ComposeDrawer
+            open={composeOpen}
+            onOpenChange={setComposeOpen}
+            teamSlug={teamSlug}
+            sport={sport}
+            onPost={handlePost}
+          />
+        </>
+      )}
+
       {loading ? (
         <div className="space-y-3 py-2">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="rounded-2xl border border-border/30 bg-card/20 p-4 flex gap-3">
-              <div className="w-8 h-8 rounded-full bg-muted skeleton-wave shrink-0" />
-              <div className="flex-1 space-y-2">
-                <div className="h-3 w-28 rounded bg-muted skeleton-wave" />
-                <div className="h-3 w-full rounded bg-muted skeleton-wave" />
-                <div className="h-3 w-2/3 rounded bg-muted skeleton-wave" />
+            <div key={i} className="border-b border-border/40 px-4 py-4 flex gap-3">
+              <div className="w-11 h-11 rounded-full bg-card skeleton-wave shrink-0" />
+              <div className="flex-1 space-y-2 pt-1">
+                <div className="h-3.5 w-28 rounded bg-card skeleton-wave" />
+                <div className="h-3.5 w-full rounded bg-card skeleton-wave" />
+                <div className="h-3.5 w-2/3 rounded bg-card skeleton-wave" />
               </div>
             </div>
           ))}
@@ -96,7 +132,7 @@ export default function ForumClient({ teamSlug, sport, initialPosts }: Props) {
           )}
         </div>
       ) : (
-        <div className="flex flex-col gap-3 py-2">
+        <div className="flex flex-col py-1">
           {posts.map((post, i) => (
             <PostItem
               key={post.id}
@@ -107,19 +143,6 @@ export default function ForumClient({ teamSlug, sport, initialPosts }: Props) {
               index={i}
             />
           ))}
-        </div>
-      )}
-
-      {/* Sticky bottom compose bar — sits above the GlassNav dock */}
-      {user && (
-        <div className="fixed inset-x-0 z-40 max-w-[600px] mx-auto border-t border-border/30 bg-background/95 backdrop-blur-xl px-4 py-3
-          bottom-[calc(env(safe-area-inset-bottom)+5rem)]">
-          <AIInputWithLoading
-            placeholder="Skriv ett inlägg…"
-            onSubmit={async (val) => {
-              await handlePost({ content: val, teamSlug, sport });
-            }}
-          />
         </div>
       )}
     </div>

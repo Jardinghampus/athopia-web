@@ -7,6 +7,7 @@ import { GlassNav } from "@/components/layout/GlassNav";
 import { TeamSelectionModal } from "@/components/ui/TeamSelectionModal";
 import { PwaInstallBanner } from "@/components/PwaInstallBanner";
 import { ForumSummaryPopup } from "@/components/ForumSummaryPopup";
+import { MobileNav } from "@/components/layout/MobileNav";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const clerkEnabled =
@@ -31,6 +32,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </>
       )}
       <ForumSummaryPopup />
+      <MobileNav />
     </>
   );
 }

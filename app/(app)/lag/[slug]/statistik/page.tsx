@@ -7,6 +7,7 @@ import { TeamPlayerStatsTable, type TeamPlayerStat } from "./TeamPlayerStatsTabl
 export const revalidate = 60;
 
 const SEASON_2026 = 26806;
+const SPORT = "football";
 
 type PlayerStatRow = Record<string, unknown> & {
   player: Record<string, unknown> | null;
@@ -23,11 +24,16 @@ async function getTeamSmId(slug: string): Promise<{ name: string; smId: number |
 async function getTeamStandings(smId: number) {
   if (!isSupabaseConfigured()) return null;
   const db = createServerClient();
-  const { data } = await db.from("team_season_stats").select("*").eq("team_id", smId).eq("season_id", SEASON_2026).maybeSingle();
+  const { data } = await db
+    .from("team_season_stats")
+    .select("played,wins,draws,losses,points,goals_for,goals_against,clean_sheets,xg_for,xg_against,form")
+    .eq("team_id", smId)
+    .eq("season_id", SEASON_2026)
+    .maybeSingle();
   if (!data) return null;
   return {
     ...data,
-    goal_diff: Number(data.goal_diff ?? Number(data.goals_for ?? 0) - Number(data.goals_against ?? 0)),
+    goal_diff: Number(data.goals_for ?? 0) - Number(data.goals_against ?? 0),
   } as Record<string, unknown>;
 }
 
@@ -36,7 +42,7 @@ async function getPlayerStats(smId: number) {
   const db = createServerClient();
   const { data } = await db
     .from("player_season_stats")
-    .select("player_id,goals,assists,appearances,minutes,yellow_cards,red_cards,shots,shots_on_target,rating,passes,tackles,interceptions")
+    .select("player_id,goals,assists,appearances,minutes,yellow_cards,red_cards,shots,shots_on_target,rating,passes,tackles,interceptions,key_passes,pass_accuracy,dribbles,clearances,fouls,clean_sheets")
     .eq("team_id", smId)
     .eq("season_id", SEASON_2026)
     .order("goals", { ascending: false });
@@ -65,6 +71,45 @@ async function getTeamFixtures(smId: number) {
   return (data ?? []) as Record<string, unknown>[];
 }
 
+async function getSeasonProjection(smId: number) {
+  if (!isSupabaseConfigured()) return null;
+  const db = createServerClient();
+  const { data } = await db
+    .from("stats_season_projection")
+    .select("p_champion,p_top3,p_relegation,p_playoff,elo,current_points")
+    .eq("sport", SPORT)
+    .eq("season_id", SEASON_2026)
+    .eq("team_id", smId)
+    .maybeSingle();
+  return data as Record<string, unknown> | null;
+}
+
+async function getScheduleForm(smId: number) {
+  if (!isSupabaseConfigured()) return null;
+  const db = createServerClient();
+  const { data } = await db
+    .from("stats_schedule_form")
+    .select("actual_points,xpts,luck,sos")
+    .eq("sport", SPORT)
+    .eq("season_id", SEASON_2026)
+    .eq("team_id", smId)
+    .maybeSingle();
+  return data as Record<string, unknown> | null;
+}
+
+async function getGoalTiming(smId: number) {
+  if (!isSupabaseConfigured()) return [];
+  const db = createServerClient();
+  const { data } = await db
+    .from("stats_team_goal_timing")
+    .select("minute_block,goal_count")
+    .eq("sport", SPORT)
+    .eq("season_id", SEASON_2026)
+    .eq("team_id", smId)
+    .order("minute_block");
+  return (data ?? []) as { minute_block: string; goal_count: number }[];
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const { name } = await getTeamSmId(slug);
@@ -80,14 +125,33 @@ function StatCard({ label, value }: { label: string; value: string | number }) {
   );
 }
 
+function ProbBar({ label, pct, color }: { label: string; pct: number; color: string }) {
+  return (
+    <div className="space-y-1">
+      <div className="flex justify-between text-xs">
+        <span className="text-muted-foreground">{label}</span>
+        <span className="font-semibold text-foreground">{(pct * 100).toFixed(1)}%</span>
+      </div>
+      <div className="h-2 rounded-full bg-muted overflow-hidden">
+        <div className={`h-full rounded-full ${color}`} style={{ width: `${Math.min(pct * 100, 100)}%` }} />
+      </div>
+    </div>
+  );
+}
+
+const BLOCK_ORDER = ["1-15", "16-30", "31-45", "46-60", "61-75", "76-90"];
+
 export default async function LagStatistikPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const { name: teamName, smId } = await getTeamSmId(slug);
 
-  const [standings, players, fixtures] = await Promise.all([
+  const [standings, players, fixtures, projection, scheduleForm, goalTiming] = await Promise.all([
     smId ? getTeamStandings(smId) : Promise.resolve(null),
     smId ? getPlayerStats(smId) : Promise.resolve([]),
     smId ? getTeamFixtures(smId) : Promise.resolve([]),
+    smId ? getSeasonProjection(smId) : Promise.resolve(null),
+    smId ? getScheduleForm(smId) : Promise.resolve(null),
+    smId ? getGoalTiming(smId) : Promise.resolve([]),
   ]);
 
   const byGoals   = [...players].sort((a, b) => (b.goals as number) - (a.goals as number)).slice(0, 5);
@@ -104,13 +168,21 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
       goals: Number(row.goals ?? 0),
       assists: Number(row.assists ?? 0),
       shots: Number(row.shots ?? 0),
+      shots_on_target: Number(row.shots_on_target ?? 0),
       passes: Number(row.passes ?? 0),
       tackles: Number(row.tackles ?? 0),
+      interceptions: Number(row.interceptions ?? 0),
       rating: row.rating == null ? null : Number(row.rating),
       yellow_cards: Number(row.yellow_cards ?? 0),
       red_cards: Number(row.red_cards ?? 0),
     };
   });
+
+  const maxGoals = goalTiming.length ? Math.max(...goalTiming.map((g) => g.goal_count), 1) : 1;
+  const orderedTiming = BLOCK_ORDER.map((b) => ({
+    block: b,
+    count: goalTiming.find((g) => g.minute_block === b)?.goal_count ?? 0,
+  }));
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
@@ -120,24 +192,117 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
       {standings && (
         <div className="space-y-4">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            <StatCard label="Spelade" value={standings.played as number ?? 0} />
-            <StatCard label="Vinster"  value={standings.wins as number ?? 0} />
-            <StatCard label="Oavgjorda" value={standings.draws as number ?? 0} />
-            <StatCard label="Förluster" value={standings.losses as number ?? 0} />
+            <StatCard label="Spelade"    value={standings.played as number ?? 0} />
+            <StatCard label="Vinster"    value={standings.wins as number ?? 0} />
+            <StatCard label="Oavgjorda"  value={standings.draws as number ?? 0} />
+            <StatCard label="Förluster"  value={standings.losses as number ?? 0} />
             <StatCard label="Gjorda mål" value={standings.goals_for as number ?? 0} />
-            <StatCard label="Insläppta" value={standings.goals_against as number ?? 0} />
+            <StatCard label="Insläppta"  value={standings.goals_against as number ?? 0} />
           </div>
-          <div className="flex gap-3">
-            <div className="flex-1 rounded-xl border border-border bg-card p-4 flex justify-between">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="rounded-xl border border-border bg-card p-4 flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Poäng</span>
               <span className="font-semibold text-2xl text-pitch">{standings.points as number ?? 0}</span>
             </div>
-            <div className="flex-1 rounded-xl border border-border bg-card p-4 flex justify-between">
+            <div className="rounded-xl border border-border bg-card p-4 flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Målskillnad</span>
               <span className={`font-semibold text-2xl ${(standings.goal_diff as number ?? 0) >= 0 ? "text-pitch" : "text-red-400"}`}>
                 {(standings.goal_diff as number ?? 0) >= 0 ? "+" : ""}{standings.goal_diff as number ?? 0}
               </span>
             </div>
+            {(standings.clean_sheets as number) > 0 && (
+              <div className="rounded-xl border border-border bg-card p-4 flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Nollor</span>
+                <span className="font-semibold text-2xl text-foreground">{standings.clean_sheets as number}</span>
+              </div>
+            )}
+            {((standings.xg_for as number) ?? 0) > 0 && (
+              <div className="rounded-xl border border-border bg-card p-4 flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">xG för/mot</span>
+                <span className="font-semibold text-lg text-foreground">
+                  {Number(standings.xg_for ?? 0).toFixed(1)}/{Number(standings.xg_against ?? 0).toFixed(1)}
+                </span>
+              </div>
+            )}
+          </div>
+          {typeof standings.form === "string" && (standings.form as string).length > 0 && (
+            <div className="rounded-xl border border-border bg-card p-4">
+              <p className="text-xs text-muted-foreground mb-2">Form</p>
+              <div className="flex gap-1">
+                {(standings.form as string).split("").filter((c: string) => ["W","D","L"].includes(c)).slice(-10).map((r: string, i: number) => (
+                  <span key={i} className={`w-6 h-6 rounded text-xs font-bold flex items-center justify-center ${r === "W" ? "bg-pitch/20 text-pitch" : r === "L" ? "bg-red-400/20 text-red-400" : "bg-muted text-muted-foreground"}`}>
+                    {r === "W" ? "V" : r === "L" ? "F" : "O"}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* AI-statistik: Säsongsprognos + Schemakorrigerad form */}
+      {(projection || scheduleForm) && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {projection && (
+            <div className="rounded-xl border border-border bg-card p-5 space-y-3">
+              <div className="flex items-baseline justify-between">
+                <h3 className="font-semibold text-sm text-foreground">SÄSONGSPROGNOS</h3>
+                {projection.elo != null && (
+                  <span className="text-xs text-muted-foreground">Elo {String(projection.elo)}</span>
+                )}
+              </div>
+              <ProbBar label="Mästare"   pct={projection.p_champion as number ?? 0}   color="bg-amber-400" />
+              <ProbBar label="Top 3"     pct={projection.p_top3 as number ?? 0}        color="bg-pitch" />
+              <ProbBar label="Playoff"   pct={projection.p_playoff as number ?? 0}     color="bg-blue-400" />
+              <ProbBar label="Nedflyttning" pct={projection.p_relegation as number ?? 0} color="bg-red-400" />
+            </div>
+          )}
+          {scheduleForm && (
+            <div className="rounded-xl border border-border bg-card p-5 space-y-3">
+              <h3 className="font-semibold text-sm text-foreground">SCHEMAKORRIGERAD FORM</h3>
+              <div className="grid grid-cols-3 gap-3 text-center">
+                <div>
+                  <p className="font-bold text-2xl text-foreground">{Number(scheduleForm.actual_points ?? 0)}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Verkliga poäng</p>
+                </div>
+                <div>
+                  <p className="font-bold text-2xl text-foreground">
+                    {scheduleForm.xpts != null ? Number(scheduleForm.xpts).toFixed(1) : "–"}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Förväntade (xP)</p>
+                </div>
+                <div>
+                  <p className={`font-bold text-2xl ${Number(scheduleForm.luck ?? 0) >= 0 ? "text-pitch" : "text-red-400"}`}>
+                    {scheduleForm.luck != null ? (Number(scheduleForm.luck) >= 0 ? "+" : "") + Number(scheduleForm.luck).toFixed(1) : "–"}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Tur</p>
+                </div>
+              </div>
+              {scheduleForm.sos != null && (
+                <p className="text-xs text-muted-foreground border-t border-border pt-2">
+                  Schemastyrka: motstånd Elo {Number(scheduleForm.sos)} i snitt
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Mål per 15-minutersblock */}
+      {goalTiming.length > 0 && (
+        <div className="rounded-xl border border-border bg-card p-5">
+          <h3 className="font-semibold text-sm text-foreground mb-4">MÅL PER PERIOD</h3>
+          <div className="flex items-end gap-2 h-24">
+            {orderedTiming.map(({ block, count }) => (
+              <div key={block} className="flex-1 flex flex-col items-center gap-1">
+                <span className="text-xs font-semibold text-foreground">{count || ""}</span>
+                <div
+                  className="w-full rounded-t bg-pitch/60"
+                  style={{ height: `${(count / maxGoals) * 72}px`, minHeight: count > 0 ? "4px" : "0" }}
+                />
+                <span className="text-[10px] text-muted-foreground">{block}′</span>
+              </div>
+            ))}
           </div>
         </div>
       )}

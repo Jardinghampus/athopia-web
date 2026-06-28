@@ -11,6 +11,7 @@ import { PlayerProfileAnalytics, type ProfileMetric } from "./PlayerProfileAnaly
 export const revalidate = 60;
 
 const SEASON_2026 = 26806;
+const SPORT = "football";
 const QUALIFYING_MINUTES = 300;
 
 const POS_SV: Record<string, string> = {
@@ -23,7 +24,6 @@ async function getPlayerBySlug(slug: string) {
   if (slug === MOCK_PLAYER_SLUG) return mockPlayer();
   if (!isSupabaseConfigured()) return null;
   const db = createServerClient();
-  // Numerisk slug = sportmonks_id, annars slug-kolumnen
   if (/^\d+$/.test(slug)) {
     const { data } = await db.from("players").select("*").eq("sportmonks_id", parseInt(slug, 10)).maybeSingle();
     return data as Record<string, unknown> | null;
@@ -53,7 +53,6 @@ async function getMatchHistory(playerId: number) {
     .order("created_at", { ascending: false })
     .limit(10);
   if (!data?.length) return [];
-  // Hämta fixture-info
   const fids = data.map(r => r.fixture_id as number);
   const { data: fixes } = await db
     .from("fixtures")
@@ -61,6 +60,65 @@ async function getMatchHistory(playerId: number) {
     .in("sportmonks_id", fids);
   const fixMap = Object.fromEntries((fixes ?? []).map(f => [f.sportmonks_id, f]));
   return data.map(r => ({ ...r, fixture: fixMap[r.fixture_id as number] ?? null })) as Record<string, unknown>[];
+}
+
+async function getAthopiaRatings(playerId: number) {
+  if (!isSupabaseConfigured()) return null;
+  const db = createServerClient();
+  const { data } = await db
+    .from("athopia_ratings")
+    .select("athopia_rating,attacking_rating,passing_rating,defensive_rating,physical_rating,form_rating")
+    .eq("player_id", playerId)
+    .eq("season_id", SEASON_2026)
+    .maybeSingle();
+  return data as Record<string, unknown> | null;
+}
+
+async function getClutch(playerId: number) {
+  if (!isSupabaseConfigured()) return null;
+  const db = createServerClient();
+  const { data } = await db
+    .from("stats_clutch")
+    .select("goals,clutch_score,trailing_goals,level_goals,leading_goals")
+    .eq("sport", SPORT)
+    .eq("season_id", SEASON_2026)
+    .eq("player_id", playerId)
+    .maybeSingle();
+  return data as Record<string, unknown> | null;
+}
+
+async function getFinishingIndex(playerId: number) {
+  if (!isSupabaseConfigured()) return null;
+  const db = createServerClient();
+  const { data } = await db
+    .from("stats_finishing_index")
+    .select("goals,xg,overperf,ratio,goals_p90,xg_p90,overperf_percentile,regression_warning")
+    .eq("sport", SPORT)
+    .eq("season_id", SEASON_2026)
+    .eq("player_id", playerId)
+    .maybeSingle();
+  return data as Record<string, unknown> | null;
+}
+
+async function getPlayerTwins(playerId: number) {
+  if (!isSupabaseConfigured()) return [];
+  const db = createServerClient();
+  const { data } = await db
+    .from("stats_player_twins")
+    .select("twin_player_id,similarity,rank")
+    .eq("sport", SPORT)
+    .eq("season_id", SEASON_2026)
+    .eq("player_id", playerId)
+    .order("rank")
+    .limit(5);
+  if (!data?.length) return [];
+  const twinIds = data.map(r => r.twin_player_id as number);
+  const { data: twinPlayers } = await db
+    .from("players")
+    .select("sportmonks_id,fullname,position,image,slug")
+    .in("sportmonks_id", twinIds);
+  const byId = new Map(((twinPlayers ?? []) as Record<string, unknown>[]).map(p => [Number(p.sportmonks_id), p]));
+  return data.map(r => ({ ...r, player: byId.get(r.twin_player_id as number) ?? null })) as Record<string, unknown>[];
 }
 
 type SeasonStat = Record<string, unknown>;
@@ -141,15 +199,34 @@ function StatBox({ label, value, suffix, sub }: { label: string; value: number; 
   );
 }
 
+function RatingBar({ label, value, max = 10 }: { label: string; value: number; max?: number }) {
+  const pct = Math.min((value / max) * 100, 100);
+  return (
+    <div className="space-y-1">
+      <div className="flex justify-between text-xs">
+        <span className="text-muted-foreground">{label}</span>
+        <span className="font-semibold text-foreground">{value.toFixed(1)}</span>
+      </div>
+      <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+        <div className="h-full rounded-full bg-pitch" style={{ width: `${pct}%` }} />
+      </div>
+    </div>
+  );
+}
+
 export default async function SpelarePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const player = await getPlayerBySlug(slug);
   if (!player) notFound();
 
   const smId = player.sportmonks_id as number;
-  const [stats, matches] = await Promise.all([
+  const [stats, matches, athopiaRatings, clutch, finishing, twins] = await Promise.all([
     getSeasonStats(smId),
     getMatchHistory(smId),
+    getAthopiaRatings(smId),
+    getClutch(smId),
+    getFinishingIndex(smId),
+    getPlayerTwins(smId),
   ]);
   const profileMetrics = await getProfileMetrics(stats);
 
@@ -177,6 +254,33 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
         </div>
       </div>
 
+      {/* Athopia AI-betyg */}
+      {athopiaRatings && (
+        <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+          <div className="flex items-baseline justify-between">
+            <h2 className="font-semibold text-sm text-foreground">ATHOPIA AI-BETYG</h2>
+            {athopiaRatings.athopia_rating != null && (
+              <span className="font-bold text-2xl text-pitch">{Number(athopiaRatings.athopia_rating).toFixed(1)}</span>
+            )}
+          </div>
+          {(athopiaRatings.attacking_rating != null) && (
+            <RatingBar label="Offensiv"   value={Number(athopiaRatings.attacking_rating)} />
+          )}
+          {(athopiaRatings.passing_rating != null) && (
+            <RatingBar label="Passning"   value={Number(athopiaRatings.passing_rating)} />
+          )}
+          {(athopiaRatings.defensive_rating != null) && (
+            <RatingBar label="Defensiv"   value={Number(athopiaRatings.defensive_rating)} />
+          )}
+          {(athopiaRatings.physical_rating != null) && (
+            <RatingBar label="Fysik"      value={Number(athopiaRatings.physical_rating)} />
+          )}
+          {(athopiaRatings.form_rating != null) && (
+            <RatingBar label="Aktuell form" value={Number(athopiaRatings.form_rating)} />
+          )}
+        </div>
+      )}
+
       {/* Säsongstatistik 2026 */}
       {stats && (
         <div>
@@ -201,12 +305,86 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
           )}
           {(stats.passes as number > 0) && (
             <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <StatBox label="Passningar"    value={(stats.passes as number) ?? 0} />
-              <StatBox label="Tacklingar"    value={(stats.tackles as number) ?? 0} />
-              <StatBox label="Interceptions" value={(stats.interceptions as number) ?? 0} />
-              <StatBox label="Dribblingar"   value={(stats.dribbles as number) ?? 0} />
+              <StatBox label="Passningar"     value={(stats.passes as number) ?? 0} />
+              <StatBox label="Nyckelpass"     value={(stats.key_passes as number) ?? 0} />
+              <StatBox label="Tacklingar"     value={(stats.tackles as number) ?? 0} />
+              <StatBox label="Interceptions"  value={(stats.interceptions as number) ?? 0} />
+              <StatBox label="Dribblingar"    value={(stats.dribbles as number) ?? 0} />
+              <StatBox label="Rensningar"     value={(stats.clearances as number) ?? 0} />
+              <StatBox label="Frisparkar mot" value={(stats.fouls as number) ?? 0} />
+              {(stats.pass_accuracy as number) > 0 && (
+                <StatBox label="Passn.-%" value={Math.round(stats.pass_accuracy as number)} suffix="%" />
+              )}
             </div>
           )}
+          {(stats.clean_sheets as number) > 0 && (
+            <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <StatBox label="Nollor" value={(stats.clean_sheets as number) ?? 0} />
+            </div>
+          )}
+          {(stats.rating as number) > 0 && (
+            <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <StatBox label="Snittbetyg" value={Math.round((stats.rating as number) * 100) / 100} sub="Sportsmonks" />
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* xG Finishing Index */}
+      {finishing && Number(finishing.goals ?? 0) > 0 && (
+        <div className="bg-card border border-border rounded-2xl p-5">
+          <h2 className="font-semibold text-sm text-foreground mb-4">MÅLSKYTTEINDEX</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+            <div className="text-center">
+              <p className="font-bold text-3xl text-foreground">{finishing.goals as number}</p>
+              <p className="text-xs text-muted-foreground mt-1">Mål</p>
+            </div>
+            <div className="text-center">
+              <p className="font-bold text-3xl text-foreground">{finishing.xg != null ? Number(finishing.xg).toFixed(1) : "–"}</p>
+              <p className="text-xs text-muted-foreground mt-1">xG</p>
+            </div>
+            <div className="text-center">
+              <p className={`font-bold text-3xl ${Number(finishing.overperf ?? 0) >= 0 ? "text-pitch" : "text-red-400"}`}>
+                {finishing.overperf != null ? (Number(finishing.overperf) >= 0 ? "+" : "") + Number(finishing.overperf).toFixed(1) : "–"}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">Över xG</p>
+            </div>
+            {finishing.overperf_percentile != null && (
+              <div className="text-center">
+                <p className="font-bold text-3xl text-foreground">{Math.round(finishing.overperf_percentile as number)}</p>
+                <p className="text-xs text-muted-foreground mt-1">Percentil</p>
+              </div>
+            )}
+          </div>
+          {!!finishing.regression_warning && (
+            <p className="text-xs text-amber-400 border border-amber-400/20 bg-amber-400/5 rounded-lg px-3 py-2">
+              Varning: Spelaren presterar avsevärt över sitt xG — regression mot medel är sannolik.
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Clutch index */}
+      {clutch && Number(clutch.goals ?? 0) > 0 && (
+        <div className="bg-card border border-border rounded-2xl p-5">
+          <div className="flex items-baseline justify-between mb-4">
+            <h2 className="font-semibold text-sm text-foreground">CLUTCH INDEX</h2>
+            <span className="font-bold text-2xl text-foreground">{clutch.clutch_score as number}</span>
+          </div>
+          <div className="grid grid-cols-3 gap-3 text-center">
+            <div>
+              <p className="font-bold text-2xl text-red-400">{clutch.trailing_goals as number}</p>
+              <p className="text-xs text-muted-foreground mt-1">Mål när bakåt</p>
+            </div>
+            <div>
+              <p className="font-bold text-2xl text-muted-foreground">{clutch.level_goals as number}</p>
+              <p className="text-xs text-muted-foreground mt-1">Mål lika läge</p>
+            </div>
+            <div>
+              <p className="font-bold text-2xl text-pitch">{clutch.leading_goals as number}</p>
+              <p className="text-xs text-muted-foreground mt-1">Mål när framåt</p>
+            </div>
+          </div>
         </div>
       )}
 
@@ -217,6 +395,38 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
           qualifyingMinutes={QUALIFYING_MINUTES}
           metrics={profileMetrics}
         />
+      )}
+
+      {/* Liknande spelare */}
+      {twins.length > 0 && (
+        <div className="bg-card border border-border rounded-2xl overflow-hidden">
+          <div className="px-5 py-4 border-b border-border">
+            <h2 className="font-semibold text-sm text-foreground">LIKNANDE SPELARE</h2>
+          </div>
+          <div className="divide-y divide-border/50">
+            {twins.map((t, i) => {
+              const pl = t.player as Record<string, unknown> | null;
+              const twinSlug = (pl?.slug as string) ?? String(t.twin_player_id ?? "");
+              return (
+                <Link key={i} href={`/spelare/${twinSlug}`}
+                  className="flex items-center gap-3 px-5 py-3 hover:bg-muted/20 transition-colors">
+                  {!!pl?.image && (
+                    <div className="relative w-8 h-8 rounded-full overflow-hidden bg-muted shrink-0">
+                      <Image src={pl.image as string} alt="" fill className="object-cover" sizes="32px" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-foreground truncate">{(pl?.fullname as string) ?? `Spelare ${t.twin_player_id}`}</p>
+                    <p className="text-xs text-muted-foreground capitalize">{(pl?.position as string) ?? ""}</p>
+                  </div>
+                  <span className="text-xs text-muted-foreground tabular-nums">
+                    {Math.round((t.similarity as number) * 100)}% likhet
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
       )}
 
       {/* Match-för-match */}

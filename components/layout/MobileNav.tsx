@@ -1,0 +1,95 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { X } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import {
+  IconHome, IconNews, IconTrophy, IconHeadphones,
+  IconChartBar, IconFlame, IconCalendarEvent, IconMessages, IconSparkles,
+} from "@tabler/icons-react";
+
+const NAV = [
+  { href: "/hem",        label: "Hem",         Icon: IconHome },
+  { href: "/nyheter",    label: "Nyheter",      Icon: IconNews },
+  { href: "/allsvenskan",label: "Allsvenskan",  Icon: IconTrophy },
+  { href: "/match",      label: "Matcher",      Icon: IconCalendarEvent },
+  { href: "/podcast",    label: "Podcasts",     Icon: IconHeadphones },
+  { href: "/statistik",  label: "Statistik",    Icon: IconChartBar },
+  { href: "/analys",     label: "Analys",       Icon: IconFlame },
+  { href: "/forum",      label: "Forum",        Icon: IconMessages },
+  { href: "/ai",         label: "AI-chatt",     Icon: IconSparkles },
+];
+
+export function MobileNav() {
+  const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const handler = () => setOpen(true);
+    window.addEventListener("athopia:open-mobile-menu", handler);
+    return () => window.removeEventListener("athopia:open-mobile-menu", handler);
+  }, []);
+
+  // Close on route change
+  useEffect(() => { setOpen(false); }, [pathname]);
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[90] bg-black/60 backdrop-blur-sm"
+            onClick={() => setOpen(false)}
+          />
+
+          {/* Drawer */}
+          <motion.div
+            initial={{ x: "-100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "-100%" }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed inset-y-0 left-0 z-[100] w-72 bg-background border-r border-border/50 flex flex-col pt-safe"
+          >
+            <div className="flex items-center justify-between px-5 h-14 border-b border-border/40 shrink-0">
+              <span className="font-heading text-lg text-foreground">ATHOPIA</span>
+              <button
+                aria-label="Stäng meny"
+                onClick={() => setOpen(false)}
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-card transition-colors text-muted-foreground"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
+              {NAV.map(({ href, label, Icon }) => {
+                const active = pathname === href || pathname.startsWith(href + "/");
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={`flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] transition-colors ${
+                      active
+                        ? "text-pitch bg-pitch/10 font-medium"
+                        : "text-muted-foreground hover:text-foreground hover:bg-card"
+                    }`}
+                  >
+                    <Icon className="w-5 h-5 shrink-0" />
+                    {label}
+                  </Link>
+                );
+              })}
+            </nav>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+}

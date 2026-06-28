@@ -49,8 +49,11 @@ export default async function AllsvenskanTabellPage() {
               <th className="text-center py-3 px-3 font-medium">V</th>
               <th className="text-center py-3 px-3 font-medium">O</th>
               <th className="text-center py-3 px-3 font-medium">F</th>
+              <th className="text-center py-3 px-3 font-medium hidden sm:table-cell">Gjorda</th>
+              <th className="text-center py-3 px-3 font-medium hidden sm:table-cell">Insläppta</th>
               <th className="text-center py-3 px-3 font-medium">+/-</th>
               <th className="text-center py-3 px-4 font-medium font-bold">P</th>
+              <th className="text-center py-3 px-3 font-medium hidden md:table-cell">Form</th>
             </tr>
           </thead>
           <tbody>
@@ -66,8 +69,17 @@ export default async function AllsvenskanTabellPage() {
                 <td className="py-3 px-3 text-center text-muted-foreground">{row.wins}</td>
                 <td className="py-3 px-3 text-center text-muted-foreground">{row.draws}</td>
                 <td className="py-3 px-3 text-center text-muted-foreground">{row.losses}</td>
+                <td className="py-3 px-3 text-center text-muted-foreground hidden sm:table-cell">{row.goals_for}</td>
+                <td className="py-3 px-3 text-center text-muted-foreground hidden sm:table-cell">{row.goals_against}</td>
                 <td className="py-3 px-3 text-center text-muted-foreground">{row.goal_diff > 0 ? `+${row.goal_diff}` : row.goal_diff}</td>
                 <td className="py-3 px-4 text-center font-bold text-foreground">{row.points}</td>
+                <td className="py-3 px-3 text-center hidden md:table-cell">
+                  <span className="flex gap-0.5 justify-center">
+                    {row.form.map((r, fi) => (
+                      <span key={fi} className={`w-4 h-4 rounded-sm text-[9px] font-bold flex items-center justify-center ${r === "W" ? "bg-pitch/20 text-pitch" : r === "L" ? "bg-red-400/20 text-red-400" : "bg-muted text-muted-foreground"}`}>{r === "W" ? "V" : r === "L" ? "F" : "O"}</span>
+                    ))}
+                  </span>
+                </td>
               </tr>
             ))}
           </tbody>

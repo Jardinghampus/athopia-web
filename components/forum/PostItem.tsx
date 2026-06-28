@@ -3,7 +3,7 @@
 import { useState, useOptimistic } from "react";
 import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
-import { Heart, MessageCircle, Repeat2, Share2, Flag, ChevronDown } from "lucide-react";
+import { Heart, MessageCircle, Repeat2, Share2, Flag, ChevronDown, MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import type { ForumPost } from "@/lib/types";
@@ -18,7 +18,7 @@ const LABEL_STYLES: Record<string, { bg: string; text: string; emoji: string }> 
   taktik:     { bg: "bg-purple-500/10 border-purple-500/30", text: "text-purple-400", emoji: "🧠" },
   match:      { bg: "bg-emerald-500/10 border-emerald-500/30", text: "text-emerald-400", emoji: "⚽" },
   rykte:      { bg: "bg-orange-500/10 border-orange-500/30", text: "text-orange-400", emoji: "🔥" },
-  diskussion: { bg: "bg-zinc-700/30 border-zinc-600/30",   text: "text-zinc-400",   emoji: "💬" },
+  diskussion: { bg: "bg-zinc-700/30 border-zinc-600/30",   text: "text-muted-foreground",   emoji: "💬" },
 };
 
 function timeAgo(iso: string): string {
@@ -164,18 +164,17 @@ export default function PostItem({
   return (
     <>
       <motion.div
-        initial={prefersReduced ? false : { opacity: 0, y: 16, filter: "blur(8px)" }}
-        whileInView={prefersReduced ? undefined : { opacity: 1, y: 0, filter: "blur(0px)" }}
+        initial={prefersReduced ? false : { opacity: 0, y: 12 }}
+        whileInView={prefersReduced ? undefined : { opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-40px" }}
-        transition={{ duration: 0.36, delay: animDelay, ease: [0.25, 0.46, 0.45, 0.94] }}
-        className={depth > 0 ? "ml-10" : ""}
+        transition={{ duration: 0.28, delay: animDelay, ease: [0.25, 0.46, 0.45, 0.94] }}
+        className={depth > 0 ? "ml-12" : ""}
       >
-        {/* Card wrapper — root posts get card border, replies are lighter */}
         <div
           className={
             depth === 0
-              ? "rounded-2xl border border-border/40 bg-card/30 px-4 py-4 hover:bg-card/50 transition-colors"
-              : "rounded-xl bg-muted/20 px-3 py-2"
+              ? "border-b border-border/40 px-4 py-4 hover:bg-card/40 transition-colors"
+              : "pl-3 py-3 border-l-2 border-border/30 ml-1"
           }
         >
           <div className="flex gap-3">
@@ -183,7 +182,7 @@ export default function PostItem({
             <div className="flex flex-col items-center shrink-0">
               <ProfileLink
                 userId={post.author_id}
-                className="w-8 h-8 rounded-full bg-pitch/20 flex items-center justify-center text-pitch text-xs font-bold overflow-hidden relative hover:ring-2 hover:ring-pitch/40 transition-all"
+                className="w-11 h-11 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-300 text-sm font-semibold overflow-hidden relative hover:opacity-90 transition-opacity"
               >
                 {post.author_avatar ? (
                   <Image src={post.author_avatar} alt="" fill className="object-cover" />
@@ -192,50 +191,54 @@ export default function PostItem({
                 )}
               </ProfileLink>
               {showLine && (
-                <div className="w-px flex-1 min-h-[12px] bg-border/30 mt-1" />
+                <div className="w-px flex-1 min-h-[16px] bg-border/40 mt-1.5" />
               )}
             </div>
 
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 pt-0.5">
               {/* Header row */}
-              <div className="flex items-center gap-1.5 mb-1 flex-wrap">
-                <ProfileLink
-                  userId={post.author_id}
-                  className="text-sm font-semibold text-foreground hover:underline"
-                >
-                  {post.author_name}
-                </ProfileLink>
-                <span className="text-xs text-muted-foreground/60">
-                  @{post.author_name.toLowerCase().replace(/\s+/g, "")}
-                </span>
-                <span className="text-xs text-muted-foreground/40">·</span>
-                <span className="text-xs text-muted-foreground/60">
-                  {timeAgo(post.created_at)}
-                </span>
-                {post.pinned && (
-                  <span className="ml-auto text-[10px] font-medium text-pitch bg-pitch/10 px-2 py-0.5 rounded-full">
-                    📌 Fäst
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <ProfileLink
+                    userId={post.author_id}
+                    className="text-[15px] font-semibold text-foreground hover:underline leading-tight"
+                  >
+                    {post.author_name}
+                  </ProfileLink>
+                  <span className="text-[13px] text-muted-foreground">
+                    {timeAgo(post.created_at)}
                   </span>
-                )}
+                  {post.pinned && (
+                    <span className="text-[11px] font-medium text-pitch bg-pitch/10 px-1.5 py-0.5 rounded-full">
+                      📌 Fäst
+                    </span>
+                  )}
+                </div>
+                <button
+                  aria-label="Fler alternativ"
+                  className="min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors touch-manipulation"
+                >
+                  <MoreHorizontal className="w-[18px] h-[18px]" />
+                </button>
               </div>
 
               {/* Label badge */}
               {label && post.label && (
                 <span
-                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border mb-2 ${label.bg} ${label.text}`}
+                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border mb-2 ${label.bg} ${label.text}`}
                 >
                   {label.emoji}
                   {post.label.charAt(0).toUpperCase() + post.label.slice(1)}
                 </span>
               )}
 
-              {/* Content — preview with expand */}
+              {/* Content */}
               <Link
                 href={`/forum/${post.team_slug}/${post.id}`}
-                className="block group"
+                className="block"
                 onClick={(e) => needsTruncation && !expanded && e.preventDefault()}
               >
-                <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap">
+                <p className="text-[15px] text-foreground leading-[1.55] whitespace-pre-wrap">
                   {displayContent}
                 </p>
               </Link>
@@ -245,22 +248,13 @@ export default function PostItem({
                   {!expanded ? (
                     <button
                       onClick={() => setExpanded(true)}
-                      className="mt-1 flex items-center gap-1 text-xs text-pitch font-medium hover:underline touch-manipulation"
+                      className="mt-1 flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors touch-manipulation"
                     >
-                      Läs mer
-                      <ChevronDown className="w-3 h-3" />
+                      Läs mer <ChevronDown className="w-3 h-3" />
                     </button>
                   ) : (
-                    <motion.div
-                      key="expand-hint"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <Link
-                        href={`/forum/${post.team_slug}/${post.id}`}
-                        className="mt-1 inline-block text-xs text-muted-foreground hover:text-pitch transition-colors"
-                      >
+                    <motion.div key="expand-hint" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
+                      <Link href={`/forum/${post.team_slug}/${post.id}`} className="mt-1 inline-block text-xs text-muted-foreground hover:text-foreground transition-colors">
                         Öppna tråd →
                       </Link>
                     </motion.div>
@@ -268,100 +262,78 @@ export default function PostItem({
                 </AnimatePresence>
               )}
 
-              {/* Quoted post */}
               {post.quoted_post && <QuoteBox post={post.quoted_post} />}
 
-              {/* Images */}
               {post.images && post.images.length > 0 && (
-                <div className="mt-2 flex gap-2 flex-wrap">
+                <div className="mt-3 flex gap-2 flex-wrap">
                   {post.images.map((src, i) => (
-                    <Image
-                      key={i}
-                      src={src}
-                      alt=""
-                      width={300}
-                      height={192}
-                      className="rounded-xl max-h-48 object-cover"
-                    />
+                    <Image key={i} src={src} alt="" width={300} height={192} className="rounded-xl max-h-52 object-cover" />
                   ))}
                 </div>
               )}
 
-              {/* Action bar */}
-              <div className="flex items-center gap-5 mt-3 -ml-0.5">
+              {/* Threads-style action bar */}
+              <div className="flex items-center gap-1 mt-3 -ml-2">
                 <button
+                  aria-label="Svara"
                   onClick={() => user && setReplyOpen(true)}
-                  className="flex items-center gap-1.5 text-muted-foreground hover:text-pitch transition-colors touch-manipulation"
+                  className="flex items-center gap-1.5 min-h-[44px] px-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-card transition-all touch-manipulation"
                 >
-                  <MessageCircle className="w-4 h-4" />
-                  {post.reply_count > 0 && (
-                    <span className="text-xs tabular-nums">{post.reply_count}</span>
-                  )}
+                  <MessageCircle className="w-[19px] h-[19px]" />
+                  {post.reply_count > 0 && <span className="text-[13px] tabular-nums">{post.reply_count}</span>}
                 </button>
 
                 <button
+                  aria-label="Repost"
                   onClick={toggleRepost}
-                  className={`flex items-center gap-1.5 transition-colors touch-manipulation ${
-                    reposted ? "text-emerald-500" : "text-muted-foreground hover:text-emerald-500"
+                  className={`flex items-center gap-1.5 min-h-[44px] px-2 rounded-full transition-all touch-manipulation ${
+                    reposted ? "text-emerald-400" : "text-muted-foreground hover:text-emerald-400 hover:bg-card"
                   }`}
                 >
-                  <Repeat2 className="w-4 h-4" />
-                  {optimisticReposts > 0 && (
-                    <span className="text-xs tabular-nums">{optimisticReposts}</span>
-                  )}
+                  <Repeat2 className="w-[19px] h-[19px]" />
+                  {optimisticReposts > 0 && <span className="text-[13px] tabular-nums">{optimisticReposts}</span>}
                 </button>
 
                 <button
+                  aria-label={liked ? "Ta bort gilla-markering" : "Gilla"}
                   onClick={toggleLike}
-                  className={`flex items-center gap-1.5 transition-colors touch-manipulation ${
-                    liked ? "text-rose-500" : "text-muted-foreground hover:text-rose-500"
+                  className={`flex items-center gap-1.5 min-h-[44px] px-2 rounded-full transition-all touch-manipulation ${
+                    liked ? "text-rose-400" : "text-muted-foreground hover:text-rose-400 hover:bg-card"
                   }`}
                 >
                   <Heart
-                    className={`w-4 h-4 ${liked ? "fill-current" : ""}`}
-                    style={{
-                      transition: "transform 0.22s cubic-bezier(0.22,1,0.36,1), color 0.15s ease",
-                      transform: likeAnimating ? "scale(1.4)" : "scale(1)",
-                    }}
+                    className={`w-[19px] h-[19px] ${liked ? "fill-current" : ""}`}
+                    style={{ transition: "transform 0.22s cubic-bezier(0.22,1,0.36,1)", transform: likeAnimating ? "scale(1.4)" : "scale(1)" }}
                   />
-                  {optimisticLikes > 0 && (
-                    <span className="text-xs tabular-nums">{optimisticLikes}</span>
-                  )}
+                  {optimisticLikes > 0 && <span className="text-[13px] tabular-nums">{optimisticLikes}</span>}
                 </button>
 
                 <button
+                  aria-label="Dela"
                   onClick={share}
-                  className="flex items-center gap-1.5 text-muted-foreground hover:text-pitch transition-colors touch-manipulation"
+                  className="flex items-center gap-1.5 min-h-[44px] px-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-card transition-all touch-manipulation"
                 >
-                  <Share2 className="w-4 h-4" />
+                  <Share2 className="w-[19px] h-[19px]" />
                 </button>
 
                 <button
+                  aria-label="Rapportera"
                   onClick={handleReport}
                   disabled={reported}
-                  className={`flex items-center gap-1.5 ml-auto transition-colors touch-manipulation ${
-                    reported ? "text-amber-500" : "text-muted-foreground hover:text-amber-500"
+                  className={`flex items-center gap-1.5 min-h-[44px] px-2 ml-auto rounded-full transition-all touch-manipulation ${
+                    reported ? "text-amber-400" : "text-muted-foreground/60 hover:text-amber-400 hover:bg-card"
                   }`}
-                  title="Rapportera"
                 >
-                  <Flag className="w-3.5 h-3.5" />
+                  <Flag className="w-[15px] h-[15px]" />
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Nested replies inside card */}
           {post.replies && post.replies.length > 0 && depth < 2 && (
-            <div className="mt-3 space-y-3">
+            <div className="mt-1 space-y-0">
               {post.replies.map((reply, i) => (
-                <PostItem
-                  key={reply.id}
-                  post={reply}
-                  depth={depth + 1}
-                  showThread={(reply.reply_count ?? 0) > 0}
-                  onReply={onReply}
-                  index={i}
-                />
+                <PostItem key={reply.id} post={reply} depth={depth + 1} showThread={(reply.reply_count ?? 0) > 0} onReply={onReply} index={i} />
               ))}
             </div>
           )}

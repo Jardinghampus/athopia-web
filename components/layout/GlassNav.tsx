@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Search, Newspaper, BarChart3, MessageSquare, User, Users2 } from "lucide-react";
+import { Search, Newspaper, BarChart3, MessageSquare, User, Sparkles } from "lucide-react";
 import { useCommandPalette } from "@/hooks/useCommandPalette";
 import "./GlassNav.css";
 
@@ -10,6 +10,7 @@ import "./GlassNav.css";
 const NAV_ITEMS = [
   { href: "/nyheter",   label: "Nyheter",   icon: Newspaper },
   { href: "/statistik", label: "Statistik",  icon: BarChart3 },
+  { href: "/ai",        label: "AI",         icon: Sparkles },
   { href: "/forum",     label: "Forum",      icon: MessageSquare },
   { href: "/konto",     label: "Profil",     icon: User },
 ] as const;
@@ -77,7 +78,7 @@ export function GlassNav({ clerkEnabled: _clerkEnabled }: { clerkEnabled?: boole
           aria-label="Välj lag"
           className="glassnav__item"
         >
-          <Users2 strokeWidth={2} />
+          <User strokeWidth={2} />
         </button>
 
         {/* Action: Sök */}
