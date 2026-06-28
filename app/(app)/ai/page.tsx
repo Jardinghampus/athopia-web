@@ -48,7 +48,7 @@ export default function AiChatPage() {
   }
 
   return (
-    <div className="flex h-[calc(100svh-3.5rem)] items-center justify-center p-0 sm:p-6">
+    <div className="flex h-[calc(100svh-3.5rem)] items-start justify-center p-0 pb-[calc(env(safe-area-inset-bottom)+5rem)] sm:items-center sm:pb-0 sm:p-6">
       {/* Window */}
       <div className="relative flex h-full w-full max-w-3xl flex-col overflow-hidden sm:h-[min(700px,calc(100svh-7rem))] sm:rounded-2xl sm:border sm:border-border sm:bg-card sm:shadow-sm">
 
