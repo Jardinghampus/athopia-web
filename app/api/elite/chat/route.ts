@@ -1,6 +1,6 @@
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { anthropic } from '@ai-sdk/anthropic'
-import { streamText, convertToModelMessages, stepCountIs } from 'ai'
+import { streamText, stepCountIs } from 'ai'
 import { createClient } from '@supabase/supabase-js'
 import { getUserPlan } from '@/lib/user-plan'
 import { tools } from '@/lib/ai/tools'
@@ -76,7 +76,7 @@ export async function POST(req: Request) {
 
   // 4. Stream
   const { messages } = await req.json()
-  const model = anthropic(process.env.CHAT_MODEL ?? 'claude-haiku-4-5')
+  const model = anthropic(process.env.CHAT_MODEL ?? 'claude-haiku-4-5-20251001')
 
   const result = streamText({
     model,
@@ -84,7 +84,7 @@ export async function POST(req: Request) {
 Svara KORT och på svenska. Använd ENDAST data från verktygen — hitta aldrig på statistik, resultat eller spelare.
 Saknas data: säg "Jag hittar ingen information om det just nu."
 Citera källa (titel + URL) när du använder nyheter.`,
-    messages: await convertToModelMessages(messages),
+    messages,
     stopWhen: stepCountIs(5),
     tools,
     providerOptions: {
