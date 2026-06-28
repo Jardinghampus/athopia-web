@@ -149,8 +149,8 @@ export default function AiChatPage() {
           colors={['#1D9E75', '#25C48F', '#158A63', '#0d6b4e', '#47c99a']}
           backgroundFill="oklch(0.06 0.015 160)"
           blur={6}
-          speed="slow"
-          waveOpacity={0.35}
+          speed="fast"
+          waveOpacity={0.8}
           waveWidth={60}
         />
       )}
@@ -165,7 +165,7 @@ export default function AiChatPage() {
           background: 'color-mix(in srgb, var(--background) 58%, transparent)',
           backdropFilter: 'blur(24px) saturate(180%)',
           WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-          border: '1px solid color-mix(in srgb, var(--foreground) 10%, transparent)',
+          border: '1px solid rgba(29, 158, 117, 0.35)',
           boxShadow: '0 1px 0 0 color-mix(in srgb, var(--foreground) 8%, transparent) inset, 0 24px 60px -12px rgba(0,0,0,0.5)',
         }}
       >
