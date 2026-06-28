@@ -16,16 +16,52 @@ function getDb() {
 
 // ponytail: cast to Record<string, Tool> — ai@7 tool() helper is UI-only; server tools are plain objects
 export const tools: Record<string, Tool> = {
+  getRecentNews: {
+    description: 'Hämta senaste nyheter från idag och igår om Allsvenskan, lag eller spelare. Använd alltid detta verktyg när användaren frågar om nyheter, senaste händelser eller vill ha en sammanfattning.',
+    inputSchema: z.object({ keyword: z.string().optional().describe('Lagnamn eller spelares namn att filtrera på') }),
+    execute: async ({ keyword }: { keyword?: string }) => {
+      try {
+        const db = getDb()
+        const since = new Date()
+        since.setDate(since.getDate() - 2) // senaste 48h
+        let q = db
+          .from('content_queue')
+          .select('title,source_name,source_url,published_at,summary')
+          .eq('sport', 'football')
+          .gte('published_at', since.toISOString())
+          .order('published_at', { ascending: false })
+          .limit(15)
+        if (keyword) q = q.ilike('title', `%${keyword}%`)
+        const { data } = await q
+        if (!data?.length) {
+          // Fallback: last 7 days
+          const { data: fallback } = await db
+            .from('content_queue')
+            .select('title,source_name,source_url,published_at,summary')
+            .eq('sport', 'football')
+            .ilike('title', keyword ? `%${keyword}%` : '%')
+            .order('published_at', { ascending: false })
+            .limit(10)
+          if (!fallback?.length) return { news: [], message: 'Inga nyheter hittades.' }
+          return { news: fallback }
+        }
+        return { news: data, today: new Date().toLocaleDateString('sv-SE') }
+      } catch (e) {
+        return { error: String(e) }
+      }
+    },
+  },
+
   searchNews: {
-    description: 'Sök senaste nyheter och artiklar om Allsvenskan, lag eller spelare.',
+    description: 'Sök djupare i artikelarkivet med semantisk sökning. Använd när getRecentNews inte räcker.',
     inputSchema: z.object({ query: z.string() }),
     execute: async ({ query }: { query: string }) => {
       try {
         const results = await searchArticles(query, 5)
-        if (!results.length) return { results: [], message: 'Inga nyheter hittades.' }
+        if (!results.length) return { results: [], message: 'Inga artiklar hittades.' }
         return { results: results.map((r) => ({ title: r.title, url: r.url, excerpt: r.chunk.slice(0, 300) })) }
       } catch {
-        return { results: [], message: 'Nyhetssökning tillfälligt otillgänglig.' }
+        return { results: [], message: 'Artikelsökning tillfälligt otillgänglig.' }
       }
     },
   },
