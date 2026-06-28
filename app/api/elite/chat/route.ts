@@ -2,7 +2,7 @@ import { auth, currentUser } from '@clerk/nextjs/server'
 import { anthropic } from '@ai-sdk/anthropic'
 import { streamText, convertToModelMessages, stepCountIs } from 'ai'
 import { createClient } from '@supabase/supabase-js'
-import { getUserPlan } from '@/lib/access'
+import { getUserPlan } from '@/lib/user-plan'
 import { tools } from '@/lib/ai/tools'
 
 export const maxDuration = 30

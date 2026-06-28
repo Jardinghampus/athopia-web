@@ -1,12 +1,4 @@
-import { currentUser } from "@clerk/nextjs/server";
-
 export type Plan = "free" | "pro" | "elite";
-
-export async function getUserPlan(): Promise<Plan> {
-  const user = await currentUser();
-  if (!user) return "free";
-  return (user.publicMetadata?.plan as Plan) ?? "free";
-}
 
 export const ACCESS = {
   basicFilter:        (_: Plan) => true,

@@ -1,4 +1,4 @@
-import { getUserPlan } from "@/lib/access";
+import { getUserPlan } from "@/lib/user-plan";
 import { getNewsStream } from "@/lib/supabase";
 import { NewsItem } from "./NewsItem";
 

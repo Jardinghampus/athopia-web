@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import { MOCK_TEAM_LIST_ITEM } from "@/lib/team-hub/mock";
-import { getUserPlan } from "@/lib/access";
+import { getUserPlan } from "@/lib/user-plan";
 import { MittLagDashboard } from "./MittLagDashboard";
 
 export const dynamic = "force-dynamic";
