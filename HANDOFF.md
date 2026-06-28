@@ -1,107 +1,114 @@
-# Handoff — Elite Chat + Stats API
-> Session: 2026-06-28 | Commit: 2e06cc7 | Branch: main
+# Handoff — AI Chat UI + Build fixes
+> Uppdaterad: 2026-06-28 | Senaste commit: 13a4af5 | Branch: main
 
 ---
 
-## Vad som byggdes
+## Session 2 — vad som gjordes (2026-06-28)
 
-### 1. AI-chatt mockup — live nu
-**URL:** `/ai`
-- Tillgänglig för ALLA users (ingen auth-gate)
-- Användaren skriver fråga → 10s loading-animation → upgrade-svar med CTA
-- Länk i GlassNav (bottom bar) och MobileNav
-- Redirect-knapp → `/prenumerera`
+### Build-fix: server-only i client bundle
+- `lib/access.ts` importerade `currentUser` från `@clerk/nextjs/server` — bröt Turbopack
+- Fix: `getUserPlan()` flyttad till `lib/user-plan.ts` (server-only)
+- `lib/access.ts` är nu ren (Plan-typ + ACCESS-objekt, ingen Clerk-import)
+- Påverkade filer: `app/api/elite/chat/route.ts`, `app/(app)/mitt-lag/page.tsx`, `components/news/NewsStream.tsx`
 
-### 2. Stats API-routes — fixade
-- `GET /api/stats/finishing-index` — Finishing Index (xG-överprestation)
-- `GET /api/stats/player-twins` — Statistiska tvillingar, stöder `?playerId=`
-- Kompletterar de 3 som redan fanns (clutch, projection, schedule-form)
+### /ai — komplett omdesign
+Sidan byggdes om från grunden med:
 
-### 3. Elite Chat — kodad, VÄNTAR PÅ NYCKLAR
-**URL:** `/elite/chat`
-- Auth-gatad: kräver `plan === 'elite'` i Clerk publicMetadata
-- `streamText` med Haiku 4.5, 5 verktyg, per-user dagsgräns
-- Allt är byggt — behöver bara env-variabler
+**Layout & responsivitet**
+- Desktop: centrerat fönster `max-w-3xl`, bordered card, `sm:p-6` padding
+- Mobil: full-bleed, `pb-[calc(env(safe-area-inset-bottom)+5rem)]` för GlassNav-clearance
+- `visualViewport.resize` håller höjden korrekt när tangentbordet öppnas på mobil
+- `document.body.overflow = 'hidden'` — sidan kan inte scrollas, modulen äger sin höjd
 
-### 4. RAG-infrastruktur — kodad, VÄNTAR PÅ NYCKLAR
-- `lib/ai/embedding.ts` — chunk + embedMany + searchArticles
-- `lib/ai/resolve.ts` — fuzzy team/player resolve (ILIKE + alias-karta)
-- `lib/ai/tools.ts` — 5 verktyg: searchNews, getStandings, getTeamStats, getPlayerStats, getMatch
-- `scripts/embed-articles.ts` — backfill 1 060 artiklar (kör en gång med OPENAI_API_KEY)
-- DB: match_articles(), chat_usage, bump_chat_usage, pg_trgm — KLARA i Supabase
+**Visuell design**
+- **WavyBackground** (Aceternity) — animerad canvas med pitch-gröna + blå vågor
+- Bakgrundsfärg: `oklch(0.07 0.03 240)` (mörkblå)
+- Vågfärger: `#1D9E75`, `#25C48F`, `#3B82F6`, `#1e40af`, `#47c99a`, `#60a5fa`
+- **Liquid glass-kort** — exakt samma recept som GlassNav:
+  - `backdrop-filter: blur(24px) saturate(180%)`
+  - `color-mix(in srgb, var(--background) 58%, transparent)`
+  - `2px solid rgba(29, 158, 117, 0.7)` border + grön outer glow
+
+**UX & motion**
+- Streaming text: assistentsvar "skrivs" tecken för tecken (4 chars/frame, ~60fps)
+- Upgrade-CTA animeras in först när streaming är klar
+- Suggestion chips staggerar in (60ms delay var)
+- Fönster materializes med scale+fade på load
+- Allsvenskan-specifika thinking-messages ("Beräknar xG-form…" etc.)
+- Empty state: Sparkles-ikon andas med scale-puls
+- Auto-grow textarea (Shift+Enter = ny rad, Enter = skicka)
+- Auto-focus på desktop (`pointer: fine`)
+- `prefers-reduced-motion` → waves av, animationer minimala
+
+**Footer**
+- Footer dold på `/ai` (pathname-check i `Footer.tsx`)
+
+**Deps**
+- `simplex-noise` tillagd i package.json (krävs av wavy-background)
 
 ---
 
-## Vad som återstår (i prioritetsordning)
+## För att få /ai live med riktig AI (BLOCK-lista)
 
-### BLOCK A — Env-variabler (gör detta först)
-Lägg till i Vercel → athopia-web → Settings → Environment Variables:
-
+### BLOCK A — Env-variabler i Vercel (gör detta först)
+Vercel → athopia-web → Settings → Environment Variables:
 ```
-ANTHROPIC_API_KEY=...        # från console.anthropic.com
-OPENAI_API_KEY=...           # från platform.openai.com (embeddings)
+ANTHROPIC_API_KEY=...        # console.anthropic.com
+OPENAI_API_KEY=...           # platform.openai.com (embeddings)
 CHAT_MODEL=claude-haiku-4-5
 DAILY_LIMIT=30
 MONTHLY_LIMIT=300
 MONTHLY_BUDGET_USD=50
-ADMIN_SECRET=<slumpa ett starkt lösenord>
+ADMIN_SECRET=<starkt slumplösenord>
 ```
 
-### BLOCK B — Hårt tak (gör direkt efter nycklar)
-Anthropic Console → Billing → Limits → sätt $20/mån hard cap.
-Detta är den riktiga backstoppen — koden är mjuk spärr.
+### BLOCK B — Hårt kostnadstak (direkt efter nycklar)
+Anthropic Console → Billing → Limits → $20/mån hard cap.
 
-### BLOCK C — Backfill (kör en gång)
+### BLOCK C — Backfill embeddings (kör en gång)
 ```bash
-cd C:\Users\jardi\athopia-web
-# Sätt env lokalt i .env.local först, sedan:
+# .env.local måste ha OPENAI_API_KEY
 pnpm embed:articles
 ```
-Tar ~5 min, embeddar 1 060 artiklar. Idempotent — kan köras om.
+~5 min, embeddar ~1 060 artiklar. Idempotent.
 
-### BLOCK D — Write-time hook (liten ändring i athopia-os)
-I `athopia-os/packages/ai-core/src/agents/content-engine.ts` (eller nightly):
-```ts
-// Efter att artikel sparats i Supabase:
-await fetch(`${process.env.WEB_URL}/api/admin/embed-article`, {
-  method: 'POST',
-  headers: { 'x-admin-secret': process.env.ADMIN_SECRET, 'content-type': 'application/json' },
-  body: JSON.stringify({ article_id: newArticle.id }),
-})
-```
+### BLOCK D — Write-time hook i athopia-os
+När ny artikel sparas, posta till `/api/admin/embed-article` så RAG hålls uppdaterat.
+Se föregående HANDOFF för exakt kodsnippet.
 
-### BLOCK E — Mockup → riktig chatt
-När nycklar + backfill är klart: byt `/ai/page.tsx` att peka på `/elite/chat`
-(eller flytta mockup-logiken dit bakom en plan-gate).
+### BLOCK E — Koppla mockup → riktig chatt
+`app/(app)/ai/page.tsx` är idag en mockup som simulerar svar.
+När nycklar + backfill är klart: ersätt mock-`ask()`-funktionen med ett fetch mot `/api/elite/chat` (eller gate bakom plan-check).
 
 ---
 
-## Filer att känna till
+## Viktiga filer
 
 | Fil | Syfte |
 |-----|-------|
-| `ELITE-CHAT.md` | Fullständig arkitekturdokumentation, kostnadskalkyl |
-| `HANDOFF.md` | Denna fil |
-| `app/(app)/ai/page.tsx` | Mockup-sida (live) |
-| `app/(app)/elite/chat/page.tsx` | Riktig chat (väntar nycklar) |
+| `app/(app)/ai/page.tsx` | AI-chattsida (mockup, live nu) |
+| `components/ui/wavy-background.tsx` | Aceternity canvas-komponent |
+| `lib/user-plan.ts` | Server-only getUserPlan() |
+| `lib/access.ts` | Plan-typ + canAccess() — ingen server-import |
+| `components/layout/Footer.tsx` | Dold på /ai via pathname-check |
+| `app/(app)/elite/chat/page.tsx` | Riktig Elite-chatt (väntar nycklar) |
 | `app/api/elite/chat/route.ts` | Backend — auth, limits, streamText |
 | `lib/ai/tools.ts` | 5 verktyg mot Supabase |
 | `lib/ai/embedding.ts` | RAG-sökning |
-| `scripts/embed-articles.ts` | Backfill-script |
 
 ---
 
-## Kostnadsuppskattning (Haiku 4.5)
-
-| Aktiva elitusers | Kostnad/mån |
-|-----------------|-------------|
-| 20 | ~$36 |
-| 50 | ~$90 |
-| 100 | ~$180 |
-
-Uppskalning till Sonnet: byt `CHAT_MODEL=claude-sonnet-4-6` i Vercel. Inget annat.
-
----
-
-## Commit
-`2e06cc7` — feat: elite chat mockup + stats API routes + AI SDK setup
+## Commit-historik denna session
+```
+13a4af5  feat(ai): glowing green border, blue+green wave mix
+7cdfcd5  fix(ai): thicker pitch border 2px
+81fd0b3  fix(ai): visible pitch border, faster waves, opacity 0.8
+67c323a  feat(ai): wavy canvas bg + liquid glass card
+fb3446b  fix: add simplex-noise dep for wavy-background
+88a1f3d  fix(ai): remove footer, visualViewport height tracks mobile keyboard
+f7bc8d9  fix(ai): lock body scroll, page owns its height
+cab0dd7  feat(ai): overdrive streaming, stagger chips, thinking msg, auto-grow textarea, polish
+ae5c6b5  fix(ai): clear GlassNav on mobile with pb-safe + items-start
+7c8f6b1  feat(ai): centered window layout, design tokens, smooth thinking dots
+97c2955  fix: move getUserPlan to user-plan.ts to avoid server-only in client bundle
+```
