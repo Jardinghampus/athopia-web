@@ -1,5 +1,5 @@
-import type { Plan, AccessFeature } from "@/lib/access";
-import { canAccess } from "@/lib/access";
+import type { Plan, AccessFeature } from "@/lib/access-rules";
+import { canAccess } from "@/lib/access-rules";
 import { UpgradePrompt } from "./UpgradePrompt";
 
 interface PaywallGateProps {

@@ -128,10 +128,13 @@ function mapArticle(row: any): Article {
 }
 
 function mapNarrative(row: any): Narrative {
+  const score = Number(row.score ?? row.importance_score ?? 0);
   return {
     id: String(row.id),
-    topic: String(row.topic ?? ""),
-    score: typeof row.score === "number" ? row.score : 0,
+    topic: String(row.topic ?? row.title ?? ""),
+    score: Number.isFinite(score) ? score : 0,
+    description: row.description ?? null,
+    body: row.generated_text ?? row.body ?? null,
     sourceCount: Number(row.source_count ?? row.sourceCount ?? 0),
     trend: (row.trend ?? "stable") as Narrative["trend"],
     sentimentScore: row.sentiment_score ?? row.sentimentScore ?? null,
@@ -314,7 +317,7 @@ export const getNarratives = unstable_cache(
       const { data } = await supabase
         .from("narratives")
         .select("*")
-        .order("score", { ascending: false })
+        .order("importance_score", { ascending: false, nullsFirst: false })
         .limit(limit);
       return (data ?? []).map(mapNarrative);
     } catch {

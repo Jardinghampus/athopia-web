@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { AccessFeature } from "@/lib/access";
+import type { AccessFeature } from "@/lib/access-rules";
 
 const FEATURE_LABELS: Record<AccessFeature, string> = {
   basicFilter:        "grundfilter",

@@ -19,7 +19,7 @@ const TeamRadar = dynamic(
 import { MittLagSkeleton } from "./MittLagSkeleton";
 import { getStoredTeam, setStoredTeam } from "@/lib/team-hub/teamContext";
 import type { TeamHubPayload, LeaderRow, FixtureRow } from "@/lib/team-hub/queries";
-import { type Plan, canAccess } from "@/lib/access";
+import { type Plan, canAccess } from "@/lib/access-rules";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { Card as TactileCard } from "@/components/ui/TactileCard";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";

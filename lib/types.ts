@@ -122,6 +122,8 @@ export interface Narrative {
   id: string;
   topic: string;
   score: number; // 0..1
+  description?: string | null;
+  body?: string | null;
   sourceCount: number;
   trend: NarrativeTrend;
   sentimentScore?: number | null; // -1..1
