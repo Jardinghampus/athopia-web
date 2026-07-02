@@ -17,6 +17,7 @@ const TeamRadar = dynamic(
   { ssr: false, loading: () => <div className="h-64 rounded-xl skeleton-wave bg-muted/40" /> }
 );
 import { MittLagSkeleton } from "./MittLagSkeleton";
+import { TeamSwitcher } from "@/components/team-hub/TeamSwitcher";
 import { getStoredTeam, setStoredTeam } from "@/lib/team-hub/teamContext";
 import type { TeamHubPayload, LeaderRow, FixtureRow } from "@/lib/team-hub/queries";
 import { type Plan, canAccess } from "@/lib/access-rules";
@@ -52,7 +53,7 @@ async function fetchHub(slug: string): Promise<TeamHubPayload> {
 
 const TAB_IDS = TAB_OPTIONS.map((t) => t.value);
 
-export function MittLagDashboard({ teams, initialSlug, plan = "free" }: { teams: TeamListItem[]; initialSlug: string | null; plan?: Plan }) {
+export function MittLagDashboard({ teams, initialSlug, plan = "free", followedSlugs = [] }: { teams: TeamListItem[]; initialSlug: string | null; plan?: Plan; followedSlugs?: string[] }) {
   const [slug, setSlug] = useState<string | null>(initialSlug);
   const [resolved, setResolved] = useState(initialSlug != null);
   const [quickview, setQuickview] = useState<FixtureRow | null>(null);
@@ -151,18 +152,12 @@ export function MittLagDashboard({ teams, initialSlug, plan = "free" }: { teams:
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <Star className="h-4 w-4 text-pitch shrink-0" />
-                      <span className="relative inline-flex min-w-0 items-center gap-1.5">
-                        <select
-                          value={slug}
-                          aria-label="Välj lag"
-                          onChange={(e) => setSlug(e.target.value)}
-                          className="appearance-none text-[28px] font-bold tracking-tight text-foreground bg-transparent border-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md cursor-pointer max-w-full pr-7"
-                        >
-                          {teams.map((t) => <option key={t.slug} value={t.slug}>{t.name}</option>)}
-                        </select>
-                        <ChevronDown aria-hidden className="pointer-events-none absolute right-1 h-5 w-5 text-muted-foreground" />
-                      </span>
+                      <TeamSwitcher
+                        teams={teams}
+                        followedSlugs={followedSlugs}
+                        currentSlug={slug}
+                        onSelect={setSlug}
+                      />
                     </div>
                     <div className="flex items-center gap-3 mt-1">
                       {hub.position && <span className="text-xs font-bold text-pitch">#{hub.position} i Allsvenskan</span>}

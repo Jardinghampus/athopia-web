@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
+import { auth } from "@clerk/nextjs/server";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import { MOCK_TEAM_LIST_ITEM } from "@/lib/team-hub/mock";
 import { getUserPlan } from "@/lib/user-plan";
+import { getPrimaryTeam } from "@/lib/team/getPrimaryTeam";
+import { getFollowedTeams } from "@/lib/dashboard/queries";
 import { MittLagDashboard } from "./MittLagDashboard";
 
 export const dynamic = "force-dynamic";
@@ -28,7 +31,19 @@ async function getTeams(): Promise<{ name: string; slug: string; logo_url: strin
   }
 }
 
+async function getFollowedSlugs(): Promise<string[]> {
+  const { userId } = await auth();
+  if (!userId) return [];
+  const followed = await getFollowedTeams(userId);
+  return followed.map((t) => t.slug);
+}
+
 export default async function MittLagPage() {
-  const [teams, plan] = await Promise.all([getTeams(), getUserPlan()]);
-  return <MittLagDashboard teams={teams} initialSlug={null} plan={plan} />;
+  const [teams, plan, primaryTeam, followedSlugs] = await Promise.all([
+    getTeams(),
+    getUserPlan(),
+    getPrimaryTeam(),
+    getFollowedSlugs(),
+  ]);
+  return <MittLagDashboard teams={teams} initialSlug={primaryTeam?.slug ?? null} plan={plan} followedSlugs={followedSlugs} />;
 }
