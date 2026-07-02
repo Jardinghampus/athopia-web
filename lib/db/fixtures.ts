@@ -9,6 +9,7 @@
  */
 
 import { unstable_cache } from "next/cache";
+import * as Sentry from "@sentry/nextjs";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 
 // ─── Typer ────────────────────────────────────────────────────────────────────
@@ -18,12 +19,14 @@ export interface SMTeam {
   name: string;
   short_code: string | null;
   image_path: string;
+  slug: string | null;
 }
 
 export interface SMParticipant {
   id: number;
   name: string;
   image_path: string;
+  slug: string | null;
   meta: {
     location: "home" | "away";
     winner: boolean | null;
@@ -81,6 +84,7 @@ export interface SMTopScorer {
   player_id: number;
   player_name: string;
   team_name: string;
+  team_slug: string | null;
   team_image: string;
   goals: number;
   penalties: number;
@@ -91,13 +95,44 @@ export interface SMTopAssist {
   player_id: number;
   player_name: string;
   team_name: string;
+  team_slug: string | null;
   team_image: string;
   assists: number;
 }
 
 // ─── Interna helpers ──────────────────────────────────────────────────────────
 
-function fixtureToSMFixture(row: any): SMFixture {
+/** sportmonks_id → entities.slug, för korrekta /lag/[slug]-länkar. ISR 3600s. */
+export const getTeamSlugMap = unstable_cache(
+  async (): Promise<Record<number, string>> => {
+    if (!isSupabaseConfigured()) return {};
+    try {
+      const db = createServerClient();
+      const { data } = await db
+        .from("entities")
+        .select("sportmonks_id,slug")
+        .eq("type", "team")
+        .not("sportmonks_id", "is", null)
+        .not("slug", "is", null);
+      const map: Record<number, string> = {};
+      for (const row of data ?? []) {
+        if (row.sportmonks_id != null && row.slug) map[Number(row.sportmonks_id)] = String(row.slug);
+      }
+      return map;
+    } catch (e) {
+      Sentry.captureException(e);
+      return {};
+    }
+  },
+  ["team-slug-map"],
+  { revalidate: 3600, tags: ["teams"] }
+);
+
+function fallbackSlugify(name: string): string {
+  return name.toLowerCase().replace(/\s+/g, "-").replace(/[åä]/g, "a").replace(/ö/g, "o");
+}
+
+function fixtureToSMFixture(row: any, slugMap: Record<number, string> = {}): SMFixture {
   const homeTeam = row.home_team ?? { sportmonks_id: 0, name: "Hemmalag", short_code: null, logo: "" };
   const awayTeam = row.away_team ?? { sportmonks_id: 0, name: "Bortalag", short_code: null, logo: "" };
 
@@ -118,12 +153,14 @@ function fixtureToSMFixture(row: any): SMFixture {
         id: Number(homeTeam.sportmonks_id ?? 0),
         name: homeTeam.name ?? "",
         image_path: homeTeam.logo ?? "",
+        slug: slugMap[Number(homeTeam.sportmonks_id)] ?? (homeTeam.name ? fallbackSlugify(homeTeam.name) : null),
         meta: { location: "home", winner: row.home_score != null && row.away_score != null ? row.home_score > row.away_score : null },
       },
       {
         id: Number(awayTeam.sportmonks_id ?? 0),
         name: awayTeam.name ?? "",
         image_path: awayTeam.logo ?? "",
+        slug: slugMap[Number(awayTeam.sportmonks_id)] ?? (awayTeam.name ? fallbackSlugify(awayTeam.name) : null),
         meta: { location: "away", winner: row.home_score != null && row.away_score != null ? row.away_score > row.home_score : null },
       },
     ],
@@ -141,12 +178,15 @@ function fixtureToSMFixture(row: any): SMFixture {
   };
 }
 
-function teamToSMTeam(row: any): SMTeam {
+function teamToSMTeam(row: any, slugMap: Record<number, string> = {}): SMTeam {
+  const smId = Number(row.sportmonks_id ?? row.id ?? 0);
+  const name = String(row.name ?? "");
   return {
-    id: Number(row.sportmonks_id ?? row.id ?? 0),
-    name: String(row.name ?? ""),
+    id: smId,
+    name,
     short_code: row.short_code ?? null,
     image_path: row.logo ?? row.image_path ?? "",
+    slug: slugMap[smId] ?? (name ? fallbackSlugify(name) : null),
   };
 }
 
@@ -158,14 +198,18 @@ export const fetchLiveScores = unstable_cache(
     if (!isSupabaseConfigured()) return [];
     try {
       const db = createServerClient();
-      const { data } = await db
-        .from("fixtures")
-        .select("*, home_team:teams!fixtures_home_team_id_fkey(*), away_team:teams!fixtures_away_team_id_fkey(*), league:leagues(*)")
-        .eq("sport", "football")
-        .eq("status", "LIVE")
-        .order("kickoff", { ascending: true });
-      return (data ?? []).map(fixtureToSMFixture);
-    } catch {
+      const [{ data }, slugMap] = await Promise.all([
+        db
+          .from("fixtures")
+          .select("*, home_team:teams!fixtures_home_team_id_fkey(*), away_team:teams!fixtures_away_team_id_fkey(*), league:leagues(*)")
+          .eq("sport", "football")
+          .eq("status", "LIVE")
+          .order("kickoff", { ascending: true }),
+        getTeamSlugMap(),
+      ]);
+      return (data ?? []).map((row) => fixtureToSMFixture(row, slugMap));
+    } catch (e) {
+      Sentry.captureException(e);
       return [];
     }
   },
@@ -199,9 +243,10 @@ export const fetchAllsvenskanFixtures = unstable_cache(
         q = q.eq("season_id", season.sportmonks_id);
       }
 
-      const { data } = await q;
-      return (data ?? []).map(fixtureToSMFixture);
-    } catch {
+      const [{ data }, slugMap] = await Promise.all([q, getTeamSlugMap()]);
+      return (data ?? []).map((row) => fixtureToSMFixture(row, slugMap));
+    } catch (e) {
+      Sentry.captureException(e);
       return [];
     }
   },
@@ -227,7 +272,8 @@ export const fetchTeamStats = unstable_cache(
         losses: row.losses,
         form: row.form,
       };
-    } catch {
+    } catch (e) {
+      Sentry.captureException(e);
       return null;
     }
   },
@@ -278,9 +324,12 @@ export const fetchStandingsFull = unstable_cache(
         .order("points", { ascending: false });
 
       const teamIds = (data ?? []).map((r) => r.team_id as number).filter(Boolean);
-      const { data: teamsData } = teamIds.length
-        ? await db.from("teams").select("sportmonks_id,name,short_code,logo").in("sportmonks_id", teamIds)
-        : { data: [] };
+      const [{ data: teamsData }, slugMap] = await Promise.all([
+        teamIds.length
+          ? db.from("teams").select("sportmonks_id,name,short_code,logo").in("sportmonks_id", teamIds)
+          : Promise.resolve({ data: [] as any[] }),
+        getTeamSlugMap(),
+      ]);
       const teamById = new Map((teamsData ?? []).map((t) => [Number(t.sportmonks_id), t]));
 
       return (data ?? []).map((row, i) => {
@@ -289,7 +338,7 @@ export const fetchStandingsFull = unstable_cache(
           ? row.form.split("").filter((c: string) => ["W", "D", "L"].includes(c)).slice(-5)
           : [];
         return {
-          team: teamToSMTeam(team ?? {}),
+          team: teamToSMTeam(team ?? {}, slugMap),
           position: i + 1,
           played: Number(row.played ?? 0),
           wins: Number(row.wins ?? 0),
@@ -302,7 +351,8 @@ export const fetchStandingsFull = unstable_cache(
           form,
         };
       });
-    } catch {
+    } catch (e) {
+      Sentry.captureException(e);
       return [];
     }
   },
@@ -326,12 +376,15 @@ export const fetchTopScorers = unstable_cache(
 
       if (!season?.sportmonks_id) return [];
 
-      const { data } = await db
-        .from("player_season_stats")
-        .select("*, players(*), teams(*)")
-        .eq("season_id", season.sportmonks_id)
-        .order("goals", { ascending: false })
-        .limit(50);
+      const [{ data }, slugMap] = await Promise.all([
+        db
+          .from("player_season_stats")
+          .select("*, players(*), teams(*)")
+          .eq("season_id", season.sportmonks_id)
+          .order("goals", { ascending: false })
+          .limit(50),
+        getTeamSlugMap(),
+      ]);
 
       return (data ?? []).map((row, i) => {
         const player = row.players as any;
@@ -341,12 +394,14 @@ export const fetchTopScorers = unstable_cache(
           player_id: Number(row.player_id ?? 0),
           player_name: String(player?.fullname ?? player?.firstname ?? `Spelare ${i + 1}`),
           team_name: String(team?.name ?? "Okänt"),
+          team_slug: slugMap[Number(team?.sportmonks_id)] ?? (team?.name ? fallbackSlugify(String(team.name)) : null),
           team_image: String(team?.logo ?? ""),
           goals: Number(row.goals ?? 0),
           penalties: 0,
         };
       });
-    } catch {
+    } catch (e) {
+      Sentry.captureException(e);
       return [];
     }
   },
@@ -370,12 +425,15 @@ export const fetchTopAssists = unstable_cache(
 
       if (!season?.sportmonks_id) return [];
 
-      const { data } = await db
-        .from("player_season_stats")
-        .select("*, players(*), teams(*)")
-        .eq("season_id", season.sportmonks_id)
-        .order("assists", { ascending: false })
-        .limit(50);
+      const [{ data }, slugMap] = await Promise.all([
+        db
+          .from("player_season_stats")
+          .select("*, players(*), teams(*)")
+          .eq("season_id", season.sportmonks_id)
+          .order("assists", { ascending: false })
+          .limit(50),
+        getTeamSlugMap(),
+      ]);
 
       return (data ?? []).map((row, i) => {
         const player = row.players as any;
@@ -385,11 +443,13 @@ export const fetchTopAssists = unstable_cache(
           player_id: Number(row.player_id ?? 0),
           player_name: String(player?.fullname ?? player?.firstname ?? `Spelare ${i + 1}`),
           team_name: String(team?.name ?? "Okänt"),
+          team_slug: slugMap[Number(team?.sportmonks_id)] ?? (team?.name ? fallbackSlugify(String(team.name)) : null),
           team_image: String(team?.logo ?? ""),
           assists: Number(row.assists ?? 0),
         };
       });
-    } catch {
+    } catch (e) {
+      Sentry.captureException(e);
       return [];
     }
   },
@@ -402,14 +462,13 @@ export async function searchTeams(query: string): Promise<SMTeam[]> {
   if (!isSupabaseConfigured()) return [];
   try {
     const db = createServerClient();
-    const { data } = await db
-      .from("teams")
-      .select("*")
-      .eq("sport", "football")
-      .ilike("name", `%${query}%`)
-      .limit(20);
-    return (data ?? []).map(teamToSMTeam);
-  } catch {
+    const [{ data }, slugMap] = await Promise.all([
+      db.from("teams").select("*").eq("sport", "football").ilike("name", `%${query}%`).limit(20),
+      getTeamSlugMap(),
+    ]);
+    return (data ?? []).map((row) => teamToSMTeam(row, slugMap));
+  } catch (e) {
+    Sentry.captureException(e);
     return [];
   }
 }
@@ -425,7 +484,8 @@ export async function fetchPlayerStats(playerId: number): Promise<any | null> {
       .eq("player_id", playerId)
       .maybeSingle();
     return data ?? null;
-  } catch {
+  } catch (e) {
+    Sentry.captureException(e);
     return null;
   }
 }

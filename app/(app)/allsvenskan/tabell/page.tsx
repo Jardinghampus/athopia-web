@@ -61,7 +61,7 @@ export default async function AllsvenskanTabellPage() {
               <tr key={row.team.name} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
                 <td className="py-3 px-4 text-muted-foreground">{row.position}</td>
                 <td className="py-3 px-4">
-                  <Link href={`/lag/${row.team.name.toLowerCase().replace(/\s+/g, "-").replace(/[åä]/g, "a").replace(/ö/g, "o")}`} className="font-medium hover:text-pitch transition-colors">
+                  <Link href={`/lag/${row.team.slug ?? row.team.name.toLowerCase().replace(/\s+/g, "-").replace(/[åä]/g, "a").replace(/ö/g, "o")}`} className="font-medium hover:text-pitch transition-colors">
                     {row.team.name}
                   </Link>
                 </td>

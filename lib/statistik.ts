@@ -9,7 +9,9 @@
  * saknar insläppta mål/poäng/position. Säsonger: 2026=26806, 2025=24943.
  */
 import { unstable_cache } from "next/cache";
+import * as Sentry from "@sentry/nextjs";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import { getTeamSlugMap } from "@/lib/db/fixtures";
 
 export const SEASON_IDS: Record<string, string> = {
   "2026": process.env.SPORTSMONKS_SEASON_ID_2026 ?? "26806",
@@ -41,6 +43,7 @@ export interface ScorerRow {
   player_id: number;
   player_name: string;
   team_name: string;
+  team_slug: string | null;
   slug: string | null;
   image: string | null;
   position: string | null;
@@ -113,7 +116,8 @@ const cachedTeams = unstable_cache(
       return ((data ?? []) as { sportmonks_id: number; name: string | null; logo: string | null }[]).map(
         (t) => ({ id: t.sportmonks_id, name: t.name, logo_path: t.logo })
       );
-    } catch {
+    } catch (e) {
+      Sentry.captureException(e);
       return [];
     }
   },
@@ -142,7 +146,8 @@ const cachedSeasonFixtures = unstable_cache(
         .not("home_score", "is", null) // FT utan resultat (sync-glapp) skulle korrupta tabellen
         .order("kickoff_at", { ascending: true });
       return (data ?? []) as FixtureLite[];
-    } catch {
+    } catch (e) {
+      Sentry.captureException(e);
       return [];
     }
   },
@@ -160,7 +165,8 @@ const cachedSeasonTeamStats = unstable_cache(
         .select("team_id,played,wins,draws,losses,points,goals_for,goals_against,goal_diff,form")
         .eq("season_id", Number(seasonId));
       return (data ?? []) as TeamSeasonLite[];
-    } catch {
+    } catch (e) {
+      Sentry.captureException(e);
       return [];
     }
   },
@@ -267,7 +273,8 @@ export async function getStandingsFromDb(seasonId: string): Promise<StandingRow[
     );
     rows.forEach((r, i) => { r.position = i + 1; });
     return rows;
-  } catch {
+  } catch (e) {
+    Sentry.captureException(e);
     return [];
   }
 }
@@ -292,7 +299,8 @@ const cachedPlayers = unstable_cache(
         };
       }
       return map;
-    } catch {
+    } catch (e) {
+      Sentry.captureException(e);
       return {};
     }
   },
@@ -315,7 +323,8 @@ const cachedLeaderRows = unstable_cache(
       if (orderCol !== "rating") query = query.gt(orderCol, 0);
       const { data } = await query;
       return (data ?? []) as Record<string, unknown>[];
-    } catch {
+    } catch (e) {
+      Sentry.captureException(e);
       return [];
     }
   },
@@ -333,7 +342,8 @@ const cachedAllPlayerRows = unstable_cache(
         .select("player_id,team_id,appearances,minutes,goals,assists,xg,xa,shots,shots_on_target,key_passes,passes,pass_accuracy,tackles,interceptions,rating,yellow_cards,red_cards")
         .eq("season_id", Number(seasonId));
       return (data ?? []) as Record<string, unknown>[];
-    } catch {
+    } catch (e) {
+      Sentry.captureException(e);
       return [];
     }
   },
@@ -347,10 +357,11 @@ async function getLeaders(
 ): Promise<ScorerRow[]> {
   if (!isSupabaseConfigured()) return [];
   try {
-    const [data, teamMap, playerMap] = await Promise.all([
+    const [data, teamMap, playerMap, teamSlugMap] = await Promise.all([
       cachedLeaderRows(seasonId, orderCol),
       getTeamMap(),
       cachedPlayers(),
+      getTeamSlugMap(),
     ]);
     return (data as Record<string, unknown>[]).map((r, i) => {
       const pid = Number(r.player_id ?? 0);
@@ -360,6 +371,7 @@ async function getLeaders(
         player_id: pid,
         player_name: player?.fullname ?? `Spelare ${pid}`,
         team_name: teamMap.get(Number(r.team_id))?.name ?? "–",
+        team_slug: teamSlugMap[Number(r.team_id)] ?? null,
         slug: player?.slug ?? null,
         image: player?.image ?? null,
         position: player?.position ?? null,
@@ -382,7 +394,8 @@ async function getLeaders(
         red_cards: Number(r.red_cards ?? 0),
       };
     });
-  } catch {
+  } catch (e) {
+    Sentry.captureException(e);
     return [];
   }
 }
@@ -400,10 +413,11 @@ export const getMostCardsFromDb = (seasonId: string) => getLeaders(seasonId, "ye
 export async function getAllPlayerStatsFromDb(seasonId: string): Promise<ScorerRow[]> {
   if (!isSupabaseConfigured()) return [];
   try {
-    const [data, teamMap, playerMap] = await Promise.all([
+    const [data, teamMap, playerMap, teamSlugMap] = await Promise.all([
       cachedAllPlayerRows(seasonId),
       getTeamMap(),
       cachedPlayers(),
+      getTeamSlugMap(),
     ]);
     return data.map((r, i) => {
       const pid = Number(r.player_id ?? 0);
@@ -413,6 +427,7 @@ export async function getAllPlayerStatsFromDb(seasonId: string): Promise<ScorerR
         player_id: pid,
         player_name: player?.fullname ?? `Spelare ${pid}`,
         team_name: teamMap.get(Number(r.team_id))?.name ?? "–",
+        team_slug: teamSlugMap[Number(r.team_id)] ?? null,
         slug: player?.slug ?? null,
         image: player?.image ?? null,
         position: player?.position ?? null,
@@ -435,7 +450,8 @@ export async function getAllPlayerStatsFromDb(seasonId: string): Promise<ScorerR
         red_cards: Number(r.red_cards ?? 0),
       };
     });
-  } catch {
+  } catch (e) {
+    Sentry.captureException(e);
     return [];
   }
 }

@@ -58,7 +58,7 @@ export default async function AllsvenskanSkytteligaPage() {
                   </Link>
                 </td>
                 <td className="py-3 px-4 text-muted-foreground hidden sm:table-cell">
-                  <Link href={`/lag/${s.team_name.toLowerCase().replace(/\s+/g, "-").replace(/[åä]/g, "a").replace(/ö/g, "o")}`} className="hover:text-pitch transition-colors">
+                  <Link href={`/lag/${s.team_slug ?? s.team_name.toLowerCase().replace(/\s+/g, "-").replace(/[åä]/g, "a").replace(/ö/g, "o")}`} className="hover:text-pitch transition-colors">
                     {s.team_name}
                   </Link>
                 </td>
