@@ -141,13 +141,13 @@ MER
 
 ---
 
-## 6. Byggordning (efter godkännande)
+## 6. Byggordning — STATUS 2026-07-03 (commit på main, ej pushad)
 
-1. **`lib/nav.ts`**: nya NAV_ITEMS (Mitt lag / Allsvenskan / Matcher / Mer). Minsta möjliga diff, hela navigationen följer.
-2. **`TeamSwitcher`** + inkoppling i `/lag/[slug]`-headern (följda lag från user_follows, stjärna = setFavoriteTeam).
-3. **Konsolidera hubben**: `/mitt-lag` → redirect till `/lag/{favoriteTeam}`, flytta MittLagDashboard-flikarna till `/lag/[slug]`.
-4. **`/allsvenskan` app-vy** av /hem-sektionerna; `/hem` → redirect.
-5. **`/match`-index** med live/kommande/uppehålls-logik.
-6. Städning: ta bort `/sentry-example-page`, uppdatera `/mer`-länkar, uppdatera WEB-IA-STRUKTUR.md.
+1. ✅ **`lib/nav.ts`**: nya NAV_ITEMS (Mitt lag / Allsvenskan / Matcher / Mer).
+2. ✅ **`TeamSwitcher`** byggd (`components/team-hub/TeamSwitcher.tsx`) och inkopplad i Mitt lag-headern (ersatte native `<select>`). Följda lag från `user_follows` (serverhämtade i `mitt-lag/page.tsx` via `getFollowedTeams`), stjärna = `setFavoriteTeam`. OBS: inkopplad i `/mitt-lag`, inte `/lag/[slug]` — se punkt 3.
+3. ⏸ **Konsolidera hubben** — MEDVETET UPPSKJUTEN. 1100-raders merge som inte gick att verifiera medan DB-incidenten pågick; alla tre UX-kraven uppfylls utan den (hubben = /mitt-lag med switcher). Gör som egen uppgift när DB är frisk: flytta MittLagDashboard-flikarna till `/lag/[slug]`, gör `/mitt-lag` till redirect, flytta TeamSwitcher-inkopplingen dit.
+4. ✅ **`/allsvenskan` app-vy** (fd /hem-innehållet + SEO-metadata/JSON-LD, ISR 60, riktiga slug-länkar); `/hem` → redirect.
+5. ✅ **`/match`-index** med live → kommande → senaste + uppehålls-empty-state.
+6. ✅ Städning: `/sentry-example-page` borttagen, Statistik-länk i `/mer`.
 
-Steg 1–2 är oberoende och små; steg 3 är den stora (riv-dubbelarbetet); 4–6 är mekaniska.
+Build grön (`next build` efter `.next`-rensning). Ej pushad — väntar på frisk DB för verifiering, samma gate som övriga commits (se HANDOVER-2026-07-03.md).
