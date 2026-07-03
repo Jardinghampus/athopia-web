@@ -33,6 +33,13 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "images.unsplash.com",
       },
+      // Sportmonks lag-/spelarbilder (teams.logo, players.image) — saknades
+      // och kraschade varje sida som renderade en lagbild med 500 (next/image
+      // "Invalid src prop", hittad live 2026-07-03 mot /allsvenskan och /match).
+      {
+        protocol: "https",
+        hostname: "cdn.sportmonks.com",
+      },
     ],
   },
 };
