@@ -14,8 +14,12 @@ export const revalidate = 60;
 function FixtureList({ fixtures }: { fixtures: SMFixture[] }) {
   return (
     <div className="flex flex-col gap-2">
-      {fixtures.map((fixture) => (
-        <Link key={fixture.id} href={`/match/${fixture.id}`}>
+      {fixtures.map((fixture, i) => (
+        <Link
+          key={fixture.id}
+          href={`/match/${fixture.id}`}
+          className={i < 4 ? `animate-fade-up stagger-${i + 1}` : undefined}
+        >
           <ScoreWidget fixture={fixture} />
         </Link>
       ))}
