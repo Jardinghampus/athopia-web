@@ -151,3 +151,15 @@ MER
 6. ✅ Städning: `/sentry-example-page` borttagen, Statistik-länk i `/mer`.
 
 Build grön (`next build` efter `.next`-rensning). Ej pushad — väntar på frisk DB för verifiering, samma gate som övriga commits (se HANDOVER-2026-07-03.md).
+
+## Fas 2.1 — Live-verifiering 2026-07-03 (DB frisk, första riktiga genomgången)
+
+Kört mot lokal dev-server + produktions-Supabase (curl-baserat — gstacks bundlade Playwright-binär matchar inte installerad version på denna maskin, känd begränsning, se athopia-os CLAUDE.md). Alla huvudrutter, TeamSwitcher, tabell/skytteliga/resultat/spelschema, matchcenter, spelarsidor, statistik-verktyg, priser. Tre produktionsbuggar hittade och fixade samma pass:
+
+1. **`next.config.ts` saknade `cdn.sportmonks.com`** i `images.remotePatterns` → varje sida som renderade en lagbild (`/allsvenskan`, `/match`) kraschade med 500. Commit `afc6a61`.
+2. **`/mitt-lag`s `getTeams()` injicerade "Demo IF" ovillkorligt** (separat kodväg från `/api/team/list`, missad i tidigare fix) — syntes för alla riktiga användare i den nya TeamSwitcher-listan. Samtidigt: lagbilder lästes från `entities.metadata.logo_url` som bara var delvis synkad (5+ lag null) — lades till join mot `teams.logo` via `sportmonks_id`. Commit `04ee10e`.
+3. **Skytteligan var helt tom i produktion.** `Object.values(SEASON_IDS)[0]` antog insättningsordning, men JS sorterar objektnycklar som ser ut som heltal numeriskt stigande oavsett skrivordning — gav säsong 2025 (utan data) istället för 2026. Commit `fb91b81`.
+
+**Verifierat OK utan ändring:** alla 16 lagsidor (`/lag/[slug]`) 200, tabellens poäng/målskillnad är riktig data, spelarsidor, statistik-verktyg, matchcenter, redirects (`/priser`→`/prenumerera`, `/statistik/aik`→`/lag/aik/statistik`, auth-skyddade sidor→`/sign-in`).
+
+**Fas 2.1 acceptanskriterier uppfyllda:** noll 404 från interna laglänkar, "Demo IF" bekräftat borta.
