@@ -18,16 +18,26 @@ async function getTeams(): Promise<{ name: string; slug: string; logo_url: strin
   if (!isSupabaseConfigured()) return [MOCK_TEAM_LIST_ITEM];
   try {
     const db = createServerClient();
-    const { data } = await db.from("entities").select("name,slug,metadata").eq("type", "team").order("name");
-    const teams = (data ?? [])
+    const { data } = await db
+      .from("entities")
+      .select("name,slug,sportmonks_id,metadata")
+      .eq("type", "team")
+      .order("name");
+    const smIds = (data ?? []).map((t) => t.sportmonks_id).filter((id): id is number => id != null);
+    const { data: teamsData } = smIds.length
+      ? await db.from("teams").select("sportmonks_id,logo").in("sportmonks_id", smIds)
+      : { data: [] as { sportmonks_id: number; logo: string | null }[] };
+    const logoBySmId = new Map((teamsData ?? []).map((t) => [Number(t.sportmonks_id), t.logo]));
+    // Demo IF injiceras ALDRIG i den publika listan — bara som fallback när DB saknas (ovan).
+    return (data ?? [])
       .filter((t) => t.slug)
       .map((t) => {
         const meta = (t.metadata ?? {}) as Record<string, unknown>;
-        return { name: String(t.name), slug: String(t.slug), logo_url: (meta.logo_url as string | null) ?? null };
+        const logo = logoBySmId.get(Number(t.sportmonks_id)) ?? (meta.logo_url as string | null) ?? null;
+        return { name: String(t.name), slug: String(t.slug), logo_url: logo };
       });
-    return [MOCK_TEAM_LIST_ITEM, ...teams];
   } catch {
-    return [MOCK_TEAM_LIST_ITEM];
+    return [];
   }
 }
 
