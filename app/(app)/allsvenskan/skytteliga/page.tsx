@@ -19,7 +19,11 @@ export const metadata: Metadata = {
 };
 
 export default async function AllsvenskanSkytteligaPage() {
-  const seasonId = Object.values(SEASON_IDS)[0] ?? "";
+  // OBS: Object.values(SEASON_IDS)[0] ger "2025" pga JS:s heltalsnyckel-
+  // sortering (numeriska nyckelsträngar ordnas alltid stigande, oavsett
+  // insättningsordning) — gav en tom skytteliga i produktion 2026-07-03.
+  // Explicit nyckel = korrekt oavsett hur SEASON_IDS-objektet är skrivet.
+  const seasonId = SEASON_IDS["2026"] ?? "";
   const scorers = await getTopScorersFromDb(seasonId).catch(() => []);
 
   return (
