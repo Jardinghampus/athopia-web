@@ -10,6 +10,8 @@ import { ArticleCard } from "@/components/ui/ArticleCard";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import type { Narrative, Entity, Article } from "@/lib/types";
 import { Sparkles, TrendingUp, Brain } from "lucide-react";
+import { PaywallGate } from "@/components/PaywallGate";
+import { getUserPlan } from "@/lib/user-plan";
 
 export const dynamic = 'force-dynamic'; // 5 min — ny sammanfattning kan komma
 
@@ -105,8 +107,10 @@ export default async function LagSammanfattningPage({
 }) {
   const { slug } = await params;
   const teamName = await getTeamName(slug);
+  const plan = await getUserPlan();
+  const hasAccess = plan !== "free";
   const [aiSummaries, narratives] = await Promise.all([
-    getTeamAISummaries(teamName),
+    hasAccess ? getTeamAISummaries(teamName) : Promise.resolve([]),
     getTeamNarratives(teamName),
   ]);
 
@@ -129,8 +133,9 @@ export default async function LagSammanfattningPage({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8">
-        {/* Vänster: AI-sammanfattningar */}
+        {/* Vänster: AI-sammanfattningar (PRO+) */}
         <div className="space-y-6">
+          <PaywallGate feature="aiSummaries" plan={plan}>
           {latestSummary ? (
             <>
               {/* Senaste AI-sammanfattning — prominently */}
@@ -197,6 +202,7 @@ export default async function LagSammanfattningPage({
               </div>
             </div>
           )}
+          </PaywallGate>
         </div>
 
         {/* Höger: Narrativ */}
