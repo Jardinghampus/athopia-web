@@ -27,13 +27,19 @@ export interface LandingArticle {
   publishedAt: string;
 }
 
-export default function AthopiaLanding({}: { articles?: LandingArticle[] } = {}) {
+export default function AthopiaLanding({
+  sportSlot,
+}: {
+  articles?: LandingArticle[];
+  /** Server-renderad sportsektion (matchcenter/tabell/nyheter) — sport före marketing. */
+  sportSlot?: React.ReactNode;
+} = {}) {
   return (
     <div className="min-h-screen overflow-x-clip bg-zinc-950 font-sans text-white">
       <LandingNav />
       <main>
         <Hero />
-        <SocialProof />
+        {sportSlot}
         <ExperienceSection />
         <BentoFeatures />
         <Testimonials />

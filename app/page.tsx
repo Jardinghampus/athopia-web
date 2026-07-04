@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { currentUser } from "@clerk/nextjs/server";
 import type { Metadata } from "next";
 import AthopiaLanding, { type LandingArticle } from "@/components/landing/AthopiaLanding";
+import { SportFront } from "@/components/landing/SportFront";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 
 // ISR: servera cachad HTML direkt (snabb laddning), regenerera i bakgrunden.
@@ -51,7 +52,7 @@ async function getLatestArticles(): Promise<LandingArticle[]> {
       .eq("status", "published")
       .eq("is_processed", true)
       .order("published_at", { ascending: false })
-      .limit(4);
+      .limit(6);
 
     return ((data as Record<string, unknown>[] | null) ?? [])
       .map((row): LandingArticle => ({
@@ -105,7 +106,7 @@ export default async function LandingPage() {
   return (
     <>
       <LandingJsonLd />
-      <AthopiaLanding articles={articles} />
+      <AthopiaLanding articles={articles} sportSlot={<SportFront articles={articles} />} />
     </>
   );
 }
