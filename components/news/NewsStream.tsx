@@ -35,7 +35,7 @@ export async function NewsStream({
       {!isPro && (
         <div className="py-3 text-center text-xs text-zinc-600">
           Gratis: 20 nyheter/dag ·{" "}
-          <a href="/priser" className="text-blue-500 hover:text-blue-400">
+          <a href="/prenumerera" className="text-blue-500 hover:text-blue-400">
             Uppgradera för obegränsat flöde
           </a>
         </div>

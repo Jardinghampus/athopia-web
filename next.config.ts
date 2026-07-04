@@ -12,6 +12,17 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: __dirname,
   },
+  // Permanenta alias för utgångna routes — ersätter de gamla page-filerna
+  // som bara innehöll redirect() (audit 2026-07, T10).
+  async redirects() {
+    return [
+      { source: "/priser", destination: "/prenumerera", permanent: true },
+      { source: "/hem", destination: "/allsvenskan", permanent: true },
+      { source: "/analys", destination: "/allsvenskan", permanent: true },
+      { source: "/sammanfattning", destination: "/mitt-lag", permanent: true },
+      { source: "/feed", destination: "/mitt-lag", permanent: true },
+    ];
+  },
   experimental: {
     // Tree-shake barrel-exporter för att minska klientbundlen
     optimizePackageImports: ["lucide-react", "sonner", "@clerk/nextjs"],

@@ -20,7 +20,7 @@ export function UpgradePrompt({ feature }: { feature: AccessFeature }) {
         <span className="font-medium text-white">{label}</span> kräver PRO eller ELITE.
       </p>
       <Link
-        href="/priser"
+        href="/prenumerera"
         className="mt-3 inline-block rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 transition-colors"
       >
         Uppgradera
