@@ -4,35 +4,11 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
-import {
-  IconHome,
-  IconNews,
-  IconTrophy,
-  IconChartBar,
-  IconFlame,
-} from "@tabler/icons-react";
 import { Sidebar, DesktopSidebar, useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import { NAV_ITEMS, type NavItem as NavItemConfig } from "@/lib/nav";
 
-const NAV_LINKS = [
-  { href: "/mitt-lag", label: "Mitt lag", Icon: IconHome, exact: true },
-  { href: "/nyheter", label: "Nyheter", Icon: IconNews, exact: false },
-  { href: "/allsvenskan", label: "Allsvenskan", Icon: IconTrophy, exact: false },
-  { href: "/statistik", label: "Statistik", Icon: IconChartBar, exact: false },
-  { href: "/forum", label: "Forum", Icon: IconFlame, exact: false },
-];
-
-function NavItem({
-  href,
-  label,
-  Icon,
-  exact,
-}: {
-  href: string;
-  label: string;
-  Icon: React.ComponentType<{ className?: string }>;
-  exact: boolean;
-}) {
+function NavItem({ href, label, icon: Icon, exact }: NavItemConfig) {
   const { open, animate } = useSidebar();
   const pathname = usePathname();
   const isActive = exact ? pathname === href : pathname === href || pathname.startsWith(href + "/");
@@ -73,14 +49,8 @@ export function AppSidebar() {
     <div className="sticky top-14 h-[calc(100vh-3.5rem)] self-start shrink-0">
       <Sidebar open={open} setOpen={setOpen}>
         <DesktopSidebar className="h-full !bg-background border-r border-border/50 py-4 flex-col gap-0.5">
-          {NAV_LINKS.map((link) => (
-            <NavItem
-              key={link.href}
-              href={link.href}
-              label={link.label}
-              Icon={link.Icon}
-              exact={link.exact}
-            />
+          {NAV_ITEMS.map((item) => (
+            <NavItem key={item.href} {...item} />
           ))}
         </DesktopSidebar>
       </Sidebar>

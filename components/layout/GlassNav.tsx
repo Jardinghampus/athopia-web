@@ -2,18 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Search, Newspaper, BarChart3, MessageSquare, User, Sparkles } from "lucide-react";
+import { Search, User } from "lucide-react";
 import { useCommandPalette } from "@/hooks/useCommandPalette";
+import { NAV_ITEMS } from "@/lib/nav";
 import "./GlassNav.css";
-
-// Nav links — active state tracked by --active CSS variable
-const NAV_ITEMS = [
-  { href: "/nyheter",   label: "Nyheter",   icon: Newspaper },
-  { href: "/statistik", label: "Statistik",  icon: BarChart3 },
-  { href: "/ai",        label: "AI",         icon: Sparkles },
-  { href: "/forum",     label: "Forum",      icon: MessageSquare },
-  { href: "/konto",     label: "Profil",     icon: User },
-] as const;
 
 export function GlassNav({ clerkEnabled: _clerkEnabled }: { clerkEnabled?: boolean }) {
   const pathname = usePathname();

@@ -3,23 +3,15 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { X } from "lucide-react";
+import { X, MessageSquare, Sparkles, Headphones, User } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import {
-  IconHome, IconNews, IconTrophy, IconHeadphones,
-  IconChartBar, IconFlame, IconCalendarEvent, IconMessages, IconSparkles,
-} from "@tabler/icons-react";
+import { NAV_ITEMS } from "@/lib/nav";
 
-const NAV = [
-  { href: "/hem",        label: "Hem",         Icon: IconHome },
-  { href: "/nyheter",    label: "Nyheter",      Icon: IconNews },
-  { href: "/allsvenskan",label: "Allsvenskan",  Icon: IconTrophy },
-  { href: "/match",      label: "Matcher",      Icon: IconCalendarEvent },
-  { href: "/podcast",    label: "Podcasts",     Icon: IconHeadphones },
-  { href: "/statistik",  label: "Statistik",    Icon: IconChartBar },
-  { href: "/analys",     label: "Analys",       Icon: IconFlame },
-  { href: "/forum",      label: "Forum",        Icon: IconMessages },
-  { href: "/ai",         label: "AI-chatt",     Icon: IconSparkles },
+const SECONDARY = [
+  { href: "/forum", label: "Forum", icon: MessageSquare },
+  { href: "/ai", label: "AI-chatt", icon: Sparkles },
+  { href: "/podcast", label: "Podcasts", icon: Headphones },
+  { href: "/konto", label: "Konto", icon: User },
 ];
 
 export function MobileNav() {
@@ -69,7 +61,27 @@ export function MobileNav() {
             </div>
 
             <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
-              {NAV.map(({ href, label, Icon }) => {
+              {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+                const active = pathname === href || pathname.startsWith(href + "/");
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={`flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] transition-colors ${
+                      active
+                        ? "text-pitch bg-pitch/10 font-medium"
+                        : "text-muted-foreground hover:text-foreground hover:bg-card"
+                    }`}
+                  >
+                    <Icon className="w-5 h-5 shrink-0" />
+                    {label}
+                  </Link>
+                );
+              })}
+
+              <div className="my-2 border-t border-border/40" />
+
+              {SECONDARY.map(({ href, label, icon: Icon }) => {
                 const active = pathname === href || pathname.startsWith(href + "/");
                 return (
                   <Link

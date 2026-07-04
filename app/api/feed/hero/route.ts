@@ -35,6 +35,19 @@ export async function GET(req: Request) {
   const team = searchParams.get("team");
   const db = createServiceClient();
 
+  // articles taggas med entity_ids (uuid[]), inte lagets slug — slå upp id:t
+  // en gång här så anropskontraktet (?team=<slug>) kan vara oförändrat.
+  let teamEntityId: string | null = null;
+  if (team) {
+    const { data: entity } = await db
+      .from("entities")
+      .select("id")
+      .eq("type", "team")
+      .eq("slug", team)
+      .maybeSingle();
+    teamEntityId = (entity?.id as string | undefined) ?? null;
+  }
+
   const BASE_SELECT = "id, title, summary, source_name, published_at, slug, url_hash";
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -46,7 +59,7 @@ export async function GET(req: Request) {
     .eq("is_athopia_generated", true)
     .order("published_at", { ascending: false })
     .limit(1);
-  if (team) summaryQ = summaryQ.contains("team_tags", [team]);
+  if (teamEntityId) summaryQ = summaryQ.contains("entity_ids", [teamEntityId]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let newsQ: any = db
@@ -57,7 +70,7 @@ export async function GET(req: Request) {
     .eq("is_athopia_generated", false)
     .order("published_at", { ascending: false })
     .limit(5);
-  if (team) newsQ = newsQ.contains("team_tags", [team]);
+  if (teamEntityId) newsQ = newsQ.contains("entity_ids", [teamEntityId]);
 
   const [{ data: sumData }, { data: newsData }] = await Promise.all([
     isPro ? summaryQ : Promise.resolve({ data: [] }),

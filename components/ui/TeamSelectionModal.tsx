@@ -88,7 +88,8 @@ export function TeamSelectionModal({ forceVisible = false }: TeamSelectionModalP
       return;
     }
     setSaving(true);
-    await setFavoriteTeam(selected);
+    const team = teams.find((t) => t.slug === selected || t.id === selected);
+    await setFavoriteTeam(selected, team?.id);
     setSaving(false);
     setVisible(false);
   };

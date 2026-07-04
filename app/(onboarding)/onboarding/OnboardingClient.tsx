@@ -277,15 +277,14 @@ export function OnboardingClient() {
       const avatarUrl = await uploadAvatar();
 
       if (selectedTeam && teamObj) {
-        await setFavoriteTeam(selectedTeam);
-        await fetch("/api/feed/config", {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            followed_team_ids: [teamObj.id],
-            ...(selectedInterests.length > 0 ? { content_types: selectedInterests } : {}),
-          }),
-        }).catch(() => {});
+        await setFavoriteTeam(selectedTeam, teamObj.id);
+        if (selectedInterests.length > 0) {
+          await fetch("/api/feed/config", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ content_types: selectedInterests }),
+          }).catch(() => {});
+        }
       } else {
         markOnboardingDone();
       }

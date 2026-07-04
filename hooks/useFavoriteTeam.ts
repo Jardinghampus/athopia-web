@@ -9,10 +9,29 @@ const LS_ONBOARDING_KEY = "athopia_onboarding_done";
 export interface FavoriteTeamState {
   slug: string | null;
   isLoaded: boolean;
-  setFavoriteTeam: (slug: string) => Promise<void>;
+  /** teamId (entities.id, uuid) synkar user_feed_config.followed_team_ids server-side. */
+  setFavoriteTeam: (slug: string, teamId?: string) => Promise<void>;
   clearFavoriteTeam: () => Promise<void>;
   needsOnboarding: boolean;
   markOnboardingDone: () => void;
+}
+
+/**
+ * Enda skrivvägen till server-personalisering. Utan detta anrop desyncar
+ * /api/feed (som filtrerar på followed_team_ids) från vad Clerk-metadata/
+ * localStorage visar i UI — historiskt bugg: TeamSelectionModal bytte bara
+ * Clerk-slug, aldrig DB-arrayen.
+ */
+async function syncFollowedTeam(teamId: string): Promise<void> {
+  try {
+    await fetch("/api/feed/config", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ followed_team_ids: [teamId] }),
+    });
+  } catch {
+    // Icke-kritiskt för UI — feed hämtar in vid nästa lyckade sync
+  }
 }
 
 const clerkEnabled =
@@ -33,13 +52,14 @@ function useLocalFavoriteTeam(): FavoriteTeamState {
     setIsLoaded(true);
   }, []);
 
-  const setFavoriteTeam = useCallback(async (newSlug: string) => {
+  const setFavoriteTeam = useCallback(async (newSlug: string, teamId?: string) => {
     setSlug(newSlug);
     if (typeof window !== "undefined") {
       window.localStorage.setItem(LS_KEY, newSlug);
       window.localStorage.setItem(LS_ONBOARDING_KEY, "1");
     }
     setNeedsOnboarding(false);
+    // Ingen Clerk-session i lokalt läge → /api/feed/config kräver auth, hoppa över.
   }, []);
 
   const clearFavoriteTeam = useCallback(async () => {
@@ -94,7 +114,7 @@ function useClerkFavoriteTeam(): FavoriteTeamState {
   }, [clerkLoaded, user]);
 
   const setFavoriteTeam = useCallback(
-    async (newSlug: string) => {
+    async (newSlug: string, teamId?: string) => {
       setSlug(newSlug);
 
       if (typeof window !== "undefined") {
@@ -115,6 +135,7 @@ function useClerkFavoriteTeam(): FavoriteTeamState {
         } catch {
           // Clerk-fel är icke-kritiskt — localStorage räcker
         }
+        if (teamId) await syncFollowedTeam(teamId);
       }
     },
     [user],
