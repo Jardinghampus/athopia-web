@@ -62,6 +62,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ skipped: true, reason: "Fewer than 2 posts in last 4h" });
     }
 
+    // withBudget() guard — hard-cap $1.20/dag för Anthropic-anrop (CLAUDE.md §7).
+    // Denna route triggas av n8n varje timme (redan naturligt rate-limitad), men
+    // saknade tidigare budget-koll helt innan Anthropic-anropet.
+    const todayStart = new Date();
+    todayStart.setUTCHours(0, 0, 0, 0);
+    const { data: todaysCosts } = await supabase
+      .from("agent_logs")
+      .select("cost_usd")
+      .gte("created_at", todayStart.toISOString());
+    const spentToday = ((todaysCosts ?? []) as { cost_usd: number | null }[])
+      .reduce((sum, r) => sum + Number(r.cost_usd ?? 0), 0);
+    const HARD_CAP_USD = 1.2;
+    if (spentToday >= HARD_CAP_USD) {
+      console.warn(`[forum/summarize] Daglig hard cap ($${HARD_CAP_USD}) nådd (${spentToday.toFixed(4)}) — pausar Anthropic-anrop.`);
+      return NextResponse.json({ skipped: true, reason: "daily_budget_cap_reached", spentToday });
+    }
+
     const postsText = (posts as any[])
       .map((p, i) => {
         const label = p.label ? `[${p.label}] ` : "";
