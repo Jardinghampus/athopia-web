@@ -19,7 +19,7 @@ export async function GET(req: Request) {
       supabase.from("articles").select("id,slug,title").ilike("title", `%${q}%`).limit(6),
       supabase.from("teams").select("id,slug,name").ilike("name", `%${q}%`).limit(6),
       supabase.from("players").select("id,slug,name").ilike("name", `%${q}%`).limit(6),
-      supabase.from("podcast_episodes").select("id,title").ilike("title", `%${q}%`).limit(6),
+      supabase.from("podcasts").select("id,title").ilike("title", `%${q}%`).limit(6),
     ]);
 
     return NextResponse.json({

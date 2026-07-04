@@ -24,7 +24,7 @@ async function getEpisode(id: string): Promise<Podcast | null> {
   try {
     const supabase = createServerClient();
     const { data } = await supabase
-      .from("podcast_episodes")
+      .from("podcasts")
       .select("*")
       .eq("id", id)
       .single();

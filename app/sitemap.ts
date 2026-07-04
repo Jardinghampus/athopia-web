@@ -53,7 +53,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
     const { data: podcasts } = await supabase
-      .from("podcast_episodes")
+      .from("podcasts")
       .select("id, published_at")
       .order("published_at", { ascending: false })
       .limit(2000);

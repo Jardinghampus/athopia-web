@@ -9,13 +9,16 @@
  *  - `createBrowserClient` – används i Client Components med anon key +
  *    Supabase RLS-regler.
  *
- * Typerna genereras av `pnpm supabase gen types` och importeras från
+ * Typerna genereras av `pnpm supabase gen types` och import * as Sentry from "@sentry/nextjs";
+importeras från
  * @/types/supabase (skapas manuellt/via Supabase CLI).
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
 import { unstable_cache } from "next/cache";
+import * as Sentry from "@sentry/nextjs";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/types/supabase";
 import type {
   AgentLog,
   Article,
@@ -33,6 +36,11 @@ import type {
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
+
+/** Tysta DB-fel var osynliga i prod (audit T8) — logga alltid till Sentry. */
+function captureDbError(e: unknown): void {
+  Sentry.captureException(e);
+}
 
 /** Returnerar true om Supabase är korrekt konfigurerat (inte placeholder) */
 export function isSupabaseConfigured(): boolean {
@@ -225,7 +233,7 @@ export async function getArticles(
     if (teamSlug) q = q.ilike("title", `%${teamSlug}%`);
     const { data } = await q;
     return (data ?? []).map(mapArticle);
-  } catch {
+  } catch (e) { captureDbError(e);
     return [];
   }
 }
@@ -275,7 +283,7 @@ export async function getFilteredArticles(filters: ArticleFilters = {}): Promise
 
     const { data, count } = await q;
     return { articles: (data ?? []).map(mapArticle), total: count ?? 0 };
-  } catch {
+  } catch (e) { captureDbError(e);
     return { articles: [], total: 0 };
   }
 }
@@ -293,7 +301,7 @@ export async function getActiveSources(): Promise<{ name: string; id: string }[]
       .order("name", { ascending: true })
       .limit(100);
     return (data as { id: string; name: string }[]) ?? [];
-  } catch {
+  } catch (e) { captureDbError(e);
     return [];
   }
 }
@@ -304,7 +312,7 @@ export async function getArticle(slug: string): Promise<Article | null> {
     const supabase = createServerClient();
     const { data } = await supabase.from("articles").select("*").eq("slug", slug).maybeSingle();
     return data ? mapArticle(data) : null;
-  } catch {
+  } catch (e) { captureDbError(e);
     return null;
   }
 }
@@ -320,7 +328,7 @@ export const getNarratives = unstable_cache(
         .order("importance_score", { ascending: false, nullsFirst: false })
         .limit(limit);
       return (data ?? []).map(mapNarrative);
-    } catch {
+    } catch (e) { captureDbError(e);
       return [];
     }
   },
@@ -338,7 +346,7 @@ export async function getEntities(type?: Entity["type"]): Promise<Entity[]> {
     if (type === "team") q = (q as any).eq("metadata->>league", "Allsvenskan");
     const { data } = await q;
     return (data ?? []).map(mapEntity);
-  } catch {
+  } catch (e) { captureDbError(e);
     return [];
   }
 }
@@ -354,7 +362,7 @@ export const getPodcasts = unstable_cache(
         .order("published_at", { ascending: false })
         .limit(limit);
       return (data ?? []).map(mapPodcast);
-    } catch {
+    } catch (e) { captureDbError(e);
       return [];
     }
   },
@@ -368,7 +376,7 @@ export async function getPodcast(id: string): Promise<Podcast | null> {
     const supabase = createServerClient();
     const { data } = await supabase.from("podcasts").select("*").eq("id", id).maybeSingle();
     return data ? mapPodcast(data) : null;
-  } catch {
+  } catch (e) { captureDbError(e);
     return null;
   }
 }
@@ -384,7 +392,7 @@ export async function getPodcastChunks(podcastId: string): Promise<PodcastChunk[
       .order("start_seconds", { ascending: true })
       .limit(500);
     return (data ?? []).map(mapPodcastChunk);
-  } catch {
+  } catch (e) { captureDbError(e);
     return [];
   }
 }
@@ -403,7 +411,7 @@ export async function searchEmbeddings(query: string, sourceType?: string): Prom
     if (sourceType) q = q.eq("source_type", sourceType);
     const { data } = await q;
     return (data ?? []).map(mapArticle);
-  } catch {
+  } catch (e) { captureDbError(e);
     return [];
   }
 }
@@ -416,7 +424,7 @@ export async function getContentQueue(status?: string): Promise<ContentQueueItem
     if (status) q = q.eq("status", status);
     const { data } = await q;
     return (data ?? []) as ContentQueueItem[];
-  } catch {
+  } catch (e) { captureDbError(e);
     return [];
   }
 }
@@ -427,7 +435,7 @@ export async function getAgentLogs(limit = 100): Promise<AgentLog[]> {
     const supabase = createServerClient();
     const { data } = await supabase.from("agent_logs").select("*").order("created_at", { ascending: false }).limit(limit);
     return (data ?? []) as AgentLog[];
-  } catch {
+  } catch (e) { captureDbError(e);
     return [];
   }
 }
@@ -481,7 +489,7 @@ export const getNewsStream = unstable_cache(
         },
         created_at: row.published_at ?? "",
       }));
-    } catch {
+    } catch (e) { captureDbError(e);
       return [];
     }
   },
@@ -519,7 +527,7 @@ export async function getTeamPushPopups(teamEntityIds: string[], limit = 5): Pro
       sourceName: row.source_name ?? null,
       createdAt: String(row.created_at ?? new Date().toISOString()),
     }));
-  } catch {
+  } catch (e) { captureDbError(e);
     return [];
   }
 }
@@ -539,7 +547,7 @@ export const getTeamEntityInsights = unstable_cache(
         .limit(limit);
 
       return (data ?? []).map(mapEntityInsight);
-    } catch {
+    } catch (e) { captureDbError(e);
       return [];
     }
   },
@@ -563,7 +571,7 @@ export const getTeamDailyPulse = unstable_cache(
         .maybeSingle();
 
       return data ? mapTeamDailyPulse(data) : null;
-    } catch {
+    } catch (e) { captureDbError(e);
       return null;
     }
   },

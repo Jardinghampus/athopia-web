@@ -1,12 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import { parseBody, z } from "@/lib/validation";
+
+const WaitlistSchema = z.object({
+  name: z.string().trim().min(1).max(120),
+  email: z.string().trim().toLowerCase().email("Ogiltig e-post").max(254),
+  favorite_team: z.string().trim().max(80).optional().nullable(),
+});
 
 export async function POST(req: NextRequest) {
-  const { name, email, favorite_team } = await req.json();
-
-  if (!email || !name) {
-    return NextResponse.json({ error: "name and email required" }, { status: 400 });
-  }
+  const parsed = await parseBody(req, WaitlistSchema);
+  if (!parsed.ok) return parsed.response;
+  const { name, email, favorite_team } = parsed.data;
 
   if (!isSupabaseConfigured()) {
     return NextResponse.json({ ok: true }); // dev: silently succeed

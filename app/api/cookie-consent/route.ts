@@ -3,6 +3,14 @@ import { createClient } from "@supabase/supabase-js";
 import { auth } from "@clerk/nextjs/server";
 import { createHash } from "crypto";
 import { enforceRateLimit } from "@/lib/ratelimit";
+import { parseBody, z } from "@/lib/validation";
+
+const ConsentSchema = z.object({
+  analytics: z.boolean(),
+  marketing: z.boolean(),
+  version: z.string().max(20).optional().nullable(),
+  savedAt: z.string().datetime().optional().nullable(),
+});
 
 function supabase() {
   return createClient(
@@ -15,8 +23,9 @@ export async function POST(req: NextRequest) {
   const blocked = await enforceRateLimit("write", req);
   if (blocked) return blocked;
 
-  const body = await req.json();
-  const { analytics, marketing, version, savedAt } = body;
+  const parsed = await parseBody(req, ConsentSchema);
+  if (!parsed.ok) return parsed.response;
+  const { analytics, marketing, version, savedAt } = parsed.data;
 
   const { userId } = await auth();
 

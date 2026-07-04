@@ -27,7 +27,7 @@ export async function GET(req: Request) {
       podcastIds.length === 0
         ? { data: [] as any[] }
         : await supabase
-            .from("podcast_episodes")
+            .from("podcasts")
             .select("*")
             .in("id", podcastIds)
             .limit(10);
