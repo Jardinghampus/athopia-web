@@ -24,6 +24,10 @@ export default function LagLayout({
   const pathname = usePathname();
   const base = `/lag/${slug}`;
 
+  // Hub-roten har sin egen flikrad (TeamHubTabs) — layoutens route-flikar
+  // visas bara på undersidorna, annars staplas två flikrader (audit T2).
+  if (pathname === base) return <>{children}</>;
+
   return (
     <div>
       <nav className="sticky top-[57px] z-30 border-b border-border bg-background/95 backdrop-blur">

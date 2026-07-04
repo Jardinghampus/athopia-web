@@ -11,10 +11,11 @@ interface PageProps { params: Promise<{ id: string }> }
 async function getData(fixtureId: number) {
   if (!isSupabaseConfigured()) return null;
   const db = createServerClient();
-  const [{ data: fix }, { data: tms }, { data: evts }, { data: lups }, { data: cqAnalysis }] = await Promise.all([
+  const [{ data: fix }, { data: tms }, { data: evts }, { data: live }, { data: lups }, { data: cqAnalysis }] = await Promise.all([
     db.from("fixtures").select("*").eq("sportmonks_id", fixtureId).maybeSingle(),
     db.from("team_match_stats").select("*").eq("fixture_id", fixtureId),
     db.from("fixture_events").select("*").eq("fixture_id", fixtureId).order("minute"),
+    db.from("live_scores").select("minute,events").eq("fixture_id", fixtureId).maybeSingle(),
     db.from("fixture_lineups").select("*").eq("fixture_id", fixtureId).order("starter", { ascending: false }),
     db.from("content_queue")
       .select("content,created_at")
@@ -50,7 +51,26 @@ async function getData(fixtureId: number) {
   const sum = analysisContent
     ? { summary: analysisContent.body ?? null, title: analysisContent.title ?? null }
     : null;
-  return { fix, tms: tms ?? [], evts: evts ?? [], lups: lupsWithPlayers, sum, playerMap };
+
+  // Relaterade nyheter: artiklar taggade med endera lagets entity-uuid.
+  let related: Array<{ id: string; title: string; slug: string; source_name: string | null; published_at: string | null }> = [];
+  const teamSmIds = [fix?.home_team_id, fix?.away_team_id].filter(Boolean) as number[];
+  if (teamSmIds.length > 0) {
+    const { data: ents } = await db.from("entities").select("id").eq("type", "team").in("sportmonks_id", teamSmIds);
+    const entityIds = (ents ?? []).map((e: Record<string, unknown>) => e.id as string);
+    if (entityIds.length > 0) {
+      const { data: arts } = await db
+        .from("articles")
+        .select("id,title,slug,source_name,published_at")
+        .eq("sport", "football")
+        .overlaps("entity_ids", entityIds)
+        .order("published_at", { ascending: false })
+        .limit(3);
+      related = (arts ?? []) as typeof related;
+    }
+  }
+
+  return { fix, tms: tms ?? [], evts: evts ?? [], live: live ?? null, lups: lupsWithPlayers, sum, playerMap, related };
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -132,7 +152,24 @@ export default async function MatchPage({ params }: PageProps) {
   const homeStat = tms.find(t => String(t.team_id) === homeTeamId) ?? tms[0];
   const awayStat = tms.find(t => String(t.team_id) === awayTeamId) ?? tms[1];
 
-  const evts  = (d?.evts ?? []) as Record<string, unknown>[];
+  let evts  = (d?.evts ?? []) as Record<string, unknown>[];
+  // Under live: fixture_events fylls först efter FT — använd live_scores.events.
+  // Sportmonks inplay-event: {type_id, minute, player_name, related_player_name, participant_id, result}
+  const liveRow = d?.live as { minute: number | null; events: unknown } | null;
+  if (evts.length === 0 && Array.isArray(liveRow?.events)) {
+    const LIVE_TYPE: Record<number, string> = { 14: "GOAL", 15: "OWN_GOAL", 16: "PENALTY", 17: "PENALTY_MISSED", 18: "SUBSTITUTION", 19: "YELLOWCARD", 20: "REDCARD", 21: "YELLOW_RED_CARD" };
+    evts = (liveRow!.events as Record<string, unknown>[])
+      .map((e) => ({
+        minute: e.minute ?? null,
+        event_type: LIVE_TYPE[Number(e.type_id)] ?? String(e.type_id ?? ""),
+        team_id: e.participant_id ?? null,
+        player_id: null,
+        related_player_id: null,
+        live_player_name: (e.player_name as string | null) ?? null,
+        result: e.result ?? null,
+      }))
+      .sort((a, b) => Number(a.minute ?? 0) - Number(b.minute ?? 0));
+  }
   const lups  = (d?.lups ?? []) as Record<string, unknown>[];
   const starters  = lups.filter(l => l.starter);
   const byJersey = (a: Record<string, unknown>, b: Record<string, unknown>) => Number(a.jersey ?? 999) - Number(b.jersey ?? 999);
@@ -170,7 +207,7 @@ export default async function MatchPage({ params }: PageProps) {
       <div className="bg-card border border-border rounded-2xl p-6">
         <p className="text-xs text-muted-foreground text-center mb-3">
           Allsvenskan {kickoff ? new Date(kickoff).toLocaleDateString("sv-SE", { weekday: "long", day: "numeric", month: "long" }) : ""}
-          {isLive && <span className="ml-2 text-red-500">● LIVE</span>}
+          {isLive && <span className="ml-2 text-red-500">● LIVE{(d?.live as { minute: number | null } | null)?.minute != null ? ` ${(d!.live as { minute: number }).minute}′` : ""}</span>}
         </p>
         <div className="flex items-center justify-center gap-6">
           <p className="text-lg font-bold text-right flex-1">{homeName}</p>
@@ -254,7 +291,7 @@ export default async function MatchPage({ params }: PageProps) {
                   const isHome = String(e.team_id) === homeTeamId;
                   const icon = EVENT_ICONS[e.event_type as string] ?? "•";
                   const type = String(e.event_type ?? "");
-                  const player = eventPlayerName(playerMap, e.player_id);
+                  const player = (e.live_player_name as string | null) ?? eventPlayerName(playerMap, e.player_id);
                   const related = eventPlayerName(playerMap, e.related_player_id);
                   const label = type === "SUBSTITUTION"
                     ? `${related ? `${related} in` : "Inbytt"}${player ? `, ${player} ut` : ""}`
@@ -304,6 +341,21 @@ export default async function MatchPage({ params }: PageProps) {
           </div>
         )}
       </div>
+
+      {/* Relaterade nyheter */}
+      {(d?.related?.length ?? 0) > 0 && (
+        <div className="bg-card border border-border rounded-xl p-4">
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Relaterade nyheter</h3>
+          <div className="space-y-2">
+            {d!.related.map((a) => (
+              <Link key={a.id} href={`/artikel/${a.slug}`} className="group flex items-baseline justify-between gap-3 rounded-lg border border-border/60 px-3 py-2.5 hover:border-pitch/50 transition-colors">
+                <span className="text-sm text-foreground group-hover:text-pitch truncate">{a.title}</span>
+                <span className="text-xs text-muted-foreground shrink-0">{a.source_name ?? ""}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Forum */}
       <div className="border-t border-border pt-6">

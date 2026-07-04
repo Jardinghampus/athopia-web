@@ -210,6 +210,20 @@ function Oversikt({ hub, plan, insights, onFixture }: { hub: TeamHubPayload; pla
       </SectionCard>
 
       <SpotifyPodcast slug={hub.team.slug} />
+
+      {/* Djuplänkar till lag-undersidorna (egna routes med SEO-värde) */}
+      <div className="lg:col-span-3 flex flex-wrap gap-2 text-sm">
+        {[
+          { label: "Alla nyheter", href: `/lag/${hub.team.slug}/nyheter` },
+          { label: "Podcasts", href: `/lag/${hub.team.slug}/podcasts` },
+          { label: "AI-sammanfattning", href: `/lag/${hub.team.slug}/sammanfattning` },
+          { label: "Spelarstatistik", href: `/lag/${hub.team.slug}/statistik` },
+        ].map((l) => (
+          <Link key={l.href} href={l.href} className="rounded-full border border-border/60 px-3 py-1.5 text-muted-foreground hover:text-foreground hover:border-pitch/50 transition-colors">
+            {l.label} →
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }

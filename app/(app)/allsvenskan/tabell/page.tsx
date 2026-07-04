@@ -57,6 +57,13 @@ export default async function AllsvenskanTabellPage() {
             </tr>
           </thead>
           <tbody>
+            {standings.length === 0 && (
+              <tr>
+                <td colSpan={11} className="py-10 text-center text-muted-foreground">
+                  Tabellen kunde inte hämtas just nu — uppdateras automatiskt inom en minut.
+                </td>
+              </tr>
+            )}
             {standings.map((row) => (
               <tr key={row.team.name} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
                 <td className="py-3 px-4 text-muted-foreground">{row.position}</td>
