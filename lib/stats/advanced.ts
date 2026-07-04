@@ -1,0 +1,127 @@
+/**
+ * lib/stats/advanced.ts — delade queries för projektion/luck/clutch (audit T5).
+ * Konsumeras av både API-routes (iOS-kontrakt, oförändrade) och
+ * /statistik-sidan direkt — tidigare gjorde server-sidan HTTP-self-fetch
+ * mot sina egna routes.
+ */
+import { unstable_cache } from "next/cache";
+import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+
+const seasonId = () => Number(process.env.SPORTSMONKS_SEASON_ID_2026 ?? "26806");
+
+export interface ProjectionRow {
+  teamId: number; teamName: string; logoUrl: string | null;
+  points: number; elo: number; pChampion: number; pTop3: number;
+  pRelegation: number; pPlayoff: number; nSims: number; computedAt: string;
+}
+
+export interface ScheduleFormRow {
+  teamId: number; teamName: string; logoUrl: string | null;
+  actualPoints: number; xpts: number; luck: number; sos: number; computedAt: string;
+}
+
+export interface ClutchRow {
+  rank: number; playerId: number; playerName: string; teamName: string;
+  image: string | null; goals: number; clutchScore: number;
+  trailingGoals: number; levelGoals: number; leadingGoals: number;
+}
+
+async function teamEntityMap(db: ReturnType<typeof createServerClient>, teamIds: number[]) {
+  const { data } = await db
+    .from("entities")
+    .select("sportmonks_id,name,logo_url")
+    .in("sportmonks_id", teamIds)
+    .eq("type", "team");
+  return new Map((data ?? []).map((e) => [e.sportmonks_id as number, e]));
+}
+
+export const getProjectionRows = unstable_cache(
+  async (): Promise<ProjectionRow[]> => {
+    if (!isSupabaseConfigured()) return [];
+    const db = createServerClient();
+    const { data } = await db
+      .from("stats_season_projection")
+      .select("team_id,current_points,elo,p_champion,p_top3,p_relegation,p_playoff,n_sims,computed_at")
+      .eq("sport", "football")
+      .eq("season_id", seasonId())
+      .order("p_champion", { ascending: false });
+    if (!data?.length) return [];
+    const ents = await teamEntityMap(db, data.map((r) => r.team_id));
+    return data.map((r) => {
+      const ent = ents.get(r.team_id);
+      return {
+        teamId: r.team_id,
+        teamName: (ent?.name as string) ?? String(r.team_id),
+        logoUrl: (ent?.logo_url as string | null) ?? null,
+        points: r.current_points, elo: r.elo,
+        pChampion: r.p_champion, pTop3: r.p_top3,
+        pRelegation: r.p_relegation, pPlayoff: r.p_playoff,
+        nSims: r.n_sims, computedAt: r.computed_at,
+      };
+    });
+  },
+  ["stats-projection"],
+  { revalidate: 3600, tags: ["stats"] },
+);
+
+export const getScheduleFormRows = unstable_cache(
+  async (): Promise<ScheduleFormRow[]> => {
+    if (!isSupabaseConfigured()) return [];
+    const db = createServerClient();
+    const { data } = await db
+      .from("stats_schedule_form")
+      .select("team_id,actual_points,xpts,luck,sos,computed_at")
+      .eq("sport", "football")
+      .eq("season_id", seasonId())
+      .order("luck", { ascending: false });
+    if (!data?.length) return [];
+    const ents = await teamEntityMap(db, data.map((r) => r.team_id));
+    return data.map((r) => {
+      const ent = ents.get(r.team_id);
+      return {
+        teamId: r.team_id,
+        teamName: (ent?.name as string) ?? String(r.team_id),
+        logoUrl: (ent?.logo_url as string | null) ?? null,
+        actualPoints: r.actual_points, xpts: r.xpts, luck: r.luck, sos: r.sos,
+        computedAt: r.computed_at,
+      };
+    });
+  },
+  ["stats-schedule-form"],
+  { revalidate: 3600, tags: ["stats"] },
+);
+
+export const getClutchRows = unstable_cache(
+  async (): Promise<ClutchRow[]> => {
+    if (!isSupabaseConfigured()) return [];
+    const db = createServerClient();
+    const { data } = await db
+      .from("stats_clutch")
+      .select("player_id,goals,clutch_score,trailing_goals,level_goals,leading_goals,computed_at")
+      .eq("sport", "football")
+      .eq("season_id", seasonId())
+      .order("clutch_score", { ascending: false })
+      .limit(25);
+    if (!data?.length) return [];
+    const { data: players } = await db
+      .from("player_season_stats")
+      .select("sportsmonks_player_id,player_name,team_name,image_path")
+      .in("sportsmonks_player_id", data.map((r) => r.player_id))
+      .eq("season_id", seasonId());
+    const playerMap = new Map((players ?? []).map((p) => [p.sportsmonks_player_id, p]));
+    return data.map((r, i) => {
+      const p = playerMap.get(r.player_id);
+      return {
+        rank: i + 1,
+        playerId: r.player_id,
+        playerName: (p?.player_name as string) ?? String(r.player_id),
+        teamName: (p?.team_name as string) ?? "",
+        image: (p?.image_path as string | null) ?? null,
+        goals: r.goals, clutchScore: r.clutch_score,
+        trailingGoals: r.trailing_goals, levelGoals: r.level_goals, leadingGoals: r.leading_goals,
+      };
+    });
+  },
+  ["stats-clutch"],
+  { revalidate: 3600, tags: ["stats"] },
+);

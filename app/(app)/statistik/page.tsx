@@ -1,4 +1,5 @@
 ﻿import type { Metadata } from "next";
+import { getProjectionRows, getScheduleFormRows, getClutchRows } from "@/lib/stats/advanced";
 import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -465,8 +466,7 @@ function TabSkeleton() {
 // ── Projektion ────────────────────────────────────────────────────────────────
 
 async function ProjektionTab() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000"}/api/stats/projection`, { next: { revalidate: 3600 } });
-  const { rows } = res.ok ? (await res.json() as { rows: Array<{ teamId: number; teamName: string; logoUrl: string | null; points: number; elo: number; pChampion: number; pTop3: number; pRelegation: number }> }) : { rows: [] };
+  const rows = await getProjectionRows();
   if (rows.length === 0) return <EmptyState message="Projektion beräknas kl 05:00 — inga simuleringar ännu." />;
   return (
     <div>
@@ -504,8 +504,7 @@ async function ProjektionTab() {
 // ── Tur/otur (schema-form) ────────────────────────────────────────────────────
 
 async function LuckTab() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000"}/api/stats/schedule-form`, { next: { revalidate: 3600 } });
-  const { rows } = res.ok ? (await res.json() as { rows: Array<{ teamId: number; teamName: string; actualPoints: number; xpts: number | null; luck: number | null; sos: number | null }> }) : { rows: [] };
+  const rows = await getScheduleFormRows();
   if (rows.length === 0) return <EmptyState message="Schema-form beräknas kl 05:00 — inga data ännu." />;
   return (
     <div>
@@ -546,8 +545,7 @@ async function LuckTab() {
 // ── Clutch ────────────────────────────────────────────────────────────────────
 
 async function ClutchTab() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000"}/api/stats/clutch`, { next: { revalidate: 3600 } });
-  const { rows } = res.ok ? (await res.json() as { rows: Array<{ rank: number; playerId: number; playerName: string; teamName: string; goals: number; clutchScore: number; trailingGoals: number; levelGoals: number }> }) : { rows: [] };
+  const rows = await getClutchRows();
   if (rows.length === 0) return <EmptyState message="Clutch-index beräknas kl 05:00 — inga data ännu." />;
   return (
     <div>
