@@ -10,6 +10,7 @@
  */
 
 import type { Metadata } from "next";
+import { ShareButton } from "@/components/ui/ShareButton";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -65,6 +66,7 @@ export async function generateMetadata({
   return {
     title: article.title,
     description: article.summary,
+    alternates: { canonical: `https://athopia.se/artikel/${slug}` },
     openGraph: {
       type: "article",
       title: article.title,
@@ -87,6 +89,12 @@ function ArticleJsonLd({ article }: { article: Article }) {
     headline: article.title,
     description: article.summary,
     datePublished: article.publishedAt,
+    ...(article.updatedAt ? { dateModified: article.updatedAt } : {}),
+    author: {
+      "@type": "Organization",
+      name: article.sourceName,
+      ...(article.sourceUrl ? { url: article.sourceUrl } : {}),
+    },
     publisher: {
       "@type": "Organization",
       name: article.sourceName,
@@ -151,17 +159,20 @@ export default async function ArtikelPage({
         </h1>
 
         {/* Meta */}
-        <p className="text-sm text-muted-foreground mb-8">
-          <span className="font-medium text-foreground">{article.sourceName}</span>
-          {" · "}
-          <time dateTime={article.publishedAt}>
-            {new Date(article.publishedAt).toLocaleDateString("sv-SE", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            })}
-          </time>
-        </p>
+        <div className="flex items-center justify-between gap-3 mb-8">
+          <p className="text-sm text-muted-foreground">
+            <span className="font-medium text-foreground">{article.sourceName}</span>
+            {" · "}
+            <time dateTime={article.publishedAt}>
+              {new Date(article.publishedAt).toLocaleDateString("sv-SE", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}
+            </time>
+          </p>
+          <ShareButton title={article.title} url={`https://athopia.se/artikel/${article.slug}`} />
+        </div>
 
         {/* AI-Summary box */}
         <div

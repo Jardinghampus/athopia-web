@@ -10,6 +10,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: BASE, lastModified: new Date(), changeFrequency: "daily", priority: 1 },
     { url: `${BASE}/nyheter`, lastModified: new Date(), changeFrequency: "daily", priority: 0.9 },
     { url: `${BASE}/allsvenskan`, lastModified: new Date(), changeFrequency: "hourly", priority: 0.85 },
+    { url: `${BASE}/allsvenskan/tabell`, lastModified: new Date(), changeFrequency: "daily", priority: 0.85 },
+    { url: `${BASE}/allsvenskan/skytteliga`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
+    { url: `${BASE}/allsvenskan/spelschema`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.75 },
+    { url: `${BASE}/allsvenskan/resultat`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
+    { url: `${BASE}/match`, lastModified: new Date(), changeFrequency: "hourly", priority: 0.85 },
+    { url: `${BASE}/statistik`, lastModified: new Date(), changeFrequency: "daily", priority: 0.75 },
+    { url: `${BASE}/forum`, lastModified: new Date(), changeFrequency: "daily", priority: 0.7 },
     { url: `${BASE}/podcast`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
     { url: `${BASE}/prenumerera`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.6 },
   ];
@@ -20,6 +27,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let teamRoutes: MetadataRoute.Sitemap = [];
   let playerRoutes: MetadataRoute.Sitemap = [];
   let podcastRoutes: MetadataRoute.Sitemap = [];
+  let matchRoutes: MetadataRoute.Sitemap = [];
+  let forumRoutes: MetadataRoute.Sitemap = [];
 
   try {
     const supabase = createServerClient();
@@ -52,6 +61,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.55,
     }));
 
+    // Matchsidor: färdigspelade (matchrapporter, permanent SEO-värde) + kommande
+    const { data: fixtures } = await supabase
+      .from("fixtures")
+      .select("sportmonks_id, kickoff_at, status, updated_at")
+      .eq("sport", "football")
+      .in("status", ["FT", "NS", "LIVE"])
+      .order("kickoff_at", { ascending: false })
+      .limit(500);
+    matchRoutes = (fixtures ?? []).map((f) => ({
+      url: `${BASE}/match/${f.sportmonks_id}`,
+      lastModified: f.updated_at ? new Date(f.updated_at) : new Date(),
+      changeFrequency: (f.status === "FT" ? "monthly" : "hourly") as "monthly" | "hourly",
+      priority: f.status === "FT" ? 0.6 : 0.75,
+    }));
+
+    // Klubbforum
+    forumRoutes = (teams ?? []).map((t) => ({
+      url: `${BASE}/forum/${t.slug}`,
+      lastModified: new Date(),
+      changeFrequency: "daily" as const,
+      priority: 0.55,
+    }));
+
     const { data: podcasts } = await supabase
       .from("podcasts")
       .select("id, published_at")
@@ -67,5 +99,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // DB nere — returnera statiska routes
   }
 
-  return [...staticRoutes, ...articleRoutes, ...teamRoutes, ...playerRoutes, ...podcastRoutes];
+  return [...staticRoutes, ...articleRoutes, ...teamRoutes, ...matchRoutes, ...forumRoutes, ...playerRoutes, ...podcastRoutes];
 }
