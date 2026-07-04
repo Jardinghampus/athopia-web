@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { auth } from "@clerk/nextjs/server";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import { MatchXgChart } from "./MatchXgChart";
 import { MatchForum } from "./MatchForum";
+import { PlayerRatingPanel, type RatablePlayer } from "./PlayerRatingPanel";
 
 export const revalidate = 60;
 
@@ -119,6 +121,47 @@ function statValue(value: unknown, suffix = "") {
 function eventPlayerName(playerMap: Record<number, { fullname: string }>, id: unknown) {
   const playerId = Number(id ?? 0);
   return playerId ? playerMap[playerId]?.fullname ?? `Spelare ${playerId}` : null;
+}
+
+async function getRatablePlayers(
+  fixtureId: number,
+  homeLup: Record<string, unknown>[],
+  awayLup: Record<string, unknown>[],
+  homeName: string,
+  awayName: string,
+): Promise<RatablePlayer[]> {
+  const starters = [
+    ...homeLup.map((l) => ({ l, teamName: homeName })),
+    ...awayLup.map((l) => ({ l, teamName: awayName })),
+  ];
+  if (starters.length === 0 || !isSupabaseConfigured()) return [];
+  const db = createServerClient();
+  const { userId } = await auth();
+  const { data: ratings } = await db
+    .from("player_ratings")
+    .select("player_id, rating, clerk_user_id")
+    .eq("fixture_id", fixtureId);
+  const agg = new Map<number, { sum: number; n: number; mine: number | null }>();
+  for (const r of (ratings ?? []) as Array<{ player_id: number; rating: number; clerk_user_id: string }>) {
+    const a = agg.get(r.player_id) ?? { sum: 0, n: 0, mine: null };
+    a.sum += r.rating;
+    a.n += 1;
+    if (userId && r.clerk_user_id === userId) a.mine = r.rating;
+    agg.set(r.player_id, a);
+  }
+  return starters.map(({ l, teamName }) => {
+    const pid = Number(l.player_id ?? 0);
+    const pl = l.players as { fullname?: string } | null;
+    const a = agg.get(pid);
+    return {
+      playerId: pid,
+      name: pl?.fullname ?? `Spelare ${pid}`,
+      teamName,
+      avg: a && a.n > 0 ? a.sum / a.n : null,
+      votes: a?.n ?? 0,
+      myRating: a?.mine ?? null,
+    };
+  }).filter((p) => p.playerId > 0);
 }
 
 export default async function MatchPage({ params }: PageProps) {
@@ -341,6 +384,11 @@ export default async function MatchPage({ params }: PageProps) {
           </div>
         )}
       </div>
+
+      {/* Spelarbetyg efter FT */}
+      {fix.status === "FT" && (homeLup.length > 0 || awayLup.length > 0) && (
+        <PlayerRatingPanel fixtureId={fid} players={await getRatablePlayers(fid, homeLup, awayLup, homeName, awayName)} />
+      )}
 
       {/* Relaterade nyheter */}
       {(d?.related?.length ?? 0) > 0 && (
