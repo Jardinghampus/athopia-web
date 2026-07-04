@@ -97,6 +97,61 @@ async function getScheduleForm(smId: number) {
   return data as Record<string, unknown> | null;
 }
 
+interface AthopiaRatingRow {
+  player_id: number;
+  athopia_rating: number;
+  attacking_rating: number | null;
+  form_rating: number | null;
+  fullname: string;
+  slug: string | null;
+  image: string | null;
+  position: string | null;
+}
+
+/** Athopia-betyg (egen sammansatt spelarrating) för laget — orenderad tabell kopplas in här (FAS B2). */
+async function getTeamAthopiaRatings(smId: number): Promise<AthopiaRatingRow[]> {
+  if (!isSupabaseConfigured()) return [];
+  const db = createServerClient();
+  const { data: squad } = await db
+    .from("player_season_stats")
+    .select("player_id")
+    .eq("team_id", smId)
+    .eq("season_id", SEASON_2026);
+  const playerIds = (squad ?? []).map((r) => Number(r.player_id)).filter(Boolean);
+  if (!playerIds.length) return [];
+
+  const { data: ratings } = await db
+    .from("athopia_ratings")
+    .select("player_id,athopia_rating,attacking_rating,form_rating")
+    .eq("season_id", SEASON_2026)
+    .in("player_id", playerIds)
+    .not("athopia_rating", "is", null)
+    .order("athopia_rating", { ascending: false })
+    .limit(10);
+  const rows = (ratings ?? []) as Record<string, unknown>[];
+  if (!rows.length) return [];
+
+  const { data: players } = await db
+    .from("players")
+    .select("sportmonks_id,fullname,slug,image,position")
+    .in("sportmonks_id", rows.map((r) => Number(r.player_id)));
+  const byId = new Map(((players ?? []) as Record<string, unknown>[]).map((p) => [Number(p.sportmonks_id), p]));
+
+  return rows.map((r) => {
+    const p = byId.get(Number(r.player_id));
+    return {
+      player_id: Number(r.player_id),
+      athopia_rating: Number(r.athopia_rating),
+      attacking_rating: r.attacking_rating == null ? null : Number(r.attacking_rating),
+      form_rating: r.form_rating == null ? null : Number(r.form_rating),
+      fullname: (p?.fullname as string) ?? `Spelare ${r.player_id}`,
+      slug: (p?.slug as string | null) ?? null,
+      image: (p?.image as string | null) ?? null,
+      position: (p?.position as string | null) ?? null,
+    };
+  });
+}
+
 async function getGoalTiming(smId: number) {
   if (!isSupabaseConfigured()) return [];
   const db = createServerClient();
@@ -145,13 +200,14 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
   const { slug } = await params;
   const { name: teamName, smId } = await getTeamSmId(slug);
 
-  const [standings, players, fixtures, projection, scheduleForm, goalTiming] = await Promise.all([
+  const [standings, players, fixtures, projection, scheduleForm, goalTiming, athopiaRatings] = await Promise.all([
     smId ? getTeamStandings(smId) : Promise.resolve(null),
     smId ? getPlayerStats(smId) : Promise.resolve([]),
     smId ? getTeamFixtures(smId) : Promise.resolve([]),
     smId ? getSeasonProjection(smId) : Promise.resolve(null),
     smId ? getScheduleForm(smId) : Promise.resolve(null),
     smId ? getGoalTiming(smId) : Promise.resolve([]),
+    smId ? getTeamAthopiaRatings(smId) : Promise.resolve([]),
   ]);
 
   const byGoals   = [...players].sort((a, b) => (b.goals as number) - (a.goals as number)).slice(0, 5);
@@ -302,6 +358,40 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
                 />
                 <span className="text-[10px] text-muted-foreground">{block}′</span>
               </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Athopia-betyg — egen sammansatt spelarrating (athopia_ratings) */}
+      {athopiaRatings.length > 0 && (
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <div className="px-4 py-3 border-b border-border">
+            <h3 className="font-semibold text-sm text-foreground">ATHOPIA-BETYG</h3>
+          </div>
+          <div className="divide-y divide-border/50">
+            {athopiaRatings.map((row, i) => (
+              <Link
+                key={row.player_id}
+                href={row.slug ? `/spelare/${row.slug}` : "#"}
+                className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted/40 transition-colors"
+              >
+                <span className="text-xs text-muted-foreground w-4">{i + 1}</span>
+                {row.image ? (
+                  <div className="relative w-7 h-7 rounded-full overflow-hidden bg-muted shrink-0">
+                    <Image src={row.image} alt="" fill className="object-cover" sizes="28px" />
+                  </div>
+                ) : (
+                  <div className="w-7 h-7 rounded-full bg-muted shrink-0" />
+                )}
+                <span className="flex-1 min-w-0">
+                  <span className="block text-sm text-foreground truncate">{row.fullname}</span>
+                  {row.position && (
+                    <span className="block text-xs text-muted-foreground">{row.position}</span>
+                  )}
+                </span>
+                <span className="font-bold text-lg text-pitch tabular-nums">{row.athopia_rating.toFixed(1)}</span>
+              </Link>
             ))}
           </div>
         </div>
