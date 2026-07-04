@@ -21,6 +21,7 @@ import { getTeamHub } from "@/lib/team-hub/queries";
 import { getUserPlan } from "@/lib/user-plan";
 import { MOCK_TEAM_LIST_ITEM } from "@/lib/team-hub/mock";
 import { TeamContextTracker } from "@/components/team-hub/TeamContextTracker";
+import { getTeamColors, getTeamAccent } from "@/lib/team-colors";
 import { TeamHubHeader } from "@/components/team-hub/TeamHubHeader";
 import { TeamHubTabs } from "@/components/team-hub/TeamHubTabs";
 import type { SwitcherTeam } from "@/components/team-hub/TeamSwitcher";
@@ -142,8 +143,19 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
     ...(hub.team.logo_url ? { logo: hub.team.logo_url, image: hub.team.logo_url } : {}),
   };
 
+  const colors = getTeamColors(hub.team.slug);
+
   return (
-    <div className="max-w-6xl mx-auto pb-6">
+    <div
+      className="max-w-6xl mx-auto pb-6"
+      style={{ "--team-accent": getTeamAccent(hub.team.slug), "--team-accent-2": colors.secondary } as React.CSSProperties}
+    >
+      {/* Klubbfärgad accentlinje (audit T6) */}
+      <div
+        className="h-1.5 rounded-b-full"
+        style={{ background: `linear-gradient(90deg, ${colors.primary} 0%, ${colors.secondary} 100%)` }}
+        aria-hidden
+      />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(teamJsonLd) }} />
       <TeamContextTracker slug={hub.team.slug} name={hub.team.name} logo_url={hub.team.logo_url} />
 

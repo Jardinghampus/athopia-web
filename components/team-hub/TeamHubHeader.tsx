@@ -89,7 +89,7 @@ export function TeamHubHeader({
                 />
               </div>
               <div className="flex items-center gap-3 mt-1">
-                {position && <span className="text-xs font-bold text-pitch">#{position} i Allsvenskan</span>}
+                {position && <span className="text-xs font-bold" style={{ color: "var(--team-accent, #1D9E75)" }}>#{position} i Allsvenskan</span>}
                 <FormDots form={form} />
               </div>
             </div>
