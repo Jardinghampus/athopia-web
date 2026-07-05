@@ -13,6 +13,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/allsvenskan/tabell`, lastModified: new Date(), changeFrequency: "daily", priority: 0.85 },
     { url: `${BASE}/allsvenskan/skytteliga`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
     { url: `${BASE}/allsvenskan/xp-tabell`, lastModified: new Date(), changeFrequency: "daily", priority: 0.75 },
+    { url: `${BASE}/allsvenskan/talanger`, lastModified: new Date(), changeFrequency: "daily", priority: 0.7 },
     { url: `${BASE}/allsvenskan/spelschema`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.75 },
     { url: `${BASE}/allsvenskan/resultat`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
     { url: `${BASE}/match`, lastModified: new Date(), changeFrequency: "hourly", priority: 0.85 },
