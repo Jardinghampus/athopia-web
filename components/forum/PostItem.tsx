@@ -10,6 +10,7 @@ import type { ForumPost } from "@/lib/types";
 import QuoteBox from "./QuoteBox";
 import ComposeDrawer from "./ComposeDrawer";
 import { ProfileLink } from "@/components/profile/ProfilePopup";
+import { getTeamColors, getTeamShort, getTeamAccent } from "@/lib/team-colors";
 
 const PREVIEW_LENGTH = 220;
 
@@ -74,6 +75,9 @@ export default function PostItem({
       ? post.content.slice(0, PREVIEW_LENGTH).trimEnd() + "…"
       : post.content;
   const label = post.label ? LABEL_STYLES[post.label] : null;
+  const teamShort = getTeamShort(post.author_team);
+  const teamColors = teamShort ? getTeamColors(post.author_team) : null;
+  const teamAccent = getTeamAccent(post.author_team);
   const hasReplies = (post.replies?.length ?? 0) > 0;
   const showLine = showThread || depth > 0 || hasReplies;
 
@@ -178,18 +182,27 @@ export default function PostItem({
           }
         >
           <div className="flex gap-3">
-            {/* Avatar + thread line */}
+            {/* Avatar + thread line — lagfärgad gradientring visar supporteridentitet */}
             <div className="flex flex-col items-center shrink-0">
-              <ProfileLink
-                userId={post.author_id}
-                className="w-11 h-11 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-300 text-sm font-semibold overflow-hidden relative hover:opacity-90 transition-opacity"
+              <div
+                className="rounded-full p-[2px]"
+                style={
+                  teamColors
+                    ? { background: `linear-gradient(135deg, ${teamColors.primary}, ${teamColors.secondary})` }
+                    : undefined
+                }
               >
-                {post.author_avatar ? (
-                  <Image src={post.author_avatar} alt="" fill className="object-cover" />
-                ) : (
-                  initials(post.author_name)
-                )}
-              </ProfileLink>
+                <ProfileLink
+                  userId={post.author_id}
+                  className="w-11 h-11 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-300 text-sm font-semibold overflow-hidden relative hover:opacity-90 transition-opacity border-2 border-background"
+                >
+                  {post.author_avatar ? (
+                    <Image src={post.author_avatar} alt="" fill className="object-cover" />
+                  ) : (
+                    initials(post.author_name)
+                  )}
+                </ProfileLink>
+              </div>
               {showLine && (
                 <div className="w-px flex-1 min-h-[16px] bg-border/40 mt-1.5" />
               )}
@@ -205,6 +218,15 @@ export default function PostItem({
                   >
                     {post.author_name}
                   </ProfileLink>
+                  {teamShort && (
+                    <span
+                      className="text-[12px] font-semibold leading-tight"
+                      style={{ color: teamAccent }}
+                      title={`Supportrar ${post.author_team}`}
+                    >
+                      ({teamShort})
+                    </span>
+                  )}
                   <span className="text-[13px] text-muted-foreground">
                     {timeAgo(post.created_at)}
                   </span>

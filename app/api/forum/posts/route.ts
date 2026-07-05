@@ -100,6 +100,8 @@ export async function POST(req: NextRequest) {
         author_id: user.id,
         author_name: user.fullName ?? user.username ?? "Anonym",
         author_avatar: user.imageUrl ?? null,
+        // Supporteridentitet: "Nickname (DIF)" + lagfärgad avatarring i forumet
+        author_team: (user.unsafeMetadata?.["favoriteTeam"] as string | undefined) ?? null,
       })
       .select()
       .single();

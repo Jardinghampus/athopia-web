@@ -235,6 +235,8 @@ export interface ForumPost {
   author_id: string;
   author_name: string;
   author_avatar: string | null;
+  /** entities.slug för författarens favoritlag — driver "(DIF)" + lagfärgad avatarring */
+  author_team?: string | null;
   sport: string;
   team_slug: string | null;
   like_count: number;

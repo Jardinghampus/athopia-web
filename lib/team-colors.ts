@@ -20,7 +20,33 @@ const TEAM_COLORS: Record<string, TeamColors> = {
   degerfors: { primary: "#D71920", secondary: "#FFFFFF", text: "#FFFFFF" },
   gais: { primary: "#0B7A3B", secondary: "#111111", text: "#FFFFFF" },
   "kalmar-ff": { primary: "#D71920", secondary: "#FFFFFF", text: "#FFFFFF" },
+  "vasteras-sk": { primary: "#0C7B45", secondary: "#FFFFFF", text: "#FFFFFF" },
+  orgryte: { primary: "#C8102E", secondary: "#123B7A", text: "#FFFFFF" },
 };
+
+/** Kortnamn per slug — för "Nickname (DIF)"-visning i forum m.m. */
+const TEAM_SHORT: Record<string, string> = {
+  aik: "AIK",
+  djurgarden: "DIF",
+  hammarby: "HIF",
+  "malmo-ff": "MFF",
+  "ifk-goteborg": "IFK",
+  "if-elfsborg": "IFE",
+  "bk-hacken": "BKH",
+  sirius: "SIR",
+  halmstad: "HBK",
+  brommapojkarna: "BP",
+  mjallby: "MAIF",
+  degerfors: "DEG", // "DIF" är taget av Djurgården
+  gais: "GAIS",
+  "kalmar-ff": "KFF",
+  "vasteras-sk": "VSK",
+  orgryte: "ÖIS",
+};
+
+export function getTeamShort(slug: string | null | undefined): string | null {
+  return (slug && TEAM_SHORT[slug]) ?? null;
+}
 
 const FALLBACK: TeamColors = { primary: "#1D9E75", secondary: "#FFFFFF", text: "#FFFFFF" };
 
