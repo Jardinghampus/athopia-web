@@ -58,15 +58,15 @@ async function getTeamStats(slug: string): Promise<TeamStats | null> {
   // Hämta entity för detta lag
   const { data: entity } = await db
     .from("entities")
-    .select("id, name, slug, metadata")
+    .select("id, name, slug, sportmonks_id")
     .eq("slug", slug)
     .eq("type", "team")
     .single();
 
   if (!entity) return null;
 
-  const meta = entity.metadata as Record<string, unknown> | null;
-  const sportsmonksId = meta?.["sportsmonks_id"] as number | undefined;
+  // Buggfix: metadata.sportsmonks_id har aldrig funnits — id:t lever i kolumnen sportmonks_id
+  const sportsmonksId = entity.sportmonks_id != null ? Number(entity.sportmonks_id) : undefined;
 
   // Hämta match_stats för laget
   let matches: MatchRow[] = [];
