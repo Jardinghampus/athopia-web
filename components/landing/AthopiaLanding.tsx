@@ -8,6 +8,7 @@
 import { LandingNav } from "./LandingNav";
 import { Hero, type HeroPulse, type ClubChip } from "./Hero";
 import { ExperienceSection } from "./ExperienceSection";
+import { DemoVignettes } from "./DemoVignettes";
 import { Pricing } from "./Pricing";
 import { Faq } from "./Faq";
 import { FinalCta } from "./FinalCta";
@@ -41,6 +42,7 @@ export default function AthopiaLanding({
       <main>
         <Hero pulse={pulse} clubs={clubs} />
         {sportSlot}
+        <DemoVignettes />
         <ExperienceSection />
         <Pricing />
         <Faq />
