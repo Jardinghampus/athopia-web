@@ -77,6 +77,8 @@ export interface SMStandingRow {
   goal_diff: number;
   points: number;
   form: string[];
+  /** Placeringsförändring sedan senaste snapshot (positiv = klättrat). null = ingen historik. */
+  trend: number | null;
 }
 
 export interface SMTopScorer {
@@ -301,6 +303,131 @@ export const fetchStandings = unstable_cache(
   { revalidate: 3600, tags: ["standings"] }
 );
 
+/** Alla lag i aktuell säsong med slugs (för programmatiska SEO-sidor). ISR 3600s. */
+export const fetchTeamsWithSlugs = unstable_cache(
+  async (): Promise<SMTeam[]> => {
+    if (!isSupabaseConfigured()) return [];
+    try {
+      const db = createServerClient();
+      const seasonId = await getCurrentSeasonId(db);
+      const { data: rows } = await db
+        .from("team_season_stats")
+        .select("team_id")
+        .eq("season_id", seasonId);
+      const teamIds = (rows ?? []).map((r) => Number(r.team_id)).filter(Boolean);
+      if (!teamIds.length) return [];
+      const [{ data: teams }, slugMap] = await Promise.all([
+        db.from("teams").select("sportmonks_id,name,short_code,logo").in("sportmonks_id", teamIds),
+        getTeamSlugMap(),
+      ]);
+      return (teams ?? [])
+        .map((t: any) => teamToSMTeam(t, slugMap))
+        .filter((t) => t.id && t.name)
+        .sort((a, b) => a.name.localeCompare(b.name, "sv"));
+    } catch (e) {
+      Sentry.captureException(e);
+      return [];
+    }
+  },
+  ["teams-with-slugs"],
+  { revalidate: 3600, tags: ["teams"] }
+);
+
+async function getCurrentSeasonId(db: ReturnType<typeof createServerClient>): Promise<number> {
+  const { data } = await db
+    .from("seasons")
+    .select("sportmonks_id")
+    .eq("sport", "football")
+    .eq("is_current", true)
+    .maybeSingle();
+  return Number(data?.sportmonks_id ?? 0);
+}
+
+/** Matcher för en omgång i aktuell säsong. ISR 300s. */
+export const fetchRoundFixtures = unstable_cache(
+  async (round: number): Promise<SMFixture[]> => {
+    if (!isSupabaseConfigured()) return [];
+    try {
+      const db = createServerClient();
+      const seasonId = await getCurrentSeasonId(db);
+      if (!seasonId) return [];
+      const [{ data }, slugMap] = await Promise.all([
+        db
+          .from("fixtures")
+          .select("*, home_team:teams!fixtures_home_team_id_fkey(*), away_team:teams!fixtures_away_team_id_fkey(*), league:leagues(*)")
+          .eq("sport", "football")
+          .eq("season_id", seasonId)
+          .eq("round", round)
+          .order("kickoff", { ascending: true }),
+        getTeamSlugMap(),
+      ]);
+      return (data ?? []).map((row) => fixtureToSMFixture(row, slugMap));
+    } catch (e) {
+      Sentry.captureException(e);
+      return [];
+    }
+  },
+  ["round-fixtures"],
+  { revalidate: 300, tags: ["fixtures"] }
+);
+
+/** Alla inbördes möten mellan två lag (alla säsonger i DB). ISR 3600s. */
+export const fetchH2HFixtures = unstable_cache(
+  async (teamAId: number, teamBId: number): Promise<SMFixture[]> => {
+    if (!isSupabaseConfigured()) return [];
+    try {
+      const db = createServerClient();
+      const [{ data }, slugMap] = await Promise.all([
+        db
+          .from("fixtures")
+          .select("*, home_team:teams!fixtures_home_team_id_fkey(*), away_team:teams!fixtures_away_team_id_fkey(*), league:leagues(*)")
+          .eq("sport", "football")
+          .or(
+            `and(home_team_id.eq.${teamAId},away_team_id.eq.${teamBId}),and(home_team_id.eq.${teamBId},away_team_id.eq.${teamAId})`
+          )
+          .order("kickoff", { ascending: false })
+          .limit(50),
+        getTeamSlugMap(),
+      ]);
+      return (data ?? []).map((row) => fixtureToSMFixture(row, slugMap));
+    } catch (e) {
+      Sentry.captureException(e);
+      return [];
+    }
+  },
+  ["h2h-fixtures"],
+  { revalidate: 3600, tags: ["fixtures"] }
+);
+
+/** Senaste snapshot ÄLDRE än dagens → map team_id→position (för trendpilar). */
+async function fetchPreviousPositions(
+  db: ReturnType<typeof createServerClient>,
+  seasonId: number,
+): Promise<Map<number, number>> {
+  const map = new Map<number, number>();
+  try {
+    const { data: latest } = await db
+      .from("standings_snapshots")
+      .select("snapshot_date")
+      .eq("sport", "football")
+      .eq("season_id", seasonId)
+      .lt("snapshot_date", new Date().toISOString().slice(0, 10))
+      .order("snapshot_date", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (!latest?.snapshot_date) return map;
+    const { data: rows } = await db
+      .from("standings_snapshots")
+      .select("team_id, position")
+      .eq("season_id", seasonId)
+      .eq("snapshot_date", latest.snapshot_date);
+    for (const r of rows ?? []) map.set(Number(r.team_id), Number(r.position));
+  } catch {
+    // trend är nice-to-have — tabellen renderar utan
+  }
+  return map;
+}
+
 /** Full standings med points, played, goal_diff. ISR 3600s. */
 export const fetchStandingsFull = unstable_cache(
   async (_seasonId?: string): Promise<SMStandingRow[]> => {
@@ -324,11 +451,12 @@ export const fetchStandingsFull = unstable_cache(
         .order("points", { ascending: false });
 
       const teamIds = (data ?? []).map((r) => r.team_id as number).filter(Boolean);
-      const [{ data: teamsData }, slugMap] = await Promise.all([
+      const [{ data: teamsData }, slugMap, prevPositions] = await Promise.all([
         teamIds.length
           ? db.from("teams").select("sportmonks_id,name,short_code,logo").in("sportmonks_id", teamIds)
           : Promise.resolve({ data: [] as any[] }),
         getTeamSlugMap(),
+        fetchPreviousPositions(db, Number(season.sportmonks_id)),
       ]);
       const teamById = new Map((teamsData ?? []).map((t) => [Number(t.sportmonks_id), t]));
 
@@ -349,6 +477,9 @@ export const fetchStandingsFull = unstable_cache(
           goal_diff: Number(row.goals_for ?? 0) - Number(row.goals_against ?? 0),
           points: Number(row.points ?? 0),
           form,
+          trend: prevPositions.has(Number(row.team_id))
+            ? (prevPositions.get(Number(row.team_id))! - (i + 1))
+            : null,
         };
       });
     } catch (e) {

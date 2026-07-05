@@ -66,7 +66,20 @@ export default async function AllsvenskanTabellPage() {
             )}
             {standings.map((row) => (
               <tr key={row.team.name} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
-                <td className="py-3 px-4 text-muted-foreground">{row.position}</td>
+                <td className="py-3 px-4 text-muted-foreground">
+                  <span className="inline-flex items-center gap-1">
+                    {row.position}
+                    {row.trend != null && row.trend !== 0 && (
+                      <span
+                        className={`text-[10px] leading-none ${row.trend > 0 ? "text-pitch" : "text-red-400"}`}
+                        title={row.trend > 0 ? `Upp ${row.trend}` : `Ner ${Math.abs(row.trend)}`}
+                        aria-label={row.trend > 0 ? `Klättrat ${row.trend} placeringar` : `Tappat ${Math.abs(row.trend)} placeringar`}
+                      >
+                        {row.trend > 0 ? "▲" : "▼"}
+                      </span>
+                    )}
+                  </span>
+                </td>
                 <td className="py-3 px-4">
                   <Link href={`/lag/${row.team.slug ?? row.team.name.toLowerCase().replace(/\s+/g, "-").replace(/[åä]/g, "a").replace(/ö/g, "o")}`} className="font-medium hover:text-pitch transition-colors">
                     {row.team.name}
