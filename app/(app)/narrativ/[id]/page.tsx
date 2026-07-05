@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import type { Narrative } from "@/lib/types";
@@ -8,7 +9,7 @@ import { Separator } from "@/components/ui/separator";
 
 export const dynamic = 'force-dynamic';
 
-async function getNarrative(id: string): Promise<Narrative | null> {
+async function getNarrative(id: string): Promise<(Narrative & { articleIds: string[] }) | null> {
   if (!isSupabaseConfigured()) return null;
   try {
     const supabase = createServerClient();
@@ -28,9 +29,33 @@ async function getNarrative(id: string): Promise<Narrative | null> {
       entities: [],
       createdAt: String(row.created_at ?? new Date().toISOString()),
       updatedAt: String(row.updated_at ?? row.last_updated_at ?? row.created_at ?? new Date().toISOString()),
+      articleIds: Array.isArray(row.article_ids) ? (row.article_ids as string[]) : [],
     };
   } catch {
     return null;
+  }
+}
+
+type SourceArticle = {
+  id: string;
+  title: string;
+  slug: string | null;
+  source_name: string | null;
+  published_at: string | null;
+};
+
+async function getSourceArticles(articleIds: string[]): Promise<SourceArticle[]> {
+  if (!articleIds.length || !isSupabaseConfigured()) return [];
+  try {
+    const supabase = createServerClient();
+    const { data } = await supabase
+      .from("articles")
+      .select("id, title, slug, source_name, published_at")
+      .in("id", articleIds.slice(0, 20))
+      .order("published_at", { ascending: false });
+    return (data ?? []) as SourceArticle[];
+  } catch {
+    return [];
   }
 }
 
@@ -60,6 +85,7 @@ export default async function NarrativePage({
   const { id } = await params;
   const narrative = await getNarrative(id);
   if (!narrative) notFound();
+  const sources = await getSourceArticles(narrative.articleIds);
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
@@ -92,8 +118,37 @@ export default async function NarrativePage({
         </article>
       ) : (
         <p className="text-muted-foreground">
-          Källöversikt, tidslinje och relaterat innehåll kopplas in när Athopia OS-pipeline levererar fulla narrativ-historiker.
+          Det här narrativet saknar brödtext just nu — se källartiklarna nedan.
         </p>
+      )}
+
+      {sources.length > 0 && (
+        <section className="mt-10">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground mb-4">
+            Källartiklar ({sources.length})
+          </h2>
+          <ul className="space-y-2">
+            {sources.map((s) => (
+              <li key={s.id} className="rounded-xl border border-border bg-card px-4 py-3 hover:bg-muted/20 transition-colors">
+                {s.slug ? (
+                  <Link href={`/artikel/${s.slug}`} className="font-medium text-foreground hover:text-pitch transition-colors">
+                    {s.title}
+                  </Link>
+                ) : (
+                  <span className="font-medium text-foreground">{s.title}</span>
+                )}
+                <div className="mt-1 flex gap-2 text-xs text-muted-foreground">
+                  {s.source_name && <span>{s.source_name}</span>}
+                  {s.published_at && (
+                    <time dateTime={s.published_at}>
+                      {new Date(s.published_at).toLocaleDateString("sv-SE", { day: "numeric", month: "short" })}
+                    </time>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
     </div>
   );
