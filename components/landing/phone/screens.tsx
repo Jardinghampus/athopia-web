@@ -256,7 +256,7 @@ export function ScreenMatch() {
           </p>
           <div className="mt-2.5 flex items-center justify-between">
             <AvatarStack />
-            <span className="text-[9px] font-semibold text-zinc-400">+87 fans diskuterar</span>
+            <span className="text-[9px] font-semibold text-zinc-400">Matchtråden är igång</span>
           </div>
         </div>
       </div>
