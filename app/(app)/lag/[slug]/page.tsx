@@ -24,6 +24,7 @@ import { TeamContextTracker } from "@/components/team-hub/TeamContextTracker";
 import { getTeamColors, getTeamAccent } from "@/lib/team-colors";
 import { TeamHubHeader } from "@/components/team-hub/TeamHubHeader";
 import { TeamHubTabs } from "@/components/team-hub/TeamHubTabs";
+import { TransferRadar } from "@/components/team-hub/TransferRadar";
 import type { SwitcherTeam } from "@/components/team-hub/TeamSwitcher";
 
 export const revalidate = 60;
@@ -170,6 +171,8 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
         entityId={hub.team.id}
         initialFollowing={following}
       />
+
+      <TransferRadar teamSlug={hub.team.slug} />
 
       <TeamHubTabs hub={hub} plan={plan} insights={insights} />
     </div>
