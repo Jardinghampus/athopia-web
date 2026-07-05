@@ -25,6 +25,7 @@ import { getTeamColors, getTeamAccent } from "@/lib/team-colors";
 import { TeamHubHeader } from "@/components/team-hub/TeamHubHeader";
 import { TeamHubTabs } from "@/components/team-hub/TeamHubTabs";
 import { TransferRadar } from "@/components/team-hub/TransferRadar";
+import { PositionTrend } from "@/components/team-hub/PositionTrend";
 import type { SwitcherTeam } from "@/components/team-hub/TeamSwitcher";
 
 export const revalidate = 60;
@@ -171,6 +172,8 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
         entityId={hub.team.id}
         initialFollowing={following}
       />
+
+      <PositionTrend teamSlug={hub.team.slug} />
 
       <TransferRadar teamSlug={hub.team.slug} />
 
