@@ -1,4 +1,5 @@
 import type { NewsSignal } from "@/lib/types";
+import { OutboundLink } from "./OutboundLink";
 
 function relativeTime(iso: string | null): string {
   if (!iso) return "";
@@ -29,14 +30,13 @@ export function NewsItem({ item }: { item: NewsSignal }) {
     <div className="flex items-start gap-3 py-3 border-b border-zinc-800 last:border-0">
       <span className={`mt-2 h-2 w-2 shrink-0 rounded-full ${tierColor}`} />
       <div className="min-w-0 flex-1">
-        <a
+        <OutboundLink
           href={link}
-          target="_blank"
-          rel="noopener noreferrer"
+          source={item.source_name ?? "okänd källa"}
           className="text-sm font-medium text-white hover:text-blue-400 transition-colors line-clamp-2"
         >
           {title}
-        </a>
+        </OutboundLink>
         {snippet && (
           <p className="mt-0.5 text-xs leading-relaxed text-zinc-400 line-clamp-2">{snippet}</p>
         )}

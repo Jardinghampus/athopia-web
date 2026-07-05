@@ -11,6 +11,7 @@ import type { Article } from "@/lib/types";
 import { calculateReadTime, cn, formatDateRelative, truncate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { OutboundLink } from "@/components/news/OutboundLink";
 
 interface ArticleCardProps {
   article: Article;
@@ -56,9 +57,17 @@ export function ArticleCard({ article, size = "md", priority = false }: ArticleC
   // md fick line-clamp-1 → taglinen var i praktiken osynlig; 2 rader ger kortet en riktig undertext
   const summaryLines = size === "lg" ? "line-clamp-2" : size === "md" ? "line-clamp-2" : "hidden";
 
+  // Extern länk → spåra utgående klick (trafik-per-källa); intern → vanlig Link
+  const CardLink = ({ className, children }: { className: string; children: React.ReactNode }) =>
+    isExternal ? (
+      <OutboundLink href={href} source={article.sourceName} className={className}>{children}</OutboundLink>
+    ) : (
+      <Link href={href} className={className}>{children}</Link>
+    );
+
   if (size === "sm") {
     return (
-      <Link href={href} className={cn(base, "p-4")} {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
+      <CardLink className={cn(base, "p-4")}>
         <div className="flex items-start justify-between gap-3">
           <h3 className={cn("font-heading leading-tight text-foreground group-hover:text-pitch-light transition-colors", titleClass)}>
             {truncate(article.title, 90)}
@@ -69,12 +78,12 @@ export function ArticleCard({ article, size = "md", priority = false }: ArticleC
           <span>{relativeDate}</span>
           <span>{readTime}</span>
         </div>
-      </Link>
+      </CardLink>
     );
   }
 
   return (
-    <Link href={href} className={cn(base, "flex flex-col")} {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
+    <CardLink className={cn(base, "flex flex-col")}>
       {/* Bild */}
       {hasImage ? (
         <div className={cn("relative w-full overflow-hidden bg-muted", imageAspect)}>
@@ -132,7 +141,7 @@ export function ArticleCard({ article, size = "md", priority = false }: ArticleC
           <p className="text-base text-muted-foreground leading-relaxed line-clamp-3">{article.summary}</p>
         )}
       </div>
-    </Link>
+    </CardLink>
   );
 }
 
