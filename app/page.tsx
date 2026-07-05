@@ -102,11 +102,63 @@ function LandingJsonLd() {
 export default async function LandingPage() {
   const user = await currentUser();
   if (user) redirect("/mitt-lag");
-  const articles = await getLatestArticles();
+  const [articles, pulse, clubs] = await Promise.all([
+    getLatestArticles(),
+    getHeroPulse(),
+    getClubChips(),
+  ]);
   return (
     <>
       <LandingJsonLd />
-      <AthopiaLanding articles={articles} sportSlot={<SportFront articles={articles} />} />
+      <AthopiaLanding
+        articles={articles}
+        pulse={pulse}
+        clubs={clubs}
+        sportSlot={<SportFront articles={articles} />}
+      />
     </>
   );
+}
+
+/** Riktig sportpuls i heron: live-match eller nästa avspark + serieledaren. */
+async function getHeroPulse() {
+  try {
+    const [{ fetchLiveScores, fetchAllsvenskanFixtures, fetchStandingsFull }] = await Promise.all([
+      import("@/lib/db/fixtures"),
+    ]);
+    const [live, fixtures, standings] = await Promise.all([
+      fetchLiveScores(),
+      fetchAllsvenskanFixtures(),
+      fetchStandingsFull(),
+    ]);
+    const liveMatch = live[0] ?? null;
+    const next = fixtures
+      .filter((f) => f.state?.short_name === "NS" && new Date(f.starting_at).getTime() > Date.now())
+      .sort((a, b) => new Date(a.starting_at).getTime() - new Date(b.starting_at).getTime())[0] ?? null;
+    const leader = standings[0] ?? null;
+    const match = liveMatch ?? next;
+    return {
+      live: !!liveMatch,
+      matchName: match?.name ?? null,
+      matchId: match?.id ?? null,
+      kickoff: match?.starting_at ?? null,
+      leaderName: leader?.team.name ?? null,
+      leaderPoints: leader?.points ?? null,
+    };
+  } catch {
+    return { live: false, matchName: null, matchId: null, kickoff: null, leaderName: null, leaderPoints: null };
+  }
+}
+
+/** Alla 16 klubbar för hero-klubbväljaren. */
+async function getClubChips() {
+  try {
+    const { fetchTeamsWithSlugs } = await import("@/lib/db/fixtures");
+    const teams = await fetchTeamsWithSlugs();
+    return teams
+      .filter((t) => t.slug)
+      .map((t) => ({ slug: t.slug as string, name: t.name, shortCode: t.short_code }));
+  } catch {
+    return [];
+  }
 }

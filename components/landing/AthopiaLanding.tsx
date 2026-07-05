@@ -6,11 +6,8 @@
    Touch: alla interaktiva element ≥44px, primär-CTA i tumzonen via MobileDock. */
 
 import { LandingNav } from "./LandingNav";
-import { Hero } from "./Hero";
-import { SocialProof } from "./SocialProof";
+import { Hero, type HeroPulse, type ClubChip } from "./Hero";
 import { ExperienceSection } from "./ExperienceSection";
-import { BentoFeatures } from "./BentoFeatures";
-import { Testimonials } from "./Testimonials";
 import { Pricing } from "./Pricing";
 import { Faq } from "./Faq";
 import { FinalCta } from "./FinalCta";
@@ -29,20 +26,22 @@ export interface LandingArticle {
 
 export default function AthopiaLanding({
   sportSlot,
+  pulse,
+  clubs,
 }: {
   articles?: LandingArticle[];
   /** Server-renderad sportsektion (matchcenter/tabell/nyheter) — sport före marketing. */
   sportSlot?: React.ReactNode;
+  pulse?: HeroPulse;
+  clubs?: ClubChip[];
 } = {}) {
   return (
     <div className="min-h-screen overflow-x-clip bg-zinc-950 font-sans text-white">
       <LandingNav />
       <main>
-        <Hero />
+        <Hero pulse={pulse} clubs={clubs} />
         {sportSlot}
         <ExperienceSection />
-        <BentoFeatures />
-        <Testimonials />
         <Pricing />
         <Faq />
         <FinalCta />

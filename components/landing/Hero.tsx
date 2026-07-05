@@ -8,8 +8,68 @@ import { Container, Label, Reveal } from "./primitives";
 import { PhoneFrame } from "./phone/PhoneFrame";
 import { ScreenFeed } from "./phone/screens";
 import { WaitlistModal } from "./WaitlistModal";
+import { getTeamAccent } from "@/lib/team-colors";
 
-export function Hero() {
+export interface HeroPulse {
+  live: boolean;
+  matchName: string | null;
+  matchId: number | null;
+  kickoff: string | null;
+  leaderName: string | null;
+  leaderPoints: number | null;
+}
+
+export interface ClubChip {
+  slug: string;
+  name: string;
+  shortCode: string | null;
+}
+
+/** "Idag 15:00" / "Sön 14:00" — kompakt svensk avsparkstid. */
+function kickoffLabel(iso: string): string {
+  const d = new Date(iso);
+  const today = new Date().toDateString() === d.toDateString();
+  const time = d.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
+  if (today) return `Idag ${time}`;
+  return `${d.toLocaleDateString("sv-SE", { weekday: "short", day: "numeric", month: "short" })} ${time}`;
+}
+
+/** Levande sportpuls istället för statisk label — riktig data, aldrig påhittad. */
+function PulseStrip({ pulse }: { pulse: HeroPulse }) {
+  const hasMatch = !!pulse.matchName;
+  const hasLeader = !!pulse.leaderName;
+  if (!hasMatch && !hasLeader) return <Label>Allsvenskan · Live · AI-analys · Forum</Label>;
+  return (
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+      {hasMatch && (
+        <Link
+          href={pulse.matchId ? `/match/${pulse.matchId}` : "/match"}
+          className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-4 py-2 text-white/85 transition-colors hover:border-pitch/50"
+        >
+          {pulse.live ? (
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-75 motion-reduce:animate-none" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
+            </span>
+          ) : (
+            <span className="h-2 w-2 rounded-full bg-pitch" />
+          )}
+          <span className="font-medium">{pulse.matchName}</span>
+          <span className="text-white/45">
+            {pulse.live ? "LIVE" : pulse.kickoff ? kickoffLabel(pulse.kickoff) : ""}
+          </span>
+        </Link>
+      )}
+      {hasLeader && (
+        <Link href="/allsvenskan/tabell" className="text-white/45 transition-colors hover:text-white/75">
+          Serieledare: <span className="text-white/80">{pulse.leaderName}</span> · {pulse.leaderPoints} p
+        </Link>
+      )}
+    </div>
+  );
+}
+
+export function Hero({ pulse, clubs = [] }: { pulse?: HeroPulse; clubs?: ClubChip[] }) {
   const ref = useRef<HTMLElement>(null);
   const reduced = useReducedMotion();
   const [modalOpen, setModalOpen] = useState(false);
@@ -42,21 +102,22 @@ export function Hero() {
           {/* Copy */}
           <div className="max-w-[640px]">
             <Reveal>
-              <Label>Allsvenskan · Live · AI-analys · Forum</Label>
+              {pulse ? <PulseStrip pulse={pulse} /> : <Label>Allsvenskan · Live · AI-analys · Forum</Label>}
             </Reveal>
 
             <Reveal delay={0.08}>
               <h1 className="mb-6 mt-4 font-heading text-[clamp(3.75rem,11vw,8.5rem)] leading-[0.92] tracking-wide">
-                Fotboll som
+                Din klubb.
                 <br />
-                <span className="text-pitch">känns på riktigt.</span>
+                <span className="text-pitch">Varje dag.</span>
               </h1>
             </Reveal>
 
             <Reveal delay={0.16}>
               <p className="mb-8 max-w-[480px] text-[17px] leading-[1.65] text-white/65 md:mb-10 md:text-xl">
-                Realtidsnyheter, AI-sammanfattningar, djupstatistik och ditt
-                lags forum — i ett flöde som känns som en app, inte en webbplats.
+                Vi läser alla svenska källor, följer varje match och räknar på
+                varje siffra — så att du alltid vet vad som händer i din klubb.
+                Byggt för supportrar som kan fotboll.
               </p>
             </Reveal>
 
@@ -67,7 +128,7 @@ export function Hero() {
                   onClick={handleCta}
                   className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl bg-pitch px-8 text-[17px] font-bold text-black transition-transform duration-200 hover:scale-[1.02] active:scale-[0.97]"
                 >
-                  Skapa ditt flöde <ArrowRight className="h-5 w-5" />
+                  Välj din klubb <ArrowRight className="h-5 w-5" />
                 </Link>
                 <a
                   href="#upplevelsen"
@@ -79,11 +140,31 @@ export function Hero() {
             </Reveal>
             <WaitlistModal open={modalOpen} onClose={() => setModalOpen(false)} redirectTo="/onboarding" />
 
-            <Reveal delay={0.32}>
-              <p className="text-sm text-white/30">
-                Läst av 12 000+ Allsvenskan-fans varje omgång · Gratis att börja
-              </p>
-            </Reveal>
+            {clubs.length > 0 ? (
+              <Reveal delay={0.32}>
+                <div className="flex flex-wrap gap-2" aria-label="Välj din klubb">
+                  {clubs.map((c) => (
+                    <Link
+                      key={c.slug}
+                      href={`/lag/${c.slug}`}
+                      className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-white/12 bg-white/[0.03] px-4 text-[13px] font-semibold text-white/75 transition-all duration-200 hover:-translate-y-0.5 hover:border-white/30 hover:text-white motion-reduce:hover:translate-y-0"
+                    >
+                      <span
+                        className="h-2 w-2 shrink-0 rounded-full"
+                        style={{ background: getTeamAccent(c.slug) }}
+                        aria-hidden
+                      />
+                      {c.name}
+                    </Link>
+                  ))}
+                </div>
+                <p className="mt-4 text-sm text-white/30">Alla 16 klubbar · Gratis att börja</p>
+              </Reveal>
+            ) : (
+              <Reveal delay={0.32}>
+                <p className="text-sm text-white/30">Hela Allsvenskan · Gratis att börja</p>
+              </Reveal>
+            )}
           </div>
 
           {/* Telefon med subtil parallax */}
