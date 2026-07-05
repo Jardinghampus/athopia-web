@@ -22,6 +22,7 @@ export function NewsItem({ item }: { item: NewsSignal }) {
   const title      = item.content?.title ?? "(ingen titel)";
   const link       = item.content?.link ?? item.source_url ?? "#";
   const pubAt      = item.content?.published_at ?? item.created_at;
+  const snippet    = (item.content as { snippet?: string | null } | null)?.snippet ?? null;
   const tierColor  = TIER_DOT[item.importance_tier ?? "normal"] ?? TIER_DOT.normal;
 
   return (
@@ -36,6 +37,9 @@ export function NewsItem({ item }: { item: NewsSignal }) {
         >
           {title}
         </a>
+        {snippet && (
+          <p className="mt-0.5 text-xs leading-relaxed text-zinc-400 line-clamp-2">{snippet}</p>
+        )}
         <p className="mt-0.5 text-xs text-zinc-500">
           {item.source_name ?? "okänd källa"} · {relativeTime(pubAt)}
         </p>

@@ -53,7 +53,8 @@ export function ArticleCard({ article, size = "md", priority = false }: ArticleC
       ? "text-lg"
       : "text-base";
 
-  const summaryLines = size === "lg" ? "line-clamp-2" : size === "md" ? "line-clamp-1" : "hidden";
+  // md fick line-clamp-1 → taglinen var i praktiken osynlig; 2 rader ger kortet en riktig undertext
+  const summaryLines = size === "lg" ? "line-clamp-2" : size === "md" ? "line-clamp-2" : "hidden";
 
   if (size === "sm") {
     return (
@@ -103,14 +104,18 @@ export function ArticleCard({ article, size = "md", priority = false }: ArticleC
           </div>
         </div>
 
-        {/* Entiteter */}
-        {article.entities?.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {article.entities.slice(0, 4).map((entity) => (
+        {/* Lag-chips, eller Allsvenskan som ärlig fallback */}
+        <div className="flex flex-wrap gap-1.5">
+          {article.entities?.length > 0 ? (
+            article.entities.slice(0, 3).map((entity) => (
               <EntityChip key={entity.id} entity={entity} size="sm" linked={false} />
-            ))}
-          </div>
-        )}
+            ))
+          ) : (
+            <span className="inline-flex items-center rounded-full border border-pitch/30 bg-pitch/10 px-2 py-0.5 text-xs font-medium text-pitch">
+              Allsvenskan
+            </span>
+          )}
+        </div>
 
         {/* Rubrik */}
         <h3 className={cn("font-heading leading-tight text-foreground group-hover:text-pitch-light transition-colors", titleClass)}>

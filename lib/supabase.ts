@@ -282,7 +282,25 @@ export async function getFilteredArticles(filters: ArticleFilters = {}): Promise
     }
 
     const { data, count } = await q;
-    return { articles: (data ?? []).map(mapArticle), total: count ?? 0 };
+    const rows = data ?? [];
+
+    // news_feed exponerar entity_ids (uuid[]) men inte entities — utan denna
+    // resolvning var lag-chipsen på /nyheter alltid tomma.
+    const allIds = [...new Set(rows.flatMap((r: any) => (r.entity_ids as string[] | null) ?? []))];
+    if (allIds.length > 0) {
+      const { data: ents } = await supabase
+        .from("entities")
+        .select("id, name, slug, type")
+        .in("id", allIds.slice(0, 300));
+      const byId = new Map((ents ?? []).map((e: any) => [String(e.id), e]));
+      for (const r of rows as any[]) {
+        r.entities = ((r.entity_ids as string[] | null) ?? [])
+          .map((id) => byId.get(String(id)))
+          .filter((e: any) => e && e.type === "team" && e.slug);
+      }
+    }
+
+    return { articles: rows.map(mapArticle), total: count ?? 0 };
   } catch (e) { captureDbError(e);
     return { articles: [], total: 0 };
   }
