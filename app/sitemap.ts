@@ -19,6 +19,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/forum`, lastModified: new Date(), changeFrequency: "daily", priority: 0.7 },
     { url: `${BASE}/podcast`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
     { url: `${BASE}/prenumerera`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.6 },
+    // Omgångssidor (programmatisk SEO)
+    ...Array.from({ length: 30 }, (_, i) => ({
+      url: `${BASE}/allsvenskan/omgang/${i + 1}`,
+      lastModified: new Date(),
+      changeFrequency: "daily" as const,
+      priority: 0.65,
+    })),
   ];
 
   if (!isSupabaseConfigured()) return staticRoutes;
@@ -29,6 +36,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let podcastRoutes: MetadataRoute.Sitemap = [];
   let matchRoutes: MetadataRoute.Sitemap = [];
   let forumRoutes: MetadataRoute.Sitemap = [];
+  const h2hRoutes: MetadataRoute.Sitemap = [];
 
   try {
     const supabase = createServerClient();
@@ -45,7 +53,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }));
 
-    const { data: teams } = await supabase.from("teams").select("slug, updated_at");
+    // OBS: teams-tabellen saknar slug-kolumn — laglugs lever i entities (type='team')
+    const { data: teams } = await supabase
+      .from("entities")
+      .select("slug, updated_at")
+      .eq("type", "team")
+      .not("sportmonks_id", "is", null)
+      .not("slug", "is", null);
     teamRoutes = (teams ?? []).map((t) => ({
       url: `${BASE}/lag/${t.slug}`,
       lastModified: t.updated_at ? new Date(t.updated_at) : new Date(),
@@ -76,6 +90,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: f.status === "FT" ? 0.6 : 0.75,
     }));
 
+    // H2H-möten (kanonisk ordning = svensk alfabetisk på slug)
+    const teamSlugs = (teams ?? []).map((t) => String(t.slug)).filter(Boolean).sort((a, b) => a.localeCompare(b, "sv"));
+    for (let i = 0; i < teamSlugs.length; i++) {
+      for (let j = i + 1; j < teamSlugs.length; j++) {
+        h2hRoutes.push({
+          url: `${BASE}/allsvenskan/moten/${teamSlugs[i]}-vs-${teamSlugs[j]}`,
+          lastModified: new Date(),
+          changeFrequency: "weekly" as const,
+          priority: 0.5,
+        });
+      }
+    }
+
     // Klubbforum
     forumRoutes = (teams ?? []).map((t) => ({
       url: `${BASE}/forum/${t.slug}`,
@@ -99,5 +126,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // DB nere — returnera statiska routes
   }
 
-  return [...staticRoutes, ...articleRoutes, ...teamRoutes, ...matchRoutes, ...forumRoutes, ...playerRoutes, ...podcastRoutes];
+  return [...staticRoutes, ...articleRoutes, ...teamRoutes, ...matchRoutes, ...h2hRoutes, ...forumRoutes, ...playerRoutes, ...podcastRoutes];
 }
