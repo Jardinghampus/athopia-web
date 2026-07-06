@@ -3,10 +3,9 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import type { FeedItem } from "@/lib/types";
 import { interestsToNewsTags } from "@/lib/feed/content-preferences";
+import { FREE_DAILY_LIMIT, resolveFeedUserId } from "@/lib/feed/feed-usage";
 
-const FREE_DAILY_LIMIT = 20;
 const PAGE_SIZE = 20;
-
 function getDb() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
@@ -75,12 +74,13 @@ export async function GET(req: Request) {
     }
   }
 
-  // Free-dagsgräns: läs faktiskt antal sett artiklar idag från DB
-  let itemsSeenToday = 0;
-  if (!isPro && userId) {
-    itemsSeenToday = await getItemsSeenToday(db, userId);
-  }
+  const feedUserId = resolveFeedUserId(userId, req);
 
+  // Free-dagsgräns: inloggade + anon (AGENTS.md — anon::{ip_hash})
+  let itemsSeenToday = 0;
+  if (!isPro) {
+    itemsSeenToday = await getItemsSeenToday(db, feedUserId);
+  }
   const remaining = isPro ? PAGE_SIZE : Math.max(0, FREE_DAILY_LIMIT - itemsSeenToday);
   if (remaining === 0) {
     return NextResponse.json({ items: [], hasMore: false, gated: true });
@@ -109,6 +109,9 @@ export async function GET(req: Request) {
 
     if (isPro && !teamSlug) {
       filterTeamIds = feedConfig?.followed_team_ids ?? [];
+    } else if (!teamSlug && (feedConfig?.followed_team_ids?.length ?? 0) > 0) {
+      // Free: basic filter per AGENTS.md — valt lag från onboarding
+      filterTeamIds = feedConfig!.followed_team_ids!;
     }
 
     if (!typeFilter) {
@@ -153,14 +156,14 @@ export async function GET(req: Request) {
     console.error("[feed] DB-fel:", err);
   }
 
-  // Öka daglig räknare för free-användare
-  if (!isPro && userId && items.length > 0) {
-    void incrementItemsSeen(db, userId, items.length);
+  // Öka daglig räknare för free (inloggad + anon)
+  if (!isPro && items.length > 0) {
+    void incrementItemsSeen(db, feedUserId, items.length);
   }
 
   const totalSeenAfter = itemsSeenToday + items.length;
   const gated = !isPro && totalSeenAfter >= FREE_DAILY_LIMIT;
   const hasMore = items.length === effectiveLimit && !gated;
+  const remainingToday = isPro ? null : Math.max(0, FREE_DAILY_LIMIT - totalSeenAfter);
 
-  return NextResponse.json({ items, hasMore, gated });
-}
+  return NextResponse.json({ items, hasMore, gated, remainingToday });}

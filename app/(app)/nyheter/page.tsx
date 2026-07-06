@@ -4,6 +4,8 @@ import { Suspense } from "react";
 import { ArticleCard } from "@/components/ui/ArticleCard";
 import { NewsFilterPanel } from "@/components/ui/NewsFilterPanel";
 import { NyheterRealtimeBanner } from "@/components/NyheterRealtimeBanner";
+import { ProductEventTracker } from "@/components/analytics/ProductEventTracker";
+import { FeedMatchHero } from "@/components/feed/FeedMatchHero";
 import { TeamPushPopups } from "@/components/news/TeamPushPopups";
 import { getFilteredArticles, getActiveSources, getHotArticles } from "@/lib/supabase";
 import { filterStateToParams } from "@/lib/filters";
@@ -119,7 +121,9 @@ export default async function NyheterPage({ searchParams }: { searchParams: Prom
 
   return (
     <div className="w-full px-6 sm:px-8 py-10">
+      <ProductEventTracker event="nyheter_open" />
       <NyheterRealtimeBanner />
+      <FeedMatchHero />
       <div className="mb-8">
         <h1 className="font-bold text-3xl text-foreground">Nyheter</h1>
         <p className="text-muted-foreground mt-2 text-sm">

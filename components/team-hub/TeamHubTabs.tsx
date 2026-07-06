@@ -177,9 +177,16 @@ function Oversikt({ hub, plan, insights, onFixture }: { hub: TeamHubPayload; pla
       )}
 
       <SectionCard title="Vad du behöver veta idag" icon={Star} className="lg:col-span-3">
-        {canAccess("eliteBrief", plan)
-          ? <TeamDailyPulse pulse={hub.pulse} />
-          : <UpgradePrompt feature="eliteBrief" />}
+        {hub.pulse
+          ? canAccess("aiSummaries", plan)
+            ? <TeamDailyPulse pulse={hub.pulse} />
+            : (
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">Dagens rubrik visas ovan — full brief kräver PRO.</p>
+                <UpgradePrompt feature="aiSummaries" />
+              </div>
+            )
+          : <p className="py-4 text-center text-sm text-muted-foreground">Ingen brief publicerad för ditt lag idag. Nya kort släpps på morgonen.</p>}
       </SectionCard>
 
       <SectionCard title="Lagprofil mot ligan" icon={BarChart3} className="lg:col-span-2">

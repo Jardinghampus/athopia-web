@@ -243,9 +243,62 @@ export interface ArticleFilters {
   teams?: string[];
   sources?: string[];
   events?: string[];
+  newsTags?: string[];
   page?: number;
   limit?: number;
 }
+
+/**
+ * Heta nyheter: klickvelocitet (48h, från source_clicks) blandad med Echos
+ * feed_score. Dag 1 signal-drivet; skarpare i takt med att klick flödar in.
+ * Lätt: två cachade queries (ISR 300s), ingen per-user-data, ingen join i
+ * request-path. Klick aggregeras per url och matchas mot artikelns källa.
+ */
+export const getHotArticles = unstable_cache(
+  async (limit = 6): Promise<Article[]> => {
+    if (!isSupabaseConfigured()) return [];
+    try {
+      const supabase = createServerClient();
+      const since = new Date(Date.now() - 48 * 3600_000).toISOString();
+
+      // Kandidater: senaste dygnets högst rankade signaler
+      const { data: rows } = await supabase
+        .from("news_feed")
+        .select("*")
+        .eq("sport", "football")
+        .gte("published_at", new Date(Date.now() - 36 * 3600_000).toISOString())
+        .order("feed_score", { ascending: false, nullsFirst: false })
+        .limit(40);
+      if (!rows?.length) return [];
+
+      // Klick per url (48h) — en indexerad, aggregerad query
+      const { data: clicks } = await supabase
+        .from("source_clicks")
+        .select("url")
+        .gte("clicked_at", since)
+        .limit(5000);
+      const clickByUrl = new Map<string, number>();
+      for (const c of clicks ?? []) {
+        const u = (c as { url: string | null }).url;
+        if (u) clickByUrl.set(u, (clickByUrl.get(u) ?? 0) + 1);
+      }
+
+      const scored = rows.map((r: any) => {
+        const clicksN = clickByUrl.get(r.url) ?? 0;
+        // feed_score 0–1 + klickboost (log-dämpad så en viral artikel ej dränker allt)
+        const hot = Number(r.feed_score ?? 0) + Math.log1p(clicksN) * 0.35;
+        return { row: r, hot };
+      });
+      scored.sort((a, b) => b.hot - a.hot);
+      return scored.slice(0, limit).map((s) => mapArticle(s.row));
+    } catch (e) {
+      captureDbError(e);
+      return [];
+    }
+  },
+  ["hot-articles"],
+  { revalidate: 300, tags: ["news"] }
+);
 
 export async function getFilteredArticles(filters: ArticleFilters = {}): Promise<{ articles: Article[]; total: number }> {
   if (!isSupabaseConfigured()) return { articles: [], total: 0 };
@@ -270,6 +323,10 @@ export async function getFilteredArticles(filters: ArticleFilters = {}): Promise
 
     if (filters.events && filters.events.length > 0) {
       q = q.in("event_type", filters.events);
+    }
+
+    if (filters.newsTags && filters.newsTags.length > 0) {
+      q = q.in("news_tag", filters.newsTags);
     }
 
     if (filters.sources && filters.sources.length > 0) {

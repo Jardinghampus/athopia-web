@@ -15,6 +15,7 @@ import {
 import { useFavoriteTeam } from "@/hooks/useFavoriteTeam";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { FeedPaywallBanner, FeedGhostCards } from "@/components/FeedPaywallBanner";
+import { ProductEventTracker } from "@/components/analytics/ProductEventTracker";
 import { PullToRefresh } from "@/components/ui/PullToRefresh";
 import type { FeedItem, FeedItemType } from "@/lib/types";
 
@@ -243,6 +244,7 @@ interface FeedResponse {
   items: FeedItem[];
   hasMore: boolean;
   gated: boolean;
+  remainingToday?: number | null;
 }
 
 async function fetchHero(teamSlug: string | null): Promise<HeroData> {
@@ -279,6 +281,7 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
   const [hasMore, setHasMore] = useState(true);
   const [newCount, setNewCount] = useState(0);
   const [gated, setGated] = useState(false);
+  const [remainingToday, setRemainingToday] = useState<number | null>(null);
   const [filter, setFilter] = useState<FilterType>("all");
 
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -320,7 +323,8 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
         } catch {}
       }
 
-      const { items: newItems, hasMore: more, gated: isGated } = await fetchFeedPage(slug, currentOffset);
+      const { items: newItems, hasMore: more, gated: isGated, remainingToday: remaining } =
+        await fetchFeedPage(slug, currentOffset);
 
       if (reset) {
         setItems(newItems);
@@ -335,6 +339,7 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
       }
 
       setGated(isGated);
+      setRemainingToday(remaining ?? null);
       setHasMore(more && !isGated);
       setLoading(false);
       setLoadingMore(false);
@@ -391,6 +396,7 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
 
   return (
     <PullToRefresh onRefresh={async () => { await load(true); void fetchHero(slug).then(setHero); }}>
+      <ProductEventTracker event="feed_open" props={{ team: slug ?? "all" }} />
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 space-y-5">
 
         {/* Header */}
@@ -442,6 +448,15 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
 
         {/* Filter tabs */}
         <FilterTabs active={filter} onChange={(f) => setFilter(f)} />
+
+        {remainingToday != null && remainingToday > 0 && remainingToday < 20 && !gated && (
+          <p className="text-xs text-muted-foreground text-center">
+            {remainingToday} artikel{remainingToday === 1 ? "" : "ar"} kvar idag ·{" "}
+            <Link href="/prenumerera" className="text-pitch hover:underline">
+              Uppgradera
+            </Link>
+          </p>
+        )}
 
         {/* Main feed */}
         {loading ? (

@@ -25,6 +25,8 @@ import { TeamContextTracker } from "@/components/team-hub/TeamContextTracker";
 import { getTeamColors, getTeamAccent } from "@/lib/team-colors";
 import { TeamHubHeader } from "@/components/team-hub/TeamHubHeader";
 import { TeamHubTabs } from "@/components/team-hub/TeamHubTabs";
+import { MatchdayBanner } from "@/components/team-hub/MatchdayBanner";
+import { TeamHubBriefRitual } from "@/components/team-hub/TeamHubBriefRitual";
 import { TransferRadar } from "@/components/team-hub/TransferRadar";
 import { PositionTrend } from "@/components/team-hub/PositionTrend";
 import type { SwitcherTeam } from "@/components/team-hub/TeamSwitcher";
@@ -176,6 +178,10 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
         entityId={hub.team.id}
         initialFollowing={following}
       />
+
+      <MatchdayBanner teamName={hub.team.name} recent={hub.recent} upcoming={hub.upcoming} />
+
+      <TeamHubBriefRitual pulse={hub.pulse} plan={plan} />
 
       <PositionTrend teamSlug={hub.team.slug} />
 

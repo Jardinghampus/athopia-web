@@ -5,6 +5,8 @@ import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import { MatchXgChart } from "./MatchXgChart";
 import { MatchForum } from "./MatchForum";
 import { PlayerRatingPanel, type RatablePlayer } from "./PlayerRatingPanel";
+import { ProductEventTracker } from "@/components/analytics/ProductEventTracker";
+import { MatchLineups } from "@/components/match/MatchLineups";
 
 export const revalidate = 60;
 
@@ -13,7 +15,7 @@ interface PageProps { params: Promise<{ id: string }> }
 async function getData(fixtureId: number) {
   if (!isSupabaseConfigured()) return null;
   const db = createServerClient();
-  const [{ data: fix }, { data: tms }, { data: evts }, { data: live }, { data: lups }, { data: cqAnalysis }] = await Promise.all([
+  const [{ data: fix }, { data: tms }, { data: evts }, { data: live }, { data: lups }, { data: cqAnalysis }, { data: pms }] = await Promise.all([
     db.from("fixtures").select("*").eq("sportmonks_id", fixtureId).maybeSingle(),
     db.from("team_match_stats").select("*").eq("fixture_id", fixtureId),
     db.from("fixture_events").select("*").eq("fixture_id", fixtureId).order("minute"),
@@ -27,6 +29,7 @@ async function getData(fixtureId: number) {
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle(),
+    db.from("player_match_stats").select("player_id,goals,xg").eq("fixture_id", fixtureId),
   ]);
   // Hämta spelarnamn separat för de player_ids som finns i lineups och händelser.
   const playerIds = Array.from(new Set([
@@ -72,7 +75,16 @@ async function getData(fixtureId: number) {
     }
   }
 
-  return { fix, tms: tms ?? [], evts: evts ?? [], live: live ?? null, lups: lupsWithPlayers, sum, playerMap, related };
+  const playerStatsMap: Record<number, { goals: number | null; xg: number | null }> = {};
+  for (const row of pms ?? []) {
+    const pid = (row as Record<string, unknown>).player_id as number;
+    playerStatsMap[pid] = {
+      goals: (row as Record<string, unknown>).goals as number | null,
+      xg: (row as Record<string, unknown>).xg as number | null,
+    };
+  }
+
+  return { fix, tms: tms ?? [], evts: evts ?? [], live: live ?? null, lups: lupsWithPlayers, sum, playerMap, related, playerStatsMap };
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -245,6 +257,7 @@ export default async function MatchPage({ params }: PageProps) {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+      <ProductEventTracker event="match_page_view" props={{ fixture_id: fid }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(matchJsonLd) }} />
       {/* Resultat-header */}
       <div className="bg-card border border-border rounded-2xl p-6">
@@ -355,34 +368,13 @@ export default async function MatchPage({ params }: PageProps) {
         </div>
 
         {/* Lineups */}
-        {(homeLup.length > 0 || awayLup.length > 0) && (
-          <div className="bg-card border border-border rounded-xl p-4">
-            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Startelvor</h3>
-            <div className="grid grid-cols-2 gap-3">
-              {[{ name: homeName, players: homeLup }, { name: awayName, players: awayLup }].map(({ name, players }) => (
-                <div key={name}>
-                  <p className="text-xs font-semibold text-foreground mb-2 truncate">{name}</p>
-                  {players.map((p, i) => {
-                    const pl = p.players as Record<string, unknown> | null;
-                    const href = `/spelare/${(pl?.slug as string | null) ?? String(p.player_id ?? "")}`;
-                    return (
-                      <div key={i} className="text-xs text-muted-foreground py-0.5 flex items-center gap-1">
-                        <span className="text-foreground/50">{p.jersey as number ?? "—"}</span>
-                        {pl ? (
-                          <Link href={href} className="truncate hover:text-pitch">
-                            {pl.fullname as string}
-                          </Link>
-                        ) : (
-                          <span className="truncate">–</span>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        <MatchLineups
+          homeName={homeName}
+          awayName={awayName}
+          homeLup={homeLup}
+          awayLup={awayLup}
+          playerStats={d?.playerStatsMap ?? {}}
+        />
       </div>
 
       {/* Spelarbetyg efter FT */}

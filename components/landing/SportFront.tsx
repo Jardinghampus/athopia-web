@@ -7,6 +7,7 @@ import {
   type SMFixture,
   type SMStandingRow,
 } from "@/lib/db/fixtures";
+import { isKickoffToday } from "@/lib/matchday/helpers";
 import { ScoreWidget } from "@/components/ui/ScoreWidget";
 import type { LandingArticle } from "./AthopiaLanding";
 
@@ -43,6 +44,14 @@ export async function SportFront({ articles }: { articles: LandingArticle[] }) {
   ]);
 
   const now = Date.now();
+  const todaysFixtures = fixtures
+    .filter(
+      (f) =>
+        f.state?.short_name === "LIVE" ||
+        isKickoffToday(f.starting_at) ||
+        (f.state?.short_name === "FT" && isKickoffToday(f.starting_at))
+    )
+    .sort((a, b) => new Date(a.starting_at).getTime() - new Date(b.starting_at).getTime());
   const upcoming = fixtures
     .filter((f) => f.state?.short_name === "NS" && new Date(f.starting_at).getTime() >= now)
     .slice(0, 4);
@@ -52,13 +61,21 @@ export async function SportFront({ articles }: { articles: LandingArticle[] }) {
     .slice(0, 4);
 
   const matchList: { heading: string; items: SMFixture[]; live?: boolean } | null =
-    live.length > 0
-      ? { heading: "Live nu", items: live, live: true }
-      : upcoming.length > 0
-        ? { heading: "Kommande matcher", items: upcoming }
-        : recent.length > 0
-          ? { heading: "Senaste resultaten", items: recent }
-          : null;
+    todaysFixtures.length > 0
+      ? {
+          heading: todaysFixtures.some((f) => f.state?.short_name === "LIVE")
+            ? "● Matchdag idag"
+            : "Matchdag idag",
+          items: todaysFixtures,
+          live: todaysFixtures.some((f) => f.state?.short_name === "LIVE"),
+        }
+      : live.length > 0
+        ? { heading: "Live nu", items: live, live: true }
+        : upcoming.length > 0
+          ? { heading: "Kommande matcher", items: upcoming }
+          : recent.length > 0
+            ? { heading: "Senaste resultaten", items: recent }
+            : null;
 
   const top = standings.slice(0, 6);
 

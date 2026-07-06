@@ -184,16 +184,16 @@ export interface TeamPulse {
   pulse_date: string;
 }
 
-/** Dagens godkända AI-brief ("vad du behöver veta idag") för ett lag (entity-uuid). Elite-feature. */
+/** Dagens godkända AI-brief ("vad du behöver veta idag") för ett lag. */
 export async function getTeamPulse(teamEntityId: string): Promise<TeamPulse | null> {
   if (!isSupabaseConfigured()) return null;
   try {
     const db = createServerClient();
     const { data } = await db
-      .from("team_daily_pulses")
+      .from("published_team_daily_pulses")
       .select("headline,dek,body,match_context_label,pulse_date")
       .eq("team_entity_id", teamEntityId)
-      .eq("status", "approved")
+      .eq("sport", "football")
       .order("pulse_date", { ascending: false })
       .limit(1)
       .maybeSingle();
