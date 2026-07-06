@@ -10,6 +10,9 @@ const FEATURE_LABELS: Record<AccessFeature, string> = {
   eliteBrief:         "daglig AI-brief för ditt lag",
   pushAlerts:         "push-notiser",
   unlimitedFeed:      "obegränsat flöde",
+  aiChat:             "AI-chat",
+  podcastClips:       "podcastkuratering",
+  briefAudio:         "lyssna på brief",
 };
 
 export function UpgradePrompt({ feature }: { feature: AccessFeature }) {

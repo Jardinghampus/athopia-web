@@ -26,11 +26,16 @@ import type {
   Entity,
   EntityInsight,
   Narrative,
+  NewsSignal,
   Podcast,
   PodcastChunk,
+  PodcastClipHighlight,
+  PodcastEpisodeSignal,
   TeamDailyPulse,
   TeamPushPopup,
 } from "@/lib/types";
+import { listenMetaFromRow } from "@/lib/podcast/spotify";
+import { mapImportanceTier } from "@/lib/feed/importance";
 
 // ─── Miljövariabler ────────────────────────────────────────────────────────────
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
@@ -472,6 +477,98 @@ export async function getPodcastChunks(podcastId: string): Promise<PodcastChunk[
   }
 }
 
+/** Kuraterade poddavsnitt för lag/match — copyright-säkert (metadata only). */
+async function fetchPodcastSignalsForEntities(
+  entityKey: string,
+  namesJson: string,
+  limit: number
+): Promise<PodcastEpisodeSignal[]> {
+  if (!isSupabaseConfigured() || !entityKey) return [];
+  const entityIds = entityKey.split(",").filter(Boolean);
+  const teamNames = (JSON.parse(namesJson) as string[]) ?? [];
+  const nameLower = teamNames.map((n) => n.toLowerCase()).filter((n) => n.length > 2);
+
+  try {
+    const supabase = createServerClient();
+    const { data: pods } = await supabase
+      .from("podcasts")
+      .select("id, title, show_name, published_at, entity_ids, mentioned_teams, metadata, audio_url")
+      .order("published_at", { ascending: false })
+      .limit(24);
+
+    if (!pods?.length) return [];
+
+    type PodRow = {
+      id: string;
+      title: string;
+      show_name: string | null;
+      published_at: string | null;
+      entity_ids: string[] | null;
+      mentioned_teams: string[] | null;
+      metadata: Record<string, unknown> | null;
+      audio_url: string | null;
+    };
+
+    const entitySet = new Set(entityIds);
+    const ranked = (pods as PodRow[])
+      .map((pod) => {
+        const meta = (pod.metadata ?? {}) as Record<string, unknown>;
+        const topics = Array.isArray(meta.topics) ? (meta.topics as string[]) : [];
+        const listen = listenMetaFromRow(meta, null, pod.audio_url);
+        const overlap = (pod.entity_ids ?? []).some((id) => entitySet.has(id));
+        const titleLower = pod.title.toLowerCase();
+        const teamMatch =
+          nameLower.some((n) => titleLower.includes(n)) ||
+          (pod.mentioned_teams ?? []).some((t) => nameLower.includes(t.toLowerCase()));
+        const topicMatch = topics.some((t) =>
+          nameLower.some((n) => t.toLowerCase().includes(n))
+        );
+        const score = (overlap ? 4 : 0) + (teamMatch ? 2 : 0) + (topicMatch ? 1 : 0);
+        return { pod, listen, topics, score };
+      })
+      .filter((r) => r.score > 0)
+      .sort((a, b) => b.score - a.score);
+
+    return ranked.slice(0, limit).map(({ pod, listen, topics }) => ({
+      id: String(pod.id),
+      title: String(pod.title ?? ""),
+      showName: String(pod.show_name ?? "Podcast"),
+      publishedAt: pod.published_at ?? null,
+      listenUrl: listen.listenUrl,
+      spotifyEpisodeId: listen.spotifyEpisodeId,
+      spotifyShowId: listen.spotifyShowId,
+      topics,
+      mentionedTeams: pod.mentioned_teams ?? [],
+    }));
+  } catch (e) {
+    captureDbError(e);
+    return [];
+  }
+}
+
+const getPodcastSignalsCached = unstable_cache(
+  fetchPodcastSignalsForEntities,
+  ["podcast-signals-entities"],
+  { revalidate: 300, tags: ["podcasts"] }
+);
+
+export async function getPodcastSignalsForEntities(
+  entityIds: string[],
+  opts: { limit?: number; teamNames?: string[] } = {}
+): Promise<PodcastEpisodeSignal[]> {
+  if (entityIds.length === 0) return [];
+  const entityKey = [...entityIds].sort().join(",");
+  return getPodcastSignalsCached(entityKey, JSON.stringify(opts.teamNames ?? []), opts.limit ?? 3);
+}
+
+/** @deprecated Use getPodcastSignalsForEntities — clips exposed transcript/audio (removed). */
+export async function getPodcastClipsForEntities(
+  entityIds: string[],
+  opts?: { limit?: number; teamNames?: string[] }
+): Promise<PodcastEpisodeSignal[]> {
+  return getPodcastSignalsForEntities(entityIds, opts);
+}
+
 export async function searchEmbeddings(query: string, sourceType?: string): Promise<Article[]> {
   if (!isSupabaseConfigured()) return [];
   try {
@@ -516,14 +613,9 @@ export async function getAgentLogs(limit = 100): Promise<AgentLog[]> {
 }
 
 // ── NewsStream (läser från articles — Echo skriver dit, ej content_queue) ────────
-import type { NewsSignal } from "@/lib/types";
 
-function mapImportanceTier(score: number | null): NewsSignal["importance_tier"] {
-  if (score === null) return null;
-  if (score >= 0.85) return "breaking";
-  if (score >= 0.70) return "major";
-  if (score >= 0.50) return "normal";
-  return "noise";
+function mapImportanceTierFromScore(score: number | null): NewsSignal["importance_tier"] {
+  return mapImportanceTier(score);
 }
 
 export const getNewsStream = unstable_cache(
@@ -537,8 +629,8 @@ export const getNewsStream = unstable_cache(
     try {
       const supabase = createServerClient();
       let q = supabase
-        .from("news_feed")
-        .select("id, source_name, url, importance_score, feed_score, push_priority, title, summary, published_at")
+        .from("news_feed_clustered")
+        .select("id, source_name, url, importance_score, feed_score, push_priority, title, summary, published_at, source_count, story_cluster_id")
         .eq("sport", sport)
         .not("importance_score", "is", null)
         .limit(limit);
@@ -555,7 +647,9 @@ export const getNewsStream = unstable_cache(
         signal_score: row.feed_score ?? row.importance_score ?? null,
         importance_tier: row.push_priority === "breaking"
           ? "breaking"
-          : mapImportanceTier(row.importance_score ?? null),
+          : mapImportanceTierFromScore(row.importance_score ?? null),
+        source_count: row.source_count ?? null,
+        story_cluster_id: row.story_cluster_id ?? null,
         content: {
           title: row.title ?? "",
           link: row.url ?? "",

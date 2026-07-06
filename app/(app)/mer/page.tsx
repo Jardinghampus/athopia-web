@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { MessageSquare, Sparkles, Headphones, User, CreditCard, Info, BarChart3 } from "lucide-react";
+import { MessageSquare, Sparkles, Headphones, User, CreditCard, Info, BarChart3, Radio } from "lucide-react";
 import { ListGroup } from "@/components/ui/ListGroup";
 import { ListRow } from "@/components/ui/ListRow";
 
@@ -26,6 +26,12 @@ export default function MerPage() {
         <ListRow href="/konto" leading={<User />} title="Konto" />
         <ListRow href="/prenumerera" leading={<CreditCard />} title="Prenumeration" />
         <ListRow href="/om-oss" leading={<Info />} title="Om Athopia" />
+        <ListRow
+          href="/system"
+          leading={<Radio />}
+          title="System & arkitektur"
+          subtitle="Signaler, databaser och feature-docs"
+        />
       </ListGroup>
     </div>
   );

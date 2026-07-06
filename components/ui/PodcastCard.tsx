@@ -69,7 +69,7 @@ export function PodcastCard({ podcast }: PodcastCardProps) {
               className="text-xs border-pitch/40 text-pitch-light shrink-0 gap-1"
             >
               <FileText className="w-3 h-3" />
-              Transkript
+              Indexerad
             </Badge>
           )}
         </div>

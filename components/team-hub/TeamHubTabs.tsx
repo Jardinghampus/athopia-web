@@ -139,21 +139,15 @@ function MatchQuickview({ fixture, smId, onClose }: { fixture: FixtureRow | null
   );
 }
 
-// ponytail: utöka med fler lag-IDs när de tillkommer
-const SPOTIFY_SHOW_IDS: Record<string, string> = {
-  "djurgardens-if": "2HgojaL9cFu9YCp1wDGO43",
-  "aik": "5vqApRVsoU1Vd6Xv0N9hJq",
-  "hammarby-if": "72s9wzktHshAjENe3kWAwE",
-  "malmoe-ff": "7aZRCjNwwCsbUjBLIlrhK7",
-};
+import { TEAM_SPOTIFY_SHOW_IDS, spotifyShowEmbedUrl } from "@/lib/podcast/spotify";
 
 function SpotifyPodcast({ slug }: { slug: string }) {
-  const showId = SPOTIFY_SHOW_IDS[slug];
+  const showId = TEAM_SPOTIFY_SHOW_IDS[slug];
   if (!showId) return null;
   return (
     <SectionCard title="Podcast" icon={Activity}>
       <iframe
-        src={`https://open.spotify.com/embed/show/${showId}?utm_source=generator`}
+        src={spotifyShowEmbedUrl(showId)}
         width="100%"
         height="152"
         frameBorder="0"

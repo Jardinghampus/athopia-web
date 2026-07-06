@@ -9,6 +9,12 @@ export const ACCESS = {
   eliteBrief:         (p: Plan) => p === "elite",
   pushAlerts:         (p: Plan) => p !== "free",
   unlimitedFeed:      (p: Plan) => p !== "free",
+  /** AI-chat på matchsida, lag-hub m.m. */
+  aiChat:             (p: Plan) => p !== "free",
+  /** Podklipp med transkript på match/lag */
+  podcastClips:       (p: Plan) => p !== "free",
+  /** TTS för dagens brief */
+  briefAudio:         (p: Plan) => p !== "free",
 } as const;
 
 export type AccessFeature = keyof typeof ACCESS;

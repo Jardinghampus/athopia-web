@@ -1,40 +1,52 @@
 /**
- * app/podcast/[id]/page.tsx — Podcast-episodsida
+ * app/podcast/[id]/page.tsx — Podcast-episodsida (copyright-säker)
  * ─────────────────────────────────────────────────────────────────────────────
- * - HTML5 audio-player
- * - Transkript med timestamps + entity highlights
- * - PRO-gate på fullt transkript (trunkeras till 500 tecken för free-tier)
- * - JSON-LD: PodcastEpisode
+ * - Spotify embed eller outbound listen link
+ * - Ingen HTML5-spelare på raw enclosure
+ * - Inget publikt transkript (intern RAG i athopia-os)
+ * - JSON-LD: PodcastEpisode med url till denna sida
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Lock, Mic } from "lucide-react";
-import { auth } from "@clerk/nextjs/server";
-import { EntityChip } from "@/components/ui/EntityChip";
+import { ExternalLink, Mic } from "lucide-react";
 import { createServerClient } from "@/lib/supabase";
-import type { Podcast } from "@/lib/types";
+import { formatPodcastContextLine } from "@/lib/podcast/rights";
+import {
+  listenMetaFromRow,
+  spotifyEpisodeEmbedUrl,
+  spotifyShowEmbedUrl,
+} from "@/lib/podcast/spotify";
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
-// ─── Data-hämtning ─────────────────────────────────────────────────────────────
-async function getEpisode(id: string): Promise<Podcast | null> {
+type EpisodeRow = {
+  id: string;
+  title: string;
+  show_name: string | null;
+  published_at: string | null;
+  duration_seconds: number | null;
+  mentioned_teams: string[] | null;
+  metadata: Record<string, unknown> | null;
+  audio_url: string | null;
+};
+
+async function getEpisode(id: string): Promise<EpisodeRow | null> {
   try {
     const supabase = createServerClient();
     const { data } = await supabase
       .from("podcasts")
-      .select("*")
+      .select("id, title, show_name, published_at, duration_seconds, mentioned_teams, metadata, audio_url")
       .eq("id", id)
-      .single();
-    return data as any as Podcast | null;
+      .maybeSingle();
+    return data as EpisodeRow | null;
   } catch {
     return null;
   }
 }
 
-// ─── Metadata ──────────────────────────────────────────────────────────────────
 export async function generateMetadata({
   params,
 }: {
@@ -46,19 +58,17 @@ export async function generateMetadata({
 
   return {
     title: episode.title,
-    description: `${episode.showName}: ${episode.title}`,
+    description: `${episode.show_name ?? "Podcast"}: ${episode.title}`,
   };
 }
 
-// ─── JSON-LD: PodcastEpisode ──────────────────────────────────────────────────
-function EpisodeJsonLd({ ep }: { ep: Podcast }) {
+function EpisodeJsonLd({ ep }: { ep: EpisodeRow }) {
   const data = {
     "@context": "https://schema.org",
     "@type": "PodcastEpisode",
     name: ep.title,
-    partOfSeries: { "@type": "PodcastSeries", name: ep.showName },
-    audio: { "@type": "AudioObject", contentUrl: ep.audioUrl },
-    datePublished: ep.publishedAt,
+    partOfSeries: { "@type": "PodcastSeries", name: ep.show_name ?? "Podcast" },
+    datePublished: ep.published_at,
     url: `https://athopia.se/podcast/${ep.id}`,
   };
 
@@ -70,57 +80,13 @@ function EpisodeJsonLd({ ep }: { ep: Podcast }) {
   );
 }
 
-// ─── Transkript-sektion ────────────────────────────────────────────────────────
-function TranscriptSection({
-  html,
-  isPro,
-  userIsPro,
-}: {
-  html: string | null;
-  isPro: boolean;
-  userIsPro: boolean;
-}) {
-  if (!html) {
-    return (
-      <p className="text-sm text-muted-foreground italic">
-        Inget transkript tillgängligt för detta avsnitt.
-      </p>
-    );
-  }
-
-  // Free-tier: trunkera till 500 tecken
-  const shouldTruncate = isPro && !userIsPro;
-  const displayHtml = shouldTruncate ? html.slice(0, 500) + "..." : html;
-
-  return (
-    <div className="relative">
-      <div
-        className="prose prose-invert prose-sm max-w-none text-foreground/80 leading-relaxed"
-        dangerouslySetInnerHTML={{ __html: displayHtml }}
-      />
-
-      {/* PRO-gate overlay */}
-      {shouldTruncate && (
-        <div className="absolute inset-x-0 bottom-0 h-32 flex flex-col items-center justify-end pb-4 bg-gradient-to-t from-background to-transparent">
-          <div className="flex flex-col items-center gap-3 p-4 rounded-xl glass-card">
-            <Lock className="w-5 h-5 text-pitch" />
-            <p className="text-sm text-center text-foreground">
-              Fullt transkript kräver PRO-plan
-            </p>
-            <Link
-              href="/prenumerera"
-              className="px-4 py-2 rounded-full pitch-gradient text-white text-sm font-medium hover:opacity-90 transition-opacity"
-            >
-              Prova PRO — 39 kr/mån
-            </Link>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+function formatDuration(s: number | null) {
+  if (!s) return null;
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return `${m}:${sec.toString().padStart(2, "0")}`;
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
 export default async function PodcastEpisodePage({
   params,
 }: {
@@ -128,82 +94,92 @@ export default async function PodcastEpisodePage({
 }) {
   const { id } = await params;
   const episode = await getEpisode(id);
-
   if (!episode) notFound();
 
-  // Kolla PRO-status via Clerk session
-  const { sessionClaims } = await auth();
-  const tier = (sessionClaims?.publicMetadata as { subscriptionTier?: string })
-    ?.subscriptionTier;
-  const userIsPro = tier === "pro";
-  const hasTranscript = !!episode.hasTranscript;
-
-  function formatDuration(s: number) {
-    const m = Math.floor(s / 60);
-    const sec = s % 60;
-    return `${m}:${sec.toString().padStart(2, "0")}`;
-  }
+  const meta = (episode.metadata ?? {}) as Record<string, unknown>;
+  const topics = Array.isArray(meta.topics) ? (meta.topics as string[]) : [];
+  const listen = listenMetaFromRow(meta, null, episode.audio_url ?? null);
+  const context = formatPodcastContextLine(topics, episode.mentioned_teams ?? []);
 
   return (
     <>
       <EpisodeJsonLd ep={episode} />
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
-        {/* Header */}
         <div className="flex items-center gap-2 mb-3">
           <Mic className="w-4 h-4 text-pitch" />
-          <span className="text-sm text-pitch font-medium">{episode.showName}</span>
+          <span className="text-sm text-pitch font-medium">{episode.show_name ?? "Podcast"}</span>
         </div>
 
-        <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-4 leading-tight">
-          {episode.title.toUpperCase()}
+        <h1 className="font-bold text-3xl sm:text-4xl text-foreground mb-4 leading-tight">
+          {episode.title}
         </h1>
 
-        {/* Entiteter */}
-        {episode.entities?.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-4">
-            {episode.entities.map((e: any) => (
-              <EntityChip key={e.id} entity={e} />
-            ))}
-          </div>
+        {context && (
+          <p className="text-sm text-muted-foreground mb-4">{context}</p>
         )}
 
         <p className="text-sm text-muted-foreground mb-8">
-          {new Date(episode.publishedAt).toLocaleDateString("sv-SE", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          })}
-          {" · "}
-          {formatDuration(episode.durationSeconds)}
+          {episode.published_at
+            ? new Date(episode.published_at).toLocaleDateString("sv-SE", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })
+            : "Datum okänt"}
+          {formatDuration(episode.duration_seconds) ? ` · ${formatDuration(episode.duration_seconds)}` : ""}
         </p>
 
-        {/* HTML5 Audio Player */}
-        <div className="mb-10 rounded-xl border border-border bg-card p-4">
-          <audio
-            controls
-            className="w-full"
-            src={episode.audioUrl}
-            aria-label={`Lyssna på ${episode.title}`}
-          >
-            Din webbläsare stödjer inte audio-elementet.
-          </audio>
+        <div className="mb-8 space-y-4">
+          {listen.spotifyEpisodeId ? (
+            <iframe
+              src={spotifyEpisodeEmbedUrl(listen.spotifyEpisodeId)}
+              width="100%"
+              height="352"
+              frameBorder="0"
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+              loading="lazy"
+              className="rounded-xl"
+              title={`Spela ${episode.title} på Spotify`}
+            />
+          ) : listen.spotifyShowId ? (
+            <iframe
+              src={spotifyShowEmbedUrl(listen.spotifyShowId)}
+              width="100%"
+              height="352"
+              frameBorder="0"
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+              loading="lazy"
+              className="rounded-xl"
+              title={`${episode.show_name ?? "Podcast"} på Spotify`}
+            />
+          ) : listen.listenUrl ? (
+            <a
+              href={listen.listenUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl border border-pitch/30 bg-pitch/10 px-5 py-3 text-sm font-medium text-pitch hover:bg-pitch/15 transition-colors"
+            >
+              Lyssna hos {episode.show_name ?? "källan"}
+              <ExternalLink className="h-4 w-4" />
+            </a>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Ingen officiell lyssningslänk ännu — avsnittet indexeras internt för lagkontext.
+            </p>
+          )}
         </div>
 
-        {/* Transkript */}
-        {hasTranscript && (
-          <section>
-            <h2 className="font-semibold text-2xl text-foreground mb-4">TRANSKRIPT</h2>
-            <TranscriptSection
-              html={null}
-              isPro={true}
-              userIsPro={userIsPro}
-            />
-          </section>
-        )}
+        <p className="text-xs text-muted-foreground/80 border-t border-border pt-6">
+          Athopia länkar till originalkällan och använder Spotifys officiella spelare när det finns.
+          Vi publicerar inte transkript eller strömmar ljudfiler direkt. Se{" "}
+          <Link href="/podcast" className="text-pitch hover:underline">
+            alla avsnitt
+          </Link>
+          .
+        </p>
 
-        {/* Bakåtknapp */}
-        <div className="mt-12">
+        <div className="mt-8">
           <Link
             href="/podcast"
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"

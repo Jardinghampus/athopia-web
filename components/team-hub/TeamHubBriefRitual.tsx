@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Sparkles } from "lucide-react";
 import { canAccess, type Plan } from "@/lib/access-rules";
 import type { TeamPulse } from "@/lib/team-hub/queries";
+import { BriefListenButton } from "@/components/team-hub/BriefListenButton";
 
 function contextLabel(label: string | null) {
   if (label === "pre_match") return "Inför match";
@@ -44,7 +45,10 @@ export function TeamHubBriefRitual({ pulse, plan }: { pulse: TeamPulse | null; p
         )}
 
         {hasFull ? (
-          <p className="mt-3 text-sm leading-relaxed text-foreground/90 whitespace-pre-line">{pulse.body}</p>
+          <>
+            <p className="mt-3 text-sm leading-relaxed text-foreground/90 whitespace-pre-line">{pulse.body}</p>
+            <BriefListenButton text={pulse.body} headline={pulse.headline} plan={plan} />
+          </>
         ) : (
           <p className="mt-3 text-sm text-muted-foreground">
             Fullständig dagens brief kräver PRO.{" "}

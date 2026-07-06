@@ -1,5 +1,6 @@
 import type { NewsSignal } from "@/lib/types";
 import { OutboundLink } from "./OutboundLink";
+import { FeedSourceBadge } from "@/components/feed/FeedSourceBadge";
 
 function relativeTime(iso: string | null): string {
   if (!iso) return "";
@@ -40,6 +41,12 @@ export function NewsItem({ item }: { item: NewsSignal }) {
         {snippet && (
           <p className="mt-0.5 text-xs leading-relaxed text-zinc-400 line-clamp-2">{snippet}</p>
         )}
+        <div className="mt-1.5 flex flex-wrap items-center gap-2">
+          <FeedSourceBadge
+            sourceCount={item.source_count}
+            importanceTier={item.importance_tier}
+          />
+        </div>
         <p className="mt-0.5 text-xs text-zinc-500">
           {item.source_name ?? "okänd källa"} · {relativeTime(pubAt)}
         </p>

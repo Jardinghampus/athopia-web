@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
-import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import { createServerClient, isSupabaseConfigured, getPodcastSignalsForEntities } from "@/lib/supabase";
 import { MatchXgChart } from "./MatchXgChart";
 import { MatchForum } from "./MatchForum";
 import { PlayerRatingPanel, type RatablePlayer } from "./PlayerRatingPanel";
 import { ProductEventTracker } from "@/components/analytics/ProductEventTracker";
 import { MatchLineups } from "@/components/match/MatchLineups";
+import { MatchAskPanel } from "@/components/match/MatchAskPanel";
+import { PodcastSignalsPanel } from "@/components/podcast/PodcastSignalsPanel";
+import { getUserPlan } from "@/lib/user-plan";
 
 export const revalidate = 60;
 
@@ -59,10 +62,12 @@ async function getData(fixtureId: number) {
 
   // Relaterade nyheter: artiklar taggade med endera lagets entity-uuid.
   let related: Array<{ id: string; title: string; slug: string; source_name: string | null; published_at: string | null }> = [];
+  let teamEntityIds: string[] = [];
   const teamSmIds = [fix?.home_team_id, fix?.away_team_id].filter(Boolean) as number[];
   if (teamSmIds.length > 0) {
     const { data: ents } = await db.from("entities").select("id").eq("type", "team").in("sportmonks_id", teamSmIds);
     const entityIds = (ents ?? []).map((e: Record<string, unknown>) => e.id as string);
+    teamEntityIds = entityIds;
     if (entityIds.length > 0) {
       const { data: arts } = await db
         .from("articles")
@@ -84,7 +89,7 @@ async function getData(fixtureId: number) {
     };
   }
 
-  return { fix, tms: tms ?? [], evts: evts ?? [], live: live ?? null, lups: lupsWithPlayers, sum, playerMap, related, playerStatsMap };
+  return { fix, tms: tms ?? [], evts: evts ?? [], live: live ?? null, lups: lupsWithPlayers, sum, playerMap, related, playerStatsMap, teamEntityIds };
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -183,6 +188,13 @@ export default async function MatchPage({ params }: PageProps) {
 
   const d = await getData(fid);
   const fix = d?.fix as Record<string, unknown> | null;
+  const [plan, podcastClips] = await Promise.all([
+    getUserPlan(),
+    getPodcastSignalsForEntities(d?.teamEntityIds ?? [], {
+      limit: 2,
+      teamNames: fix ? [String(fix.home_team_name ?? ""), String(fix.away_team_name ?? "")] : [],
+    }),
+  ]);
 
   if (!fix) {
     return (
@@ -396,6 +408,19 @@ export default async function MatchPage({ params }: PageProps) {
           </div>
         </div>
       )}
+
+      <PodcastSignalsPanel signals={podcastClips} plan={plan} title="Podcast om matchen" />
+
+      <MatchAskPanel
+        fixtureId={fid}
+        homeName={homeName}
+        awayName={awayName}
+        homeScore={homeScore}
+        awayScore={awayScore}
+        status={String(fix.status ?? "NS")}
+        kickoffAt={kickoff}
+        plan={plan}
+      />
 
       {/* Forum */}
       <div className="border-t border-border pt-6">

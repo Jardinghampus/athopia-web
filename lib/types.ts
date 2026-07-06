@@ -164,6 +164,8 @@ export interface NewsSignal {
   source_url: string | null;
   signal_score: number | null;
   importance_tier: "breaking" | "major" | "normal" | "noise" | null;
+  source_count?: number | null;
+  story_cluster_id?: string | null;
   content: {
     title: string;
     link: string;
@@ -264,6 +266,35 @@ export interface FeedItem {
   time: string;
   href: string;
   newsTag?: string | null;
+  /** Antal oberoende källor (Particle-style) */
+  sourceCount?: number | null;
+  storyClusterId?: string | null;
+  importanceTier?: "breaking" | "major" | "normal" | "noise" | null;
+}
+
+/** Publik podd-signal — ingen transkripttext, ingen enclosure-URL. */
+export interface PodcastEpisodeSignal {
+  id: string;
+  title: string;
+  showName: string;
+  publishedAt: string | null;
+  listenUrl: string | null;
+  spotifyEpisodeId: string | null;
+  spotifyShowId: string | null;
+  topics: string[];
+  mentionedTeams: string[];
+}
+
+/** @deprecated Intern RAG — exponeras inte i UI. */
+export interface PodcastClipHighlight {
+  id: string;
+  podcastId: string;
+  podcastTitle: string;
+  showName: string;
+  audioUrl: string;
+  startSeconds: number;
+  endSeconds: number;
+  text: string;
 }
 
 export interface ForumReply {

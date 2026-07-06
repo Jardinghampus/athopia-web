@@ -14,6 +14,7 @@ import { isFollowing } from "@/app/actions/follows";
 import {
   createServerClient,
   getTeamEntityInsights,
+  getPodcastSignalsForEntities,
   isSupabaseConfigured,
 } from "@/lib/supabase";
 import { getFollowedTeams } from "@/lib/dashboard/queries";
@@ -27,6 +28,7 @@ import { TeamHubHeader } from "@/components/team-hub/TeamHubHeader";
 import { TeamHubTabs } from "@/components/team-hub/TeamHubTabs";
 import { MatchdayBanner } from "@/components/team-hub/MatchdayBanner";
 import { TeamHubBriefRitual } from "@/components/team-hub/TeamHubBriefRitual";
+import { PodcastSignalsPanel } from "@/components/podcast/PodcastSignalsPanel";
 import { TransferRadar } from "@/components/team-hub/TransferRadar";
 import { PositionTrend } from "@/components/team-hub/PositionTrend";
 import type { SwitcherTeam } from "@/components/team-hub/TeamSwitcher";
@@ -129,12 +131,13 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
     );
   }
 
-  const [teams, followedSlugs, plan, insights, following] = await Promise.all([
+  const [teams, followedSlugs, plan, insights, following, podcastClips] = await Promise.all([
     getTeams(),
     getFollowedSlugs(),
     getUserPlan(),
     getTeamEntityInsights(hub.team.id, 2),
     isFollowing(hub.team.id),
+    getPodcastSignalsForEntities([hub.team.id], { limit: 2, teamNames: [hub.team.name] }),
   ]);
 
   const teamJsonLd = {
@@ -182,6 +185,15 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
       <MatchdayBanner teamName={hub.team.name} recent={hub.recent} upcoming={hub.upcoming} />
 
       <TeamHubBriefRitual pulse={hub.pulse} plan={plan} />
+
+      <div className="mx-4 sm:mx-6 mb-5">
+        <PodcastSignalsPanel
+          signals={podcastClips}
+          plan={plan}
+          teamSlug={hub.team.slug}
+          title={`Podcast om ${hub.team.name}`}
+        />
+      </div>
 
       <PositionTrend teamSlug={hub.team.slug} />
 

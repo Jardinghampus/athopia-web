@@ -17,6 +17,7 @@ import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { FeedPaywallBanner, FeedGhostCards } from "@/components/FeedPaywallBanner";
 import { ProductEventTracker } from "@/components/analytics/ProductEventTracker";
 import { PullToRefresh } from "@/components/ui/PullToRefresh";
+import { FeedSourceBadge } from "@/components/feed/FeedSourceBadge";
 import type { FeedItem, FeedItemType } from "@/lib/types";
 
 // ─── Meta ────────────────────────────────────────────────────────────────────
@@ -83,23 +84,37 @@ function AISummaryCard({ item }: { item: FeedItem }) {
 
 // ─── Carousel Card ────────────────────────────────────────────────────────────
 
-function CarouselCard({ item, index }: { item: FeedItem; index: number }) {
+function CarouselCard({
+  item,
+  index,
+  showCluster,
+}: {
+  item: FeedItem;
+  index: number;
+  showCluster?: boolean;
+}) {
   return (
     <Link
       href={item.href}
       className="group shrink-0 w-[78vw] max-w-[300px] snap-start rounded-2xl border border-border bg-card p-4 flex flex-col justify-between min-h-[120px] touch-manipulation active:bg-muted transition-colors"
     >
       <div>
-        <div className="flex items-center gap-1.5 mb-2">
+        <div className="flex items-center gap-1.5 mb-2 flex-wrap">
           <span className="text-[10px] font-bold text-pitch uppercase tracking-wide">
             #{index + 1}
           </span>
-          {item.source && (
+          {(item.sourceCount ?? 0) > 1 || item.importanceTier === "breaking" || item.importanceTier === "major" ? (
+            <FeedSourceBadge
+              sourceCount={item.sourceCount}
+              importanceTier={item.importanceTier}
+              showCluster={showCluster}
+            />
+          ) : item.source ? (
             <>
               <span className="text-[10px] text-muted-foreground">·</span>
               <span className="text-[10px] text-muted-foreground truncate">{item.source}</span>
             </>
-          )}
+          ) : null}
         </div>
         <p className="text-sm font-semibold text-foreground line-clamp-3 leading-snug group-hover:text-pitch transition-colors">
           {item.title}
@@ -110,7 +125,7 @@ function CarouselCard({ item, index }: { item: FeedItem; index: number }) {
   );
 }
 
-function TopNewsCarousel({ items }: { items: FeedItem[] }) {
+function TopNewsCarousel({ items, showCluster }: { items: FeedItem[]; showCluster?: boolean }) {
   if (items.length === 0) return null;
   return (
     <div className="-mx-4 sm:-mx-6">
@@ -125,7 +140,7 @@ function TopNewsCarousel({ items }: { items: FeedItem[] }) {
         style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" } as React.CSSProperties}
       >
         {items.map((item, i) => (
-          <CarouselCard key={item.id} item={item} index={i} />
+          <CarouselCard key={item.id} item={item} index={i} showCluster={showCluster} />
         ))}
         {/* Trailing spacer so last card isn't flush to edge */}
         <div className="shrink-0 w-4" aria-hidden />
@@ -170,7 +185,7 @@ function FilterTabs({
 
 // ─── Feed Item Card ───────────────────────────────────────────────────────────
 
-function FeedItemCard({ item }: { item: FeedItem }) {
+function FeedItemCard({ item, showCluster }: { item: FeedItem; showCluster?: boolean }) {
   const meta = TYPE_META[item.type];
   const Icon = meta.icon;
 
@@ -186,18 +201,27 @@ function FeedItemCard({ item }: { item: FeedItem }) {
         <Icon className="w-4 h-4" style={{ color: meta.color }} />
       </div>
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
+        <div className="flex items-center gap-2 mb-1 flex-wrap">
           <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: meta.color }}>
             {meta.label}
           </span>
           <span className="text-[11px] text-muted-foreground">{timeAgo(item.time)}</span>
-          {item.source && (
+          {(item.sourceCount ?? 0) <= 1 && item.source && (
             <>
               <span className="text-[11px] text-muted-foreground">·</span>
               <span className="text-[11px] text-muted-foreground truncate">{item.source}</span>
             </>
           )}
         </div>
+        {(item.sourceCount ?? 0) > 1 || item.importanceTier === "breaking" || item.importanceTier === "major" ? (
+          <div className="mb-1.5">
+            <FeedSourceBadge
+              sourceCount={item.sourceCount}
+              importanceTier={item.importanceTier}
+              showCluster={showCluster}
+            />
+          </div>
+        ) : null}
         <p className="text-sm font-medium text-foreground group-hover:text-pitch transition-colors line-clamp-2">
           {item.title}
         </p>
@@ -211,7 +235,15 @@ function FeedItemCard({ item }: { item: FeedItem }) {
 
 const SOFT_PAYWALL_AFTER = 8; // inject banner after this many items
 
-function FeedList({ items, gated }: { items: FeedItem[]; gated: boolean }) {
+function FeedList({
+  items,
+  gated,
+  showCluster,
+}: {
+  items: FeedItem[];
+  gated: boolean;
+  showCluster?: boolean;
+}) {
   const splitAt = gated && items.length > SOFT_PAYWALL_AFTER ? SOFT_PAYWALL_AFTER : -1;
   const above = splitAt === -1 ? items : items.slice(0, splitAt);
   const hasBanner = splitAt !== -1;
@@ -219,7 +251,7 @@ function FeedList({ items, gated }: { items: FeedItem[]; gated: boolean }) {
   return (
     <div className="flex flex-col gap-3">
       {above.map((item) => (
-        <FeedItemCard key={item.id} item={item} />
+        <FeedItemCard key={item.id} item={item} showCluster={showCluster} />
       ))}
       {hasBanner && (
         <>
@@ -245,6 +277,8 @@ interface FeedResponse {
   hasMore: boolean;
   gated: boolean;
   remainingToday?: number | null;
+  isPro?: boolean;
+  isElite?: boolean;
 }
 
 async function fetchHero(teamSlug: string | null): Promise<HeroData> {
@@ -282,6 +316,7 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
   const [newCount, setNewCount] = useState(0);
   const [gated, setGated] = useState(false);
   const [remainingToday, setRemainingToday] = useState<number | null>(null);
+  const [isElite, setIsElite] = useState(false);
   const [filter, setFilter] = useState<FilterType>("all");
 
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -315,6 +350,7 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
               setOffset((cached.data.items ?? []).length);
               setHasMore(cached.data.hasMore ?? false);
               setGated(cached.data.gated ?? false);
+              setIsElite(cached.data.isElite ?? false);
               setLoading(false);
               setLoadingMore(false);
               return;
@@ -323,7 +359,7 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
         } catch {}
       }
 
-      const { items: newItems, hasMore: more, gated: isGated, remainingToday: remaining } =
+      const { items: newItems, hasMore: more, gated: isGated, remainingToday: remaining, isElite: elite } =
         await fetchFeedPage(slug, currentOffset);
 
       if (reset) {
@@ -340,6 +376,7 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
 
       setGated(isGated);
       setRemainingToday(remaining ?? null);
+      setIsElite(elite ?? false);
       setHasMore(more && !isGated);
       setLoading(false);
       setLoadingMore(false);
@@ -443,7 +480,7 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
             </div>
           </div>
         ) : (hero?.topNews ?? []).length > 0 ? (
-          <TopNewsCarousel items={hero!.topNews} />
+          <TopNewsCarousel items={hero!.topNews} showCluster={isElite} />
         ) : null}
 
         {/* Filter tabs */}
@@ -474,7 +511,7 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
             </div>
           )
         ) : (
-          <FeedList items={visibleItems} gated={gated} />
+          <FeedList items={visibleItems} gated={gated} showCluster={isElite} />
         )}
 
         <div ref={bottomRef} className="h-4" />

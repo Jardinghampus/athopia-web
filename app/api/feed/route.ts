@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import type { FeedItem } from "@/lib/types";
 import { interestsToNewsTags } from "@/lib/feed/content-preferences";
+import { mapNewsFeedRow } from "@/lib/feed/map-feed-row";
 import { FREE_DAILY_LIMIT, resolveFeedUserId } from "@/lib/feed/feed-usage";
 
 const PAGE_SIZE = 20;
@@ -64,11 +65,13 @@ export async function GET(req: Request) {
 
   // Plan-check via Clerk publicMetadata (sätts av Stripe-webhook)
   let isPro = false;
+  let isElite = false;
   if (userId) {
     try {
       const user = await currentUser();
       const plan = (user?.publicMetadata?.plan as string | undefined) ?? "free";
       isPro = plan === "pro" || plan === "elite";
+      isElite = plan === "elite";
     } catch (err) {
       console.warn("[feed] Kunde inte hämta plan från Clerk:", err);
     }
@@ -123,8 +126,8 @@ export async function GET(req: Request) {
 
   try {
     let aq = db
-      .from("news_feed")
-      .select("id, title, source_name, url, published_at, summary, importance_score, feed_score, entity_ids, news_tag")
+      .from("news_feed_clustered")
+      .select("id, title, source_name, url, published_at, summary, importance_score, feed_score, entity_ids, news_tag, source_count, story_cluster_id, push_priority")
       .eq("sport", "football")
       .order(isPro ? "feed_score" : "published_at", { ascending: false, nullsFirst: false })
       .range(offset, offset + effectiveLimit - 1);
@@ -142,16 +145,7 @@ export async function GET(req: Request) {
     }
 
     const { data: articleData } = await aq;
-    items = (articleData ?? []).map((a) => ({
-      id: a.id,
-      type: "news" as const,
-      title: a.title,
-      source: a.source_name ?? null,
-      time: a.published_at,
-      href: a.url ?? "#",
-      subtitle: a.summary ?? null,
-      newsTag: a.news_tag ?? null,
-    }));
+    items = (articleData ?? []).map((a) => mapNewsFeedRow(a));
   } catch (err) {
     console.error("[feed] DB-fel:", err);
   }
@@ -166,4 +160,5 @@ export async function GET(req: Request) {
   const hasMore = items.length === effectiveLimit && !gated;
   const remainingToday = isPro ? null : Math.max(0, FREE_DAILY_LIMIT - totalSeenAfter);
 
-  return NextResponse.json({ items, hasMore, gated, remainingToday });}
+  return NextResponse.json({ items, hasMore, gated, remainingToday, isPro, isElite });
+}
