@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useUser, useSignIn } from "@clerk/nextjs";
@@ -250,6 +251,19 @@ export function ProfilePageClient({
             <option key={t.id} value={t.id}>{t.name}</option>
           ))}
         </select>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+          Nyhetsintressen
+        </h2>
+        <Link
+          href="/profil/intressen"
+          className="flex min-h-11 items-center justify-between rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground hover:border-pitch/40 transition-colors"
+        >
+          <span>Välj transfers, skador, matcher m.m.</span>
+          <ArrowRight className="h-4 w-4 text-muted-foreground" />
+        </Link>
       </section>
 
       {/* Hemlig kontoinfo — ALDRIG offentlig */}

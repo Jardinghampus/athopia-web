@@ -17,6 +17,7 @@ import {
   isSupabaseConfigured,
 } from "@/lib/supabase";
 import { getFollowedTeams } from "@/lib/dashboard/queries";
+import { getUserFeedPreferences } from "@/lib/feed/getUserFeedPreferences";
 import { getTeamHub } from "@/lib/team-hub/queries";
 import { getUserPlan } from "@/lib/user-plan";
 import { MOCK_TEAM_LIST_ITEM } from "@/lib/team-hub/mock";
@@ -112,8 +113,11 @@ async function getFollowedSlugs(): Promise<string[]> {
 
 export default async function TeamHubPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const { userId } = await auth();
+  const feedPrefs = userId ? await getUserFeedPreferences() : null;
+  const newsTags = feedPrefs?.newsTags ?? null;
 
-  const hub = await getTeamHub(slug);
+  const hub = await getTeamHub(slug, userId ? { newsTags } : undefined);
   if (!hub) {
     return (
       <div className="w-full px-6 sm:px-8 py-16 text-center">

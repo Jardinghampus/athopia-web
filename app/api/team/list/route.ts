@@ -8,12 +8,17 @@ export async function GET() {
   if (!isSupabaseConfigured()) return NextResponse.json({ teams: [] });
   try {
     const db = createServerClient();
-    const { data } = await db.from("entities").select("name,slug,metadata").eq("type", "team").order("name");
+    const { data } = await db.from("entities").select("id,name,slug,metadata").eq("type", "team").order("name");
     const teams = (data ?? [])
       .filter((t) => t.slug)
       .map((t) => {
         const meta = (t.metadata ?? {}) as Record<string, unknown>;
-        return { name: String(t.name), slug: String(t.slug), logo_url: (meta.logo_url as string | null) ?? null };
+        return {
+          id: String(t.id),
+          name: String(t.name),
+          slug: String(t.slug),
+          logo_url: (meta.logo_url as string | null) ?? null,
+        };
       });
     return NextResponse.json({ teams }, { headers: { "Cache-Control": "s-maxage=600, stale-while-revalidate=1200" } });
   } catch (e) {

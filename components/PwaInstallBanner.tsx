@@ -18,13 +18,23 @@ export function PwaInstallBanner() {
     if (!swReady) return;
     if (typeof window === "undefined") return;
     const alreadyPrompted = window.localStorage.getItem(PUSH_PROMPTED_KEY) === "1";
-    if (visitCount >= 3 && !alreadyPrompted && pushStatus === "default" && !isSubscribed) {
+    if (visitCount >= 2 && !alreadyPrompted && pushStatus === "default" && !isSubscribed) {
       setShowPushPrompt(true);
     }
   }, [swReady, visitCount, pushStatus, isSubscribed]);
 
   const handlePushAccept = async () => {
-    const teamIds: string[] = favoriteTeam ? [favoriteTeam] : [];
+    const teamIds: string[] = [];
+    if (favoriteTeam) {
+      try {
+        const res = await fetch("/api/team/list");
+        const json = (await res.json()) as { teams?: { id: string; slug: string }[] };
+        const match = json.teams?.find((t) => t.slug === favoriteTeam);
+        if (match?.id) teamIds.push(match.id);
+      } catch {
+        // Fortsätt utan lag-filter — prenumeration sparas ändå
+      }
+    }
     await requestPermission(teamIds);
     setShowPushPrompt(false);
   };

@@ -228,8 +228,47 @@ const RADAR_DEF: { key: keyof TeamSeasonRow; label: string; invert?: boolean }[]
   { key: "wins", label: "Vinster" },
 ];
 
+/** Team-scoped news; optional news_tag filter from onboarding interests. */
+export async function getTeamNewsPersonalized(
+  teamSlug: string,
+  newsTags: string[] | null
+): Promise<DashArticle[]> {
+  if (!isSupabaseConfigured()) return [];
+  try {
+    const supabase = createServerClient();
+    const { data: team } = await supabase
+      .from("entities")
+      .select("id")
+      .eq("type", "team")
+      .eq("slug", teamSlug)
+      .maybeSingle();
+    if (!team?.id) return [];
+
+    let q = supabase
+      .from("articles")
+      .select("id, title, slug, summary, image_url, published_at, news_tag")
+      .eq("sport", SPORT)
+      .eq("status", "published")
+      .contains("entity_ids", [String(team.id)])
+      .order("published_at", { ascending: false })
+      .limit(8);
+
+    if (newsTags?.length) {
+      q = q.in("news_tag", newsTags);
+    }
+
+    const { data } = await q;
+    return (data as DashArticle[]) ?? [];
+  } catch {
+    return [];
+  }
+}
+
 /** Hämtar och aggregerar hela hub-payloaden för ett lag (slug). */
-export async function getTeamHub(slug: string): Promise<TeamHubPayload | null> {
+export async function getTeamHub(
+  slug: string,
+  options?: { newsTags?: string[] | null }
+): Promise<TeamHubPayload | null> {
   const { MOCK_TEAM_SLUG, mockTeamHub } = await import("./mock");
   if (slug === MOCK_TEAM_SLUG) return mockTeamHub();
   if (!isSupabaseConfigured()) return null;
@@ -246,7 +285,12 @@ export async function getTeamHub(slug: string): Promise<TeamHubPayload | null> {
     sportsmonks_id: smId,
   };
 
-  const [news, threads, pulse] = await Promise.all([getTeamNews(slug), getTeamThreads(team.id), getTeamPulse(team.id)]);
+  const newsFetcher =
+    options?.newsTags !== undefined
+      ? getTeamNewsPersonalized(slug, options.newsTags)
+      : getTeamNews(slug);
+
+  const [news, threads, pulse] = await Promise.all([newsFetcher, getTeamThreads(team.id), getTeamPulse(team.id)]);
 
   if (!smId) {
     return { team, position: null, pulse, stats: null, form: [], radar: [], topScorers: [], topAssists: [], squad: [], recent: [], upcoming: [], news, threads };

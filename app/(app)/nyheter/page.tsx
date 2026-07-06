@@ -5,8 +5,9 @@ import { ArticleCard } from "@/components/ui/ArticleCard";
 import { NewsFilterPanel } from "@/components/ui/NewsFilterPanel";
 import { NyheterRealtimeBanner } from "@/components/NyheterRealtimeBanner";
 import { TeamPushPopups } from "@/components/news/TeamPushPopups";
-import { getFilteredArticles, getActiveSources } from "@/lib/supabase";
+import { getFilteredArticles, getActiveSources, getHotArticles } from "@/lib/supabase";
 import { filterStateToParams } from "@/lib/filters";
+import { getUserFeedPreferences } from "@/lib/feed/getUserFeedPreferences";
 
 export const dynamic = 'force-dynamic';
 
@@ -67,16 +68,53 @@ export default async function NyheterPage({ searchParams }: { searchParams: Prom
   const sp = await searchParams;
   const page = Math.max(1, Number(sp.page ?? 1) || 1);
   const visa = (sp.visa as "all" | "ai" | "source") ?? "all";
+  const urlHasTeamFilter = Boolean(sp.lag);
+  const urlHasEventFilter = Boolean(sp.event);
   const teams = sp.lag ? sp.lag.split(",").filter(Boolean) : [];
   const sources = sp.kalla ? sp.kalla.split(",").filter(Boolean) : [];
   const events = sp.event ? sp.event.split(",").filter(Boolean) : [];
 
-  const [{ articles, total }, allSources] = await Promise.all([
-    getFilteredArticles({ visa, teams, sources, events, page, limit: LIMIT }),
+  const prefs = await getUserFeedPreferences();
+  const usingPersonalDefaults =
+    !urlHasTeamFilter &&
+    !urlHasEventFilter &&
+    visa === "all" &&
+    sources.length === 0 &&
+    (prefs.favoriteTeamName != null || (prefs.newsTags?.length ?? 0) > 0);
+
+  const effectiveTeams =
+    teams.length > 0
+      ? teams
+      : usingPersonalDefaults && prefs.favoriteTeamName
+        ? [prefs.favoriteTeamName]
+        : [];
+
+  const effectiveNewsTags =
+    events.length > 0 ? undefined : usingPersonalDefaults ? prefs.newsTags ?? undefined : undefined;
+
+  const noFilter =
+    visa === "all" &&
+    effectiveTeams.length === 0 &&
+    sources.length === 0 &&
+    events.length === 0 &&
+    !effectiveNewsTags?.length &&
+    page === 1;
+
+  const [{ articles, total }, allSources, hot] = await Promise.all([
+    getFilteredArticles({
+      visa,
+      teams: effectiveTeams,
+      sources,
+      events,
+      newsTags: effectiveNewsTags,
+      page,
+      limit: LIMIT,
+    }),
     getActiveSources(),
+    noFilter ? getHotArticles(5) : Promise.resolve([]),
   ]);
 
-  const filterParams = filterStateToParams({ visa, teams, sources, events });
+  const filterParams = filterStateToParams({ visa, teams: effectiveTeams, sources, events });
   const urlBase = `/nyheter?${filterParams.toString()}`;
 
   return (
@@ -87,10 +125,40 @@ export default async function NyheterPage({ searchParams }: { searchParams: Prom
         <p className="text-muted-foreground mt-2 text-sm">
           {total > 0 ? `${total} artiklar` : "Inga artiklar"} — filtrera per lag, källa eller eventtyp.
         </p>
+        {usingPersonalDefaults && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            Visar{" "}
+            {prefs.favoriteTeamName ? (
+              <>
+                nyheter för <span className="font-medium text-foreground">{prefs.favoriteTeamName}</span>
+              </>
+            ) : (
+              "ditt flöde"
+            )}
+            {prefs.newsTags?.length ? (
+              <> · intressen: {prefs.contentTypes.join(", ")}</>
+            ) : null}
+            .{" "}
+            <Link href="/nyheter" className="text-pitch hover:underline">
+              Visa allt
+            </Link>
+          </p>
+        )}
       </div>
       <div className="mb-4">
         <Suspense fallback={null}><TeamPushPopups /></Suspense>
       </div>
+      {hot.length > 0 && (
+        <section className="mb-8" aria-label="Hetast just nu">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-base">🔥</span>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">Hetast just nu</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {hot.map((a, i) => <ArticleCard key={a.id} article={a} size={i === 0 ? "lg" : "sm"} />)}
+          </div>
+        </section>
+      )}
       <Suspense fallback={null}>
         <NewsFilterPanel
           allSources={allSources}

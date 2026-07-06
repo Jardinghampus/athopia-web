@@ -2,6 +2,7 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import type { FeedItem } from "@/lib/types";
+import { interestsToNewsTags } from "@/lib/feed/content-preferences";
 
 const FREE_DAILY_LIMIT = 20;
 const PAGE_SIZE = 20;
@@ -97,15 +98,22 @@ export async function GET(req: Request) {
     if (team?.id) filterTeamIds = [String(team.id)];
   }
 
-  // PRO: hämta followed_team_ids från user_feed_config
-  if (isPro && userId && !teamSlug) {
+  // user_feed_config: lag (PRO) + intressen (alla inloggade)
+  let contentTypeTags: string[] | null = null;
+  if (userId) {
     const { data: feedConfig } = await db
       .from("user_feed_config")
-      .select("followed_team_ids")
+      .select("followed_team_ids, content_types")
       .eq("clerk_user_id", userId)
       .maybeSingle();
-    const teamIds: string[] = feedConfig?.followed_team_ids ?? [];
-    filterTeamIds = teamIds;
+
+    if (isPro && !teamSlug) {
+      filterTeamIds = feedConfig?.followed_team_ids ?? [];
+    }
+
+    if (!typeFilter) {
+      contentTypeTags = interestsToNewsTags(feedConfig?.content_types ?? null);
+    }
   }
 
   let items: FeedItem[] = [];
@@ -126,6 +134,8 @@ export async function GET(req: Request) {
 
     if (typeFilter) {
       aq = aq.eq("news_tag", typeFilter);
+    } else if (contentTypeTags?.length) {
+      aq = aq.in("news_tag", contentTypeTags);
     }
 
     const { data: articleData } = await aq;
