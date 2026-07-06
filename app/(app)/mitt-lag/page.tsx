@@ -1,39 +1,143 @@
 /**
- * app/mitt-lag/page.tsx — tunn server-redirect till kanonisk lag-hub
+ * app/mitt-lag/page.tsx — Inloggad startsida (brief-ritual)
  * ─────────────────────────────────────────────────────────────────────────────
- * "Mitt lag" är inte längre en egen dashboard. Har användaren ett favoritlag
- * (Clerk favoriteTeam via getPrimaryTeam) skickas de till /lag/{slug} och
- * behåller aktiv ?tab=. Saknas favorit visas en enkel picker.
+ * Brief-first hem för inloggade: dagens AI-brief + matchdag + snabblänkar.
+ * Full lag-hub finns på /lag/{slug}.
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Star } from "lucide-react";
+import { Star, ArrowRight, Newspaper, BarChart3 } from "lucide-react";
 import { getPrimaryTeam } from "@/lib/team/getPrimaryTeam";
+import { getTeamHub } from "@/lib/team-hub/queries";
+import { getUserPlan } from "@/lib/user-plan";
+import { TeamHubBriefRitual } from "@/components/team-hub/TeamHubBriefRitual";
+import { MatchdayBanner } from "@/components/team-hub/MatchdayBanner";
+import { FeedMatchHero } from "@/components/feed/FeedMatchHero";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Mitt lag",
-  description: "Din personliga lag-dashboard — statistik, trupp, matcher, nyheter och forum samlat.",
+  title: "Hem — Athopia idag",
+  description: "Din dagliga brief, matchdag och snabbvägar till laget.",
 };
 
 export default async function MittLagPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ hub?: string; tab?: string }>;
 }) {
   const [primaryTeam, sp] = await Promise.all([getPrimaryTeam(), searchParams]);
 
-  if (primaryTeam?.slug) {
+  if (primaryTeam?.slug && sp.hub === "1") {
     const tab = typeof sp.tab === "string" ? sp.tab : undefined;
     const qs = tab ? `?tab=${encodeURIComponent(tab)}` : "";
     redirect(`/lag/${primaryTeam.slug}${qs}`);
   }
 
-  return <EmptyPicker />;
+  if (!primaryTeam?.slug) {
+    return <EmptyPicker />;
+  }
+
+  const [plan, hub] = await Promise.all([
+    getUserPlan(),
+    getTeamHub(primaryTeam.slug),
+  ]);
+
+  if (!hub) {
+    return <EmptyPicker />;
+  }
+
+  return (
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 pb-10 pt-4">
+      <header className="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Athopia · {hub.team.name}
+          </p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground mt-1">
+            God morgon
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Det här behöver du veta om {hub.team.name} idag.
+          </p>
+        </div>
+        <Link
+          href={`/lag/${hub.team.slug}?tab=oversikt`}
+          className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:border-pitch/40 transition-colors"
+        >
+          Hela hubben
+          <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      </header>
+
+      <TeamHubBriefRitual pulse={hub.pulse} plan={plan} />
+
+      <div className="mb-5">
+        <MatchdayBanner
+          teamName={hub.team.name}
+          recent={hub.recent}
+          upcoming={hub.upcoming}
+        />
+      </div>
+
+      <FeedMatchHero />
+
+      <nav className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3" aria-label="Snabbvägar">
+        <QuickLink
+          href={`/lag/${hub.team.slug}?tab=oversikt`}
+          icon={BarChart3}
+          title="Laghub"
+          desc="Statistik, trupp och form"
+        />
+        <QuickLink
+          href={`/nyheter?lag=${encodeURIComponent(hub.team.name)}`}
+          icon={Newspaper}
+          title="Nyheter"
+          desc="Senaste om laget"
+        />
+        <QuickLink
+          href="/feed"
+          icon={Newspaper}
+          title="Ditt flöde"
+          desc="Personaliserade headlines"
+        />
+        <QuickLink
+          href={`/forum/${hub.team.slug}`}
+          icon={Star}
+          title="Forum"
+          desc="Diskutera med supportrar"
+        />
+      </nav>
+    </div>
+  );
+}
+
+function QuickLink({
+  href,
+  icon: Icon,
+  title,
+  desc,
+}: {
+  href: string;
+  icon: typeof Star;
+  title: string;
+  desc: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="group flex items-start gap-3 rounded-xl border border-border bg-card px-4 py-3 hover:border-pitch/40 transition-colors"
+    >
+      <Icon className="h-5 w-5 text-pitch mt-0.5 shrink-0" aria-hidden />
+      <div>
+        <p className="text-sm font-semibold text-foreground group-hover:text-pitch">{title}</p>
+        <p className="text-xs text-muted-foreground">{desc}</p>
+      </div>
+    </Link>
+  );
 }
 
 function EmptyPicker() {
@@ -44,11 +148,23 @@ function EmptyPicker() {
       </div>
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-foreground">Mitt lag</h1>
-        <p className="text-muted-foreground text-sm mt-2">Du har inte valt något lag ännu. Besök en lagsida så landar du där automatiskt.</p>
+        <p className="text-muted-foreground text-sm mt-2">
+          Välj favoritlag för att få dagens brief och matchdag här.
+        </p>
       </div>
       <div className="flex flex-col gap-2">
-        <Link href="/allsvenskan" className="rounded-lg bg-pitch text-white text-sm font-medium px-4 py-2.5 hover:bg-pitch/90 transition-colors">Bläddra bland lag</Link>
-        <Link href="/onboarding" className="rounded-lg border border-border text-sm text-muted-foreground px-4 py-2.5 hover:text-foreground transition-colors">Välj favoritlag</Link>
+        <Link
+          href="/allsvenskan"
+          className="rounded-lg bg-pitch text-white text-sm font-medium px-4 py-2.5 hover:bg-pitch/90 transition-colors"
+        >
+          Bläddra bland lag
+        </Link>
+        <Link
+          href="/onboarding"
+          className="rounded-lg border border-border text-sm text-muted-foreground px-4 py-2.5 hover:text-foreground transition-colors"
+        >
+          Välj favoritlag
+        </Link>
       </div>
     </div>
   );
