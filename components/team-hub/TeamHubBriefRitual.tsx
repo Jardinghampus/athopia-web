@@ -34,7 +34,7 @@ export function TeamHubBriefRitual({
 
   const hasFull = pulse ? canAccess("aiSummaries", plan) : false;
   const ctx = pulse ? contextLabel(pulse.match_context_label) : null;
-  const preferHostedAudio = Boolean(episode?.audio_url && canAccess("briefAudio", plan));
+  const preferHostedAudio = Boolean(episode?.has_audio && canAccess("briefAudio", plan));
 
   return (
     <div className="space-y-4 mb-5">

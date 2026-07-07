@@ -10,12 +10,11 @@ import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
 import { ArrowRight, Headphones, Sparkles } from "lucide-react";
 import { DailyPodcastPlayer } from "@/components/team-hub/DailyPodcastPlayer";
-import { getDailyEpisodeForShare } from "@/lib/team-hub/queries";
+import { getDailyEpisodeForShareCached } from "@/lib/team-hub/queries";
 import { getUserPlan } from "@/lib/user-plan";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-export const dynamic = "force-dynamic";
 export const revalidate = 60;
 
 const SITE = process.env.NEXT_PUBLIC_BASE_URL ?? "https://athopia.se";
@@ -37,7 +36,7 @@ export async function generateMetadata({
   searchParams: Promise<{ lag?: string }>;
 }): Promise<Metadata> {
   const { lag } = await searchParams;
-  const episode = await getDailyEpisodeForShare(lag);
+  const episode = await getDailyEpisodeForShareCached(lag);
   const title = episode?.title ?? "Athopia Daily — Allsvenskan idag";
   const description = episode
     ? episodeDescription(episode.title, episode.episode_date)
@@ -55,12 +54,6 @@ export async function generateMetadata({
       title,
       description,
       siteName: "Athopia",
-      ...(episode?.audio_url
-        ? {
-            audio: episode.audio_url,
-            ...(episode.duration_sec ? { duration: episode.duration_sec } : {}),
-          }
-        : {}),
     },
     twitter: {
       card: "summary_large_image",
@@ -74,7 +67,7 @@ function DailyEpisodeJsonLd({
   episode,
   pageUrl,
 }: {
-  episode: NonNullable<Awaited<ReturnType<typeof getDailyEpisodeForShare>>>;
+  episode: NonNullable<Awaited<ReturnType<typeof getDailyEpisodeForShareCached>>>;
   pageUrl: string;
 }) {
   const payload = {
@@ -88,11 +81,11 @@ function DailyEpisodeJsonLd({
       name: "Athopia Daily",
       url: `${SITE}/daily`,
     },
-    ...(episode.audio_url
+    ...(episode.has_audio
       ? {
           associatedMedia: {
             "@type": "MediaObject",
-            contentUrl: episode.audio_url,
+            contentUrl: `${pageUrl}?listen=1`,
             ...(episode.duration_sec ? { duration: `PT${episode.duration_sec}S` } : {}),
           },
         }
@@ -111,7 +104,7 @@ export default async function DailyPage({
 }) {
   const { lag } = await searchParams;
   const [episode, plan, { userId }] = await Promise.all([
-    getDailyEpisodeForShare(lag),
+    getDailyEpisodeForShareCached(lag),
     getUserPlan(),
     auth(),
   ]);
@@ -167,10 +160,10 @@ export default async function DailyPage({
       <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
         {!userId ? (
           <Link
-            href="/sign-up"
+            href="/prenumerera"
             className={cn(buttonVariants({ size: "lg" }), "w-full sm:w-auto justify-center")}
           >
-            Skapa gratis konto
+            Lyssna med PRO
             <ArrowRight className="ml-1 h-4 w-4" />
           </Link>
         ) : (

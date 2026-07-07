@@ -10,6 +10,7 @@
  */
 
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import { unstable_cache } from "next/cache";
 import { getTeamNews, getTeamThreads } from "@/lib/dashboard/queries";
 import type { DashArticle, DashThread } from "@/lib/dashboard/types";
 
@@ -189,11 +190,11 @@ export interface DailyEpisodeChapter {
   start_sec: number;
 }
 
-/** Publicerat Athopia Daily-avsnitt (ElevenLabs MP3 från generated_episodes). */
+/** Publicerat Athopia Daily-avsnitt — ingen direkt MP3-URL (PRO via /api/daily/audio). */
 export interface DailyEpisode {
   slug: string;
   title: string;
-  audio_url: string;
+  has_audio: boolean;
   duration_sec: number | null;
   episode_date: string;
   episode_type: "league_daily" | "club_daily";
@@ -201,7 +202,9 @@ export interface DailyEpisode {
 }
 
 function shapeDailyEpisode(row: Record<string, unknown> | null): DailyEpisode | null {
-  if (!row || !row.audio_url) return null;
+  if (!row) return null;
+  const hasAudio = Boolean(row.audio_storage_path || row.audio_url);
+  if (!hasAudio) return null;
   const rawChapters = Array.isArray(row.chapter_markers) ? row.chapter_markers : [];
   const chapter_markers = rawChapters
     .map((c) => {
@@ -216,7 +219,7 @@ function shapeDailyEpisode(row: Record<string, unknown> | null): DailyEpisode | 
   return {
     slug: String(row.slug),
     title: String(row.title),
-    audio_url: String(row.audio_url),
+    has_audio: true,
     duration_sec: row.duration_sec == null ? null : Number(row.duration_sec),
     episode_date: String(row.episode_date),
     episode_type: row.episode_type === "club_daily" ? "club_daily" : "league_daily",
@@ -231,11 +234,11 @@ async function fetchLatestPublishedEpisode(
 ): Promise<DailyEpisode | null> {
   let q = db
     .from("generated_episodes" as never)
-    .select("slug,title,audio_url,duration_sec,episode_date,episode_type,chapter_markers")
+    .select("slug,title,audio_storage_path,audio_url,duration_sec,episode_date,episode_type,chapter_markers")
     .eq("sport", SPORT)
     .eq("status", "published")
     .eq("episode_type", episodeType)
-    .not("audio_url", "is", null)
+    .or("audio_storage_path.not.is.null,audio_url.not.is.null")
     .order("episode_date", { ascending: false })
     .limit(1);
 
@@ -292,6 +295,16 @@ export async function getDailyEpisodeForShare(teamSlug?: string | null): Promise
   } catch {
     return getLeagueDailyEpisode();
   }
+}
+
+/** Cached variant for /daily and metadata (60s). */
+export async function getDailyEpisodeForShareCached(teamSlug?: string | null): Promise<DailyEpisode | null> {
+  const key = teamSlug?.trim() || "league";
+  return unstable_cache(
+    () => getDailyEpisodeForShare(teamSlug),
+    ["daily-episode-share", key],
+    { revalidate: 60 }
+  )();
 }
 
 /** Dagens godkända AI-brief ("vad du behöver veta idag") för ett lag. */

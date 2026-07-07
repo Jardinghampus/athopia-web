@@ -108,7 +108,7 @@ export function DailyPodcastPlayer({ episode, plan, className }: DailyPodcastPla
           <>
             <audio
               ref={audioRef}
-              src={episode.audio_url}
+              src={`/api/daily/audio?slug=${encodeURIComponent(episode.slug)}`}
               preload="metadata"
               onLoadedMetadata={(e) => {
                 const d = e.currentTarget.duration;
