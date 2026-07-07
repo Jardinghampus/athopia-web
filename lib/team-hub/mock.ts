@@ -97,6 +97,7 @@ export function mockTeamHub(): TeamHubPayload {
       match_context_label: "pre_match",
       pulse_date: new Date().toISOString().slice(0, 10),
     },
+    dailyEpisode: null,
     stats: mockStats,
     form: ["W", "W", "D", "L", "W"],
     radar: [

@@ -184,7 +184,7 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
 
       <MatchdayBanner teamName={hub.team.name} recent={hub.recent} upcoming={hub.upcoming} />
 
-      <TeamHubBriefRitual pulse={hub.pulse} plan={plan} />
+      <TeamHubBriefRitual pulse={hub.pulse} dailyEpisode={hub.dailyEpisode} plan={plan} />
 
       <div className="mx-4 sm:mx-6 mb-5">
         <PodcastSignalsPanel

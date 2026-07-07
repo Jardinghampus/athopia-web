@@ -184,6 +184,84 @@ export interface TeamPulse {
   pulse_date: string;
 }
 
+export interface DailyEpisodeChapter {
+  label: string;
+  start_sec: number;
+}
+
+/** Publicerat Athopia Daily-avsnitt (ElevenLabs MP3 från generated_episodes). */
+export interface DailyEpisode {
+  slug: string;
+  title: string;
+  audio_url: string;
+  duration_sec: number | null;
+  episode_date: string;
+  episode_type: "league_daily" | "club_daily";
+  chapter_markers: DailyEpisodeChapter[];
+}
+
+function shapeDailyEpisode(row: Record<string, unknown> | null): DailyEpisode | null {
+  if (!row || !row.audio_url) return null;
+  const rawChapters = Array.isArray(row.chapter_markers) ? row.chapter_markers : [];
+  const chapter_markers = rawChapters
+    .map((c) => {
+      const ch = c as Record<string, unknown>;
+      const start = Number(ch.start_sec ?? ch.startSec ?? 0);
+      const label = String(ch.label ?? "").trim();
+      if (!label || Number.isNaN(start)) return null;
+      return { label, start_sec: start };
+    })
+    .filter((c): c is DailyEpisodeChapter => c !== null);
+
+  return {
+    slug: String(row.slug),
+    title: String(row.title),
+    audio_url: String(row.audio_url),
+    duration_sec: row.duration_sec == null ? null : Number(row.duration_sec),
+    episode_date: String(row.episode_date),
+    episode_type: row.episode_type === "club_daily" ? "club_daily" : "league_daily",
+    chapter_markers,
+  };
+}
+
+async function fetchLatestPublishedEpisode(
+  db: ReturnType<typeof createServerClient>,
+  episodeType: DailyEpisode["episode_type"],
+  entityId?: string
+): Promise<DailyEpisode | null> {
+  let q = db
+    .from("generated_episodes" as never)
+    .select("slug,title,audio_url,duration_sec,episode_date,episode_type,chapter_markers")
+    .eq("sport", SPORT)
+    .eq("status", "published")
+    .eq("episode_type", episodeType)
+    .not("audio_url", "is", null)
+    .order("episode_date", { ascending: false })
+    .limit(1);
+
+  if (entityId) {
+    q = q.eq("entity_id", entityId);
+  }
+
+  const { data } = await q.maybeSingle();
+  return shapeDailyEpisode((data as Record<string, unknown> | null) ?? null);
+}
+
+/** Senaste publicerade Daily — lagspecifik först, annars ligans dagliga brief. */
+export async function getDailyEpisodeForTeam(teamEntityId?: string | null): Promise<DailyEpisode | null> {
+  if (!isSupabaseConfigured()) return null;
+  try {
+    const db = createServerClient();
+    if (teamEntityId) {
+      const club = await fetchLatestPublishedEpisode(db, "club_daily", teamEntityId);
+      if (club) return club;
+    }
+    return fetchLatestPublishedEpisode(db, "league_daily");
+  } catch {
+    return null;
+  }
+}
+
 /** Dagens godkända AI-brief ("vad du behöver veta idag") för ett lag. */
 export async function getTeamPulse(teamEntityId: string): Promise<TeamPulse | null> {
   if (!isSupabaseConfigured()) return null;
@@ -207,6 +285,7 @@ export interface TeamHubPayload {
   team: { id: string; name: string; slug: string; logo_url: string | null; sportsmonks_id: number | null };
   position: number | null;
   pulse: TeamPulse | null;
+  dailyEpisode: DailyEpisode | null;
   stats: TeamSeasonRow | null;
   form: ("W" | "D" | "L")[];
   radar: { metric: string; value: number; raw: number }[];
@@ -290,10 +369,30 @@ export async function getTeamHub(
       ? getTeamNewsPersonalized(slug, options.newsTags)
       : getTeamNews(slug);
 
-  const [news, threads, pulse] = await Promise.all([newsFetcher, getTeamThreads(team.id), getTeamPulse(team.id)]);
+  const [news, threads, pulse, dailyEpisode] = await Promise.all([
+    newsFetcher,
+    getTeamThreads(team.id),
+    getTeamPulse(team.id),
+    getDailyEpisodeForTeam(team.id),
+  ]);
 
   if (!smId) {
-    return { team, position: null, pulse, stats: null, form: [], radar: [], topScorers: [], topAssists: [], squad: [], recent: [], upcoming: [], news, threads };
+    return {
+      team,
+      position: null,
+      pulse,
+      dailyEpisode,
+      stats: null,
+      form: [],
+      radar: [],
+      topScorers: [],
+      topAssists: [],
+      squad: [],
+      recent: [],
+      upcoming: [],
+      news,
+      threads,
+    };
   }
 
   const [league, leaders, fixtures] = await Promise.all([
@@ -311,7 +410,22 @@ export async function getTeamHub(
   const topAssists = [...leaders].sort((a, b) => b.assists - a.assists).slice(0, 5);
   const squad = [...leaders].sort((a, b) => b.appearances - a.appearances);
 
-  return { team, position, pulse, stats, form, radar, topScorers, topAssists, squad, recent: fixtures.recent, upcoming: fixtures.upcoming, news, threads };
+  return {
+    team,
+    position,
+    pulse,
+    dailyEpisode,
+    stats,
+    form,
+    radar,
+    topScorers,
+    topAssists,
+    squad,
+    recent: fixtures.recent,
+    upcoming: fixtures.upcoming,
+    news,
+    threads,
+  };
 }
 
 /** z-score-normalisering → 0–100-skala, för radar-profilering mot ligan. */

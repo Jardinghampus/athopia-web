@@ -73,7 +73,7 @@ export default async function MittLagPage({
         </Link>
       </header>
 
-      <TeamHubBriefRitual pulse={hub.pulse} plan={plan} />
+      <TeamHubBriefRitual pulse={hub.pulse} dailyEpisode={hub.dailyEpisode} plan={plan} />
 
       <div className="mb-5">
         <MatchdayBanner
