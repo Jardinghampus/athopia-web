@@ -262,6 +262,38 @@ export async function getDailyEpisodeForTeam(teamEntityId?: string | null): Prom
   }
 }
 
+/** Senaste ligans Athopia Daily (delbar /daily utan lagparameter). */
+export async function getLeagueDailyEpisode(): Promise<DailyEpisode | null> {
+  if (!isSupabaseConfigured()) return null;
+  try {
+    const db = createServerClient();
+    return fetchLatestPublishedEpisode(db, "league_daily");
+  } catch {
+    return null;
+  }
+}
+
+/** Delbar daily — valfritt ?lag=slug för klubbavsnitt, annars league daily. */
+export async function getDailyEpisodeForShare(teamSlug?: string | null): Promise<DailyEpisode | null> {
+  const slug = teamSlug?.trim();
+  if (!slug) return getLeagueDailyEpisode();
+  if (!isSupabaseConfigured()) return null;
+  try {
+    const db = createServerClient();
+    const { data } = await db
+      .from("entities")
+      .select("id")
+      .eq("type", "team")
+      .eq("slug", slug)
+      .maybeSingle();
+    const entityId = data?.id ? String(data.id) : null;
+    if (!entityId) return getLeagueDailyEpisode();
+    return getDailyEpisodeForTeam(entityId);
+  } catch {
+    return getLeagueDailyEpisode();
+  }
+}
+
 /** Dagens godkända AI-brief ("vad du behöver veta idag") för ett lag. */
 export async function getTeamPulse(teamEntityId: string): Promise<TeamPulse | null> {
   if (!isSupabaseConfigured()) return null;

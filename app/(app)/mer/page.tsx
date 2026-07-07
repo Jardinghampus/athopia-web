@@ -18,6 +18,7 @@ export default function MerPage() {
       <ListGroup>
         <ListRow href="/forum" leading={<MessageSquare />} title="Forum" subtitle="Diskutera med andra supportrar" />
         <ListRow href="/ai" leading={<Sparkles />} title="AI-chatt" subtitle="Fråga Athopia om Allsvenskan" />
+        <ListRow href="/daily" leading={<Headphones />} title="Athopia Daily" subtitle="7 min morgonbrief — lyssna här" />
         <ListRow href="/podcast" leading={<Headphones />} title="Poddar" subtitle="Allsvenskan-poddar samlade" />
         <ListRow href="/statistik" leading={<BarChart3 />} title="Statistik" subtitle="Spelare, jämförelser och scout" />
       </ListGroup>
