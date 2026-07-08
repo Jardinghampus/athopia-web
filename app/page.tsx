@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import AthopiaLanding, { type LandingArticle } from "@/components/landing/AthopiaLanding";
 import { SportFront } from "@/components/landing/SportFront";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import { getLandingCopy } from "@/lib/landing-copy";
 
 // ISR: servera cachad HTML direkt (snabb laddning), regenerera i bakgrunden.
 // Tidigare 'force-dynamic' gjorde att varje besök blockerade på en Supabase-query
@@ -102,10 +103,11 @@ function LandingJsonLd() {
 export default async function LandingPage() {
   const user = await currentUser();
   if (user) redirect("/mitt-lag");
-  const [articles, pulse, clubs] = await Promise.all([
+  const [articles, pulse, clubs, heroCopy] = await Promise.all([
     getLatestArticles(),
     getHeroPulse(),
     getClubChips(),
+    getLandingCopy(),
   ]);
   return (
     <>
@@ -114,6 +116,7 @@ export default async function LandingPage() {
         articles={articles}
         pulse={pulse}
         clubs={clubs}
+        heroCopy={heroCopy}
         sportSlot={<SportFront articles={articles} />}
       />
     </>

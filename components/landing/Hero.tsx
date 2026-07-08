@@ -10,6 +10,12 @@ import { ScreenFeed } from "./phone/screens";
 import { WaitlistModal } from "./WaitlistModal";
 import { getTeamAccent } from "@/lib/team-colors";
 
+export interface LandingHeroCopy {
+  headlineAccent: string;
+  body: string;
+  ctaLabel?: string | null;
+}
+
 export interface HeroPulse {
   live: boolean;
   matchName: string | null;
@@ -69,7 +75,15 @@ function PulseStrip({ pulse }: { pulse: HeroPulse }) {
   );
 }
 
-export function Hero({ pulse, clubs = [] }: { pulse?: HeroPulse; clubs?: ClubChip[] }) {
+export function Hero({
+  pulse,
+  clubs = [],
+  copy,
+}: {
+  pulse?: HeroPulse;
+  clubs?: ClubChip[];
+  copy?: LandingHeroCopy;
+}) {
   const ref = useRef<HTMLElement>(null);
   const reduced = useReducedMotion();
   const [modalOpen, setModalOpen] = useState(false);
@@ -84,6 +98,12 @@ export function Hero({ pulse, clubs = [] }: { pulse?: HeroPulse; clubs?: ClubChi
     offset: ["start start", "end start"],
   });
   const phoneY = useTransform(scrollYProgress, [0, 1], [0, -48]);
+
+  const headlineAccent = copy?.headlineAccent ?? "Varje dag.";
+  const body =
+    copy?.body ??
+    "Vi läser alla svenska källor, följer varje match och räknar på varje siffra — så att du alltid vet vad som händer i din klubb. Byggt för supportrar som kan fotboll.";
+  const ctaLabel = copy?.ctaLabel ?? "Välj din klubb";
 
   return (
     <section ref={ref} className="relative overflow-hidden pb-16 pt-28 md:pb-24 md:pt-40">
@@ -109,15 +129,13 @@ export function Hero({ pulse, clubs = [] }: { pulse?: HeroPulse; clubs?: ClubChi
               <h1 className="mb-6 mt-4 font-heading text-[clamp(3.75rem,11vw,8.5rem)] leading-[0.92] tracking-wide">
                 Din klubb.
                 <br />
-                <span className="text-pitch">Varje dag.</span>
+                <span className="text-pitch">{headlineAccent}</span>
               </h1>
             </Reveal>
 
             <Reveal delay={0.16}>
               <p className="mb-8 max-w-[480px] text-[17px] leading-[1.65] text-white/65 md:mb-10 md:text-xl">
-                Vi läser alla svenska källor, följer varje match och räknar på
-                varje siffra — så att du alltid vet vad som händer i din klubb.
-                Byggt för supportrar som kan fotboll.
+                {body}
               </p>
             </Reveal>
 
@@ -128,7 +146,7 @@ export function Hero({ pulse, clubs = [] }: { pulse?: HeroPulse; clubs?: ClubChi
                   onClick={handleCta}
                   className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl bg-pitch px-8 text-[17px] font-bold text-black transition-transform duration-200 hover:scale-[1.02] active:scale-[0.97]"
                 >
-                  Välj din klubb <ArrowRight className="h-5 w-5" />
+                  {ctaLabel} <ArrowRight className="h-5 w-5" />
                 </Link>
                 <a
                   href="#upplevelsen"
