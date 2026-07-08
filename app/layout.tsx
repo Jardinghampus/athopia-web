@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import { Instrument_Serif, Lora } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { svSE } from "@clerk/localizations";
@@ -6,6 +7,7 @@ import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { Providers } from "./providers";
 import { Toaster } from "@/components/ui/sonner";
 import { CookieBanner } from "@/components/CookieBanner";
+import { UtmVisitTracker } from "@/components/growth/UtmVisitTracker";
 import "./globals.css";
 
 const instrumentSerif = Instrument_Serif({
@@ -95,6 +97,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             {children}
             <Toaster position="bottom-right" richColors />
             <CookieBanner />
+            <Suspense fallback={null}>
+              <UtmVisitTracker />
+            </Suspense>
           </Providers>
         </ThemeProvider>
       </body>

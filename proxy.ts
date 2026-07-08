@@ -12,6 +12,7 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
+import { NextResponse } from "next/server";
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
 // Inloggning krävs
@@ -22,9 +23,26 @@ const isProtectedRoute = createRouteMatcher([
   "/onboarding(.*)",
 ]);
 
+// Polsia 2.0 S2 — growth loop: capture utm_campaign i en cookie (30 dagar).
+// Ingen DB-write här — bara attribution-läsning för /api/utm/visit och
+// onboarding-flödet. Regex-validering görs igen på serversidan innan insert.
+const UTM_CAMPAIGN_RE = /^[a-z0-9_-]{3,64}$/;
+
 export default clerkMiddleware(async (auth, req) => {
   if (isProtectedRoute(req)) {
     await auth.protect();
+  }
+
+  const utmCampaign = req.nextUrl.searchParams.get("utm_campaign");
+  if (utmCampaign && UTM_CAMPAIGN_RE.test(utmCampaign)) {
+    const res = NextResponse.next();
+    res.cookies.set("athopia_utm", utmCampaign, {
+      maxAge: 60 * 60 * 24 * 30,
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+    });
+    return res;
   }
 });
 
