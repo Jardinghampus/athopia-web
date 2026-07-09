@@ -3,6 +3,7 @@ import Link from "next/link";
 import { fetchAllsvenskanFixtures, fetchLiveScores } from "@/lib/db/fixtures";
 import type { SMFixture } from "@/lib/db/fixtures";
 import { ScoreWidget } from "@/components/ui/ScoreWidget";
+import { CollapsibleSection } from "@/components/ui/CollapsibleSection";
 
 export const metadata: Metadata = {
   title: "Allsvenskan-matcher 2026 – Schema & Resultat",
@@ -56,20 +57,22 @@ export default async function MatcherPage() {
       )}
 
       {live.length > 0 && (
-        <section className="mb-8">
-          <h2 className="font-semibold text-xl text-foreground mb-3 flex items-center gap-2">
+        <CollapsibleSection
+          className="mb-8"
+          title="Live nu"
+          defaultOpen
+          leading={
             <span className="inline-block w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-            Live nu
-          </h2>
+          }
+        >
           <FixtureList fixtures={live} />
-        </section>
+        </CollapsibleSection>
       )}
 
       {upcoming.length > 0 ? (
-        <section className="mb-8">
-          <h2 className="font-semibold text-xl text-foreground mb-3">Kommande</h2>
+        <CollapsibleSection className="mb-8" title="Kommande" defaultOpen>
           <FixtureList fixtures={upcoming} />
-        </section>
+        </CollapsibleSection>
       ) : (
         !nothingAtAll &&
         live.length === 0 && (
@@ -81,15 +84,17 @@ export default async function MatcherPage() {
       )}
 
       {recent.length > 0 && (
-        <section>
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-semibold text-xl text-foreground">Senaste resultat</h2>
-            <Link href="/allsvenskan/resultat" className="text-sm text-pitch hover:underline">
+        <CollapsibleSection
+          title="Spelade"
+          defaultOpen
+          trailing={
+            <Link href="/allsvenskan/resultat" className="text-sm text-pitch hover:underline shrink-0">
               Alla resultat →
             </Link>
-          </div>
+          }
+        >
           <FixtureList fixtures={recent} />
-        </section>
+        </CollapsibleSection>
       )}
     </div>
   );

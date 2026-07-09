@@ -9,6 +9,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { currentUser } from "@clerk/nextjs/server";
 import { Star, ArrowRight, Newspaper, BarChart3 } from "lucide-react";
 import { getPrimaryTeam } from "@/lib/team/getPrimaryTeam";
 import { getTeamHub } from "@/lib/team-hub/queries";
@@ -24,12 +25,36 @@ export const metadata: Metadata = {
   description: "Din dagliga brief, matchdag och snabbvägar till laget.",
 };
 
+/** Svensk hälsning efter Stockholm-tid + förnamn när det finns. */
+function homeGreeting(firstName: string | null | undefined): string {
+  const hour = Number(
+    new Intl.DateTimeFormat("sv-SE", {
+      timeZone: "Europe/Stockholm",
+      hour: "numeric",
+      hour12: false,
+    }).format(new Date()),
+  );
+  const name = firstName?.trim().split(/\s+/)[0] || null;
+
+  let phrase: string;
+  if (hour >= 5 && hour < 11) phrase = "God morgon";
+  else if (hour >= 11 && hour < 17) phrase = "Välkommen tillbaka";
+  else if (hour >= 17 && hour < 22) phrase = "God kväll";
+  else phrase = "Välkommen";
+
+  return name ? `${phrase}, ${name}` : phrase;
+}
+
 export default async function MittLagPage({
   searchParams,
 }: {
   searchParams: Promise<{ hub?: string; tab?: string }>;
 }) {
-  const [primaryTeam, sp] = await Promise.all([getPrimaryTeam(), searchParams]);
+  const [primaryTeam, sp, user] = await Promise.all([
+    getPrimaryTeam(),
+    searchParams,
+    currentUser(),
+  ]);
 
   if (primaryTeam?.slug && sp.hub === "1") {
     const tab = typeof sp.tab === "string" ? sp.tab : undefined;
@@ -50,6 +75,8 @@ export default async function MittLagPage({
     return <EmptyPicker />;
   }
 
+  const greeting = homeGreeting(user?.firstName);
+
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 pb-10 pt-4">
       <header className="mb-6 flex items-start justify-between gap-4">
@@ -57,8 +84,11 @@ export default async function MittLagPage({
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Athopia · {hub.team.name}
           </p>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground mt-1">
-            God morgon
+          <h1
+            className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground mt-1"
+            style={{ fontFamily: "system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif" }}
+          >
+            {greeting}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
             Det här behöver du veta om {hub.team.name} idag.

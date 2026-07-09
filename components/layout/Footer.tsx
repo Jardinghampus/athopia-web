@@ -7,7 +7,7 @@ export function Footer() {
   const pathname = usePathname();
   if (pathname === '/ai') return null;
   return (
-    <footer className="border-t border-border/50 mt-24 py-12 bg-background">
+    <footer className="hidden md:block border-t border-border/50 mt-24 py-12 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-4 gap-10 text-sm">
         <div className="md:col-span-1">
           <div className="font-heading text-2xl text-gradient">ATHOPIA</div>

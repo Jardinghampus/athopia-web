@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { MessageSquare, Sparkles, Headphones, User, CreditCard, Info, BarChart3, Radio } from "lucide-react";
+import { MessageSquare, Sparkles, Headphones, User, CreditCard, Info, BarChart3, Radio, Newspaper } from "lucide-react";
 import { ListGroup } from "@/components/ui/ListGroup";
 import { ListRow } from "@/components/ui/ListRow";
 
@@ -16,6 +16,7 @@ export default function MerPage() {
       </h1>
 
       <ListGroup>
+        <ListRow href="/nyheter" leading={<Newspaper />} title="Nyheter" subtitle="Allsvenskan-flöde och transfers" />
         <ListRow href="/forum" leading={<MessageSquare />} title="Forum" subtitle="Diskutera med andra supportrar" />
         <ListRow href="/ai" leading={<Sparkles />} title="AI-chatt" subtitle="Fråga Athopia om Allsvenskan" />
         <ListRow href="/daily" leading={<Headphones />} title="Athopia Daily" subtitle="7 min morgonbrief — lyssna här" />

@@ -28,14 +28,37 @@ function TeamLogo({ src, name }: { src: string; name: string }) {
   );
 }
 
+/** "Idag 17:00" / "Imorgon 19:30" / "lör 12 jul 16:00" */
+function kickoffLabel(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+
+  const time = d.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const startOfKickoff = new Date(d);
+  startOfKickoff.setHours(0, 0, 0, 0);
+  const dayDiff = Math.round(
+    (startOfKickoff.getTime() - startOfToday.getTime()) / 86_400_000,
+  );
+
+  if (dayDiff === 0) return `Idag ${time}`;
+  if (dayDiff === 1) return `Imorgon ${time}`;
+  if (dayDiff === -1) return `Igår ${time}`;
+
+  const date = d.toLocaleDateString("sv-SE", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+  });
+  return `${date} ${time}`;
+}
+
 export function ScoreWidget({ fixture, className }: ScoreWidgetProps) {
   const { home, away, homeGoals, awayGoals, liveMinute, isLive } =
     parseFixtureScore(fixture);
 
-  const startTime = new Date(fixture.starting_at).toLocaleTimeString("sv-SE", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const when = kickoffLabel(fixture.starting_at);
 
   return (
     <div
@@ -45,18 +68,18 @@ export function ScoreWidget({ fixture, className }: ScoreWidgetProps) {
         className
       )}
     >
-      {/* Liga + live-badge */}
-      <div className="flex items-center justify-between text-xs text-muted-foreground">
+      {/* Liga + live-badge / datum+tid */}
+      <div className="flex items-center justify-between text-xs text-muted-foreground gap-2">
         <span className="truncate">{fixture.league?.name}</span>
         {isLive ? (
-          <span className="flex items-center gap-1 text-pitch-light font-medium">
+          <span className="flex items-center gap-1 text-pitch-light font-medium shrink-0">
             <span className="live-dot" />
             LIVE
           </span>
         ) : (
-          <span className="flex items-center gap-1">
+          <span className="flex items-center gap-1 shrink-0 tabular-nums">
             <Clock className="w-3 h-3" />
-            {startTime}
+            {when}
           </span>
         )}
       </div>

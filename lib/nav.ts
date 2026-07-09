@@ -1,4 +1,4 @@
-import { Shield, Trophy, CalendarDays, MoreHorizontal } from "lucide-react";
+import { Shield, Newspaper, Trophy, CalendarDays, MoreHorizontal } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 /**
@@ -15,6 +15,7 @@ export interface NavItem {
 
 export const NAV_ITEMS: NavItem[] = [
   { href: "/mitt-lag", label: "Mitt lag", icon: Shield },
+  { href: "/nyheter", label: "Nyheter", icon: Newspaper },
   { href: "/allsvenskan", label: "Allsvenskan", icon: Trophy },
   { href: "/match", label: "Matcher", icon: CalendarDays },
   { href: "/mer", label: "Mer", icon: MoreHorizontal },

@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Sparkles } from "lucide-react";
 import { canAccess, type Plan } from "@/lib/access-rules";
 import type { DailyEpisode, TeamPulse } from "@/lib/team-hub/queries";
-import { BriefListenButton } from "@/components/team-hub/BriefListenButton";
 import { DailyPodcastPlayer } from "@/components/team-hub/DailyPodcastPlayer";
 
 function contextLabel(label: string | null) {
@@ -34,10 +33,9 @@ export function TeamHubBriefRitual({
 
   const hasFull = pulse ? canAccess("aiSummaries", plan) : false;
   const ctx = pulse ? contextLabel(pulse.match_context_label) : null;
-  const preferHostedAudio = Boolean(episode?.has_audio && canAccess("briefAudio", plan));
 
   return (
-    <div className="space-y-4 mb-5">
+    <div className="space-y-4 mt-6 mb-5">
       {episode && (
         <DailyPodcastPlayer episode={episode} plan={plan} className="mx-4 sm:mx-6" />
       )}
@@ -62,12 +60,7 @@ export function TeamHubBriefRitual({
             )}
 
             {hasFull ? (
-              <>
-                <p className="mt-3 text-sm leading-relaxed text-foreground/90 whitespace-pre-line">{pulse.body}</p>
-                {!preferHostedAudio && (
-                  <BriefListenButton text={pulse.body} headline={pulse.headline} plan={plan} />
-                )}
-              </>
+              <p className="mt-3 text-sm leading-relaxed text-foreground/90 whitespace-pre-line">{pulse.body}</p>
             ) : (
               <p className="mt-3 text-sm text-muted-foreground">
                 Fullständig dagens brief kräver PRO.{" "}
