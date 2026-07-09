@@ -1,14 +1,22 @@
 "use client";
 
 import { useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import { motion, useScroll, useTransform, useReducedMotion } from "motion/react";
 import { Container, Label, Reveal } from "./primitives";
-import { PhoneFrame } from "./phone/PhoneFrame";
-import { ScreenFeed } from "./phone/screens";
 import { WaitlistModal } from "./WaitlistModal";
 import { getTeamAccent } from "@/lib/team-colors";
+
+/* Telefon-mockup är dekorativ (aria-hidden) och INTE LCP-elementet (det är h1
+   ovan, statisk sen runda 2) — laddas som egen chunk efter hydrering av
+   hero-texten så dess JS inte fördröjer FCP/TBT. Fast höjd/bredd matchar
+   PhoneFrame för att undvika layout-skift när chunken landar. */
+const PhoneMock = dynamic(() => import("./phone/PhoneMock"), {
+  ssr: false,
+  loading: () => <div aria-hidden className="h-[564px] w-[260px]" />,
+});
 
 export interface LandingHeroCopy {
   headlineAccent: string;
@@ -195,9 +203,7 @@ export function Hero({
                     "radial-gradient(circle, rgba(29,158,117,0.25) 0%, transparent 65%)",
                 }}
               />
-              <PhoneFrame className="relative">
-                <ScreenFeed />
-              </PhoneFrame>
+              <PhoneMock />
             </motion.div>
           </Reveal>
         </div>
