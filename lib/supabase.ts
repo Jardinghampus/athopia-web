@@ -104,6 +104,55 @@ export function createClient() {
 
 // ─── Typade queries ───────────────────────────────────────────────────────────
 
+/** Normaliserad titel-fingerprint — fallback-dedupnyckel när story_cluster_id saknas. */
+function titleFingerprint(title: string | null | undefined): string {
+  return String(title ?? "")
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .trim()
+    .replace(/\s+/g, " ");
+}
+
+/**
+ * Dedupar rader som delar story_cluster_id (fallback: titel-fingerprint).
+ * Behåller den med högst `scoreOf` (t.ex. feed_score/signal_score), och vid
+ * lika score den senast publicerade. Bevarar ursprunglig sortordning.
+ */
+function dedupeByStoryCluster<T>(
+  rows: T[],
+  keyOf: (row: T) => { clusterId: string | null; title: string | null; publishedAt: string | null },
+  scoreOf: (row: T) => number
+): T[] {
+  const bestByKey = new Map<string, T>();
+  const order: string[] = [];
+  for (const row of rows) {
+    const { clusterId, title, publishedAt } = keyOf(row);
+    const key = clusterId ?? `title:${titleFingerprint(title)}`;
+    if (!key || key === "title:") {
+      // Ingen dedupbar nyckel (tom titel) — behåll som unik rad.
+      order.push(`__unique:${order.length}`);
+      bestByKey.set(order[order.length - 1], row);
+      continue;
+    }
+    const existing = bestByKey.get(key);
+    if (!existing) {
+      order.push(key);
+      bestByKey.set(key, row);
+      continue;
+    }
+    const existingScore = scoreOf(existing);
+    const newScore = scoreOf(row);
+    if (
+      newScore > existingScore ||
+      (newScore === existingScore && (publishedAt ?? "") > (keyOf(existing).publishedAt ?? ""))
+    ) {
+      bestByKey.set(key, row);
+    }
+  }
+  return order.map((key) => bestByKey.get(key)!).filter(Boolean);
+}
+
 function mapEntity(row: any): Entity {
   return {
     id: String(row.id ?? row.entity_id ?? row.slug ?? row.name),
@@ -362,7 +411,19 @@ export async function getFilteredArticles(filters: ArticleFilters = {}): Promise
       }
     }
 
-    return { articles: rows.map(mapArticle), total: count ?? 0 };
+    // Dedupa dubbletter (samma story_cluster_id, t.ex. samma händelse från
+    // flera källor) innan render — annars visas samma story flera gånger.
+    const deduped = dedupeByStoryCluster(
+      rows,
+      (r: any) => ({
+        clusterId: r.story_cluster_id ?? null,
+        title: r.title ?? null,
+        publishedAt: r.published_at ?? null,
+      }),
+      (r: any) => Number(r.feed_score ?? r.importance_score ?? 0)
+    );
+
+    return { articles: deduped.map(mapArticle), total: count ?? 0 };
   } catch (e) { captureDbError(e);
     return { articles: [], total: 0 };
   }
@@ -750,7 +811,16 @@ export const getNewsStream = unstable_cache(
         : q.order("published_at", { ascending: false });
 
       const { data } = await q;
-      return (data ?? []).map((row) => ({
+      const rows = dedupeByStoryCluster(
+        data ?? [],
+        (row: any) => ({
+          clusterId: row.story_cluster_id ?? null,
+          title: row.title ?? null,
+          publishedAt: row.published_at ?? null,
+        }),
+        (row: any) => Number(row.feed_score ?? row.importance_score ?? 0)
+      );
+      return rows.map((row: any) => ({
         id: String(row.id),
         source_name: row.source_name ?? null,
         source_url: row.url ?? null,
@@ -811,49 +881,57 @@ export async function getTeamPushPopups(teamEntityIds: string[], limit = 5): Pro
   }
 }
 
-export const getTeamEntityInsights = unstable_cache(
-  async (teamEntityId: string, limit = 3): Promise<EntityInsight[]> => {
-    if (!isSupabaseConfigured()) return [];
-    try {
-      const supabase = createServerClient();
-      const { data } = await supabase
-        .from("published_entity_insights")
-        .select("*")
-        .eq("entity_id", teamEntityId)
-        .eq("sport", "football")
-        .order("confidence", { ascending: false, nullsFirst: false })
-        .order("generated_at", { ascending: false })
-        .limit(limit);
+async function fetchTeamEntityInsights(teamEntityId: string, limit = 3): Promise<EntityInsight[]> {
+  if (!isSupabaseConfigured()) return [];
+  try {
+    const supabase = createServerClient();
+    const { data } = await supabase
+      .from("published_entity_insights")
+      .select("*")
+      .eq("entity_id", teamEntityId)
+      .eq("sport", "football")
+      .order("confidence", { ascending: false, nullsFirst: false })
+      .order("generated_at", { ascending: false })
+      .limit(limit);
 
-      return (data ?? []).map(mapEntityInsight);
-    } catch (e) { captureDbError(e);
-      return [];
-    }
-  },
-  ["team-entity-insights"],
-  { revalidate: 120, tags: ["entity-insights"] }
-);
+    return (data ?? []).map(mapEntityInsight);
+  } catch (e) { captureDbError(e);
+    return [];
+  }
+}
 
-export const getTeamDailyPulse = unstable_cache(
-  async (teamEntityId: string): Promise<TeamDailyPulse | null> => {
-    if (!isSupabaseConfigured()) return null;
-    try {
-      const supabase = createServerClient();
-      const { data } = await supabase
-        .from("published_team_daily_pulses")
-        .select("*")
-        .eq("team_entity_id", teamEntityId)
-        .eq("sport", "football")
-        .order("pulse_date", { ascending: false })
-        .order("generated_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+// Cache-nyckeln inkluderar teamEntityId — annars delar alla lag samma slot
+// (samma buggklass som lib/dashboard/queries.ts getTeamNews).
+export async function getTeamEntityInsights(teamEntityId: string, limit = 3): Promise<EntityInsight[]> {
+  return unstable_cache(fetchTeamEntityInsights, ["team-entity-insights", teamEntityId], {
+    revalidate: 120,
+    tags: ["entity-insights"],
+  })(teamEntityId, limit);
+}
 
-      return data ? mapTeamDailyPulse(data) : null;
-    } catch (e) { captureDbError(e);
-      return null;
-    }
-  },
-  ["team-daily-pulse"],
-  { revalidate: 120, tags: ["team-daily-pulse"] }
-);
+async function fetchTeamDailyPulse(teamEntityId: string): Promise<TeamDailyPulse | null> {
+  if (!isSupabaseConfigured()) return null;
+  try {
+    const supabase = createServerClient();
+    const { data } = await supabase
+      .from("published_team_daily_pulses")
+      .select("*")
+      .eq("team_entity_id", teamEntityId)
+      .eq("sport", "football")
+      .order("pulse_date", { ascending: false })
+      .order("generated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    return data ? mapTeamDailyPulse(data) : null;
+  } catch (e) { captureDbError(e);
+    return null;
+  }
+}
+
+export async function getTeamDailyPulse(teamEntityId: string): Promise<TeamDailyPulse | null> {
+  return unstable_cache(fetchTeamDailyPulse, ["team-daily-pulse", teamEntityId], {
+    revalidate: 120,
+    tags: ["team-daily-pulse"],
+  })(teamEntityId);
+}

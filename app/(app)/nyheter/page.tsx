@@ -125,7 +125,15 @@ export default async function NyheterPage({ searchParams }: { searchParams: Prom
       <NyheterRealtimeBanner />
       <FeedMatchHero />
       <div className="mb-8">
-        <h1 className="font-bold text-3xl text-foreground">Nyheter</h1>
+        <div className="flex items-center justify-between gap-4">
+          <h1 className="font-bold text-3xl text-foreground">Nyheter</h1>
+          <Link
+            href="/analys"
+            className="shrink-0 text-sm text-muted-foreground hover:text-pitch transition-colors"
+          >
+            Matchanalyser →
+          </Link>
+        </div>
         <p className="text-muted-foreground mt-2 text-sm">
           {total > 0 ? `${total} artiklar` : "Inga artiklar"} — filtrera per lag, källa eller eventtyp.
         </p>

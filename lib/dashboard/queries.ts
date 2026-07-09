@@ -88,55 +88,64 @@ export async function unfollowTeam(userId: string, entityId: string): Promise<vo
 
 // ── Delad lagdata (cachad 60s, delas mellan användare) ────────────────────────
 
-export const getTeamNews = unstable_cache(
-  async (teamSlug: string): Promise<DashArticle[]> => {
-    if (!isSupabaseConfigured()) return []
-    try {
-      const supabase = createServerClient()
-      const { data: team } = await supabase
-        .from('entities')
-        .select('id')
-        .eq('type', 'team')
-        .eq('slug', teamSlug)
-        .maybeSingle()
-      if (!team?.id) return []
+async function fetchTeamNews(teamSlug: string): Promise<DashArticle[]> {
+  if (!isSupabaseConfigured()) return []
+  try {
+    const supabase = createServerClient()
+    const { data: team } = await supabase
+      .from('entities')
+      .select('id')
+      .eq('type', 'team')
+      .eq('slug', teamSlug)
+      .maybeSingle()
+    if (!team?.id) return []
 
-      const { data } = await supabase
-        .from('articles')
-        .select('id, title, slug, summary, image_url, published_at')
-        .eq('sport', SPORT)
-        .eq('status', 'published')
-        .contains('entity_ids', [String(team.id)])
-        .order('published_at', { ascending: false })
-        .limit(5)
-      return (data as DashArticle[]) ?? []
-    } catch {
-      return []
-    }
-  },
-  ['dash-news'],
-  { revalidate: 60, tags: ['articles'] }
-)
+    const { data } = await supabase
+      .from('articles')
+      .select('id, title, slug, summary, image_url, published_at')
+      .eq('sport', SPORT)
+      .eq('status', 'published')
+      .contains('entity_ids', [String(team.id)])
+      .order('published_at', { ascending: false })
+      .limit(5)
+    return (data as DashArticle[]) ?? []
+  } catch {
+    return []
+  }
+}
 
-export const getTeamThreads = unstable_cache(
-  async (teamId: string): Promise<DashThread[]> => {
-    if (!isSupabaseConfigured()) return []
-    try {
-      const supabase = createServerClient()
-      const { data } = await supabase
-        .from('forum_threads')
-        .select('id, title, reply_count, view_count, created_at')
-        .eq('team_id', teamId)
-        .order('last_reply_at', { ascending: false })
-        .limit(6)
-      return (data as DashThread[]) ?? []
-    } catch {
-      return []
-    }
-  },
-  ['dash-threads'],
-  { revalidate: 60, tags: ['forum_threads'] }
-)
+// Cache-nyckeln MÅSTE innehålla teamSlug — annars delar alla lag samma
+// cache-slot (bara det först anropade lagets nyheter returneras för alla).
+export async function getTeamNews(teamSlug: string): Promise<DashArticle[]> {
+  return unstable_cache(fetchTeamNews, ['dash-news', teamSlug], {
+    revalidate: 60,
+    tags: ['articles'],
+  })(teamSlug)
+}
+
+async function fetchTeamThreads(teamId: string): Promise<DashThread[]> {
+  if (!isSupabaseConfigured()) return []
+  try {
+    const supabase = createServerClient()
+    const { data } = await supabase
+      .from('forum_threads')
+      .select('id, title, reply_count, view_count, created_at')
+      .eq('team_id', teamId)
+      .order('last_reply_at', { ascending: false })
+      .limit(6)
+    return (data as DashThread[]) ?? []
+  } catch {
+    return []
+  }
+}
+
+// Samma cache-nyckel-bugg som getTeamNews — teamId måste vara med i nyckeln.
+export async function getTeamThreads(teamId: string): Promise<DashThread[]> {
+  return unstable_cache(fetchTeamThreads, ['dash-threads', teamId], {
+    revalidate: 60,
+    tags: ['forum_threads'],
+  })(teamId)
+}
 
 export const getStandings = unstable_cache(
   async (): Promise<DashStanding[]> => {
