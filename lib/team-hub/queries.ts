@@ -370,7 +370,7 @@ export async function getTeamNewsPersonalized(
 
     let q = supabase
       .from("articles")
-      .select("id, title, slug, summary, image_url, published_at, news_tag")
+      .select("id, title, slug, summary, published_at, news_tag")
       .eq("sport", SPORT)
       .eq("status", "published")
       .contains("entity_ids", [String(team.id)])
@@ -382,7 +382,7 @@ export async function getTeamNewsPersonalized(
     }
 
     const { data } = await q;
-    return (data as DashArticle[]) ?? [];
+    return ((data ?? []) as any[]).map((r) => ({ ...r, image_url: null })) as DashArticle[];
   } catch {
     return [];
   }

@@ -102,13 +102,13 @@ async function fetchTeamNews(teamSlug: string): Promise<DashArticle[]> {
 
     const { data } = await supabase
       .from('articles')
-      .select('id, title, slug, summary, image_url, published_at')
+      .select('id, title, slug, summary, published_at')
       .eq('sport', SPORT)
       .eq('status', 'published')
       .contains('entity_ids', [String(team.id)])
       .order('published_at', { ascending: false })
       .limit(5)
-    return (data as DashArticle[]) ?? []
+    return ((data ?? []) as any[]).map((r) => ({ ...r, image_url: null })) as DashArticle[]
   } catch {
     return []
   }
