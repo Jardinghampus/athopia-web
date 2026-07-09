@@ -121,23 +121,21 @@ export function Hero({
         <div className="grid items-center gap-12 lg:grid-cols-[1fr_auto] lg:gap-20">
           {/* Copy */}
           <div className="max-w-[640px]">
-            <Reveal>
-              {pulse ? <PulseStrip pulse={pulse} /> : <Label>Allsvenskan · Live · AI-analys · Forum</Label>}
-            </Reveal>
+            {/* LCP-element (rubrik) + intro renderas UTAN Reveal/motion —
+               Reveal startar med opacity:0 + blur och väntar på JS-hydrering
+               + IntersectionObserver innan paint, vilket försenade LCP till
+               efter hydrering (uppmätt 9,1s). Statisk markup målas direkt. */}
+            {pulse ? <PulseStrip pulse={pulse} /> : <Label>Allsvenskan · Live · AI-analys · Forum</Label>}
 
-            <Reveal delay={0.08}>
-              <h1 className="mb-6 mt-4 font-heading text-[clamp(3.75rem,11vw,8.5rem)] leading-[0.92] tracking-wide">
-                Din klubb.
-                <br />
-                <span className="text-pitch">{headlineAccent}</span>
-              </h1>
-            </Reveal>
+            <h1 className="mb-6 mt-4 font-heading text-[clamp(3.75rem,11vw,8.5rem)] leading-[0.92] tracking-wide">
+              Din klubb.
+              <br />
+              <span className="text-pitch">{headlineAccent}</span>
+            </h1>
 
-            <Reveal delay={0.16}>
-              <p className="mb-8 max-w-[480px] text-[17px] leading-[1.65] text-white/65 md:mb-10 md:text-xl">
-                {body}
-              </p>
-            </Reveal>
+            <p className="mb-8 max-w-[480px] text-[17px] leading-[1.65] text-white/65 md:mb-10 md:text-xl">
+              {body}
+            </p>
 
             <Reveal delay={0.24}>
               <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
