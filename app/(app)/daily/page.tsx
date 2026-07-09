@@ -6,6 +6,7 @@
  */
 
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
 import { ArrowRight, Headphones, Sparkles } from "lucide-react";
@@ -100,39 +101,25 @@ function DailyEpisodeJsonLd({
   );
 }
 
-export default async function DailyPage({
-  searchParams,
+/**
+ * Auth-beroende del (plan + userId). Clerks auth()/getUserPlan() läser cookies
+ * och gör hela render-trädet dynamiskt om de körs ovanför denna gräns — se
+ * LCP-utredning. Genom att isolera dem i en egen async-komponent under
+ * <Suspense> kan servern flusha den statiska header/h1 (LCP-elementet) direkt
+ * medan detta streamas in separat, utan att röra PRO-gate-logiken.
+ */
+async function DailyAuthArea({
+  lag,
+  episode,
 }: {
-  searchParams: Promise<{ lag?: string }>;
+  lag?: string;
+  episode: Awaited<ReturnType<typeof getDailyEpisodeForShareCached>>;
 }) {
-  const { lag } = await searchParams;
-  const [episode, plan, { userId }] = await Promise.all([
-    getDailyEpisodeForShareCached(lag),
-    getUserPlan(),
-    auth(),
-  ]);
-
-  const pageUrl = lag ? `${SITE}/daily?lag=${encodeURIComponent(lag)}` : `${SITE}/daily`;
-  const teamLabel = lag ? lag.replace(/-/g, " ").toUpperCase() : null;
+  const [plan, { userId }] = await Promise.all([getUserPlan(), auth()]);
 
   return (
-    <div className="mx-auto max-w-2xl px-4 sm:px-6 py-8 sm:py-12 pb-24">
-      {episode && <DailyEpisodeJsonLd episode={episode} pageUrl={pageUrl} />}
+    <>
       <ProductEventTracker event="daily_view" props={{ lag: lag ?? "all", plan }} />
-
-      <header className="mb-8 text-center">
-        <p className="inline-flex items-center gap-2 rounded-full border border-pitch/30 bg-pitch/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-pitch">
-          <Headphones className="h-3.5 w-3.5" aria-hidden />
-          Athopia Daily
-        </p>
-        <h1 className="mt-4 text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
-          {teamLabel ? `Ditt lag · ${teamLabel}` : "Allsvenskan på 7 minuter"}
-        </h1>
-        <p className="mt-3 text-sm sm:text-base text-muted-foreground max-w-lg mx-auto leading-relaxed">
-          Morgonbrief med det viktigaste från natten och gårdagen — transfers, xG och matchläge.
-          100&nbsp;% Athopia-original, inte podd-citat.
-        </p>
-      </header>
 
       {episode ? (
         <DailyPodcastPlayer episode={episode} plan={plan} />
@@ -145,21 +132,6 @@ export default async function DailyPage({
           </p>
         </section>
       )}
-
-      <section className="mt-8 grid gap-3 sm:grid-cols-3 text-center text-sm text-muted-foreground">
-        <div className="rounded-lg border border-border bg-card/50 px-3 py-4">
-          <p className="font-semibold text-foreground">07:30</p>
-          <p className="mt-1 text-xs">Nytt avsnitt varje morgon</p>
-        </div>
-        <div className="rounded-lg border border-border bg-card/50 px-3 py-4">
-          <p className="font-semibold text-foreground">~7 min</p>
-          <p className="mt-1 text-xs">Perfekt till pendlingen</p>
-        </div>
-        <div className="rounded-lg border border-border bg-card/50 px-3 py-4">
-          <p className="font-semibold text-foreground">PRO</p>
-          <p className="mt-1 text-xs">Lyssna obegränsat</p>
-        </div>
-      </section>
 
       <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
         {!userId ? (
@@ -190,6 +162,71 @@ export default async function DailyPage({
           Uppgradera till PRO
         </TrackedLink>
       </div>
+    </>
+  );
+}
+
+function DailyAuthAreaFallback() {
+  return (
+    <>
+      <div className="h-40 animate-pulse rounded-xl border border-border bg-card/50" aria-hidden />
+      <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
+        <div className="h-11 w-full sm:w-40 animate-pulse rounded-2xl bg-card/50" aria-hidden />
+        <div className="h-11 w-full sm:w-48 animate-pulse rounded-2xl bg-card/50" aria-hidden />
+      </div>
+    </>
+  );
+}
+
+export default async function DailyPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ lag?: string }>;
+}) {
+  const { lag } = await searchParams;
+  // Ingen auth-läsning här — episode-hämtningen är oberoende av inloggning
+  // och kan cachas/ISR:as (revalidate=60) precis som resten av headern nedan.
+  const episode = await getDailyEpisodeForShareCached(lag);
+
+  const pageUrl = lag ? `${SITE}/daily?lag=${encodeURIComponent(lag)}` : `${SITE}/daily`;
+  const teamLabel = lag ? lag.replace(/-/g, " ").toUpperCase() : null;
+
+  return (
+    <div className="mx-auto max-w-2xl px-4 sm:px-6 py-8 sm:py-12 pb-24">
+      {episode && <DailyEpisodeJsonLd episode={episode} pageUrl={pageUrl} />}
+
+      <header className="mb-8 text-center">
+        <p className="inline-flex items-center gap-2 rounded-full border border-pitch/30 bg-pitch/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-pitch">
+          <Headphones className="h-3.5 w-3.5" aria-hidden />
+          Athopia Daily
+        </p>
+        <h1 className="mt-4 text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
+          {teamLabel ? `Ditt lag · ${teamLabel}` : "Allsvenskan på 7 minuter"}
+        </h1>
+        <p className="mt-3 text-sm sm:text-base text-muted-foreground max-w-lg mx-auto leading-relaxed">
+          Morgonbrief med det viktigaste från natten och gårdagen — transfers, xG och matchläge.
+          100&nbsp;% Athopia-original, inte podd-citat.
+        </p>
+      </header>
+
+      <Suspense fallback={<DailyAuthAreaFallback />}>
+        <DailyAuthArea lag={lag} episode={episode} />
+      </Suspense>
+
+      <section className="mt-8 grid gap-3 sm:grid-cols-3 text-center text-sm text-muted-foreground">
+        <div className="rounded-lg border border-border bg-card/50 px-3 py-4">
+          <p className="font-semibold text-foreground">07:30</p>
+          <p className="mt-1 text-xs">Nytt avsnitt varje morgon</p>
+        </div>
+        <div className="rounded-lg border border-border bg-card/50 px-3 py-4">
+          <p className="font-semibold text-foreground">~7 min</p>
+          <p className="mt-1 text-xs">Perfekt till pendlingen</p>
+        </div>
+        <div className="rounded-lg border border-border bg-card/50 px-3 py-4">
+          <p className="font-semibold text-foreground">PRO</p>
+          <p className="mt-1 text-xs">Lyssna obegränsat</p>
+        </div>
+      </section>
 
       <p className="mt-6 text-center text-xs text-muted-foreground">
         Dela länken:{" "}

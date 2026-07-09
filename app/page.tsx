@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
-import { currentUser } from "@clerk/nextjs/server";
 import type { Metadata } from "next";
 import AthopiaLanding, { type LandingArticle } from "@/components/landing/AthopiaLanding";
 import { SportFront } from "@/components/landing/SportFront";
@@ -101,8 +99,9 @@ function LandingJsonLd() {
 }
 
 export default async function LandingPage() {
-  const user = await currentUser();
-  if (user) redirect("/mitt-lag");
+  // Inloggad-redirect hanteras i proxy.ts (edge, ingen currentUser()-call här)
+  // så denna route förblir statisk/ISR-cachebar (revalidate=120) för alla
+  // utloggade besökare — se LCP-utredning i proxy.ts.
   const [articles, pulse, clubs, heroCopy] = await Promise.all([
     getLatestArticles(),
     getHeroPulse(),

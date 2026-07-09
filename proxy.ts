@@ -33,6 +33,19 @@ export default clerkMiddleware(async (auth, req) => {
     await auth.protect();
   }
 
+  // LCP-fix: landningssidan (/) körde tidigare currentUser() i render-trädet
+  // för att redirecta inloggade användare till /mitt-lag. Det tvingar Next
+  // att behandla HELA routen som force-dynamic (ISR-cache populeras aldrig,
+  // TTFB 1.5-2.2s på varje request — verifierat, se LCP-utredning). Flyttar
+  // session-kollen hit (edge JWT, ingen nätverksrunda) så page.tsx blir
+  // statisk/ISR-cachebar för alla utloggade besökare (majoriteten).
+  if (req.nextUrl.pathname === "/") {
+    const { userId } = await auth();
+    if (userId) {
+      return NextResponse.redirect(new URL("/mitt-lag", req.url));
+    }
+  }
+
   const utmCampaign = req.nextUrl.searchParams.get("utm_campaign");
   if (utmCampaign && UTM_CAMPAIGN_RE.test(utmCampaign)) {
     const res = NextResponse.next();
