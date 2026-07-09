@@ -18,7 +18,6 @@ const nextConfig: NextConfig = {
     return [
       { source: "/priser", destination: "/prenumerera", permanent: true },
       { source: "/hem", destination: "/allsvenskan", permanent: true },
-      { source: "/analys", destination: "/allsvenskan", permanent: true },
       { source: "/sammanfattning", destination: "/mitt-lag", permanent: true },
       { source: "/feed", destination: "/mitt-lag", permanent: true },
     ];
