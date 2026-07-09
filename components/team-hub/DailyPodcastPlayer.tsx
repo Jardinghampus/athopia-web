@@ -1,11 +1,21 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { Headphones, Pause, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { canAccess, type Plan } from "@/lib/access-rules";
 import type { DailyEpisode } from "@/lib/team-hub/queries";
+import { TrackedLink } from "@/components/analytics/TrackedLink";
+
+const DAILY_UPGRADE_URL = "/prenumerera?utm_source=daily&utm_medium=player&utm_campaign=daily_pro";
+
+function trackEvent(event: string, props?: Record<string, string | number | boolean | null>) {
+  void fetch("/api/analytics/event", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ event, props }),
+  }).catch(() => {});
+}
 
 function formatTime(sec: number) {
   if (!Number.isFinite(sec) || sec < 0) return "0:00";
@@ -98,12 +108,27 @@ export function DailyPodcastPlayer({ episode, plan, className }: DailyPodcastPla
         </p>
 
         {!hasAccess ? (
-          <p className="mt-4 text-sm text-muted-foreground">
-            Lyssna på Athopia Daily kräver PRO.{" "}
-            <Link href="/prenumerera" className="font-medium text-pitch hover:underline">
-              Uppgradera
-            </Link>
-          </p>
+          <div className="mt-4 flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => trackEvent("daily_play_blocked_pro", { slug: episode.slug })}
+              aria-label="Spela avsnitt (kräver PRO)"
+              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition-colors hover:bg-muted/80"
+            >
+              <Play className="h-5 w-5 ml-0.5" />
+            </button>
+            <p className="text-sm text-muted-foreground">
+              Lyssna på Athopia Daily kräver PRO.{" "}
+              <TrackedLink
+                href={DAILY_UPGRADE_URL}
+                event="daily_checkout_click"
+                props={{ placement: "daily_player", slug: episode.slug }}
+                className="font-medium text-pitch hover:underline"
+              >
+                Uppgradera
+              </TrackedLink>
+            </p>
+          </div>
         ) : (
           <>
             <audio

@@ -10,6 +10,8 @@ import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
 import { ArrowRight, Headphones, Sparkles } from "lucide-react";
 import { DailyPodcastPlayer } from "@/components/team-hub/DailyPodcastPlayer";
+import { ProductEventTracker } from "@/components/analytics/ProductEventTracker";
+import { TrackedLink } from "@/components/analytics/TrackedLink";
 import { getDailyEpisodeForShareCached } from "@/lib/team-hub/queries";
 import { getUserPlan } from "@/lib/user-plan";
 import { buttonVariants } from "@/components/ui/button";
@@ -18,6 +20,7 @@ import { cn } from "@/lib/utils";
 export const revalidate = 60;
 
 const SITE = process.env.NEXT_PUBLIC_BASE_URL ?? "https://athopia.se";
+const DAILY_UPGRADE_URL = "/prenumerera?utm_source=daily&utm_medium=player&utm_campaign=daily_pro";
 
 function episodeDescription(title: string, episodeDate: string) {
   const when = episodeDate
@@ -115,6 +118,7 @@ export default async function DailyPage({
   return (
     <div className="mx-auto max-w-2xl px-4 sm:px-6 py-8 sm:py-12 pb-24">
       {episode && <DailyEpisodeJsonLd episode={episode} pageUrl={pageUrl} />}
+      <ProductEventTracker event="daily_view" props={{ lag: lag ?? "all", plan }} />
 
       <header className="mb-8 text-center">
         <p className="inline-flex items-center gap-2 rounded-full border border-pitch/30 bg-pitch/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-pitch">
@@ -159,13 +163,15 @@ export default async function DailyPage({
 
       <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
         {!userId ? (
-          <Link
-            href="/prenumerera"
+          <TrackedLink
+            href={DAILY_UPGRADE_URL}
+            event="daily_checkout_click"
+            props={{ placement: "hero_cta", lag: lag ?? "all" }}
             className={cn(buttonVariants({ size: "lg" }), "w-full sm:w-auto justify-center")}
           >
             Lyssna med PRO
             <ArrowRight className="ml-1 h-4 w-4" />
-          </Link>
+          </TrackedLink>
         ) : (
           <Link
             href="/mitt-lag"
@@ -175,12 +181,14 @@ export default async function DailyPage({
             <ArrowRight className="ml-1 h-4 w-4" />
           </Link>
         )}
-        <Link
-          href="/prenumerera"
+        <TrackedLink
+          href={DAILY_UPGRADE_URL}
+          event="daily_checkout_click"
+          props={{ placement: "footer_cta", lag: lag ?? "all" }}
           className={cn(buttonVariants({ size: "lg", variant: "secondary" }), "w-full sm:w-auto justify-center")}
         >
           Uppgradera till PRO
-        </Link>
+        </TrackedLink>
       </div>
 
       <p className="mt-6 text-center text-xs text-muted-foreground">

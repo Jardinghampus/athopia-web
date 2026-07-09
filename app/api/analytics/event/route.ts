@@ -4,7 +4,14 @@ import { z } from "zod";
 import { createServiceClient } from "@/lib/supabase";
 import { enforceRateLimit } from "@/lib/ratelimit";
 
-const ALLOWED = new Set(["feed_open", "match_page_view", "nyheter_open"]);
+const ALLOWED = new Set([
+  "feed_open",
+  "match_page_view",
+  "nyheter_open",
+  "daily_view",
+  "daily_play_blocked_pro",
+  "daily_checkout_click",
+]);
 
 const bodySchema = z.object({
   event: z.string().min(1).max(64),

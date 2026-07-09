@@ -397,6 +397,116 @@ export async function getArticle(slug: string): Promise<Article | null> {
   }
 }
 
+// ── Matchanalys (post_match_analysis) — publicerade rader i articles ────────────
+// Skrivs av athopia-os post-match-analysis-agenten till content_queue, godkänns i
+// athopia-admin (generisk content_queue-approve → articles.status='published').
+// slug är tom sträng ('') på dessa rader idag — routen använder id.
+
+export interface PostMatchComparisonSide {
+  team: string;
+  opponent: string;
+  score: string;
+  current: {
+    xg: number | null;
+    pressure: number | null;
+    possession: number | null;
+    shots: number | null;
+    shots_on_target: number | null;
+  };
+  readable: string[];
+}
+
+export interface PostMatchAnalysis {
+  id: string;
+  title: string;
+  summary: string;
+  body: string | null;
+  sourceName: string;
+  publishedAt: string;
+  fixtureId: number | null;
+  matchName: string | null;
+  playedAt: string | null;
+  comparisons: PostMatchComparisonSide[];
+}
+
+function numOrNull(v: unknown): number | null {
+  if (v === null || v === undefined) return null;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+}
+
+function mapPostMatchAnalysis(row: Record<string, unknown>): PostMatchAnalysis {
+  const metadata = (row.metadata ?? {}) as Record<string, unknown>;
+  const rawComparisons = Array.isArray(metadata.comparisons) ? metadata.comparisons : [];
+  const comparisons: PostMatchComparisonSide[] = (rawComparisons as Record<string, unknown>[]).map((c) => {
+    const current = (c.current ?? {}) as Record<string, unknown>;
+    return {
+      team: String(c.team ?? ""),
+      opponent: String(c.opponent ?? ""),
+      score: String(c.score ?? ""),
+      current: {
+        xg: numOrNull(current.xg),
+        pressure: numOrNull(current.pressure),
+        possession: numOrNull(current.possession),
+        shots: numOrNull(current.shots),
+        shots_on_target: numOrNull(current.shots_on_target),
+      },
+      readable: Array.isArray(c.readable) ? (c.readable as string[]) : [],
+    };
+  });
+
+  return {
+    id: String(row.id),
+    title: String(row.title ?? ""),
+    summary: String(row.summary ?? ""),
+    body: (row.content as string | null) ?? null,
+    sourceName: String(row.source_name ?? "Athopia AI"),
+    publishedAt: String(row.published_at ?? new Date().toISOString()),
+    fixtureId: typeof metadata.fixture_id === "number" ? metadata.fixture_id : numOrNull(metadata.fixture_id),
+    matchName: typeof metadata.match_name === "string" ? metadata.match_name : null,
+    playedAt: typeof metadata.played_at === "string" ? metadata.played_at : null,
+    comparisons,
+  };
+}
+
+/** Publicerad matchanalys via id (slug är tom på dessa AI-genererade rader). */
+export async function getPostMatchAnalysis(id: string): Promise<PostMatchAnalysis | null> {
+  if (!isSupabaseConfigured()) return null;
+  try {
+    const supabase = createServerClient();
+    const { data } = await supabase
+      .from("articles")
+      .select("id,title,summary,content,source_name,published_at,metadata,sport,status")
+      .eq("id", id)
+      .eq("sport", "football")
+      .eq("status", "published")
+      .filter("metadata->>type", "eq", "post_match_analysis")
+      .maybeSingle();
+    return data ? mapPostMatchAnalysis(data as Record<string, unknown>) : null;
+  } catch (e) { captureDbError(e);
+    return null;
+  }
+}
+
+/** Lista av publicerade matchanalyser, senaste först. */
+export async function getPostMatchAnalyses(limit = 20): Promise<PostMatchAnalysis[]> {
+  if (!isSupabaseConfigured()) return [];
+  try {
+    const supabase = createServerClient();
+    const { data } = await supabase
+      .from("articles")
+      .select("id,title,summary,content,source_name,published_at,metadata,sport,status")
+      .eq("sport", "football")
+      .eq("status", "published")
+      .filter("metadata->>type", "eq", "post_match_analysis")
+      .order("published_at", { ascending: false })
+      .limit(limit);
+    return (data ?? []).map((row) => mapPostMatchAnalysis(row as Record<string, unknown>));
+  } catch (e) { captureDbError(e);
+    return [];
+  }
+}
+
 export const getNarratives = unstable_cache(
   async (limit = 12): Promise<Narrative[]> => {
     if (!isSupabaseConfigured()) return [];
