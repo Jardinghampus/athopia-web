@@ -29,9 +29,23 @@ export const PRICING: Record<PaidPlan, PlanPricing> = {
   elite: { label: "Elite", monthly: 16900, yearly: 152100 },
 };
 
-/** Belopp i öre för en given plan + intervall. */
+/**
+ * Founder-erbjudande: PRO 69 kr/mån FÖR ALLTID för de första 500 betalande.
+ * Priset låses i Stripe-prenumerationen vid köp — ingen migrering behövs när
+ * erbjudandet stängs. 500-taket stängs genom att flippa `active` till false;
+ * antal betalande syns i admin-funnelpanelen (checkout_success).
+ */
+export const FOUNDER_OFFER = {
+  active: true,
+  cap: 500,
+  // 69 kr/mån · 621 kr/år (69×12×0.75)
+  pricing: { label: "PRO Founder", monthly: 6900, yearly: 62100 } as PlanPricing,
+} as const;
+
+/** Belopp i öre för en given plan + intervall. Founder-pris gäller enbart PRO. */
 export function amountFor(plan: PaidPlan, interval: BillingInterval): number {
-  return interval === "year" ? PRICING[plan].yearly : PRICING[plan].monthly;
+  const p = plan === "pro" && FOUNDER_OFFER.active ? FOUNDER_OFFER.pricing : PRICING[plan];
+  return interval === "year" ? p.yearly : p.monthly;
 }
 
 export function isPaidPlan(v: unknown): v is PaidPlan {

@@ -133,7 +133,7 @@ export default async function KontoPage({
           footer={
             isPaid
               ? "Ingår: fullständiga AI-transkript, djupanalys & sentiment, prioriterad support."
-              : "Uppgradera för AI-sammanfattningar, avancerade filter och push-notiser."
+              : "Uppgradera för daglig AI-brief, poddintelligens och transfer-signaler."
           }
         >
           <ListRow

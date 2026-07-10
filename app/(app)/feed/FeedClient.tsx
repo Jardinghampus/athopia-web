@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useFavoriteTeam } from "@/hooks/useFavoriteTeam";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
-import { FeedPaywallBanner, FeedGhostCards } from "@/components/FeedPaywallBanner";
+import { FeedPaywallBanner } from "@/components/FeedPaywallBanner";
 import { ProductEventTracker } from "@/components/analytics/ProductEventTracker";
 import { PullToRefresh } from "@/components/ui/PullToRefresh";
 import { FeedSourceBadge } from "@/components/feed/FeedSourceBadge";
@@ -237,28 +237,24 @@ const SOFT_PAYWALL_AFTER = 8; // inject banner after this many items
 
 function FeedList({
   items,
-  gated,
+  showUpsell,
   showCluster,
 }: {
   items: FeedItem[];
-  gated: boolean;
+  /** Free-användare: mjuk PRO-upsell mitt i flödet — blockerar inget (gaten togs bort 2026-07-10). */
+  showUpsell: boolean;
   showCluster?: boolean;
 }) {
-  const splitAt = gated && items.length > SOFT_PAYWALL_AFTER ? SOFT_PAYWALL_AFTER : -1;
-  const above = splitAt === -1 ? items : items.slice(0, splitAt);
-  const hasBanner = splitAt !== -1;
+  const splitAt = showUpsell && items.length > SOFT_PAYWALL_AFTER ? SOFT_PAYWALL_AFTER : -1;
 
   return (
     <div className="flex flex-col gap-3">
-      {above.map((item) => (
-        <FeedItemCard key={item.id} item={item} showCluster={showCluster} />
+      {items.map((item, i) => (
+        <div key={item.id} className="contents">
+          {i === splitAt && <FeedPaywallBanner />}
+          <FeedItemCard item={item} showCluster={showCluster} />
+        </div>
       ))}
-      {hasBanner && (
-        <>
-          <FeedPaywallBanner />
-          <FeedGhostCards count={3} />
-        </>
-      )}
     </div>
   );
 }
@@ -314,8 +310,7 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [newCount, setNewCount] = useState(0);
-  const [gated, setGated] = useState(false);
-  const [remainingToday, setRemainingToday] = useState<number | null>(null);
+  const [isPro, setIsPro] = useState(true); // optimistiskt — upsell blinkar inte in för betalande
   const [isElite, setIsElite] = useState(false);
   const [filter, setFilter] = useState<FilterType>("all");
 
@@ -349,7 +344,7 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
               setItems(cached.data.items ?? []);
               setOffset((cached.data.items ?? []).length);
               setHasMore(cached.data.hasMore ?? false);
-              setGated(cached.data.gated ?? false);
+              setIsPro(cached.data.isPro ?? false);
               setIsElite(cached.data.isElite ?? false);
               setLoading(false);
               setLoadingMore(false);
@@ -359,7 +354,7 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
         } catch {}
       }
 
-      const { items: newItems, hasMore: more, gated: isGated, remainingToday: remaining, isElite: elite } =
+      const { items: newItems, hasMore: more, isPro: pro, isElite: elite } =
         await fetchFeedPage(slug, currentOffset);
 
       if (reset) {
@@ -374,10 +369,9 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
         setOffset((o) => o + newItems.length);
       }
 
-      setGated(isGated);
-      setRemainingToday(remaining ?? null);
+      setIsPro(pro ?? false);
       setIsElite(elite ?? false);
-      setHasMore(more && !isGated);
+      setHasMore(more);
       setLoading(false);
       setLoadingMore(false);
     },
@@ -487,15 +481,6 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
         {/* Filter tabs */}
         <FilterTabs active={filter} onChange={(f) => setFilter(f)} />
 
-        {remainingToday != null && remainingToday > 0 && remainingToday < 20 && !gated && (
-          <p className="text-xs text-muted-foreground text-center">
-            {remainingToday} artikel{remainingToday === 1 ? "" : "ar"} kvar idag ·{" "}
-            <Link href="/prenumerera" className="text-pitch hover:underline">
-              Uppgradera
-            </Link>
-          </p>
-        )}
-
         {/* Main feed */}
         {loading ? (
           <div className="flex flex-col gap-3">
@@ -504,15 +489,11 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
             ))}
           </div>
         ) : visibleItems.length === 0 ? (
-          gated ? (
-            <FeedPaywallBanner />
-          ) : (
-            <div className="text-center py-16 text-muted-foreground">
-              <p className="text-sm">Inga{filter !== "all" ? ` ${FILTERS.find((f) => f.key === filter)?.label.toLowerCase()}-` : " "}items ännu.</p>
-            </div>
-          )
+          <div className="text-center py-16 text-muted-foreground">
+            <p className="text-sm">Inga{filter !== "all" ? ` ${FILTERS.find((f) => f.key === filter)?.label.toLowerCase()}-` : " "}items ännu.</p>
+          </div>
         ) : (
-          <FeedList items={visibleItems} gated={gated} showCluster={isElite} />
+          <FeedList items={visibleItems} showUpsell={!isPro} showCluster={isElite} />
         )}
 
         <div ref={bottomRef} className="h-4" />
@@ -523,7 +504,7 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
           </div>
         )}
 
-        {!hasMore && !gated && visibleItems.length > 0 && (
+        {!hasMore && visibleItems.length > 0 && (
           <p className="text-center text-xs text-muted-foreground py-4">Inga fler items</p>
         )}
       </div>

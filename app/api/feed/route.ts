@@ -4,7 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import type { FeedItem } from "@/lib/types";
 import { interestsToNewsTags } from "@/lib/feed/content-preferences";
 import { mapNewsFeedRow } from "@/lib/feed/map-feed-row";
-import { FREE_DAILY_LIMIT, resolveFeedUserId } from "@/lib/feed/feed-usage";
+import { resolveFeedUserId } from "@/lib/feed/feed-usage";
 
 const PAGE_SIZE = 20;
 function getDb() {
@@ -14,20 +14,7 @@ function getDb() {
   return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
 }
 
-/** Returnerar hur många items denna free-användare sett idag (läser user_feed_usage). */
-async function getItemsSeenToday(db: ReturnType<typeof getDb>, userId: string): Promise<number> {
-  if (!db) return 0;
-  const today = new Date().toISOString().split("T")[0];
-  const { data } = await db
-    .from("user_feed_usage")
-    .select("items_seen")
-    .eq("clerk_user_id", userId)
-    .eq("date", today)
-    .maybeSingle();
-  return (data?.items_seen as number | null) ?? 0;
-}
-
-/** Ökar items_seen för free-användaren med det antal items som skickas. */
+/** Ökar items_seen för free-användaren med det antal items som skickas (analys, ej gating). */
 async function incrementItemsSeen(
   db: ReturnType<typeof getDb>,
   userId: string,
@@ -79,16 +66,10 @@ export async function GET(req: Request) {
 
   const feedUserId = resolveFeedUserId(userId, req);
 
-  // Free-dagsgräns: inloggade + anon (AGENTS.md — anon::{ip_hash})
-  let itemsSeenToday = 0;
-  if (!isPro) {
-    itemsSeenToday = await getItemsSeenToday(db, feedUserId);
-  }
-  const remaining = isPro ? PAGE_SIZE : Math.max(0, FREE_DAILY_LIMIT - itemsSeenToday);
-  if (remaining === 0) {
-    return NextResponse.json({ items: [], hasMore: false, gated: true });
-  }
-  const effectiveLimit = Math.min(PAGE_SIZE, remaining);
+  // Dagsgränsen borttagen 2026-07-10 (Allsvenskans hemmaplan): grundfeeden är
+  // gratis och obegränsad — vanan byggs gratis, paywallen ligger på det unika
+  // (brief, poddintelligens, signaler). items_seen räknas kvar för analys.
+  const effectiveLimit = PAGE_SIZE;
 
   let filterTeamIds: string[] = [];
   if (teamSlug) {
@@ -155,10 +136,7 @@ export async function GET(req: Request) {
     void incrementItemsSeen(db, feedUserId, items.length);
   }
 
-  const totalSeenAfter = itemsSeenToday + items.length;
-  const gated = !isPro && totalSeenAfter >= FREE_DAILY_LIMIT;
-  const hasMore = items.length === effectiveLimit && !gated;
-  const remainingToday = isPro ? null : Math.max(0, FREE_DAILY_LIMIT - totalSeenAfter);
+  const hasMore = items.length === effectiveLimit;
 
-  return NextResponse.json({ items, hasMore, gated, remainingToday, isPro, isElite });
+  return NextResponse.json({ items, hasMore, gated: false, remainingToday: null, isPro, isElite });
 }

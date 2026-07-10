@@ -18,6 +18,7 @@ import { NextResponse } from "next/server";
 import { enforceRateLimit } from "@/lib/ratelimit";
 import { logFunnelEvent } from "@/lib/funnel";
 import {
+  FOUNDER_OFFER,
   PRICING,
   amountFor,
   isPaidPlan,
@@ -81,11 +82,11 @@ export async function POST(req: Request & { headers: Headers }) {
         },
       ],
       client_reference_id: userId,
-      metadata: { clerkUserId: userId, plan, interval },
+      metadata: { clerkUserId: userId, plan, interval, founder: String(plan === "pro" && FOUNDER_OFFER.active) },
       success_url: `${base}/konto?checkout=success`,
       cancel_url: `${base}/prenumerera`,
       subscription_data: {
-        metadata: { clerkUserId: userId, plan, interval },
+        metadata: { clerkUserId: userId, plan, interval, founder: String(plan === "pro" && FOUNDER_OFFER.active) },
       },
     });
 

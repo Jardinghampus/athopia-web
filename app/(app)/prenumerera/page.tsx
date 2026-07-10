@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Priser & Prenumeration",
   description:
-    "Uppgradera till PRO (89 kr/mån) eller Elite (169 kr/mån) — obegränsat flöde, AI-sammanfattningar, smart ranking och mer. 25 % rabatt på årsplan.",
+    "Athopia PRO — daglig AI-brief för ditt lag, poddintelligens och transfer-signaler. Founder-pris 69 kr/mån för alltid för de första 500. 25 % rabatt på årsplan.",
   alternates: { canonical: "https://athopia.se/prenumerera" },
   openGraph: {
     type: "website",
@@ -39,7 +39,7 @@ function PricingJsonLd() {
         },
         {
           "@type": "ListItem", position: 2,
-          item: { "@type": "Product", name: "Athopia PRO", offers: { "@type": "Offer", price: "89", priceCurrency: "SEK", availability: "https://schema.org/InStock" } },
+          item: { "@type": "Product", name: "Athopia PRO", offers: { "@type": "Offer", price: "69", priceCurrency: "SEK", availability: "https://schema.org/InStock" } },
         },
         {
           "@type": "ListItem", position: 3,
@@ -58,21 +58,28 @@ export default function PrenumereraPage() {
       <div className="text-center mb-12">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-pitch/15 border border-pitch/30 text-pitch text-sm font-medium mb-6">
           <Zap className="w-4 h-4" />
-          Athopia Premium
+          Founder-pris: 69 kr/mån för alltid — först till 500
         </div>
         <h1 className="font-bold text-6xl sm:text-7xl text-foreground mb-4">
-          FOTBOLL PÅ DJUPET
+          ALLSVENSKANS HEMMAPLAN
         </h1>
         <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-          Obegränsat flöde, AI-analys och exklusivt djupinnehåll. Välj den nivå
-          som passar dig.
+          Allt som sägs och händer kring din klubb — läst, lyssnat och
+          siffergranskat åt dig. Varje morgon.
         </p>
       </div>
 
       <PricingPlans />
 
+      {/* Värdeankring */}
+      <p className="text-center text-sm text-muted-foreground mt-10 max-w-lg mx-auto">
+        En daglig podd om just ditt lag, sökbara transkript från Allsvenskans alla
+        poddar och transfer-signaler med källkonfidens — var för sig värt mer än
+        hela prenumerationen.
+      </p>
+
       {/* Trygghet */}
-      <p className="text-center text-xs text-muted-foreground mt-10">
+      <p className="text-center text-xs text-muted-foreground mt-6">
         Betalning hanteras säkert av Stripe · SSL-krypterad · Avbryt när som helst
       </p>
     </div>

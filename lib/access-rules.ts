@@ -7,8 +7,10 @@ export const ACCESS = {
   smartRanking:       (p: Plan) => p !== "free",
   crossSourceCluster: (p: Plan) => p === "elite",
   eliteBrief:         (p: Plan) => p === "elite",
-  pushAlerts:         (p: Plan) => p !== "free",
-  unlimitedFeed:      (p: Plan) => p !== "free",
+  // Gratis sedan 2026-07-10 (Allsvenskans hemmaplan): FotMob-paritet — vanan
+  // byggs gratis, paywallen ligger på det unika (brief, poddintelligens, signaler).
+  pushAlerts:         (_: Plan) => true,
+  unlimitedFeed:      (_: Plan) => true,
   /** AI-chat på matchsida, lag-hub m.m. */
   aiChat:             (p: Plan) => p !== "free",
   /** Podklipp med transkript på match/lag */

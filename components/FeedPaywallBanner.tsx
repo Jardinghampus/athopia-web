@@ -5,9 +5,9 @@ import { Sparkles, Zap, BellRing } from "lucide-react";
 import { motion } from "motion/react";
 
 const PERKS = [
-  { icon: Zap, label: "Obegränsat flöde — aldrig gated" },
-  { icon: Sparkles, label: "AI-sammanfattningar per match" },
-  { icon: BellRing, label: "Push-alerts för ditt lag" },
+  { icon: Sparkles, label: "Daglig AI-brief för ditt lag — text & ljud, varje morgon" },
+  { icon: Zap, label: "Poddintelligens — sökbart ur Allsvenskans alla poddar" },
+  { icon: BellRing, label: "Transfer-signaler med källkonfidens" },
 ];
 
 export function FeedPaywallBanner() {
