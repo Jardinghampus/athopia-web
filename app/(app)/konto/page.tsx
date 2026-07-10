@@ -8,6 +8,7 @@
  */
 
 import type { Metadata } from "next";
+import Link from "next/link";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { AlertTriangle, Check, CreditCard, User } from "lucide-react";
 import { ListGroup } from "@/components/ui/ListGroup";
@@ -27,10 +28,11 @@ async function getBillingPortalUrl(customerId: string): Promise<string | null> {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: "2026-04-22.dahlia",
   });
+  const base = (process.env.NEXT_PUBLIC_BASE_URL ?? "https://athopia.se").replace(/\/$/, "");
   try {
     const session = await stripe.billingPortal.sessions.create({
       customer: customerId,
-      return_url: `https://athopia.se/konto`,
+      return_url: `${base}/konto`,
       locale: "sv",
     });
     return session.url;
@@ -76,11 +78,30 @@ export default async function KontoPage({
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-12">
-      {/* Välkommen-banner efter checkout */}
-      {checkout === "success" && (
-        <div className="mb-8 p-4 rounded-xl border border-pitch/40 bg-pitch/10 text-pitch text-sm flex items-center gap-2">
-          <Check className="w-4 h-4" />
-          Välkommen! Din prenumeration är nu aktiv.
+      {/* Välkommen-banner efter checkout. Webhook-lagg: Stripe kan landa
+          användaren här innan checkout.session.completed hunnit sätta plan. */}
+      {checkout === "success" && isPaid && (
+        <div className="mb-8 p-5 rounded-xl border border-pitch/40 bg-pitch/10">
+          <p className="flex items-center gap-2 text-pitch text-sm font-medium">
+            <Check className="w-4 h-4" />
+            Välkommen! Din {planLabel}-prenumeration är aktiv.
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Upplåst: obegränsat flöde, AI-sammanfattningar, smart ranking,
+            avancerade filter och push-notiser{plan === "elite" ? " — plus clustering och daglig AI-brief" : ""}.
+          </p>
+          <Link
+            href="/feed"
+            className="mt-3 inline-block rounded-lg pitch-gradient px-4 py-2 text-sm font-medium text-white"
+          >
+            Gå till din feed
+          </Link>
+        </div>
+      )}
+      {checkout === "success" && !isPaid && (
+        <div className="mb-8 p-4 rounded-xl border border-amber-500/40 bg-amber-500/10 text-sm flex items-center gap-2 text-amber-400">
+          <AlertTriangle className="w-4 h-4 shrink-0" />
+          Betalningen är genomförd — kontot uppgraderas inom någon minut. Ladda om sidan om det dröjer.
         </div>
       )}
 
