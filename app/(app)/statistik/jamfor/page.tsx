@@ -194,13 +194,13 @@ function StatRow({
   return (
     <div className="grid grid-cols-3 items-center py-2 border-b border-border/40 last:border-0">
       <span
-        className={`text-sm font-semibold text-right pr-4 ${aWins ? "text-pitch" : "text-foreground"}`}
+        className={`text-sm font-semibold text-right pr-4 ${aWins ? "text-success" : "text-foreground"}`}
       >
         {a}
       </span>
       <span className="text-xs text-center text-muted-foreground">{label}</span>
       <span
-        className={`text-sm font-semibold text-left pl-4 ${bWins ? "text-[#3B82F6]" : "text-foreground"}`}
+        className={`text-sm font-semibold text-left pl-4 ${bWins ? "text-foreground" : "text-foreground"}`}
       >
         {b}
       </span>
@@ -211,7 +211,7 @@ function StatRow({
 function FormRow({ label, a, b }: { label: string; a: string[]; b: string[] }) {
   const Badge = ({ r }: { r: string }) => {
     const color =
-      r === "W" ? "bg-pitch text-white" : r === "D" ? "bg-muted text-muted-foreground" : "bg-red-500/20 text-red-400";
+      r === "W" ? "bg-success text-white" : r === "D" ? "bg-muted text-muted-foreground" : "bg-red-500/20 text-red-400";
     return (
       <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold ${color}`}>
         {r}
@@ -255,7 +255,7 @@ export default async function JamforPage({ searchParams }: PageProps) {
       <div>
         <h1
           className="text-4xl font-bold text-foreground mb-1"
-          style={{ fontFamily: "var(--font-bebas)" }}
+          style={{ fontFamily: "var(--font-display)" }}
         >
           STATISTIKJÄMFÖRELSE
         </h1>
@@ -285,7 +285,7 @@ export default async function JamforPage({ searchParams }: PageProps) {
           {/* Lagrubriker */}
           <div className="grid grid-cols-3 text-center">
             <div>
-              <p className="text-2xl font-bold text-pitch" style={{ fontFamily: "var(--font-bebas)" }}>
+              <p className="text-2xl font-bold text-pitch" style={{ fontFamily: "var(--font-display)" }}>
                 {statsA.name}
               </p>
               {statsA.position > 0 && (
@@ -296,7 +296,7 @@ export default async function JamforPage({ searchParams }: PageProps) {
               <span className="text-muted-foreground font-bold text-xl">vs</span>
             </div>
             <div>
-              <p className="text-2xl font-bold text-[#3B82F6]" style={{ fontFamily: "var(--font-bebas)" }}>
+              <p className="text-2xl font-bold text-foreground" style={{ fontFamily: "var(--font-display)" }}>
                 {statsB.name}
               </p>
               {statsB.position > 0 && (

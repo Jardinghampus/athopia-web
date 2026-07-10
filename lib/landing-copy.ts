@@ -12,8 +12,8 @@ export type LandingCopy = {
 const DEFAULT: LandingCopy = {
   headlineAccent: "Varje dag.",
   body:
-    "Vi läser alla svenska källor, följer varje match och räknar på varje siffra — så att du alltid vet vad som händer i din klubb. Byggt för supportrar som kan fotboll.",
-  ctaLabel: null,
+    "Nyheter, rykten, siffror och snack om din klubb — vi läser hundratals svenska källor varje dygn, sorterar bort bruset och sammanfattar det som betyder något. 60 sekunder om dagen, så vet du allt.",
+  ctaLabel: "Välj din klubb — gratis",
   source: "default",
 };
 

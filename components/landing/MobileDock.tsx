@@ -31,7 +31,7 @@ export function MobileDock() {
             </div>
             <Link
               href="/onboarding"
-              className="flex h-12 shrink-0 items-center gap-1.5 rounded-2xl bg-pitch px-5 text-[15px] font-bold text-black active:scale-[0.96]"
+              className="flex h-12 shrink-0 items-center gap-1.5 rounded-2xl bg-pitch px-5 text-[15px] font-bold text-white active:scale-[0.96]"
             >
               Börja gratis <ArrowRight className="h-4 w-4" />
             </Link>

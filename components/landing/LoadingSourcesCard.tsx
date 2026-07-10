@@ -93,7 +93,7 @@ export function LoadingSourcesCard() {
                         d="M12 5.50676L0 0L2.83818 13L6.30623 7.86537L12 5.50676V5.50676Z"
                       />
                     </svg>
-                    <span className="relative -top-1 left-3 rounded-3xl bg-pitch px-2 py-1 text-xs font-bold text-black">
+                    <span className="relative -top-1 left-3 rounded-3xl bg-pitch px-2 py-1 text-xs font-bold text-white">
                       Athopia AI
                     </span>
                   </div>
@@ -122,7 +122,7 @@ export function LoadingSourcesCard() {
 
                   <Link
                     href="/onboarding"
-                    className="mt-6 inline-flex w-fit min-h-12 items-center gap-2 rounded-xl bg-pitch px-6 py-3 text-sm font-bold text-black hover:scale-[1.02] active:scale-[0.98] transition-transform duration-200"
+                    className="mt-6 inline-flex w-fit min-h-12 items-center gap-2 rounded-xl bg-pitch px-6 py-3 text-sm font-bold text-white hover:scale-[1.02] active:scale-[0.98] transition-transform duration-200"
                   >
                     Prova gratis <MoveRight className="h-4 w-4" />
                   </Link>

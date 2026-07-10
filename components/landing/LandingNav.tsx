@@ -29,7 +29,7 @@ export function LandingNav() {
         transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
         className={`fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-300 ${
           scrolled
-            ? "border-b border-white/[0.06] bg-zinc-950/80 backdrop-blur-xl"
+            ? "border-b border-white/[0.06] bg-black/80 backdrop-blur-xl"
             : "border-b border-transparent bg-transparent"
         }`}
       >
@@ -63,7 +63,7 @@ export function LandingNav() {
               </Link>
               <Link
                 href="/onboarding"
-                className="inline-flex h-11 items-center gap-1.5 rounded-xl bg-pitch px-4 text-sm font-bold text-black transition-transform duration-200 hover:scale-[1.03] active:scale-[0.97] md:h-12 md:px-5"
+                className="inline-flex h-11 items-center gap-1.5 rounded-xl bg-pitch px-4 text-sm font-bold text-white transition-transform duration-200 hover:scale-[1.03] active:scale-[0.97] md:h-12 md:px-5"
               >
                 Börja gratis
               </Link>
@@ -97,7 +97,7 @@ export function LandingNav() {
           <div className="mt-6 flex flex-col gap-3">
             <Link
               href="/onboarding"
-              className="flex h-14 items-center justify-center rounded-2xl bg-pitch text-[17px] font-bold text-black active:scale-[0.98]"
+              className="flex h-14 items-center justify-center rounded-2xl bg-pitch text-[17px] font-bold text-white active:scale-[0.98]"
             >
               Börja gratis
             </Link>

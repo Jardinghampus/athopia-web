@@ -1,7 +1,7 @@
 /**
  * app/artikel/[slug]/page.tsx — Artikeldetaljsida
  * ─────────────────────────────────────────────────────────────────────────────
- * - AI-summary box med #1D9E75 bakgrund
+ * - AI-summary box med accent-bakgrund (brand: UI Red)
  * - Fulltext eller källlänk
  * - EntityChip-array
  * - Relaterade artiklar via /api/related (pgvector)
@@ -177,7 +177,7 @@ export default async function ArtikelPage({
         {/* AI-Summary box */}
         <div
           className="rounded-xl p-5 mb-8 border border-pitch/30"
-          style={{ backgroundColor: "rgba(29, 158, 117, 0.12)" }}
+          style={{ backgroundColor: "rgba(214, 31, 31, 0.10)" }}
         >
           <div className="flex items-center gap-2 mb-3">
             <Sparkles className="w-4 h-4 text-pitch" />

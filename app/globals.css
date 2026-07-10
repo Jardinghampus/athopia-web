@@ -24,10 +24,18 @@
   --color-input: var(--input);
   --color-ring:  var(--ring);
 
-  --color-pitch:       #1D9E75;
-  --color-pitch-dark:  #158A63;
-  --color-pitch-light: #25C48F;
-  --color-pitch-muted: rgba(29, 158, 117, 0.15);
+  /* "pitch" = Athopias accent (UI Red sedan brand 1.0 — docs/brand/BRAND.md).
+     Namnet behålls för att inte röra 300+ callsites; värdet är accentfärgen. */
+  --color-pitch:       #D61F1F;
+  --color-pitch-dark:  #960000;
+  --color-pitch-light: #FF2A2A;
+  --color-pitch-muted: rgba(214, 31, 31, 0.12);
+
+  /* Success = grönt, ENDAST positiv status (form, avklarat, stigande) */
+  --color-success:       var(--success);
+  --color-success-muted: rgba(29, 158, 117, 0.12);
+  --color-warning:       var(--warning);
+  --color-brand:         #F20000; /* logotyp/hero/marketing enbart — aldrig UI-text */
 
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
@@ -40,28 +48,36 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) * 1.4);
 
-  --font-sans:    var(--font-lora), Georgia, serif;
-  --font-body:    var(--font-lora), Georgia, serif;
-  --font-heading: var(--font-instrument-serif), Georgia, serif;
-  --font-display: var(--font-instrument-serif), Georgia, serif;
-  --font-mono:    ui-monospace, monospace;
+  --font-sans:    var(--font-geist), Inter, system-ui, sans-serif;
+  --font-body:    var(--font-geist), Inter, system-ui, sans-serif;
+  --font-heading: var(--font-geist), Inter, system-ui, sans-serif;
+  --font-display: var(--font-geist), Inter, system-ui, sans-serif;
+  --font-mono:    var(--font-geist-mono), ui-monospace, monospace;
+
+  /* Optisk tracking (BRAND.md §3.1) — använd tokens, justera aldrig fritt */
+  --tracking-caption: 0.01em;
+  --tracking-eyebrow: 0.06em;
+  --tracking-ui:      -0.006em;
+  --tracking-body:    -0.011em;
+  --tracking-heading: -0.017em;
+  --tracking-display: -0.022em;
 
   /* ── Fluid type scale (clamp: mobil → desktop) ─────────────────────────── */
   --text-display-2xl: clamp(2.875rem, 1.9rem + 5vw, 6.5rem);
   --text-display-2xl--line-height: 1.08;
-  --text-display-2xl--letter-spacing: -0.015em;
+  --text-display-2xl--letter-spacing: var(--tracking-display);
 
   --text-display-xl: clamp(2.75rem, 2.05rem + 3.5vw, 4.25rem);
   --text-display-xl--line-height: 1.1;
-  --text-display-xl--letter-spacing: -0.015em;
+  --text-display-xl--letter-spacing: var(--tracking-display);
 
   --text-display-lg: clamp(2.25rem, 1.8rem + 2.25vw, 3.25rem);
   --text-display-lg--line-height: 1.12;
-  --text-display-lg--letter-spacing: -0.015em;
+  --text-display-lg--letter-spacing: var(--tracking-display);
 
   --text-display-md: clamp(1.75rem, 1.55rem + 1vw, 2.25rem);
   --text-display-md--line-height: 1.2;
-  --text-display-md--letter-spacing: -0.01em;
+  --text-display-md--letter-spacing: var(--tracking-heading);
 
   --text-body-fluid: clamp(1rem, 0.94rem + 0.3vw, 1.125rem);
   --text-body-fluid--line-height: 1.72;
@@ -74,69 +90,79 @@
 
 /* ── Light mode (default) ──────────────────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #000000;
+  --background: #FAFAF8;
+  --foreground: #111111;
 
-  --card: #fafafa;
-  --card-foreground: #000000;
+  --card: #ffffff;
+  --card-foreground: #111111;
 
   --popover: #ffffff;
-  --popover-foreground: #000000;
+  --popover-foreground: #111111;
 
-  --primary: #1D9E75;
+  --primary: #D61F1F;
   --primary-foreground: #ffffff;
 
-  --secondary: #f5f5f5;
-  --secondary-foreground: #000000;
+  --secondary: #F3F2F0;
+  --secondary-foreground: #111111;
 
-  --muted: #f5f5f5;
-  --muted-foreground: #71717a;
+  --muted: #F3F2F0;
+  --muted-foreground: #8A8885;
 
-  --accent: #f0fdf8;
-  --accent-foreground: #000000;
+  --accent: #F6E9E9;
+  --accent-foreground: #111111;
 
-  --destructive: #ef4444;
+  --destructive: #D61F1F;
+  --success: #1D9E75;
+  --warning: #D59B00;
 
-  --border: rgba(0, 0, 0, 0.08);
-  --input: rgba(0, 0, 0, 0.08);
-  --ring: #1D9E75;
-  --radius: 0.625rem;
+  --border: #E2E0DC;
+  --input: #E2E0DC;
+  --ring: #D61F1F;
+  --radius: 0.75rem;
 
-  --chart-1: #1D9E75;
-  --chart-2: #25C48F;
-  --chart-3: #158A63;
-  --chart-4: #7fdbc0;
-  --chart-5: #0d4f38;
+  --chart-1: #D61F1F;
+  --chart-2: #111111;
+  --chart-3: #8A8885;
+  --chart-4: #C6C4C0;
+  --chart-5: #525254;
 }
 
 /* ── Dark mode — true black ───────────────────────────────────────────────── */
 .dark {
   --background: #000000;
-  --foreground: #fafafa;
+  --foreground: #F4F4F2;
 
-  --card: #1c1c1e;
-  --card-foreground: #fafafa;
+  --card: #1B1B1C;
+  --card-foreground: #F4F4F2;
 
-  --popover: #1a1a1a;
-  --popover-foreground: #fafafa;
+  --popover: #151516;
+  --popover-foreground: #F4F4F2;
 
-  --primary: #1D9E75;
+  --primary: #D61F1F;
   --primary-foreground: #ffffff;
 
-  --secondary: #1e1e1e;
-  --secondary-foreground: #fafafa;
+  --secondary: #1B1B1C;
+  --secondary-foreground: #F4F4F2;
 
-  --muted: #1a1a1a;
-  --muted-foreground: #a1a1aa;
+  --muted: #151516;
+  --muted-foreground: #7D7D7A;
 
-  --accent: #1D9E75;
-  --accent-foreground: #ffffff;
+  --accent: #2A1414;
+  --accent-foreground: #F4F4F2;
 
-  --destructive: oklch(0.65 0.22 25);
+  --destructive: #FF2A2A;
+  --success: #25C48F;
+  --warning: #F2A900;
 
-  --border: rgba(255, 255, 255, 0.12);
-  --input: rgba(255, 255, 255, 0.08);
-  --ring: #1D9E75;
+  --border: #2C2C2E;
+  --input: #2C2C2E;
+  --ring: #D61F1F;
+
+  --chart-1: #FF2A2A;
+  --chart-2: #F4F4F2;
+  --chart-3: #7D7D7A;
+  --chart-4: #3A3A3C;
+  --chart-5: #B5B5B3;
 }
 
 /* ── Base ─────────────────────────────────────────────────────────────────── */
@@ -168,10 +194,15 @@
     transition: background-color 200ms ease;
   }
 
+  body {
+    letter-spacing: var(--tracking-body);
+  }
+
   h1, h2, h3 {
     @apply font-heading;
+    font-weight: 600;
     line-height: 1.15;
-    letter-spacing: -0.015em;
+    letter-spacing: var(--tracking-heading);
   }
 
   h4, h5, h6 {
@@ -188,7 +219,7 @@
 @layer utilities {
   /* Background gradient for hero/CTA */
   .pitch-gradient {
-    background: linear-gradient(135deg, #1D9E75 0%, #158A63 100%);
+    background: linear-gradient(135deg, #D61F1F 0%, #960000 100%);
   }
 
   /* Glass effect */
@@ -201,7 +232,7 @@
 
   /* Pitch glow for live indicators */
   .pitch-glow {
-    box-shadow: 0 0 16px rgba(29, 158, 117, 0.35);
+    box-shadow: 0 0 16px rgba(214, 31, 31, 0.35);
   }
 
   /* Live dot */
@@ -321,7 +352,7 @@
 
 /* ── Selection ────────────────────────────────────────────────────────────── */
 ::selection {
-  background: rgba(29, 158, 117, 0.25);
+  background: rgba(214, 31, 31, 0.2);
   color: inherit;
 }
 

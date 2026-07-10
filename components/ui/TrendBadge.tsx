@@ -12,7 +12,7 @@ export function TrendBadge({
   const common = "gap-1.5";
   if (trend === "rising") {
     return (
-      <Badge variant="outline" className={cn(common, "border-pitch/30 text-pitch-light bg-pitch/10")}>
+      <Badge variant="outline" className={cn(common, "border-success/30 text-success bg-success/10")}>
         <TrendingUp className="w-3 h-3" />
         Stigande{typeof value === "number" ? ` ${Math.round(value)}%` : ""}
       </Badge>

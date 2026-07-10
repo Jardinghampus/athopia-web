@@ -1,7 +1,7 @@
 "use client";
 
 /* Athopia landningssida — native-app-känsla i webbläsaren.
-   Designsystem: strikt 8px-grid, Bebas Neue + DM Sans, pitch #1D9E75 på mörk botten.
+   Designsystem: docs/brand/BRAND.md — 8px-grid, Geist, UI Red #D61F1F på true black.
    Mockup-skärmarna återskapar appens ljusa glas-UI som riktiga komponenter.
    Touch: alla interaktiva element ≥44px, primär-CTA i tumzonen via MobileDock. */
 
@@ -50,7 +50,7 @@ export default function AthopiaLanding({
   heroCopy?: LandingHeroCopy;
 } = {}) {
   return (
-    <div className="min-h-screen overflow-x-clip bg-zinc-950 font-sans text-white">
+    <div className="min-h-screen overflow-x-clip bg-black font-sans text-white">
       <LandingNav />
       <main>
         <Hero pulse={pulse} clubs={clubs} copy={heroCopy} />

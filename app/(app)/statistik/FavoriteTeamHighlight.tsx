@@ -22,7 +22,7 @@ export function FavoriteTeamHighlight() {
       const match = rowSlug === slug || slugWords.some((w) => rowSlug.includes(w));
 
       if (match) {
-        row.style.setProperty("background-color", "rgba(29,158,117,0.08)");
+        row.style.setProperty("background-color", "rgba(214,31,31,0.08)");
         row.style.setProperty("box-shadow", `inset 2px 0 0 var(--color-pitch)`);
         // Scrolla till raden om den inte är synlig
         row.scrollIntoView({ behavior: "smooth", block: "nearest" });

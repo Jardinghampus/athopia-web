@@ -134,7 +134,7 @@ export function WaitlistModal({ open, onClose, redirectTo = "/onboarding" }: Wai
           <div
             aria-hidden
             className="pointer-events-none absolute inset-x-0 top-0 h-px"
-            style={{ background: "linear-gradient(90deg, transparent, rgba(29,158,117,0.5), transparent)" }}
+            style={{ background: "linear-gradient(90deg, transparent, rgba(214,31,31,0.5), transparent)" }}
           />
 
           {/* Close */}
@@ -259,7 +259,7 @@ function Btn({
         "inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-[15px] font-semibold",
         "transition-[transform,opacity] duration-[160ms] ease-out active:scale-[0.97]",
         primary
-          ? "bg-pitch text-black hover:opacity-90 disabled:opacity-50"
+          ? "bg-pitch text-white hover:opacity-90 disabled:opacity-50"
           : "border border-white/[0.12] text-white/60 hover:border-white/25 hover:text-white/80",
         disabled ? "cursor-not-allowed" : "cursor-pointer",
       ].join(" ")}

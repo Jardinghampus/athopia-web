@@ -233,7 +233,7 @@ export function PlayerCompareClient({ pool }: { pool: ScoutPlayer[] }) {
                 <div key={m.key} className="grid grid-cols-3 items-center py-2 border-b border-border/40 last:border-0">
                   <span className={cn(
                     "text-sm font-semibold tabular-nums text-right pr-4",
-                    aWins ? "text-pitch" : "text-foreground"
+                    aWins ? "text-success" : "text-foreground"
                   )}>{a != null ? fmt(m.key, a) : "—"}</span>
                   <span className="text-xs text-center text-muted-foreground">{m.label}</span>
                   <span className={cn(

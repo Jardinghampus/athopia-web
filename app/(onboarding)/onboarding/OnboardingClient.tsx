@@ -71,7 +71,7 @@ function Fireworks() {
     id: i,
     angle: (i / 40) * 360,
     distance: 60 + Math.random() * 120,
-    color: ["var(--color-pitch)", "#25C48F", "#ffffff", "#ffd700", "#ff6b6b", "#74b9ff"][i % 6],
+    color: ["var(--color-pitch)", "#FF2A2A", "#ffffff", "#B5B5B3", "#960000", "#525254"][i % 6],
     size: 4 + Math.random() * 6,
     delay: Math.random() * 0.3,
   }));

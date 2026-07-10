@@ -72,7 +72,7 @@ export function ScoreWidget({ fixture, className }: ScoreWidgetProps) {
       <div className="flex items-center justify-between text-xs text-muted-foreground gap-2">
         <span className="truncate">{fixture.league?.name}</span>
         {isLive ? (
-          <span className="flex items-center gap-1 text-pitch-light font-medium shrink-0">
+          <span className="flex items-center gap-1 text-success font-medium shrink-0">
             <span className="live-dot" />
             LIVE
           </span>
@@ -92,7 +92,7 @@ export function ScoreWidget({ fixture, className }: ScoreWidgetProps) {
           <span
             className={cn(
               "text-sm font-medium truncate",
-              home?.meta.winner === true && "text-pitch-light"
+              home?.meta.winner === true && "text-success"
             )}
           >
             {home?.name ?? "?"}
@@ -106,7 +106,7 @@ export function ScoreWidget({ fixture, className }: ScoreWidgetProps) {
               <span
                 className={cn(
                   "text-xl font-heading tabular-nums",
-                  home?.meta.winner === true ? "text-pitch-light" : "text-foreground"
+                  home?.meta.winner === true ? "text-success" : "text-foreground"
                 )}
               >
                 {homeGoals}
@@ -115,7 +115,7 @@ export function ScoreWidget({ fixture, className }: ScoreWidgetProps) {
               <span
                 className={cn(
                   "text-xl font-heading tabular-nums",
-                  away?.meta.winner === true ? "text-pitch-light" : "text-foreground"
+                  away?.meta.winner === true ? "text-success" : "text-foreground"
                 )}
               >
                 {awayGoals}
@@ -131,7 +131,7 @@ export function ScoreWidget({ fixture, className }: ScoreWidgetProps) {
           <span
             className={cn(
               "text-sm font-medium truncate",
-              away?.meta.winner === true && "text-pitch-light"
+              away?.meta.winner === true && "text-success"
             )}
           >
             {away?.name ?? "?"}

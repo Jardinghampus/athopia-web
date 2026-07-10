@@ -25,7 +25,7 @@ export function FinalCta() {
             className="pointer-events-none absolute inset-0"
             style={{
               background:
-                "radial-gradient(ellipse 70% 90% at 50% 50%, rgba(29,158,117,0.08) 0%, transparent 70%)",
+                "radial-gradient(ellipse 70% 90% at 50% 50%, rgba(214,31,31,0.08) 0%, transparent 70%)",
             }}
           />
           <div
@@ -55,8 +55,8 @@ export function FinalCta() {
 
             <Reveal delay={0.16}>
               <p className="mx-auto mb-10 mt-6 max-w-[380px] text-[17px] leading-[1.65] text-white/55">
-                Gratis att börja. Inget kreditkort. Välj ditt lag och få ditt
-                flöde direkt.
+                Gratis att börja. Inget kreditkort. 30 sekunder från att du
+                väljer lag tills ditt flöde är igång — avsluta när du vill.
               </p>
             </Reveal>
 
@@ -64,7 +64,7 @@ export function FinalCta() {
               <Link
                 href="/onboarding"
                 onClick={handleCta}
-                className="inline-flex h-16 items-center justify-center gap-2 rounded-2xl bg-pitch px-10 text-lg font-bold text-black transition-transform duration-200 hover:scale-[1.02] active:scale-[0.97]"
+                className="inline-flex h-16 items-center justify-center gap-2 rounded-2xl bg-pitch px-10 text-lg font-bold text-white transition-transform duration-200 hover:scale-[1.02] active:scale-[0.97]"
               >
                 Välj ditt lag <ArrowRight className="h-5 w-5" />
               </Link>

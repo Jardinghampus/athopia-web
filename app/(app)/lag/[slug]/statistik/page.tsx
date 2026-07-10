@@ -262,7 +262,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
             </div>
             <div className="rounded-xl border border-border bg-card p-4 flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Målskillnad</span>
-              <span className={`font-semibold text-2xl ${(standings.goal_diff as number ?? 0) >= 0 ? "text-pitch" : "text-red-400"}`}>
+              <span className={`font-semibold text-2xl ${(standings.goal_diff as number ?? 0) >= 0 ? "text-success" : "text-red-400"}`}>
                 {(standings.goal_diff as number ?? 0) >= 0 ? "+" : ""}{standings.goal_diff as number ?? 0}
               </span>
             </div>
@@ -286,7 +286,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
               <p className="text-xs text-muted-foreground mb-2">Form</p>
               <div className="flex gap-1">
                 {(standings.form as string).split("").filter((c: string) => ["W","D","L"].includes(c)).slice(-10).map((r: string, i: number) => (
-                  <span key={i} className={`w-6 h-6 rounded text-xs font-bold flex items-center justify-center ${r === "W" ? "bg-pitch/20 text-pitch" : r === "L" ? "bg-red-400/20 text-red-400" : "bg-muted text-muted-foreground"}`}>
+                  <span key={i} className={`w-6 h-6 rounded text-xs font-bold flex items-center justify-center ${r === "W" ? "bg-success/20 text-success" : r === "L" ? "bg-red-400/20 text-red-400" : "bg-muted text-muted-foreground"}`}>
                     {r === "W" ? "V" : r === "L" ? "F" : "O"}
                   </span>
                 ))}
@@ -328,7 +328,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
                   <p className="text-xs text-muted-foreground mt-0.5">Förväntade (xP)</p>
                 </div>
                 <div>
-                  <p className={`font-bold text-2xl ${Number(scheduleForm.luck ?? 0) >= 0 ? "text-pitch" : "text-red-400"}`}>
+                  <p className={`font-bold text-2xl ${Number(scheduleForm.luck ?? 0) >= 0 ? "text-success" : "text-red-400"}`}>
                     {scheduleForm.luck != null ? (Number(scheduleForm.luck) >= 0 ? "+" : "") + Number(scheduleForm.luck).toFixed(1) : "–"}
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">Tur</p>

@@ -110,8 +110,8 @@ export function Hero({
   const headlineAccent = copy?.headlineAccent ?? "Varje dag.";
   const body =
     copy?.body ??
-    "Vi läser alla svenska källor, följer varje match och räknar på varje siffra — så att du alltid vet vad som händer i din klubb. Byggt för supportrar som kan fotboll.";
-  const ctaLabel = copy?.ctaLabel ?? "Välj din klubb";
+    "Nyheter, rykten, siffror och snack om din klubb — vi läser hundratals svenska källor varje dygn, sorterar bort bruset och sammanfattar det som betyder något. 60 sekunder om dagen, så vet du allt.";
+  const ctaLabel = copy?.ctaLabel ?? "Välj din klubb — gratis";
 
   return (
     <section ref={ref} className="relative overflow-hidden pb-16 pt-28 md:pb-24 md:pt-40">
@@ -121,7 +121,7 @@ export function Hero({
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse 90% 55% at 50% -10%, rgba(29,158,117,0.12) 0%, transparent 70%)",
+            "radial-gradient(ellipse 90% 55% at 50% -10%, rgba(214,31,31,0.10) 0%, transparent 70%)",
         }}
       />
 
@@ -150,7 +150,7 @@ export function Hero({
                 <Link
                   href="/onboarding"
                   onClick={handleCta}
-                  className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl bg-pitch px-8 text-[17px] font-bold text-black transition-transform duration-200 hover:scale-[1.02] active:scale-[0.97]"
+                  className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl bg-pitch px-8 text-[17px] font-bold text-white transition-transform duration-200 hover:scale-[1.02] active:scale-[0.97]"
                 >
                   {ctaLabel} <ArrowRight className="h-5 w-5" />
                 </Link>
@@ -200,7 +200,7 @@ export function Hero({
                 className="absolute -inset-12 rounded-full opacity-60 blur-3xl"
                 style={{
                   background:
-                    "radial-gradient(circle, rgba(29,158,117,0.25) 0%, transparent 65%)",
+                    "radial-gradient(circle, rgba(214,31,31,0.22) 0%, transparent 65%)",
                 }}
               />
               <PhoneMock />

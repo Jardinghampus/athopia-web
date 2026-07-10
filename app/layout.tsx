@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
-import { Instrument_Serif, Lora } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { svSE } from "@clerk/localizations";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
@@ -10,18 +10,15 @@ import { CookieBanner } from "@/components/CookieBanner";
 import { UtmVisitTracker } from "@/components/growth/UtmVisitTracker";
 import "./globals.css";
 
-const instrumentSerif = Instrument_Serif({
-  weight: "400",
-  style: ["normal", "italic"],
+const geist = Geist({
   subsets: ["latin"],
-  variable: "--font-instrument-serif",
+  variable: "--font-geist",
   display: "swap",
 });
 
-const lora = Lora({
+const geistMono = Geist_Mono({
   subsets: ["latin"],
-  style: ["normal", "italic"],
-  variable: "--font-lora",
+  variable: "--font-geist-mono",
   display: "swap",
 });
 
@@ -60,8 +57,8 @@ export const viewport: Viewport = {
   // (annars är GlassNav:s safe-area-padding en no-op).
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#0A0A0A" },
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+    { media: "(prefers-color-scheme: light)", color: "#FAFAF8" },
   ],
 };
 
@@ -87,7 +84,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const content = (
     <html
       lang="sv"
-      className={`${instrumentSerif.variable} ${lora.variable}`}
+      className={`${geist.variable} ${geistMono.variable}`}
       suppressHydrationWarning
     >
       <body className="min-h-dvh flex flex-col">

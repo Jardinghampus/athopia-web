@@ -89,7 +89,13 @@ Ny kod läggs i befintlig feature-mapp. Skapa inte parallella mönster —
 
 ## 5. Design
 
-- Bebas Neue rubriker · DM Sans brödtext · Primary `#1D9E75` · dark-first (zinc-950/900).
+- Brandbok: workspace-rotens `docs/brand/BRAND.md` (+ `tokens.json`) — single source of truth.
+- Geist rubriker + brödtext · Geist Mono för data/siffror (tabular-nums) · optisk tracking
+  via `--tracking-*`-tokens — justera aldrig letter-spacing fritt.
+- Accent = UI Red `#D61F1F` (`--color-pitch` — tokennamnet behållet, värdet är rött).
+  Brand Red `#F20000` endast logotyp/hero/OG. Grön = ENDAST success (`--color-success`).
+  95 % av UI:t neutralt; rött bara för handling (CTA, aktiv tab, aktiv chart-serie).
+- Light `#FAFAF8` (papper) · dark true black `#000000` med ytor `#151516`–`#222224`.
 - Native-feel-initiativet gäller: iOS-grade känsla, se `NATIVE-FEEL-PLAN.md` och
   `WEB-IA-STRUKTUR.md` (4-fliks-IA). Följ befintliga komponentmönster i `components/ui`.
 - Loading/empty/error-states är obligatoriska på nya datavyer.

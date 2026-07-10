@@ -104,7 +104,7 @@ export function TeamSelectionModal({ forceVisible = false }: TeamSelectionModalP
       <div className="bg-background border border-border rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="p-6 border-b border-border">
-          <h2 className="text-2xl font-bold text-foreground" style={{ fontFamily: "var(--font-bebas)" }}>
+          <h2 className="text-2xl font-bold text-foreground" style={{ fontFamily: "var(--font-display)" }}>
             VÄLJ DITT LAG
           </h2>
           <p className="text-muted-foreground text-sm mt-1">

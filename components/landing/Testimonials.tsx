@@ -12,7 +12,7 @@ const TESTIMONIALS = [
     meta: "Djurgårdsfan sedan 1994",
     initials: "ML",
     accent: "var(--color-pitch)",
-    bg: "from-[#0d2b22] to-zinc-950",
+    bg: "from-[#1B1B1C] to-black",
   },
   {
     quote:
@@ -21,7 +21,7 @@ const TESTIMONIALS = [
     meta: "Hammarbysupporter",
     initials: "SK",
     accent: "#38bdf8",
-    bg: "from-[#0c1f2b] to-zinc-950",
+    bg: "from-[#151516] to-black",
   },
   {
     quote:
@@ -30,7 +30,7 @@ const TESTIMONIALS = [
     meta: "AIK-fan, Göteborg",
     initials: "JA",
     accent: "#a78bfa",
-    bg: "from-[#1a0d2b] to-zinc-950",
+    bg: "from-[#222224] to-black",
   },
 ];
 

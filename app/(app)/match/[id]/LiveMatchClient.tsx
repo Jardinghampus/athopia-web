@@ -161,11 +161,11 @@ export function LiveMatchClient({ fixtureId, initialStats, isLive, teamIds }: Li
               {match.home_team_name}
             </p>
             <div className="flex items-center gap-3">
-              <span className="text-5xl font-bold text-foreground" style={{ fontFamily: "var(--font-bebas)" }}>
+              <span className="text-5xl font-bold text-foreground" style={{ fontFamily: "var(--font-display)" }}>
                 {match.home_score}
               </span>
               <span className="text-2xl text-muted-foreground">–</span>
-              <span className="text-5xl font-bold text-foreground" style={{ fontFamily: "var(--font-bebas)" }}>
+              <span className="text-5xl font-bold text-foreground" style={{ fontFamily: "var(--font-display)" }}>
                 {match.away_score}
               </span>
             </div>

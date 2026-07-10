@@ -21,7 +21,7 @@ const PLANS = [
   },
   {
     name: "PRO",
-    price: "99",
+    price: "89",
     tagline: "För dig som följer varje omgång.",
     cta: "Uppgradera till PRO",
     href: "/prenumerera",
@@ -37,7 +37,7 @@ const PLANS = [
   },
   {
     name: "Elite",
-    price: "199",
+    price: "169",
     tagline: "För dig som vill se allt först.",
     cta: "Skaffa Elite",
     href: "/prenumerera",
@@ -68,8 +68,9 @@ export function Pricing() {
           </Reveal>
           <Reveal delay={0.16}>
             <p className="mx-auto mt-6 max-w-[400px] text-[17px] leading-[1.65] text-white/55">
-              Inget kreditkort för att börja. Avsluta när du vill, med en
-              knapptryckning.
+              PRO kostar mindre än en matchkorv i månaden — och sparar dig
+              timmar av scrollande varje omgång. Inget kreditkort för att
+              börja, avsluta när du vill.
             </p>
           </Reveal>
         </div>
@@ -80,12 +81,12 @@ export function Pricing() {
               <div
                 className={`relative flex h-full flex-col rounded-3xl border p-6 md:p-8 ${
                   highlighted
-                    ? "border-pitch/40 bg-pitch/[0.05] shadow-[0_0_48px_-12px_rgba(29,158,117,0.25)]"
+                    ? "border-pitch/40 bg-pitch/[0.05] shadow-[0_0_48px_-12px_rgba(214,31,31,0.25)]"
                     : "border-white/[0.06] bg-white/[0.025]"
                 }`}
               >
                 {highlighted && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-pitch px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-black">
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-pitch px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white">
                     Populärast
                   </span>
                 )}
@@ -115,7 +116,7 @@ export function Pricing() {
                   href={href}
                   className={`mt-8 inline-flex h-14 items-center justify-center gap-2 rounded-2xl text-[16px] font-bold transition-transform duration-200 hover:scale-[1.02] active:scale-[0.97] ${
                     highlighted
-                      ? "bg-pitch text-black"
+                      ? "bg-pitch text-white"
                       : "border border-white/15 text-white hover:border-white/35"
                   }`}
                 >
