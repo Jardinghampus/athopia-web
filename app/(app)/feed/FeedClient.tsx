@@ -434,6 +434,7 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
   return (
     <PullToRefresh onRefresh={async () => { await load(true); void fetchHero(slug).then(setHero); }}>
       <ProductEventTracker event="feed_open" props={{ team: slug ?? "all" }} />
+      <ProductEventTracker event="feed_first_view" props={{ team: slug ?? "all" }} once="feed_first_view" />
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 space-y-5">
 
         {/* Header */}

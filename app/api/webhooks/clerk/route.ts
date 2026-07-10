@@ -4,6 +4,7 @@ import type { WebhookEvent } from "@clerk/nextjs/server";
 import { clerkClient } from "@clerk/nextjs/server";
 import Stripe from "stripe";
 import { createServiceClient } from "@/lib/supabase";
+import { logFunnelEvent } from "@/lib/funnel";
 
 export async function POST(req: Request) {
   const webhookSecret = process.env.CLERK_WEBHOOK_SECRET;
@@ -102,6 +103,8 @@ export async function POST(req: Request) {
       { onConflict: "clerk_user_id,date" }
     );
     await mirrorProfile(event.data);
+
+    await logFunnelEvent("signup_complete", clerkUserId);
 
     console.log(`[clerk-webhook] user_feed_config + profil skapad för ${clerkUserId}`);
   }

@@ -3,6 +3,7 @@ import AthopiaLanding, { type LandingArticle } from "@/components/landing/Athopi
 import { SportFront } from "@/components/landing/SportFront";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import { getLandingCopy } from "@/lib/landing-copy";
+import { ProductEventTracker } from "@/components/analytics/ProductEventTracker";
 
 // ISR: servera cachad HTML direkt (snabb laddning), regenerera i bakgrunden.
 // Tidigare 'force-dynamic' gjorde att varje besök blockerade på en Supabase-query
@@ -111,6 +112,7 @@ export default async function LandingPage() {
   return (
     <>
       <LandingJsonLd />
+      <ProductEventTracker event="landing_view" once="landing_view" onceScope="session" />
       <AthopiaLanding
         articles={articles}
         pulse={pulse}

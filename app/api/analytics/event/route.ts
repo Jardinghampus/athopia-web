@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createServiceClient } from "@/lib/supabase";
 import { enforceRateLimit } from "@/lib/ratelimit";
+import { FUNNEL_EVENTS } from "@/lib/funnel";
 
 const ALLOWED = new Set([
   "feed_open",
@@ -11,6 +12,7 @@ const ALLOWED = new Set([
   "daily_view",
   "daily_play_blocked_pro",
   "daily_checkout_click",
+  ...FUNNEL_EVENTS,
 ]);
 
 const bodySchema = z.object({

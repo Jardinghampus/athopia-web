@@ -16,6 +16,7 @@ import { auth } from "@clerk/nextjs/server";
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
 import { enforceRateLimit } from "@/lib/ratelimit";
+import { logFunnelEvent } from "@/lib/funnel";
 import {
   PRICING,
   amountFor,
@@ -87,6 +88,8 @@ export async function POST(req: Request & { headers: Headers }) {
         metadata: { clerkUserId: userId, plan, interval },
       },
     });
+
+    await logFunnelEvent("checkout_start", userId, { plan, interval });
 
     return NextResponse.json({ url: session.url });
   } catch (err) {

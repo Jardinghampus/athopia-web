@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { AccessFeature } from "@/lib/access-rules";
+import { ProductEventTracker } from "@/components/analytics/ProductEventTracker";
 
 const FEATURE_LABELS: Record<AccessFeature, string> = {
   basicFilter:        "grundfilter",
@@ -19,6 +20,12 @@ export function UpgradePrompt({ feature }: { feature: AccessFeature }) {
   const label = FEATURE_LABELS[feature] ?? feature;
   return (
     <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 px-5 py-6 text-center">
+      <ProductEventTracker
+        event="paywall_view"
+        props={{ feature }}
+        once={`paywall_view::${feature}`}
+        onceScope="session"
+      />
       <p className="text-sm text-zinc-400">
         <span className="font-medium text-white">{label}</span> kräver PRO eller ELITE.
       </p>

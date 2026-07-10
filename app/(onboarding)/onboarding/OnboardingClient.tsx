@@ -143,6 +143,15 @@ function AvatarCircle({ src, size = 96 }: { src: string | null; size?: number })
   );
 }
 
+// ── Funnel tracking (fire-and-forget) ──────────────────────────────────────────
+function trackFunnel(event: string, props?: Record<string, string>): void {
+  void fetch("/api/analytics/event", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ event, props }),
+  }).catch(() => {});
+}
+
 // ── Checkout helper (reuse from existing route) ────────────────────────────────
 async function startCheckout(plan: PaidPlan, interval: BillingInterval): Promise<void> {
   const res = await fetch("/api/create-checkout", {
@@ -278,6 +287,7 @@ export function OnboardingClient() {
 
       if (selectedTeam && teamObj) {
         await setFavoriteTeam(selectedTeam, teamObj.id);
+        trackFunnel("onboarding_team_selected", { team: selectedTeam });
         if (selectedInterests.length > 0) {
           await fetch("/api/feed/config", {
             method: "PATCH",
@@ -306,6 +316,7 @@ export function OnboardingClient() {
       if (nickname.trim()) {
         await user?.update({ username: nickname.trim() }).catch(() => {});
       }
+      trackFunnel("onboarding_complete", { team: selectedTeam ?? "none" });
       return true;
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Något gick fel";

@@ -92,6 +92,11 @@ export function usePushPermission(): PushPermissionState {
 
       window.localStorage.setItem(PUSH_SUBSCRIBED_KEY, "1");
       setIsSubscribed(true);
+      void fetch("/api/analytics/event", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ event: "push_opt_in" }),
+      }).catch(() => {});
       return true;
     } catch {
       return false;

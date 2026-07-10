@@ -17,6 +17,7 @@
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
 import { clerkClient } from "@clerk/nextjs/server";
+import { logFunnelEvent } from "@/lib/funnel";
 
 // Lazy — initieras i POST() för att undvika build-time env-fel;
 
@@ -72,6 +73,8 @@ export async function POST(req: Request) {
           stripeSubscriptionId: session.subscription as string,
         },
       });
+
+      await logFunnelEvent("checkout_success", clerkUserId, { plan });
 
       console.log(`[stripe-webhook] ${plan.toUpperCase()} aktiverat för ${clerkUserId}`);
       break;

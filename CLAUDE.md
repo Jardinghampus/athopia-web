@@ -2,212 +2,137 @@
 
 # ATHOPIA WEB — operativ konstitution
 
-## Auto-Mode (cross-repo)
-Öppna Claude Code i `C:\Users\jardi\Athopia Build` (roten) för cross-repo arbete.
-Slash commands: `/auto/status`, `/auto/plan`, `/auto/sync`, `/auto/fix`, `/auto/review`, `/auto/commit`, `/auto/deploy`
-Se `C:\Users\jardi\Athopia Build\.claude\SUMMARY.md` för fullständig dokumentation.
+> Uppdaterad 2026-07-10. Detta är den enda regel-filen för athopia-web.
+> Läs den innan du ändrar produktbeteende. AGENTS.md kompletterar med data-regler.
 
-## Mission
-Publik webb för Athopia på athopia.se.
-Data från athopia-os via Supabase.
+## 1. Vad detta repo är
 
-## Stack
-Next.js 16.2.6 App Router · TypeScript strict · Tailwind v4 · shadcn/ui
-Clerk v7 auth · Stripe v22 betalningar · Supabase client · React 19
+Publik produkt på **athopia.se** — premium svensk fotbollsplattform (nyhetsfeed,
+lag-hubbar, statistik, matchsidor, forum, podcast, AI-funktioner, prenumerationer).
+All data kommer från Supabase, producerad av `athopia-os`. Web läser, visar och
+monetiserar — den ingesterar aldrig.
 
-## Design
-Bebas Neue rubriker · DM Sans brödtext
-Primary: #1D9E75 · Dark-first
+Kvalitetsbar: snabb, mobil-först, redaktionellt trovärdig, premium men inte
+corporate. Ingen "generic dashboard"-UI: varje yta ska svara på en riktig
+supporterfråga (nästa match, form, tabelläge, transfersignal).
 
-## Kommando-protokoll
-"nästa" → kör nästa jobb i NEXT.md
-"status" → visa progress
-"kolla"  → pnpm build + rapportera
-"commit" → git add . && git commit && git push
+## 2. Stack (verifierad mot package.json)
 
-## Auto-session protokoll
-Efter varje avslutat jobb i NEXT.md:
-1. Spara all kontext till PROGRESS.md
-2. Spara beslut till .claude/memory/decisions.md
-3. Spara modul-status till .claude/memory/[modul].md
-4. Kör git add . && git commit -m "[modul]: [vad byggdes]"
-5. Kör /compact
-6. Rapportera: "✅ [jobb-id] klart. Nästa: [nästa jobb]. Skriv nästa för att fortsätta."
-7. Vänta på input
+- Next.js 16.2.6 App Router · React 19 · TypeScript strict
+- Tailwind v4 (`@theme` i `app/globals.css` — INGEN tailwind.config.ts) · shadcn/ui · Base UI · motion
+- Clerk v7 (auth + plan i `publicMetadata.plan`) · Stripe v22 · Supabase JS v2
+- Vercel AI SDK v7 (`ai`, `@ai-sdk/anthropic`) för AI-features
+- Sentry · Upstash ratelimit/redis · web-push (VAPID) · Playwright e2e
+- pnpm. OBS: Next 16 skiljer sig från träningsdata — läs `node_modules/next/dist/docs/` vid tvekan.
 
-När användaren skriver "nästa" direkt efter rapport:
-1. Läs NEXT.md + PROGRESS.md + .claude/memory/[relevant].md
-2. Kör /planner för nästa jobb
-3. Implementera
-4. Upprepa auto-session protokoll
+## 3. Arkitekturkarta
 
-## Varför detta fungerar
-/compact komprimerar konversationshistoriken men behåller kontexten.
-PROGRESS.md + .claude/memory/ är det externa minnet.
-Claude Code läser dessa filer i varje ny session automatiskt.
-Ingenting går förlorat mellan sessioner.
+```
+proxy.ts                  — route-skydd (Next 16-konvention, INTE middleware.ts)
+app/page.tsx              — landing (copy från landing_copy-tabellen med statisk fallback)
+app/(app)/                — produktytor: feed, nyheter, lag, spelare, match, statistik,
+                            mitt-lag, daily, analys, forum, podcast, elite, prenumerera,
+                            konto/profil, mer (nav-flik 4)
+app/(onboarding)/         — onboarding-wizard efter signup
+app/api/                  — route handlers: feed, team, match, stats, standings, scores,
+                            forum, daily, elite, push, webhooks (clerk/stripe), create-checkout
+app/actions/              — server actions
+lib/supabase.ts           — createServerClient (service role, server-only) +
+                            createBrowserClient (anon key); typer i types/supabase
+lib/access-rules.ts       — Plan + ACCESS-map (single source för feature-gating)
+lib/user-plan.ts          — getUserPlan() — ALLTID server-side
+lib/nav.ts                — EN nav-config för alla 4 flikar (Hem/Mitt lag/Statistik/Mer)
+components/               — feature-mappar (feed, match, team-hub, news, landing, ui …)
+                            PaywallGate.tsx + UpgradePrompt.tsx för gating-UI
+```
 
-## Viktigt
-Kör ALDRIG /clear — det raderar all kontext.
-Kör ALLTID /compact istället.
-Skillnad:
-  /compact → komprimerar, behåller kontext ✅
-  /clear   → raderar allt ❌
+Ny kod läggs i befintlig feature-mapp. Skapa inte parallella mönster —
+återanvänd `lib/`-helpers och komponentmapparna som finns.
 
-## Regler
-- INGEN admin i athopia-web. All admin ligger i athopia-admin (os.athopia.se).
-  Back-end (RSS, artiklar, agenter) ligger i athopia-os. Web = endast publik visning.
-- Server components som default, client bara när nödvändigt
-- generateMetadata() på alla sidor
-- Alla bilder via next/image
-- ISR revalidate:60 på Sportsmonks-data
-- PRO-gate på premium content via Clerk metadata
-- proxy.ts istället för middleware.ts (Next.js 16-konvention)
-- Lazy-init för Stripe, Clerk och Supabase — ALDRIG module-level
-- Tailwind v4: CSS-konfiguration via @theme i globals.css, ingen tailwind.config.ts
+## 4. Hårda regler (bryt aldrig)
 
-## Cross-Agent Stats Sync
-- `athopia-web` är produktreferensen för hur statistik presenteras för användare.
-- Läs rotfilen `C:\Users\jardi\Athopia Build\AGENTS.md` vid cross-repo arbete.
-- xG/pressure får visas när riktiga synced values finns i Supabase/API payload.
-- Visa inte placeholder `0.00 xG` och hitta inte på xA om expected-data saknas.
-- Använd `/plan-design-review`, `/review` och `/qa` när gstack är installerat och synliga statistikytor ändras.
+- **INGEN admin i athopia-web.** Admin = athopia-admin (os.athopia.se). Backend
+  (RSS, agenter, Sportmonks-sync) = athopia-os. Web = publik visning enbart.
+- **proxy.ts, inte middleware.ts.**
+- **Lazy init** för Stripe, Clerk och Supabase i function bodies — ALDRIG module-level.
+- **Service-role-klienten aldrig i client components.** Client components använder
+  `createBrowserClient` (anon + RLS).
+- **`getUserPlan()` körs alltid på servern.** Paywall-beslut aldrig client-side;
+  `PaywallGate` används i server components.
+- **Sport-separation:** `.eq('sport', SPORT)`-filtret på alla Supabase-queries.
+- **Anropa aldrig Sportmonks direkt.** Konsumera normaliserad data via Supabase.
+- **xG/pressure visas bara när riktiga syncade värden finns.** Aldrig placeholder
+  `0.00 xG`, aldrig påhittad xA — dölj fältet i stället.
+- **Publicera aldrig tredjeparts brödtext/teaser ordagrant.** Endast titel +
+  källnamn + länk + egenskriven text (upphovsrätt).
+- **ISR:** `revalidate: 30` nyhetsflöde, `60` matcher/standings/artiklar, `3600` statisk spelardata.
+- Server components som default; `"use client"` bara när det behövs.
+- `generateMetadata()` på alla sidor; alla bilder via `next/image`.
+- Ingen auth-läsning i render-vägen som tvingar routes dynamic i onödan
+  (LCP-regressioner har fixats för detta — se commits 46dc3a8, 97e8cb6).
+- Priser: Free 0 / PRO 89 kr/mån / Elite 169 kr/mån, 25% rabatt årsvis.
+
+### Regler ur korrigeringshistorik (detaljer i workspace-rotens LESSONS.md)
+
+- **Ingen mock-/demodata på publika ytor, någonsin.** Demo IF, mock-lag och
+  hårdkodade badges har rensats tre gånger — leta och ta bort, lägg aldrig till.
+- **Slugs kommer från `entities.slug`** — aldrig ad-hoc `slugify()` av namn.
+- **Verifiera att kolumnen/vyn du selectar faktiskt finns** (genererade typer eller
+  SQL) — Supabase-js felar tyst och `catch { return [] }` döljer det; gav tomma
+  lag-chips, tom H2H och trasig sitemap i produktion.
+- **Varje Anthropic-anrop i web behöver egen hard-cap/budgetvakt** (forum-summarize-
+  mönstret, commit 30d1255) — withBudget finns bara i os.
+- **Före push: kolla otrackade filer som importeras** — en otrackad lib-fil bröt
+  Vercel-bygget (3119050).
+- **Objektnycklar av heltalstyp sorteras numeriskt i JS** — säsongsval via
+  `Object.keys()` gav fel säsong i skytteligan (fb91b81); sortera explicit.
+
+## 5. Design
+
+- Bebas Neue rubriker · DM Sans brödtext · Primary `#1D9E75` · dark-first (zinc-950/900).
+- Native-feel-initiativet gäller: iOS-grade känsla, se `NATIVE-FEEL-PLAN.md` och
+  `WEB-IA-STRUKTUR.md` (4-fliks-IA). Följ befintliga komponentmönster i `components/ui`.
+- Loading/empty/error-states är obligatoriska på nya datavyer.
+
+## 6. AI-agent-arbetsflöde
+
+1. **Inspektera först.** Läs filerna du ska ändra + deras callers. Gissa aldrig
+   konventioner — kopiera dem från grannkoden.
+2. **Planera kort** (3–6 rader) innan icke-triviala ändringar.
+3. **Små ändringar.** En feature/fix per commit. Rör inte orelaterade filer.
+4. **Verifiera:** `pnpm typecheck` alltid; `pnpm build` (eller `rtk next build`)
+   före push; `pnpm test:e2e` när flöden ändras; visuell kontroll vid UI-ändringar
+   (gstack `/qa` för synliga statistikytor).
+5. **Rapportera:** filer ändrade, vad som verifierats, kända begränsningar.
+   Hoppa aldrig tyst över ett krav — flagga det.
+
+### Definition of done
+- [ ] Kravet implementerat utan tysta scope-ändringar
+- [ ] Inga orelaterade diffar
+- [ ] `pnpm typecheck` grönt, build grön
+- [ ] Loading/empty/error/mobil kontrollerat för UI-ändringar
+- [ ] Paywall/plan-logik testad som free + pro
+- [ ] Edge cases nämnda, begränsningar listade
+- [ ] Ändrade filer summerade
+
+## 7. Kommando-protokoll
+
+"nästa" → kör nästa jobb i NEXT.md · "status" → visa progress ·
+"kolla" → pnpm build + rapportera · "commit" → git add/commit/push
+
+Efter varje avslutat NEXT.md-jobb: uppdatera PROGRESS.md, committa, kör `/compact`
+(ALDRIG `/clear` — det raderar kontexten), rapportera och vänta på input.
+
+## 8. Öppna frågor
+- `middleware`/auth-täckning för `/admin/*`-routes under `app/api/admin` — verifiera
+  skydd innan nya admin-nära endpoints läggs till (admin ska egentligen inte finnas här alls).
 
 <!-- rtk-instructions v2 -->
 # RTK (Rust Token Killer) - Token-Optimized Commands
 
-## Golden Rule
+**Always prefix commands with `rtk`** — dedicated filter om det finns, annars passthrough. Gäller även i `&&`-kedjor.
 
-**Always prefix commands with `rtk`**. If RTK has a dedicated filter, it uses it. If not, it passes through unchanged. This means RTK is always safe to use.
-
-**Important**: Even in command chains with `&&`, use `rtk`:
-```bash
-# ❌ Wrong
-git add . && git commit -m "msg" && git push
-
-# ✅ Correct
-rtk git add . && rtk git commit -m "msg" && rtk git push
-```
-
-## RTK Commands by Workflow
-
-### Build & Compile (80-90% savings)
-```bash
-rtk cargo build         # Cargo build output
-rtk cargo check         # Cargo check output
-rtk cargo clippy        # Clippy warnings grouped by file (80%)
-rtk tsc                 # TypeScript errors grouped by file/code (83%)
-rtk lint                # ESLint/Biome violations grouped (84%)
-rtk prettier --check    # Files needing format only (70%)
-rtk next build          # Next.js build with route metrics (87%)
-```
-
-### Test (60-99% savings)
-```bash
-rtk cargo test          # Cargo test failures only (90%)
-rtk go test             # Go test failures only (90%)
-rtk jest                # Jest failures only (99.5%)
-rtk vitest              # Vitest failures only (99.5%)
-rtk playwright test     # Playwright failures only (94%)
-rtk pytest              # Python test failures only (90%)
-rtk rake test           # Ruby test failures only (90%)
-rtk rspec               # RSpec test failures only (60%)
-rtk test <cmd>          # Generic test wrapper - failures only
-```
-
-### Git (59-80% savings)
-```bash
-rtk git status          # Compact status
-rtk git log             # Compact log (works with all git flags)
-rtk git diff            # Compact diff (80%)
-rtk git show            # Compact show (80%)
-rtk git add             # Ultra-compact confirmations (59%)
-rtk git commit          # Ultra-compact confirmations (59%)
-rtk git push            # Ultra-compact confirmations
-rtk git pull            # Ultra-compact confirmations
-rtk git branch          # Compact branch list
-rtk git fetch           # Compact fetch
-rtk git stash           # Compact stash
-rtk git worktree        # Compact worktree
-```
-
-Note: Git passthrough works for ALL subcommands, even those not explicitly listed.
-
-### GitHub (26-87% savings)
-```bash
-rtk gh pr view <num>    # Compact PR view (87%)
-rtk gh pr checks        # Compact PR checks (79%)
-rtk gh run list         # Compact workflow runs (82%)
-rtk gh issue list       # Compact issue list (80%)
-rtk gh api              # Compact API responses (26%)
-```
-
-### JavaScript/TypeScript Tooling (70-90% savings)
-```bash
-rtk pnpm list           # Compact dependency tree (70%)
-rtk pnpm outdated       # Compact outdated packages (80%)
-rtk pnpm install        # Compact install output (90%)
-rtk npm run <script>    # Compact npm script output
-rtk npx <cmd>           # Compact npx command output
-rtk prisma              # Prisma without ASCII art (88%)
-```
-
-### Files & Search (60-75% savings)
-```bash
-rtk ls <path>           # Tree format, compact (65%)
-rtk read <file>         # Code reading with filtering (60%)
-rtk grep <pattern>      # Search grouped by file (75%). Format flags (-c, -l, -L, -o, -Z) run raw.
-rtk find <pattern>      # Find grouped by directory (70%)
-```
-
-### Analysis & Debug (70-90% savings)
-```bash
-rtk err <cmd>           # Filter errors only from any command
-rtk log <file>          # Deduplicated logs with counts
-rtk json <file>         # JSON structure without values
-rtk deps                # Dependency overview
-rtk env                 # Environment variables compact
-rtk summary <cmd>       # Smart summary of command output
-rtk diff                # Ultra-compact diffs
-```
-
-### Infrastructure (85% savings)
-```bash
-rtk docker ps           # Compact container list
-rtk docker images       # Compact image list
-rtk docker logs <c>     # Deduplicated logs
-rtk kubectl get         # Compact resource list
-rtk kubectl logs        # Deduplicated pod logs
-```
-
-### Network (65-70% savings)
-```bash
-rtk curl <url>          # Compact HTTP responses (70%)
-rtk wget <url>          # Compact download output (65%)
-```
-
-### Meta Commands
-```bash
-rtk gain                # View token savings statistics
-rtk gain --history      # View command history with savings
-rtk discover            # Analyze Claude Code sessions for missed RTK usage
-rtk proxy <cmd>         # Run command without filtering (for debugging)
-rtk init                # Add RTK instructions to CLAUDE.md
-rtk init --global       # Add RTK to ~/.claude/CLAUDE.md
-```
-
-## Token Savings Overview
-
-| Category | Commands | Typical Savings |
-|----------|----------|-----------------|
-| Tests | vitest, playwright, cargo test | 90-99% |
-| Build | next, tsc, lint, prettier | 70-87% |
-| Git | status, log, diff, add, commit | 59-80% |
-| GitHub | gh pr, gh run, gh issue | 26-87% |
-| Package Managers | pnpm, npm, npx | 70-90% |
-| Files | ls, read, grep, find | 60-75% |
-| Infrastructure | docker, kubectl | 85% |
-| Network | curl, wget | 65-70% |
-
-Overall average: **60-90% token reduction** on common development operations.
+Vanligast här: `rtk next build` · `rtk tsc` · `rtk lint` · `rtk vitest`/`rtk playwright test` ·
+`rtk git status|log|diff|add|commit|push` · `rtk pnpm install|list` · `rtk gh pr view|checks` ·
+`rtk ls` · `rtk grep` · `rtk curl`. Meta: `rtk gain` för besparingsstatistik.
 <!-- /rtk-instructions -->
