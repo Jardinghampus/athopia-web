@@ -7,9 +7,11 @@ interface PaywallGateProps {
   plan: Plan;
   children: React.ReactNode;
   fallback?: React.ReactNode;
+  /** Lag-kontext för UpgradePrompt-copy ("Missa inget om {lag}"). */
+  teamName?: string;
 }
 
-export function PaywallGate({ feature, plan, children, fallback }: PaywallGateProps) {
+export function PaywallGate({ feature, plan, children, fallback, teamName }: PaywallGateProps) {
   if (canAccess(feature, plan)) return <>{children}</>;
-  return <>{fallback ?? <UpgradePrompt feature={feature} />}</>;
+  return <>{fallback ?? <UpgradePrompt feature={feature} teamName={teamName} />}</>;
 }

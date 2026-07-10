@@ -16,7 +16,14 @@ const FEATURE_LABELS: Record<AccessFeature, string> = {
   briefAudio:         "lyssna på brief",
 };
 
-export function UpgradePrompt({ feature }: { feature: AccessFeature }) {
+export function UpgradePrompt({
+  feature,
+  teamName,
+}: {
+  feature: AccessFeature;
+  /** Lag-kontext gör CTA:n personlig: "Missa inget om AIK" istället för generisk copy. */
+  teamName?: string;
+}) {
   const label = FEATURE_LABELS[feature] ?? feature;
   return (
     <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 px-5 py-6 text-center">
@@ -26,6 +33,9 @@ export function UpgradePrompt({ feature }: { feature: AccessFeature }) {
         once={`paywall_view::${feature}`}
         onceScope="session"
       />
+      {teamName && (
+        <p className="text-sm font-semibold text-white mb-1">Missa inget om {teamName}</p>
+      )}
       <p className="text-sm text-zinc-400">
         <span className="font-medium text-white">{label}</span> kräver PRO eller ELITE.
       </p>

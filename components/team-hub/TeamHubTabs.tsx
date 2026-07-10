@@ -177,7 +177,7 @@ function Oversikt({ hub, plan, insights, onFixture }: { hub: TeamHubPayload; pla
             : (
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Dagens rubrik visas ovan — full brief kräver PRO.</p>
-                <UpgradePrompt feature="aiSummaries" />
+                <UpgradePrompt feature="aiSummaries" teamName={hub.team.name} />
               </div>
             )
           : <p className="py-4 text-center text-sm text-muted-foreground">Ingen brief publicerad för ditt lag idag. Nya kort släpps på morgonen.</p>}
@@ -237,7 +237,7 @@ function Statistik({ hub, plan }: { hub: TeamHubPayload; plan: Plan }) {
       <SectionCard title="xG-form" icon={Activity}>
         {canAccess("advancedFilter", plan)
           ? <TeamXgForm stats={s} />
-          : <UpgradePrompt feature="advancedFilter" />}
+          : <UpgradePrompt feature="advancedFilter" teamName={hub.team.name} />}
       </SectionCard>
       <SectionCard title="Profilradar" icon={BarChart3}><RadarOrEmpty data={hub.radar} /></SectionCard>
       <SectionCard title="Säsongsstatistik" icon={Trophy}>

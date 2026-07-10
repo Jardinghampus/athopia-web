@@ -135,7 +135,7 @@ export default async function LagSammanfattningPage({
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8">
         {/* Vänster: AI-sammanfattningar (PRO+) */}
         <div className="space-y-6">
-          <PaywallGate feature="aiSummaries" plan={plan}>
+          <PaywallGate feature="aiSummaries" plan={plan} teamName={teamName ?? undefined}>
           {latestSummary ? (
             <>
               {/* Senaste AI-sammanfattning — prominently */}
