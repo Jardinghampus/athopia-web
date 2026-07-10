@@ -56,7 +56,7 @@ export default async function OnboardingPage() {
   if (user) {
     await recordUtmSignupIfNeeded(user.id);
     const meta = user.unsafeMetadata as Record<string, unknown> | undefined;
-    if (meta?.["favoriteTeam"]) redirect("/feed");
+    if (meta?.["favoriteTeam"] || meta?.["onboardingDone"] === true) redirect("/feed");
   }
   return <OnboardingClient />;
 }

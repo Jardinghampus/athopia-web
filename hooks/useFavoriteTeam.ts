@@ -130,6 +130,7 @@ function useClerkFavoriteTeam(): FavoriteTeamState {
             unsafeMetadata: {
               ...((user.unsafeMetadata as Record<string, unknown>) ?? {}),
               favoriteTeam: newSlug,
+              onboardingDone: true,
             },
           });
         } catch {
@@ -162,7 +163,19 @@ function useClerkFavoriteTeam(): FavoriteTeamState {
       window.localStorage.setItem(LS_ONBOARDING_KEY, "1");
     }
     setNeedsOnboarding(false);
-  }, []);
+    // Persistera server-side så onboarding-gaten (mitt-lag/onboarding) ser
+    // "klar utan lag" på alla enheter — localStorage är enhetsbunden.
+    if (user) {
+      void user
+        .update({
+          unsafeMetadata: {
+            ...((user.unsafeMetadata as Record<string, unknown>) ?? {}),
+            onboardingDone: true,
+          },
+        })
+        .catch(() => {});
+    }
+  }, [user]);
 
   return { slug, isLoaded, setFavoriteTeam, clearFavoriteTeam, needsOnboarding, markOnboardingDone };
 }

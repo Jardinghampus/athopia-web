@@ -63,6 +63,12 @@ export default async function MittLagPage({
   }
 
   if (!primaryTeam?.slug) {
+    // Inloggad som aldrig slutfört onboarding → wizard. Den som aktivt hoppade
+    // över lagval (onboardingDone i Clerk-metadata) eller gäst får pickern.
+    const meta = user?.unsafeMetadata as Record<string, unknown> | undefined;
+    if (user && !meta?.["favoriteTeam"] && meta?.["onboardingDone"] !== true) {
+      redirect("/onboarding");
+    }
     return <EmptyPicker />;
   }
 
