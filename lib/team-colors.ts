@@ -48,7 +48,7 @@ export function getTeamShort(slug: string | null | undefined): string | null {
   return (slug && TEAM_SHORT[slug]) ?? null;
 }
 
-const FALLBACK: TeamColors = { primary: "#D61F1F", secondary: "#FFFFFF", text: "#FFFFFF" };
+const FALLBACK: TeamColors = { primary: "#2D5349", secondary: "#FFFFFF", text: "#FFFFFF" };
 
 export function getTeamColors(slug: string | null | undefined): TeamColors {
   return (slug && TEAM_COLORS[slug]) || FALLBACK;

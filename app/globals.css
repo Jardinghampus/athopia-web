@@ -24,18 +24,18 @@
   --color-input: var(--input);
   --color-ring:  var(--ring);
 
-  /* "pitch" = Athopias accent (UI Red sedan brand 1.0 — docs/brand/BRAND.md).
+  /* "pitch" = Athopias accent (Racing Green sedan brand 1.1 — docs/brand/BRAND.md).
      Namnet behålls för att inte röra 300+ callsites; värdet är accentfärgen. */
-  --color-pitch:       #D61F1F;
-  --color-pitch-dark:  #960000;
-  --color-pitch-light: #FF2A2A;
-  --color-pitch-muted: rgba(214, 31, 31, 0.12);
+  --color-pitch:       #2D5349;
+  --color-pitch-dark:  #1E3A32;
+  --color-pitch-light: #5FA98C;
+  --color-pitch-muted: rgba(45, 83, 73, 0.12);
 
   /* Success = grönt, ENDAST positiv status (form, avklarat, stigande) */
   --color-success:       var(--success);
   --color-success-muted: rgba(29, 158, 117, 0.12);
   --color-warning:       var(--warning);
-  --color-brand:         #F20000; /* logotyp/hero/marketing enbart — aldrig UI-text */
+  --color-brand:         #2D5349; /* Racing Green — logotyp/hero/marketing */
 
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
@@ -99,7 +99,7 @@
   --popover: #ffffff;
   --popover-foreground: #111111;
 
-  --primary: #D61F1F;
+  --primary: #2D5349;
   --primary-foreground: #ffffff;
 
   --secondary: #F3F2F0;
@@ -108,7 +108,7 @@
   --muted: #F3F2F0;
   --muted-foreground: #8A8885;
 
-  --accent: #F6E9E9;
+  --accent: #EAF0ED;
   --accent-foreground: #111111;
 
   --destructive: #D61F1F;
@@ -117,10 +117,10 @@
 
   --border: #E2E0DC;
   --input: #E2E0DC;
-  --ring: #D61F1F;
+  --ring: #2D5349;
   --radius: 0.75rem;
 
-  --chart-1: #D61F1F;
+  --chart-1: #2D5349;
   --chart-2: #111111;
   --chart-3: #8A8885;
   --chart-4: #C6C4C0;
@@ -138,7 +138,7 @@
   --popover: #151516;
   --popover-foreground: #F4F4F2;
 
-  --primary: #D61F1F;
+  --primary: #2D5349;
   --primary-foreground: #ffffff;
 
   --secondary: #1B1B1C;
@@ -147,18 +147,18 @@
   --muted: #151516;
   --muted-foreground: #7D7D7A;
 
-  --accent: #2A1414;
+  --accent: #14201C;
   --accent-foreground: #F4F4F2;
 
-  --destructive: #FF2A2A;
+  --destructive: #FF453A;
   --success: #25C48F;
   --warning: #F2A900;
 
   --border: #2C2C2E;
   --input: #2C2C2E;
-  --ring: #D61F1F;
+  --ring: #2D5349;
 
-  --chart-1: #FF2A2A;
+  --chart-1: #5FA98C;
   --chart-2: #F4F4F2;
   --chart-3: #7D7D7A;
   --chart-4: #3A3A3C;
@@ -219,7 +219,7 @@
 @layer utilities {
   /* Background gradient for hero/CTA */
   .pitch-gradient {
-    background: linear-gradient(135deg, #D61F1F 0%, #960000 100%);
+    background: linear-gradient(135deg, #2D5349 0%, #1E3A32 100%);
   }
 
   /* Glass effect */
@@ -232,7 +232,7 @@
 
   /* Pitch glow for live indicators */
   .pitch-glow {
-    box-shadow: 0 0 16px rgba(214, 31, 31, 0.35);
+    box-shadow: 0 0 16px rgba(45, 83, 73, 0.35);
   }
 
   /* Live dot */
@@ -352,7 +352,7 @@
 
 /* ── Selection ────────────────────────────────────────────────────────────── */
 ::selection {
-  background: rgba(214, 31, 31, 0.2);
+  background: rgba(45, 83, 73, 0.2);
   color: inherit;
 }
 

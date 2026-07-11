@@ -81,7 +81,7 @@ export function Pricing() {
               <div
                 className={`relative flex h-full flex-col rounded-3xl border p-6 md:p-8 ${
                   highlighted
-                    ? "border-pitch/40 bg-pitch/[0.05] shadow-[0_0_48px_-12px_rgba(214,31,31,0.25)]"
+                    ? "border-pitch/40 bg-pitch/[0.05] shadow-[0_0_48px_-12px_rgba(45,83,73,0.25)]"
                     : "border-white/[0.06] bg-white/[0.025]"
                 }`}
               >

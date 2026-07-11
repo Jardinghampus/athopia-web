@@ -1,7 +1,7 @@
 "use client";
 
 /* Athopia landningssida — native-app-känsla i webbläsaren.
-   Designsystem: docs/brand/BRAND.md — 8px-grid, Geist, UI Red #D61F1F på true black.
+   Designsystem: docs/brand/BRAND.md — 8px-grid, Geist, Racing Green #2D5349 på true black.
    Mockup-skärmarna återskapar appens ljusa glas-UI som riktiga komponenter.
    Touch: alla interaktiva element ≥44px, primär-CTA i tumzonen via MobileDock. */
 

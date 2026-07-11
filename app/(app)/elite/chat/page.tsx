@@ -5,7 +5,7 @@ import { isToolUIPart, getToolName, isTextUIPart } from 'ai'
 import { useEffect, useRef, useState } from 'react'
 import { Send, Loader2, Bot, User } from 'lucide-react'
 
-const BRAND = '#D61F1F'
+const BRAND = '#2D5349'
 
 const SUGGESTIONS = [
   'Hur ligger Hammarby till i tabellen?',

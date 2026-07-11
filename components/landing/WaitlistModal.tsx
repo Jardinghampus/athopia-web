@@ -134,7 +134,7 @@ export function WaitlistModal({ open, onClose, redirectTo = "/onboarding" }: Wai
           <div
             aria-hidden
             className="pointer-events-none absolute inset-x-0 top-0 h-px"
-            style={{ background: "linear-gradient(90deg, transparent, rgba(214,31,31,0.5), transparent)" }}
+            style={{ background: "linear-gradient(90deg, transparent, rgba(45,83,73,0.5), transparent)" }}
           />
 
           {/* Close */}

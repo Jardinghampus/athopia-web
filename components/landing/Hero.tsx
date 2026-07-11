@@ -121,7 +121,7 @@ export function Hero({
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse 90% 55% at 50% -10%, rgba(214,31,31,0.10) 0%, transparent 70%)",
+            "radial-gradient(ellipse 90% 55% at 50% -10%, rgba(45,83,73,0.10) 0%, transparent 70%)",
         }}
       />
 
@@ -200,7 +200,7 @@ export function Hero({
                 className="absolute -inset-12 rounded-full opacity-60 blur-3xl"
                 style={{
                   background:
-                    "radial-gradient(circle, rgba(214,31,31,0.22) 0%, transparent 65%)",
+                    "radial-gradient(circle, rgba(45,83,73,0.22) 0%, transparent 65%)",
                 }}
               />
               <PhoneMock />

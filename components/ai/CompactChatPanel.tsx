@@ -8,7 +8,7 @@ import Link from 'next/link'
 import type { Plan } from '@/lib/access-rules'
 import { canAccess } from '@/lib/access-rules'
 
-const BRAND = '#D61F1F'
+const BRAND = '#2D5349'
 
 interface CompactChatPanelProps {
   apiUrl: string

@@ -27,10 +27,10 @@ export function BentoCard({ item, className }: { item: BentoItem; className?: st
       className={cn(
         "group relative h-full p-5 rounded-xl overflow-hidden transition-all duration-300",
         "border border-white/[0.08] bg-white/[0.025]",
-        "hover:shadow-[0_2px_16px_rgba(214,31,31,0.08)] hover:border-white/[0.16]",
+        "hover:shadow-[0_2px_16px_rgba(45,83,73,0.08)] hover:border-white/[0.16]",
         "hover:-translate-y-0.5 will-change-transform",
         {
-          "shadow-[0_2px_16px_rgba(214,31,31,0.08)] -translate-y-0.5 border-white/[0.16]":
+          "shadow-[0_2px_16px_rgba(45,83,73,0.08)] -translate-y-0.5 border-white/[0.16]":
             item.hasPersistentHover,
         },
         className
