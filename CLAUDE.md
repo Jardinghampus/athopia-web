@@ -93,7 +93,7 @@ Ny kod läggs i befintlig feature-mapp. Skapa inte parallella mönster —
 - Geist rubriker + brödtext · Geist Mono för data/siffror (tabular-nums) · optisk tracking
   via `--tracking-*`-tokens — justera aldrig letter-spacing fritt.
 - Accent = Racing Green `#2D5349` (`--color-pitch`; ljus valör `#5FA98C` på mörkt). Röd ENDAST
-  destructive/fel. Success-grön `#1D9E75` = ENDAST status (`--color-success`).
+  destructive/fel. Success-grön `#12805F` ljust / `#25C48F` mörkt = ENDAST status (`--color-success`).
   95 % av UI:t neutralt; accent bara för handling (CTA, aktiv tab, aktiv chart-serie).
 - Light `#FAFAF8` (papper) · dark true black `#000000` med ytor `#151516`–`#222224`.
 - Native-feel-initiativet gäller: iOS-grade känsla, se `NATIVE-FEEL-PLAN.md` och

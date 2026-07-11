@@ -35,6 +35,11 @@
   --color-success:       var(--success);
   --color-success-muted: rgba(29, 158, 117, 0.12);
   --color-warning:       var(--warning);
+
+  /* Fel-röd i ljust tema: Tailwinds red-300/400 ger 1.8–2.7:1 på #FAFAF8.
+     Overridas per tema här i stället för att röra 30+ callsites med text-red-400. */
+  --color-red-300: var(--red-300);
+  --color-red-400: var(--red-400);
   --color-brand:         #2D5349; /* Racing Green — logotyp/hero/marketing */
 
   --color-chart-1: var(--chart-1);
@@ -112,8 +117,11 @@
   --accent-foreground: #111111;
 
   --destructive: #D61F1F;
-  --success: #1D9E75;
+  --success: #12805F; /* mörkare än dark-valören: 4.7:1 på #FAFAF8 (WCAG AA), #1D9E75 gav 3.2 */
   --warning: #D59B00;
+
+  --red-300: #D61F1F;
+  --red-400: #C81E1E;
 
   --border: #E2E0DC;
   --input: #E2E0DC;
@@ -153,6 +161,9 @@
   --destructive: #FF453A;
   --success: #25C48F;
   --warning: #F2A900;
+
+  --red-300: #FCA5A5; /* Tailwind-default tillbaka i mörkt tema */
+  --red-400: #F87171;
 
   --border: #2C2C2E;
   --input: #2C2C2E;

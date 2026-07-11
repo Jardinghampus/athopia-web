@@ -27,7 +27,7 @@ export default function OgImage() {
         <div style={{ fontSize: 96, fontWeight: 800, letterSpacing: -2, display: "flex" }}>
           ATHOPIA
         </div>
-        <div style={{ fontSize: 34, color: "#2D5349", marginTop: 12, display: "flex" }}>
+        <div style={{ fontSize: 34, color: "#5FA98C", marginTop: 12, display: "flex" }}>
           Allsvenskans digitala hemmaplan
         </div>
         <div style={{ fontSize: 22, color: "#a1a1aa", marginTop: 28, display: "flex" }}>
