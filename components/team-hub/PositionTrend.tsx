@@ -80,7 +80,7 @@ export async function PositionTrend({ teamSlug }: { teamSlug: string }) {
       <div className="rounded-2xl border border-border bg-card p-4">
         <div className="flex items-baseline justify-between mb-3">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">Placering över tid</h2>
-          <span className={`text-xs font-semibold ${delta > 0 ? "text-pitch" : delta < 0 ? "text-red-400" : "text-muted-foreground"}`}>
+          <span className={`text-xs font-semibold ${delta > 0 ? "text-success" : delta < 0 ? "text-red-400" : "text-muted-foreground"}`}>
             {delta > 0 ? `▲ ${delta} sedan start` : delta < 0 ? `▼ ${Math.abs(delta)} sedan start` : "Oförändrad"}
           </span>
         </div>

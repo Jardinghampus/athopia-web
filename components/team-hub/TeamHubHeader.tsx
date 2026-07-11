@@ -116,7 +116,7 @@ export function TeamHubHeader({
 }
 
 function FormDots({ form }: { form: ("W" | "D" | "L")[] }) {
-  const map = { W: "bg-pitch text-white", D: "bg-muted text-foreground", L: "bg-red-500/20 text-red-400" };
+  const map = { W: "bg-success text-white", D: "bg-muted text-foreground", L: "bg-red-500/20 text-red-400" };
   if (form.length === 0) return null;
   return <div className="flex gap-1">{form.map((r, i) => <span key={i} className={`w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center ${map[r]}`}>{r}</span>)}</div>;
 }

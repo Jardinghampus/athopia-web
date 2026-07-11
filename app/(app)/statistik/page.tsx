@@ -95,7 +95,7 @@ function EmptyState({ message = "Data ej tillgänglig." }: { message?: string })
 
 function FormBadge({ result }: { result: string }) {
   const colorMap: Record<string, string> = {
-    W: "bg-pitch text-white",
+    W: "bg-success text-white",
     D: "bg-muted text-muted-foreground",
     L: "bg-red-500/20 text-red-400",
   };
@@ -276,7 +276,7 @@ async function TabelTab({ seasonId }: { seasonId: string }) {
               <td
                 className={`py-3 px-3 text-center font-medium ${
                   row.goal_diff > 0
-                    ? "text-pitch"
+                    ? "text-success"
                     : row.goal_diff < 0
                     ? "text-red-400"
                     : "text-muted-foreground"
@@ -478,7 +478,7 @@ async function ProjektionTab() {
               <th className="py-2 px-3 text-left">Lag</th>
               <th className="py-2 px-3 text-center">Poäng</th>
               <th className="py-2 px-3 text-center">Elo</th>
-              <th className="py-2 px-3 text-center text-pitch font-bold">Titel %</th>
+              <th className="py-2 px-3 text-center text-success font-bold">Titel %</th>
               <th className="py-2 px-3 text-center">Topp 3 %</th>
               <th className="py-2 px-3 text-center text-red-400">Nedflyttning %</th>
             </tr>
@@ -489,7 +489,7 @@ async function ProjektionTab() {
                 <td className="py-3 px-3 font-medium">{r.teamName}</td>
                 <td className="py-3 px-3 text-center tabular-nums">{r.points}</td>
                 <td className="py-3 px-3 text-center tabular-nums text-muted-foreground">{r.elo}</td>
-                <td className="py-3 px-3 text-center tabular-nums font-bold text-pitch">{(r.pChampion * 100).toFixed(1)}%</td>
+                <td className="py-3 px-3 text-center tabular-nums font-bold text-success">{(r.pChampion * 100).toFixed(1)}%</td>
                 <td className="py-3 px-3 text-center tabular-nums">{(r.pTop3 * 100).toFixed(1)}%</td>
                 <td className="py-3 px-3 text-center tabular-nums text-red-400">{(r.pRelegation * 100).toFixed(1)}%</td>
               </tr>
@@ -528,7 +528,7 @@ async function LuckTab() {
                   <td className="py-3 px-3 font-medium">{r.teamName}</td>
                   <td className="py-3 px-3 text-center tabular-nums">{r.actualPoints}</td>
                   <td className="py-3 px-3 text-center tabular-nums text-muted-foreground">{r.xpts != null ? r.xpts.toFixed(1) : "–"}</td>
-                  <td className={`py-3 px-3 text-center tabular-nums font-bold ${luck > 0 ? "text-pitch" : luck < 0 ? "text-red-400" : ""}`}>
+                  <td className={`py-3 px-3 text-center tabular-nums font-bold ${luck > 0 ? "text-success" : luck < 0 ? "text-red-400" : ""}`}>
                     {luck > 0 ? "+" : ""}{luck.toFixed(1)}
                   </td>
                   <td className="py-3 px-3 text-center tabular-nums text-muted-foreground">{r.sos ?? "–"}</td>

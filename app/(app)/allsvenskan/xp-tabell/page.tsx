@@ -157,7 +157,7 @@ export default async function XpTabellPage() {
                 </td>
                 <td className="py-3 px-3 text-center text-muted-foreground tabular-nums">{r.points}</td>
                 <td className={`py-3 px-4 text-center font-bold tabular-nums ${
-                  r.diff == null ? "text-muted-foreground" : r.diff > 1 ? "text-pitch" : r.diff < -1 ? "text-red-400" : "text-muted-foreground"
+                  r.diff == null ? "text-muted-foreground" : r.diff > 1 ? "text-success" : r.diff < -1 ? "text-red-400" : "text-muted-foreground"
                 }`}>
                   {r.diff != null ? (r.diff > 0 ? `+${r.diff.toFixed(1)}` : r.diff.toFixed(1)) : "–"}
                 </td>

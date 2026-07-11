@@ -117,7 +117,7 @@ export function MatchCard({ card, onReveal }: Props) {
           <div className="flex items-center gap-2">
             <span
               className={`text-xs font-semibold ${
-                card.outcome_correct ? 'text-pitch' : 'text-red-400'
+                card.outcome_correct ? 'text-success' : 'text-red-400'
               }`}
             >
               {card.outcome_correct ? '✓ Rätt vinnare' : '✗ Fel vinnare'}

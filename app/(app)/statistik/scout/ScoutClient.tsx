@@ -221,7 +221,7 @@ export function ScoutClient({ pool }: { pool: ScoutPlayer[] }) {
                 trailing={
                   <span className="tabular-nums">
                     <span className="font-bold text-foreground">{fmtMetric(primaryMetric, p[primaryMetric])}</span>
-                    <span className={`ml-1.5 text-[11px] ${delta >= 0 ? "text-pitch" : "text-red-400"}`}>
+                    <span className={`ml-1.5 text-[11px] ${delta >= 0 ? "text-success" : "text-red-400"}`}>
                       {delta >= 0 ? "+" : ""}{fmtMetric(primaryMetric, delta)}
                     </span>
                   </span>

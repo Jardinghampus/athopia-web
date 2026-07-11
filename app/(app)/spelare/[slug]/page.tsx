@@ -344,7 +344,7 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
               <p className="text-xs text-muted-foreground mt-1">xG</p>
             </div>
             <div className="text-center">
-              <p className={`font-bold text-3xl ${Number(finishing.overperf ?? 0) >= 0 ? "text-pitch" : "text-red-400"}`}>
+              <p className={`font-bold text-3xl ${Number(finishing.overperf ?? 0) >= 0 ? "text-success" : "text-red-400"}`}>
                 {finishing.overperf != null ? (Number(finishing.overperf) >= 0 ? "+" : "") + Number(finishing.overperf).toFixed(1) : "–"}
               </p>
               <p className="text-xs text-muted-foreground mt-1">Över xG</p>

@@ -376,14 +376,14 @@ function TeamXgForm({ stats }: { stats: TeamHubPayload["stats"] }) {
       <div className="divide-y divide-border/40">
         {finishing != null && (
           <StatTextRow label={`Mål mot xG (${stats?.goals_for ?? 0} vs ${xgFor!.toFixed(1)})`}>
-            <span className={`text-sm font-semibold ${finishing >= 0 ? "text-pitch" : "text-red-400"}`}>
+            <span className={`text-sm font-semibold ${finishing >= 0 ? "text-success" : "text-red-400"}`}>
               {finishing >= 0 ? "+" : ""}{finishing.toFixed(1)} · {verdict(finishing)}
             </span>
           </StatTextRow>
         )}
         {defending != null && (
           <StatTextRow label={`Insläppt mot xGA (${stats?.goals_against ?? 0} vs ${xgAgainst!.toFixed(1)})`}>
-            <span className={`text-sm font-semibold ${defending <= 0 ? "text-pitch" : "text-red-400"}`}>
+            <span className={`text-sm font-semibold ${defending <= 0 ? "text-success" : "text-red-400"}`}>
               {defending >= 0 ? "+" : ""}{defending.toFixed(1)}
             </span>
           </StatTextRow>
@@ -494,7 +494,7 @@ function FixtureListRow({ fixture: f, smId, onSelect, density }: { fixture: Fixt
   const gf = (isHome ? f.home_score : f.away_score) ?? 0;
   const ga = (isHome ? f.away_score : f.home_score) ?? 0;
   const r = gf > ga ? "V" : gf === ga ? "O" : "F";
-  const color = gf > ga ? "text-pitch" : gf === ga ? "text-muted-foreground" : "text-red-400";
+  const color = gf > ga ? "text-success" : gf === ga ? "text-muted-foreground" : "text-red-400";
 
   return (
     <ListRow

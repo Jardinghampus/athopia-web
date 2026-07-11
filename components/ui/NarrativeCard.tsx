@@ -20,7 +20,7 @@ interface NarrativeCardProps {
 
 function TrendIcon({ trend }: { trend: Narrative["trend"] }) {
   if (trend === "rising")
-    return <TrendingUp className="w-4 h-4 text-pitch-light animate-slide-up" aria-label="Stigande trend" />;
+    return <TrendingUp className="w-4 h-4 text-success animate-slide-up" aria-label="Stigande trend" />;
   if (trend === "falling")
     return <TrendingDown className="w-4 h-4 text-red-400 animate-slide-up" aria-label="Sjunkande trend" />;
   return <Minus className="w-4 h-4 text-muted-foreground" aria-label="Stabil trend" />;

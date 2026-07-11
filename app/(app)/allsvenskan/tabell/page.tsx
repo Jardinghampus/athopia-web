@@ -71,7 +71,7 @@ export default async function AllsvenskanTabellPage() {
                     {row.position}
                     {row.trend != null && row.trend !== 0 && (
                       <span
-                        className={`text-[10px] leading-none ${row.trend > 0 ? "text-pitch" : "text-red-400"}`}
+                        className={`text-[10px] leading-none ${row.trend > 0 ? "text-success" : "text-red-400"}`}
                         title={row.trend > 0 ? `Upp ${row.trend}` : `Ner ${Math.abs(row.trend)}`}
                         aria-label={row.trend > 0 ? `Klättrat ${row.trend} placeringar` : `Tappat ${Math.abs(row.trend)} placeringar`}
                       >

@@ -453,7 +453,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
               const won  = isHome ? hs > as_ : as_ > hs;
               const drew = hs === as_;
               const result = drew ? "O" : won ? "V" : "F";
-              const color  = drew ? "text-muted-foreground" : won ? "text-pitch" : "text-red-400";
+              const color  = drew ? "text-muted-foreground" : won ? "text-success" : "text-red-400";
               return (
                 <Link key={f.sportmonks_id as number} href={`/match/${f.sportmonks_id}`}
                   className="flex items-center gap-3 bg-card border border-border rounded-lg px-4 py-3 hover:border-pitch/50 transition-colors">
