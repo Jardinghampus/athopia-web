@@ -11,13 +11,15 @@ interface Props {
   teamSlug: string;
   sport: string;
   initialPosts: ForumPost[];
+  /** Från /artikel → "Diskutera": öppnar composern förifylld och taggar inlägget med artikeln. */
+  articlePrefill?: { id: string; title: string; slug: string } | null;
 }
 
-export default function ForumClient({ teamSlug, sport, initialPosts }: Props) {
+export default function ForumClient({ teamSlug, sport, initialPosts, articlePrefill }: Props) {
   const { user } = useUser();
   const [posts, setPosts] = useState<ForumPost[]>(initialPosts);
   const [loading, setLoading] = useState(false);
-  const [composeOpen, setComposeOpen] = useState(false);
+  const [composeOpen, setComposeOpen] = useState(!!articlePrefill);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -54,6 +56,7 @@ export default function ForumClient({ teamSlug, sport, initialPosts }: Props) {
         label: data.label ?? null,
         team_slug: data.teamSlug,
         sport: data.sport,
+        article_id: articlePrefill?.id ?? null,
       }),
     });
     if (!res.ok) {
@@ -98,6 +101,11 @@ export default function ForumClient({ teamSlug, sport, initialPosts }: Props) {
             teamSlug={teamSlug}
             sport={sport}
             onPost={handlePost}
+            initialContent={
+              articlePrefill
+                ? `${articlePrefill.title}\nathopia.se/artikel/${articlePrefill.slug}\n\n`
+                : undefined
+            }
           />
         </>
       )}

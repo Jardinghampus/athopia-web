@@ -308,6 +308,31 @@ export interface ArticleFilters {
  * Lätt: två cachade queries (ISR 300s), ingen per-user-data, ingen join i
  * request-path. Klick aggregeras per url och matchas mot artikelns källa.
  */
+/**
+ * Antal forumsvar per artikel (Athletic-kroken i feeden).
+ * Returnerar {} innan forum_posts.article_id-migrationen är applicerad.
+ */
+export async function getDiscussionCounts(articleIds: string[]): Promise<Record<string, number>> {
+  if (!isSupabaseConfigured() || articleIds.length === 0) return {};
+  try {
+    const supabase = createServerClient();
+    const { data, error } = await supabase
+      .from("forum_posts")
+      .select("article_id")
+      .in("article_id", articleIds)
+      .eq("status", "published");
+    if (error) return {};
+    const counts: Record<string, number> = {};
+    for (const row of (data ?? []) as { article_id: string | null }[]) {
+      if (row.article_id) counts[row.article_id] = (counts[row.article_id] ?? 0) + 1;
+    }
+    return counts;
+  } catch (e) {
+    captureDbError(e);
+    return {};
+  }
+}
+
 export const getHotArticles = unstable_cache(
   async (limit = 6): Promise<Article[]> => {
     if (!isSupabaseConfigured()) return [];

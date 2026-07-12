@@ -6,8 +6,9 @@ import { NewsFilterPanel } from "@/components/ui/NewsFilterPanel";
 import { NyheterRealtimeBanner } from "@/components/NyheterRealtimeBanner";
 import { ProductEventTracker } from "@/components/analytics/ProductEventTracker";
 import { FeedMatchHero } from "@/components/feed/FeedMatchHero";
+import { FixturesTicker } from "@/components/ui/FixturesTicker";
 import { TeamPushPopups } from "@/components/news/TeamPushPopups";
-import { getFilteredArticles, getActiveSources, getHotArticles } from "@/lib/supabase";
+import { getFilteredArticles, getActiveSources, getHotArticles, getDiscussionCounts } from "@/lib/supabase";
 import { filterStateToParams } from "@/lib/filters";
 import { getUserFeedPreferences } from "@/lib/feed/getUserFeedPreferences";
 
@@ -50,7 +51,13 @@ function Pagination({ page, total, urlBase }: { page: number; total: number; url
   );
 }
 
-function ArticleGrid({ articles }: { articles: Awaited<ReturnType<typeof getFilteredArticles>>["articles"] }) {
+function ArticleGrid({
+  articles,
+  commentCounts,
+}: {
+  articles: Awaited<ReturnType<typeof getFilteredArticles>>["articles"];
+  commentCounts: Record<string, number>;
+}) {
   if (articles.length === 0) {
     return (
       <div className="text-center py-20 text-muted-foreground">
@@ -61,7 +68,9 @@ function ArticleGrid({ articles }: { articles: Awaited<ReturnType<typeof getFilt
   }
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-      {articles.map((a, i) => <ArticleCard key={a.id} article={a} size="md" priority={i === 0} />)}
+      {articles.map((a, i) => (
+        <ArticleCard key={a.id} article={a} size="md" priority={i === 0} commentCount={commentCounts[a.id]} />
+      ))}
     </div>
   );
 }
@@ -116,12 +125,17 @@ export default async function NyheterPage({ searchParams }: { searchParams: Prom
     noFilter ? getHotArticles(5) : Promise.resolve([]),
   ]);
 
+  const commentCounts = await getDiscussionCounts(articles.map((a) => a.id));
+
   const filterParams = filterStateToParams({ visa, teams: effectiveTeams, sources, events });
   const urlBase = `/nyheter?${filterParams.toString()}`;
 
   return (
     <div className="w-full px-6 sm:px-8 py-10">
       <ProductEventTracker event="nyheter_open" />
+      <div className="-mx-6 sm:-mx-8 -mt-10 mb-6">
+        <Suspense fallback={null}><FixturesTicker /></Suspense>
+      </div>
       <NyheterRealtimeBanner />
       <FeedMatchHero />
       <div className="mb-8">
@@ -180,7 +194,7 @@ export default async function NyheterPage({ searchParams }: { searchParams: Prom
           totalCount={total}
         />
       </Suspense>
-      <ArticleGrid articles={articles} />
+      <ArticleGrid articles={articles} commentCounts={commentCounts} />
       <Pagination page={page} total={total} urlBase={urlBase} />
     </div>
   );

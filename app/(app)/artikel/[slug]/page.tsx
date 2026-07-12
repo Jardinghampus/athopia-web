@@ -14,7 +14,7 @@ import { ShareButton } from "@/components/ui/ShareButton";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ExternalLink, Sparkles } from "lucide-react";
+import { ExternalLink, MessageSquare, Sparkles } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { ArticleCard } from "@/components/ui/ArticleCard";
 import { EntityChip } from "@/components/ui/EntityChip";
@@ -36,6 +36,22 @@ async function getArticle(slug: string): Promise<Article | null> {
     return (data as Article) ?? null;
   } catch {
     return null;
+  }
+}
+
+/** Antal forum-inlägg kopplade till artikeln (Athletic-kroken). 0 innan migrationen/utan trådar. */
+async function getDiscussionCount(articleId: string): Promise<number> {
+  try {
+    const supabase = createServerClient();
+    const { count, error } = await supabase
+      .from("forum_posts")
+      .select("id", { count: "exact", head: true })
+      .eq("article_id", articleId)
+      .eq("status", "published");
+    if (error) return 0;
+    return count ?? 0;
+  } catch {
+    return 0;
   }
 }
 
@@ -122,7 +138,16 @@ export default async function ArtikelPage({
   const article = await getArticle(slug);
   if (!article) notFound();
 
-  const relatedArticles = await getRelatedArticles(article.id);
+  const [relatedArticles, discussionCount] = await Promise.all([
+    getRelatedArticles(article.id),
+    getDiscussionCount(article.id),
+  ]);
+
+  // Forum-CTA:t går till artikelns lag-forum; utan lag → forum-index
+  const teamEntity = article.entities?.find((e) => e.type === "team" && e.slug);
+  const forumHref = teamEntity
+    ? `/forum/${teamEntity.slug}?artikel=${article.id}`
+    : "/forum";
 
   return (
     <>
@@ -213,6 +238,35 @@ export default async function ArtikelPage({
           </div>
         )}
 
+        {/* Diskussion — Athletic-kroken: artikeln är en social yta */}
+        <section className="mt-12">
+          <Separator className="mb-8" />
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <MessageSquare className="w-5 h-5 text-pitch" />
+              <h2 className="font-bold text-xl text-foreground">
+                Diskussion
+                {discussionCount > 0 && (
+                  <span className="ml-2 text-muted-foreground font-normal tabular-nums">
+                    {discussionCount} inlägg
+                  </span>
+                )}
+              </h2>
+            </div>
+            <Link
+              href={forumHref}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full pitch-gradient text-white text-sm font-medium hover:opacity-90 transition-opacity shrink-0"
+            >
+              {discussionCount > 0 ? "Gå med i diskussionen" : "Starta diskussionen"}
+            </Link>
+          </div>
+          {discussionCount === 0 && (
+            <p className="mt-2 text-sm text-muted-foreground">
+              Vad tycker du{teamEntity ? ` — diskutera med andra ${teamEntity.name}-supportrar` : ""}?
+            </p>
+          )}
+        </section>
+
         {/* Relaterade artiklar */}
         {relatedArticles.length > 0 && (
           <section className="mt-16">
@@ -231,10 +285,10 @@ export default async function ArtikelPage({
         {/* Breadcrumb bakåt */}
         <div className="mt-12">
           <Link
-            href="/"
+            href="/nyheter"
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
-            ← Tillbaka till startsidan
+            ← Tillbaka till nyheterna
           </Link>
         </div>
       </div>

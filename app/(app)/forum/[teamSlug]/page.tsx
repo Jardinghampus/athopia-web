@@ -86,10 +86,29 @@ export async function generateMetadata({
 
 export default async function ForumTeamPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ teamSlug: string }>;
+  searchParams: Promise<{ artikel?: string }>;
 }) {
   const { teamSlug } = await params;
+  const { artikel } = await searchParams;
+
+  // Artikel-länkad compose: /forum/<lag>?artikel=<id> öppnar composern förifylld
+  let articlePrefill: { id: string; title: string; slug: string } | null = null;
+  if (artikel && isSupabaseConfigured()) {
+    try {
+      const supabase = createServerClient();
+      const { data } = await supabase
+        .from("articles")
+        .select("id, title, slug")
+        .eq("id", artikel)
+        .maybeSingle();
+      if (data) articlePrefill = data as { id: string; title: string; slug: string };
+    } catch {
+      /* trasigt id → ingen prefill */
+    }
+  }
 
   const [posts, aiSummary, allTeams, clerkUser] = await Promise.all([
     getPosts(teamSlug),
@@ -150,6 +169,7 @@ export default async function ForumTeamPage({
                 teamSlug={teamSlug}
                 sport="football"
                 initialPosts={posts}
+                articlePrefill={articlePrefill}
               />
             </div>
           </div>

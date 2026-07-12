@@ -6,6 +6,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { MessageSquare } from "lucide-react";
 import { EntityChip } from "./EntityChip";
 import type { Article } from "@/lib/types";
 import { calculateReadTime, cn, formatDateRelative, truncate } from "@/lib/utils";
@@ -17,6 +18,8 @@ interface ArticleCardProps {
   article: Article;
   size?: "sm" | "md" | "lg" | "featured";
   priority?: boolean;
+  /** Antal forumsvar (Athletic-kroken) — visas i metan när > 0. */
+  commentCount?: number;
 }
 
 function SourceBadge({ sourceName }: { sourceName: string }) {
@@ -27,7 +30,7 @@ function SourceBadge({ sourceName }: { sourceName: string }) {
   );
 }
 
-export function ArticleCard({ article, size = "md", priority = false }: ArticleCardProps) {
+export function ArticleCard({ article, size = "md", priority = false, commentCount }: ArticleCardProps) {
   const externalUrl = article.sourceUrl ?? article.url;
   const isExternal = !article.slug && !!externalUrl;
   const href = article.slug
@@ -111,6 +114,12 @@ export function ArticleCard({ article, size = "md", priority = false }: ArticleC
             <span className="text-xs text-muted-foreground">{relativeDate}</span>
             <span className="text-xs text-muted-foreground">{readTime}</span>
           </div>
+          {typeof commentCount === "number" && commentCount > 0 && (
+            <span className="flex items-center gap-1 text-xs text-muted-foreground tabular-nums shrink-0">
+              <MessageSquare className="w-3.5 h-3.5" />
+              {commentCount}
+            </span>
+          )}
         </div>
 
         {/* Lag-chips, eller Allsvenskan som ärlig fallback */}

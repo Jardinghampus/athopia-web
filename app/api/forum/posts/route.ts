@@ -13,6 +13,7 @@ const ForumPostSchema = z.object({
   team_slug: z.string().max(100).optional(),
   sport: z.enum(["football", "golf"]).default("football"),
   label: z.enum(["transfer", "taktik", "match", "rykte", "diskussion"]).nullable().optional(),
+  article_id: z.string().uuid().nullable().optional(),
 });
 
 export async function GET(req: NextRequest) {
@@ -68,7 +69,7 @@ export async function POST(req: NextRequest) {
 
     const parsed = await parseBody(req, ForumPostSchema);
     if (!parsed.ok) return parsed.response;
-    const { parent_id, root_id, quoted_post_id, team_slug, sport, label } = parsed.data;
+    const { parent_id, root_id, quoted_post_id, team_slug, sport, label, article_id } = parsed.data;
     const content = sanitizeText(parsed.data.content);
     if (!content) {
       return NextResponse.json({ message: "content krävs" }, { status: 400 });
@@ -95,6 +96,8 @@ export async function POST(req: NextRequest) {
         quoted_post_id: quoted_post_id ?? null,
         team_slug: team_slug ?? null,
         sport,
+        // ponytail: spreadas villkorligt så inserts fungerar även innan migrationen är applicerad
+        ...(article_id ? { article_id } : {}),
         depth,
         label: label ?? null,
         author_id: user.id,

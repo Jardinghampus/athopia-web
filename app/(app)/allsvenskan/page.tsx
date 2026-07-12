@@ -5,6 +5,7 @@ import { ScoreWidget } from "@/components/ui/ScoreWidget";
 import { Separator } from "@/components/ui/separator";
 import { getNarratives, getFilteredArticles } from "@/lib/supabase";
 import { fetchAllsvenskanFixtures, fetchStandingsFull } from "@/lib/db/fixtures";
+import { FixturesTicker } from "@/components/ui/FixturesTicker";
 
 export const revalidate = 60;
 
@@ -52,6 +53,9 @@ export default async function AllsvenskanPage() {
   return (
     <div className="w-full px-6 sm:px-8 py-10">
       <AllsvenskanJsonLd />
+      <div className="-mx-6 sm:-mx-8 -mt-10 mb-6">
+        <FixturesTicker />
+      </div>
       <div className="mb-8">
         <h1 className="font-bold text-5xl text-foreground">ALLSVENSKAN</h1>
         <p className="text-muted-foreground mt-2">Nyheter, tabell och matcher — uppdateras löpande.</p>

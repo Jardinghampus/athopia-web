@@ -38,6 +38,7 @@ interface Props {
   }) => Promise<void>;
   placeholder?: string;
   showLabel?: boolean;
+  initialContent?: string;
 }
 
 export default function ComposePost({
@@ -48,9 +49,10 @@ export default function ComposePost({
   onPost,
   placeholder = "Vad tänker du?",
   showLabel = !parentId, // only show label picker for root posts
+  initialContent,
 }: Props) {
   const { user } = useUser();
-  const [content, setContent] = useState("");
+  const [content, setContent] = useState(initialContent ?? "");
   const [label, setLabel] = useState<PostLabel | undefined>(undefined);
   const [loading, setLoading] = useState(false);
 

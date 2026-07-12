@@ -13,6 +13,7 @@ interface Props {
   teamSlug: string;
   sport: string;
   replyTo?: string;
+  initialContent?: string;
   onPost: (data: {
     content: string;
     label?: PostLabel;
@@ -31,6 +32,7 @@ export default function ComposeDrawer({
   teamSlug,
   sport,
   replyTo,
+  initialContent,
   onPost,
 }: Props) {
   return (
@@ -56,6 +58,7 @@ export default function ComposeDrawer({
               rootId={rootId}
               teamSlug={teamSlug}
               sport={sport}
+              initialContent={initialContent}
               onPost={async (data) => {
                 await onPost(data);
                 onOpenChange(false);
