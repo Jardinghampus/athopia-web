@@ -73,6 +73,7 @@ export function TeamSelectionModal({ forceVisible = false }: TeamSelectionModalP
       .from("entities")
       .select("id, name, slug, metadata")
       .eq("type", "team")
+      .eq("metadata->>league", "Allsvenskan")
       .order("name")
       .then(({ data }) => {
         if (data) setTeams(data as Team[]);

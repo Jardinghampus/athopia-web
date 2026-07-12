@@ -860,7 +860,16 @@ export async function getTeamPushPopups(teamEntityIds: string[], limit = 5): Pro
 
     const { data } = await q;
 
-    return (data ?? []).map((row: any) => ({
+    // Dedupe: samma story kan ligga i flera rader (en per push-batch)
+    const seen = new Set<string>();
+    const unique = (data ?? []).filter((row: any) => {
+      const key = String(row.story_key ?? row.title ?? row.id);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
+    return unique.map((row: any) => ({
       id: String(row.id),
       articleId: row.article_id ?? null,
       storyKey: String(row.story_key ?? ""),

@@ -8,7 +8,7 @@ export async function GET() {
   if (!isSupabaseConfigured()) return NextResponse.json({ teams: [] });
   try {
     const db = createServerClient();
-    const { data } = await db.from("entities").select("id,name,slug,metadata").eq("type", "team").order("name");
+    const { data } = await db.from("entities").select("id,name,slug,metadata").eq("type", "team").eq("metadata->>league", "Allsvenskan").order("name");
     const teams = (data ?? [])
       .filter((t) => t.slug)
       .map((t) => {

@@ -170,6 +170,7 @@ async function getTeamList(): Promise<{ name: string; slug: string }[]> {
     .from("entities")
     .select("name, slug")
     .eq("type", "team")
+    .eq("metadata->>league", "Allsvenskan")
     .not("slug", "is", null)
     .order("name");
   return (data ?? []) as { name: string; slug: string }[];
