@@ -37,7 +37,26 @@ export default async function AllsvenskanTabellPage() {
       </nav>
 
       <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2">ALLSVENSKAN TABELL 2026</h1>
-      <p className="text-muted-foreground mb-8">Uppdateras löpande under säsongen.</p>
+      <p className="text-muted-foreground mb-6">Uppdateras löpande under säsongen.</p>
+
+      <nav aria-label="Allsvenskan-sidor" className="mb-8 flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
+        {[
+          { href: "/allsvenskan/skytteliga", emoji: "⚽", label: "Skytteliga" },
+          { href: "/allsvenskan/spelschema", emoji: "📅", label: "Spelschema" },
+          { href: "/allsvenskan/resultat", emoji: "🏁", label: "Resultat" },
+          { href: "/allsvenskan/xp-tabell", emoji: "📊", label: "xP-tabell" },
+          { href: "/allsvenskan/talanger", emoji: "🌟", label: "Talanger" },
+        ].map((l) => (
+          <Link
+            key={l.href}
+            href={l.href}
+            className="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-border bg-card text-sm font-medium text-foreground hover:border-pitch/60 hover:text-pitch transition-colors"
+          >
+            <span aria-hidden>{l.emoji}</span>
+            {l.label}
+          </Link>
+        ))}
+      </nav>
 
       <div className="rounded-2xl border border-border overflow-hidden">
         <table className="w-full text-sm">
@@ -106,11 +125,6 @@ export default async function AllsvenskanTabellPage() {
         </table>
       </div>
 
-      <div className="mt-6 flex gap-4 text-sm">
-        <Link href="/allsvenskan/spelschema" className="text-pitch hover:underline">Spelschema →</Link>
-        <Link href="/allsvenskan/skytteliga" className="text-pitch hover:underline">Skytteliga →</Link>
-        <Link href="/allsvenskan/xp-tabell" className="text-pitch hover:underline">xP-tabellen →</Link>
-      </div>
     </div>
   );
 }
