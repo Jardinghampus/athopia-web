@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { ChevronDown, X } from "lucide-react";
 import { clsx } from "clsx";
@@ -186,22 +187,32 @@ export function NewsFilterPanel({ allSources, initialParams, totalCount }: Props
   return (
     <div className="sticky top-[57px] z-30 bg-background/90 backdrop-blur-sm border-b border-border -mx-4 sm:-mx-6 px-4 sm:px-6 py-3 mb-6">
       <div className="flex items-center gap-2 flex-wrap">
-        {/* Pill-tabs: Visa */}
+        {/* Pill-tabs: Visa — riktiga länkar så de fungerar även före hydration */}
         <div className="flex items-center gap-1 bg-card border border-border rounded-lg p-0.5">
-          {VISA_OPTS.map((opt) => (
-            <button
-              key={opt.value}
-              onClick={() => applyFilter({ ...filter, visa: opt.value })}
-              className={clsx(
-                "px-3 py-1 rounded-md text-sm font-medium transition-colors",
-                filter.visa === opt.value
-                  ? "bg-pitch text-white shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              {opt.label}
-            </button>
-          ))}
+          {VISA_OPTS.map((opt) => {
+            const next = { ...filter, visa: opt.value };
+            const params = filterStateToParams(next);
+            return (
+              <Link
+                key={opt.value}
+                href={params.toString() ? `${pathname}?${params.toString()}` : pathname}
+                replace
+                scroll={false}
+                onClick={() => {
+                  setFilter(next);
+                  try { localStorage.setItem(LS_KEY, JSON.stringify(next)); } catch { /* ignore */ }
+                }}
+                className={clsx(
+                  "px-3 py-1 rounded-md text-sm font-medium transition-colors",
+                  filter.visa === opt.value
+                    ? "bg-pitch text-white shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {opt.label}
+              </Link>
+            );
+          })}
         </div>
 
         <div className="w-px h-5 bg-border mx-1" />
