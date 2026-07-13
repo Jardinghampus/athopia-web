@@ -215,7 +215,7 @@ export default function AiChatPage() {
       </div>
 
       {/* Input bar */}
-      <div className="w-full shrink-0 px-4 pb-[calc(env(safe-area-inset-bottom)+5.5rem)] pt-2">
+      <div className="w-full shrink-0 px-4 pb-[calc(env(safe-area-inset-bottom)+7.5rem)] pt-2 sm:pb-[calc(env(safe-area-inset-bottom)+10rem)]">
         <div className="mx-auto max-w-2xl">
           <form
             onSubmit={(e) => { e.preventDefault(); ask(input) }}
