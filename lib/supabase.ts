@@ -292,12 +292,16 @@ export async function getArticles(
   }
 }
 
+export type ArticleSort = "for-you" | "latest" | "important";
+
 export interface ArticleFilters {
   visa?: "all" | "ai" | "source";
   teams?: string[];
   sources?: string[];
   events?: string[];
   newsTags?: string[];
+  /** for-you = feed_score + published (default); latest = published; important = feed_score only */
+  sort?: ArticleSort;
   page?: number;
   limit?: number;
 }
@@ -386,13 +390,21 @@ export async function getFilteredArticles(filters: ArticleFilters = {}): Promise
     const limit = filters.limit ?? 12;
     const offset = ((filters.page ?? 1) - 1) * limit;
 
+    const sort = filters.sort ?? "for-you";
     let q = supabase
       .from("news_feed")
       .select("*", { count: "exact" })
       .eq("sport", "football")
-      .order("feed_score", { ascending: false, nullsFirst: false })
-      .order("published_at", { ascending: false, nullsFirst: false })
       .range(offset, offset + limit - 1);
+
+    if (sort === "latest") {
+      q = q.order("published_at", { ascending: false, nullsFirst: false });
+    } else {
+      // for-you + important: signal first, then recency as tie-break
+      q = q
+        .order("feed_score", { ascending: false, nullsFirst: false })
+        .order("published_at", { ascending: false, nullsFirst: false });
+    }
 
     if (filters.visa === "ai") {
       q = q.not("summary", "is", null);

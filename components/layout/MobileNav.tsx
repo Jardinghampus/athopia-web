@@ -3,16 +3,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { X, MessageSquare, Sparkles, Headphones, User } from "lucide-react";
+import { X, Search, Users } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { NAV_ITEMS } from "@/lib/nav";
-
-const SECONDARY = [
-  { href: "/forum", label: "Forum", icon: MessageSquare },
-  { href: "/ai", label: "AI-chatt", icon: Sparkles },
-  { href: "/podcast", label: "Podcasts", icon: Headphones },
-  { href: "/konto", label: "Konto", icon: User },
-];
+import { NAV_ITEMS, SECONDARY_NAV_ITEMS } from "@/lib/nav";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
@@ -24,30 +18,39 @@ export function MobileNav() {
     return () => window.removeEventListener("athopia:open-mobile-menu", handler);
   }, []);
 
-  // Close on route change
-  useEffect(() => { setOpen(false); }, [pathname]);
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  function openSearch() {
+    setOpen(false);
+    window.dispatchEvent(new CustomEvent("athopia:open-search"));
+  }
+
+  function openTeamSelect() {
+    setOpen(false);
+    window.dispatchEvent(new CustomEvent("athopia:open-team-select"));
+  }
 
   return (
     <AnimatePresence>
       {open && (
         <>
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-[90] bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-[90] bg-black/60 backdrop-blur-sm md:hidden"
             onClick={() => setOpen(false)}
           />
 
-          {/* Drawer */}
           <motion.div
             initial={{ x: "-100%" }}
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
             transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-y-0 left-0 z-[100] w-72 bg-background border-r border-border/50 flex flex-col pt-safe"
+            className="fixed inset-y-0 left-0 z-[100] w-72 bg-background border-r border-border/50 flex flex-col pt-safe md:hidden"
           >
             <div className="flex items-center justify-between px-5 h-14 border-b border-border/40 shrink-0">
               <span className="font-heading text-lg text-foreground">ATHOPIA</span>
@@ -61,6 +64,9 @@ export function MobileNav() {
             </div>
 
             <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
+              <p className="px-3 pb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                Snabbvägar
+              </p>
               {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
                 const active = pathname === href || pathname.startsWith(href + "/");
                 return (
@@ -79,9 +85,12 @@ export function MobileNav() {
                 );
               })}
 
-              <div className="my-2 border-t border-border/40" />
+              <div className="my-3 border-t border-border/40" />
 
-              {SECONDARY.map(({ href, label, icon: Icon }) => {
+              <p className="px-3 pb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                Mer
+              </p>
+              {SECONDARY_NAV_ITEMS.map(({ href, label, icon: Icon }) => {
                 const active = pathname === href || pathname.startsWith(href + "/");
                 return (
                   <Link
@@ -99,6 +108,29 @@ export function MobileNav() {
                 );
               })}
             </nav>
+
+            <div className="shrink-0 border-t border-border/40 px-3 py-3 space-y-1">
+              <button
+                type="button"
+                onClick={openTeamSelect}
+                className="flex w-full items-center gap-3 px-3 py-3 rounded-xl text-[15px] text-muted-foreground hover:text-foreground hover:bg-card transition-colors"
+              >
+                <Users className="w-5 h-5 shrink-0" />
+                Byt favoritlag
+              </button>
+              <button
+                type="button"
+                onClick={openSearch}
+                className="flex w-full items-center gap-3 px-3 py-3 rounded-xl text-[15px] text-muted-foreground hover:text-foreground hover:bg-card transition-colors"
+              >
+                <Search className="w-5 h-5 shrink-0" />
+                Sök
+              </button>
+              <div className="flex items-center justify-between px-3 py-2">
+                <span className="text-[15px] text-muted-foreground">Utseende</span>
+                <ThemeToggle />
+              </div>
+            </div>
           </motion.div>
         </>
       )}

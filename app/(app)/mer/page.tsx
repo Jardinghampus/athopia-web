@@ -1,28 +1,73 @@
 import type { Metadata } from "next";
-import { MessageSquare, Sparkles, Headphones, User, CreditCard, Info, BarChart3, Newspaper, FileSearch } from "lucide-react";
+import {
+  Sparkles,
+  Headphones,
+  User,
+  CreditCard,
+  Info,
+  BarChart3,
+  FileSearch,
+  Trophy,
+  CalendarDays,
+} from "lucide-react";
 import { ListGroup } from "@/components/ui/ListGroup";
 import { ListRow } from "@/components/ui/ListRow";
 
 export const metadata: Metadata = {
   title: "Mer",
-  description: "Forum, AI-chatt, poddar, konto och prenumeration.",
+  description: "Statistik, AI, poddar, konto och prenumeration.",
 };
 
 export default function MerPage() {
   return (
-    <div className="mx-auto max-w-lg px-4 py-6 space-y-6">
+    <div className="mx-auto max-w-lg px-4 py-6 space-y-6 pb-24 md:pb-6">
       <h1 className="text-2xl font-bold" style={{ fontFamily: "var(--font-display)" }}>
         MER
       </h1>
 
       <ListGroup>
-        <ListRow href="/nyheter" leading={<Newspaper />} title="Nyheter" subtitle="Allsvenskan-flöde och transfers" />
-        <ListRow href="/analys" leading={<FileSearch />} title="Matchanalyser" subtitle="xG, pressure och form efter varje match" />
-        <ListRow href="/forum" leading={<MessageSquare />} title="Forum" subtitle="Diskutera med andra supportrar" />
-        <ListRow href="/ai" leading={<Sparkles />} title="AI-chatt" subtitle="Fråga Athopia om Allsvenskan" />
-        <ListRow href="/daily" leading={<Headphones />} title="Athopia Daily" subtitle="7 min morgonbrief — lyssna här" />
-        <ListRow href="/podcast" leading={<Headphones />} title="Poddar" subtitle="Allsvenskan-poddar samlade" />
-        <ListRow href="/statistik" leading={<BarChart3 />} title="Statistik" subtitle="Spelare, jämförelser och scout" />
+        <ListRow
+          href="/allsvenskan"
+          leading={<Trophy />}
+          title="Allsvenskan"
+          subtitle="Tabell, resultat och omgångar"
+        />
+        <ListRow
+          href="/match"
+          leading={<CalendarDays />}
+          title="Matcher"
+          subtitle="Live, kommande och resultat"
+        />
+        <ListRow
+          href="/statistik"
+          leading={<BarChart3 />}
+          title="Statistik"
+          subtitle="Spelare, jämförelser och scout"
+        />
+        <ListRow
+          href="/analys"
+          leading={<FileSearch />}
+          title="Matchanalyser"
+          subtitle="xG, pressure och form efter varje match"
+        />
+        <ListRow
+          href="/ai"
+          leading={<Sparkles />}
+          title="AI-chatt"
+          subtitle="Fråga Athopia om Allsvenskan"
+        />
+        <ListRow
+          href="/daily"
+          leading={<Headphones />}
+          title="Athopia Daily"
+          subtitle="7 min morgonbrief — lyssna här"
+        />
+        <ListRow
+          href="/podcast"
+          leading={<Headphones />}
+          title="Poddar"
+          subtitle="Allsvenskan-poddar samlade"
+        />
       </ListGroup>
 
       <ListGroup>

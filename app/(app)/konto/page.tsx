@@ -93,7 +93,7 @@ export default async function KontoPage({
             avancerade filter och push-notiser{plan === "elite" ? " — plus clustering och daglig AI-brief" : ""}.
           </p>
           <Link
-            href="/feed"
+            href="/nyheter"
             className="mt-3 inline-block rounded-lg pitch-gradient px-4 py-2 text-sm font-medium text-white"
           >
             Gå till din feed

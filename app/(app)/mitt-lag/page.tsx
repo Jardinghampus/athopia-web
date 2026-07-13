@@ -166,7 +166,7 @@ export default async function MittLagPage({
           desc="Senaste om laget"
         />
         <QuickLink
-          href="/feed"
+          href="/nyheter"
           icon={Newspaper}
           title="Ditt flöde"
           desc="Personaliserade headlines"

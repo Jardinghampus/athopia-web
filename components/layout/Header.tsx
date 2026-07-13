@@ -37,7 +37,7 @@ export function Header({ clerkEnabled }: { clerkEnabled: boolean }) {
             onClick={openSearch}
             aria-label="Sök"
             title="Sök (⌘K)"
-            className="hidden md:flex w-8 h-8 items-center justify-center rounded-full hover:bg-card transition-colors text-muted-foreground"
+            className="flex w-8 h-8 items-center justify-center rounded-full hover:bg-card transition-colors text-muted-foreground"
           >
             <Search className="w-[18px] h-[18px]" />
           </button>
