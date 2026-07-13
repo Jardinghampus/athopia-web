@@ -33,6 +33,12 @@ export function RichTextEditor({ content, onChange, placeholder }: Props) {
     content: content ?? "",
     editorProps: {
       attributes: {
+        // ponytail: native browser spellcheck (gratis, ingen latens) istället för
+        // en LLM-baserad korrekturläsare — värdet av att fånga stavfel inline
+        // motiverar inte kostnaden/komplexiteten för en liten inbjuden grupp.
+        spellcheck: "true",
+        autocorrect: "on",
+        autocapitalize: "sentences",
         class: [
           "min-h-[50vh] max-w-none text-[15px] leading-relaxed text-foreground focus:outline-none",
           "[&_h1]:mt-6 [&_h1]:mb-3 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:leading-tight",
