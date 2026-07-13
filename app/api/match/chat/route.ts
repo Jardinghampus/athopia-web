@@ -4,6 +4,8 @@ import { streamText, stepCountIs } from 'ai'
 import { createClient } from '@supabase/supabase-js'
 import { tools } from '@/lib/ai/tools'
 import { bumpChatUsage, checkChatLimits } from '@/lib/ai/chat-limits'
+import { getUserPlan } from '@/lib/user-plan'
+import { canAccess } from '@/lib/access-rules'
 
 export const maxDuration = 30
 
@@ -19,14 +21,16 @@ export async function POST(req: Request) {
   const { userId } = await auth()
   if (!userId) return new Response('Unauthorized', { status: 401 })
 
-  const user = await currentUser()
-  const plan = (user?.publicMetadata?.plan as string) ?? 'free'
-  if (plan === 'free') {
+  const plan = await getUserPlan()
+  if (!canAccess('aiChat', plan)) {
     return Response.json(
       { error: 'PRO krävs för AI-chatten.' },
       { status: 403 }
     )
   }
+
+  // currentUser används för ev. övrig Clerk-data; plan avgörs alltid via getUserPlan()
+  const user = await currentUser()
 
   const limits = await checkChatLimits(userId)
   if (!limits.ok) {

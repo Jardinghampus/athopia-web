@@ -2,6 +2,7 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { enforceRateLimit } from "@/lib/ratelimit";
+import { absoluteUrl } from "@/lib/site-url";
 
 export async function POST(req: Request) {
   const { userId } = await auth();
@@ -18,7 +19,7 @@ export async function POST(req: Request) {
   try {
     const session = await stripe.billingPortal.sessions.create({
       customer: customerId,
-      return_url: "https://athopia.se/profil",
+      return_url: absoluteUrl("/konto"),
       locale: "sv",
     });
     return NextResponse.json({ url: session.url });

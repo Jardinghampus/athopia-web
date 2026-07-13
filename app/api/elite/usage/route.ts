@@ -1,11 +1,15 @@
 import { auth } from '@clerk/nextjs/server'
 import { createServerClient } from '@/lib/supabase'
+import { getUserPlan } from '@/lib/user-plan'
 
 export const revalidate = 0
 
 export async function GET() {
   const { userId } = await auth()
   if (!userId) return Response.json({ count: 0, limit: 30 }, { status: 401 })
+
+  const plan = await getUserPlan()
+  if (plan !== 'elite') return Response.json({ error: 'Elite krävs.' }, { status: 403 })
 
   const db = createServerClient()
   const today = new Date().toISOString().slice(0, 10)

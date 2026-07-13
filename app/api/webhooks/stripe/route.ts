@@ -4,8 +4,8 @@
  * Stripe Webhook-handler för Athopia.
  *
  * Hanterar:
- *  - checkout.session.completed → sätter Clerk publicMetadata subscriptionTier='pro'
- *  - customer.subscription.deleted → sätter subscriptionTier='free'
+ *  - checkout.session.completed → sätter Clerk publicMetadata.plan='pro|elite'
+ *  - customer.subscription.deleted → sätter plan='free'
  *
  * Beslut:
  * - Signaturverifiering via stripe.webhooks.constructEvent() – ALDRIG hoppa över.

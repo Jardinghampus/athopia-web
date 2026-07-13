@@ -55,8 +55,8 @@ export const SCOUT_METRICS = [
 export type ScoutMetricKey = (typeof SCOUT_METRICS)[number]["key"];
 
 export async function getScoutPool(): Promise<ScoutPlayer[]> {
-  const { mockScoutPool } = await import("./mock");
-  if (!isSupabaseConfigured()) return mockScoutPool();
+  // CRITICAL: never return mock/demo data on public surfaces.
+  if (!isSupabaseConfigured()) return [];
   try {
     const db = createServerClient();
     const [{ data: stats }, { data: teams }] = await Promise.all([
@@ -111,10 +111,9 @@ export async function getScoutPool(): Promise<ScoutPlayer[]> {
         red_cards: Number(r.red_cards ?? 0),
       };
     });
-    // Fallback till mock medan DB är tom/onåbar så UI:t går att jobba med.
-    return pool.length > 0 ? pool : mockScoutPool();
+    return pool;
   } catch {
-    return mockScoutPool();
+    return [];
   }
 }
 
