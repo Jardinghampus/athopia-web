@@ -4,6 +4,7 @@
  */
 
 import type { MetadataRoute } from "next";
+import { absoluteUrl } from "@/lib/site-url";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -16,6 +17,6 @@ export default function robots(): MetadataRoute.Robots {
       { userAgent: "Applebot-Extended", allow: "/" },
       { userAgent: "Bytespider", allow: "/" },
     ],
-    sitemap: "https://athopia.se/sitemap.xml",
+    sitemap: absoluteUrl("/sitemap.xml"),
   };
 }

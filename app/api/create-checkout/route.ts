@@ -27,6 +27,7 @@ import {
   type PaidPlan,
   type BillingInterval,
 } from "@/lib/pricing";
+import { getSiteUrl } from "@/lib/site-url";
 
 export async function POST(req: Request & { headers: Headers }) {
   // Lazy-init Stripe för att undvika build-time env-krav
@@ -59,7 +60,7 @@ export async function POST(req: Request & { headers: Headers }) {
 
   const planMeta = PRICING[plan];
 
-  const base = (process.env.NEXT_PUBLIC_BASE_URL ?? "https://athopia.se").replace(/\/$/, "");
+  const base = getSiteUrl();
 
   try {
     const session = await stripe.checkout.sessions.create({
@@ -99,7 +100,7 @@ export async function POST(req: Request & { headers: Headers }) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error("[create-checkout] STRIPE ERROR:", msg);
     return NextResponse.json(
-      { error: "Kunde inte skapa betalningssession.", detail: msg },
+      { error: "Kunde inte skapa betalningssession. Försök igen om en stund." },
       { status: 500 }
     );
   }

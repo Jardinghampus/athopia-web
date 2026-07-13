@@ -1,12 +1,11 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import { motion, useScroll, useTransform, useReducedMotion } from "motion/react";
 import { Container, Label, Reveal } from "./primitives";
-import { WaitlistModal } from "./WaitlistModal";
 import { getTeamAccent } from "@/lib/team-colors";
 
 /* Telefon-mockup är dekorativ (aria-hidden) och INTE LCP-elementet (det är h1
@@ -94,13 +93,6 @@ export function Hero({
 }) {
   const ref = useRef<HTMLElement>(null);
   const reduced = useReducedMotion();
-  const [modalOpen, setModalOpen] = useState(false);
-
-  function handleCta(e: React.MouseEvent) {
-    if (typeof window !== "undefined" && localStorage.getItem("athopia_access") === "1") return;
-    e.preventDefault();
-    setModalOpen(true);
-  }
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "end start"],
@@ -149,7 +141,6 @@ export function Hero({
               <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
                 <Link
                   href="/onboarding"
-                  onClick={handleCta}
                   className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl bg-pitch px-8 text-[17px] font-bold text-white transition-transform duration-200 hover:scale-[1.02] active:scale-[0.97]"
                 >
                   {ctaLabel} <ArrowRight className="h-5 w-5" />
@@ -162,7 +153,6 @@ export function Hero({
                 </a>
               </div>
             </Reveal>
-            <WaitlistModal open={modalOpen} onClose={() => setModalOpen(false)} redirectTo="/onboarding" />
 
             {clubs.length > 0 ? (
               <Reveal delay={0.32}>

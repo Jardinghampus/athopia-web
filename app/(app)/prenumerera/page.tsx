@@ -9,6 +9,7 @@
 import type { Metadata } from "next";
 import { Zap } from "lucide-react";
 import { FOUNDER_OFFER, TRIAL_DAYS } from "@/lib/pricing";
+import { absoluteUrl } from "@/lib/site-url";
 import { PricingPlans } from "./PricingPlans";
 
 export const dynamic = "force-dynamic";
@@ -17,11 +18,11 @@ export const metadata: Metadata = {
   title: "Priser & Prenumeration",
   description:
     "Athopia PRO — daglig AI-brief för ditt lag, poddintelligens och transfer-signaler. Founder-pris 69 kr/mån för alltid för de första 500. 25 % rabatt på årsplan.",
-  alternates: { canonical: "https://athopia.se/prenumerera" },
+  alternates: { canonical: absoluteUrl("/prenumerera") },
   openGraph: {
     type: "website",
     locale: "sv_SE",
-    url: "https://athopia.se/prenumerera",
+    url: absoluteUrl("/prenumerera"),
     title: "Priser & Prenumeration",
     description: "Gratis, PRO eller Elite — välj din plan för Allsvenskan-bevakning på djupet.",
   },

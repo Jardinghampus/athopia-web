@@ -15,6 +15,7 @@ import { AlertTriangle, Check, CreditCard, User } from "lucide-react";
 import { ListGroup } from "@/components/ui/ListGroup";
 import { ListRow } from "@/components/ui/ListRow";
 import { FOUNDER_OFFER, TRIAL_DAYS, proPriceLabel, listMonthlyKr } from "@/lib/pricing";
+import { getSiteUrl } from "@/lib/site-url";
 import Stripe from "stripe";
 
 export const dynamic = 'force-dynamic';
@@ -30,11 +31,10 @@ async function getBillingPortalUrl(customerId: string): Promise<string | null> {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: "2026-04-22.dahlia",
   });
-  const base = (process.env.NEXT_PUBLIC_BASE_URL ?? "https://athopia.se").replace(/\/$/, "");
   try {
     const session = await stripe.billingPortal.sessions.create({
       customer: customerId,
-      return_url: `${base}/konto`,
+      return_url: `${getSiteUrl()}/konto`,
       locale: "sv",
     });
     return session.url;

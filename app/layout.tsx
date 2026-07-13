@@ -8,7 +8,10 @@ import { Providers } from "./providers";
 import { Toaster } from "@/components/ui/sonner";
 import { CookieBanner } from "@/components/CookieBanner";
 import { UtmVisitTracker } from "@/components/growth/UtmVisitTracker";
+import { getSiteUrl } from "@/lib/site-url";
 import "./globals.css";
+
+const SITE = getSiteUrl();
 
 const geist = Geist({
   subsets: ["latin"],
@@ -23,7 +26,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://athopia.se"),
+  metadataBase: new URL(SITE),
   manifest: "/manifest.json",
   title: {
     default: "Athopia — Allsvenskan 2026: tabell, resultat & statistik",
@@ -39,7 +42,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "sv_SE",
-    url: "https://athopia.se",
+    url: SITE,
     siteName: "Athopia",
     images: [{ url: "/og-default.png", width: 1200, height: 630 }],
   },
@@ -68,10 +71,10 @@ function NewsMediaJsonLd() {
       "@context": "https://schema.org",
       "@type": "NewsMediaOrganization",
       name: "Athopia",
-      url: "https://athopia.se",
+      url: SITE,
       foundingDate: "2026",
       contactPoint: { "@type": "ContactPoint", email: "hej@athopia.se", contactType: "editorial" },
-      publishingPrinciples: "https://athopia.se/om-oss",
+      publishingPrinciples: `${SITE}/om-oss`,
       inLanguage: "sv",
     })}} />
   );

@@ -4,11 +4,14 @@ import { SportFront } from "@/components/landing/SportFront";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import { getLandingCopy } from "@/lib/landing-copy";
 import { ProductEventTracker } from "@/components/analytics/ProductEventTracker";
+import { absoluteUrl, getSiteUrl } from "@/lib/site-url";
 
 // ISR: servera cachad HTML direkt (snabb laddning), regenerera i bakgrunden.
 // Tidigare 'force-dynamic' gjorde att varje besök blockerade på en Supabase-query
 // (upp till 25s timeout) innan sidan renderades.
 export const revalidate = 120;
+
+const SITE = getSiteUrl();
 
 const SEO_KEYWORDS = [
   "Allsvenskan", "Allsvenskan 2026", "Allsvenskan tabell", "Allsvenskan resultat",
@@ -19,7 +22,7 @@ const SEO_KEYWORDS = [
 ];
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://athopia.se"),
+  metadataBase: new URL(SITE),
   title: "Allsvenskan 2026 – Tabell, Resultat, Matcher & Statistik | Athopia",
   description:
     "Allt om Allsvenskan 2026: live-tabell, resultat, spelschema, skytteliga och djupstatistik för alla 16 lag. Matchanalyser, nyhetsflöde och forum för ditt lag — samlat på ett ställe.",
@@ -28,7 +31,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "sv_SE",
-    url: "https://athopia.se",
+    url: SITE,
     siteName: "Athopia",
     title: "Allsvenskan 2026 – Tabell, Resultat, Matcher & Statistik | Athopia",
     description:
@@ -75,24 +78,24 @@ function LandingJsonLd() {
     "@graph": [
       {
         "@type": "WebSite",
-        "@id": "https://athopia.se/#website",
+        "@id": `${SITE}/#website`,
         name: "Athopia",
-        url: "https://athopia.se",
+        url: SITE,
         inLanguage: "sv-SE",
         description:
           "Allsvenskan 2026 — tabell, resultat, matcher, skytteliga, statistik, matchanalyser och forum för alla 16 lag.",
         potentialAction: {
           "@type": "SearchAction",
-          target: { "@type": "EntryPoint", urlTemplate: "https://athopia.se/nyheter?q={search_term_string}" },
+          target: { "@type": "EntryPoint", urlTemplate: absoluteUrl("/nyheter?q={search_term_string}") },
           "query-input": "required name=search_term_string",
         },
       },
       {
         "@type": "SportsOrganization",
-        "@id": "https://athopia.se/#allsvenskan",
+        "@id": `${SITE}/#allsvenskan`,
         name: "Allsvenskan",
         sport: "Soccer",
-        url: "https://athopia.se/allsvenskan",
+        url: absoluteUrl("/allsvenskan"),
       },
     ],
   };
