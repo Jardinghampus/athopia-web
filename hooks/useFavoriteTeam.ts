@@ -137,6 +137,17 @@ function useClerkFavoriteTeam(): FavoriteTeamState {
           // Clerk-fel är icke-kritiskt — localStorage räcker
         }
         if (teamId) await syncFollowedTeam(teamId);
+        // Spegla till profiles.favourite_team_id — enda källan den publika
+        // profilsidan (och /api/profile/[id]) kan läsa utan Clerk-backend-anrop.
+        try {
+          await fetch("/api/profile", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ favourite_team_id: newSlug }),
+          });
+        } catch {
+          // Icke-kritiskt — Clerk-metadata är fortfarande sanning för egna vyer
+        }
       }
     },
     [user],

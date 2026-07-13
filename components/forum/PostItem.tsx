@@ -3,7 +3,7 @@
 import { useState, useOptimistic } from "react";
 import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
-import { Heart, MessageCircle, Repeat2, Share2, Flag, ChevronDown, MoreHorizontal } from "lucide-react";
+import { Heart, MessageCircle, Repeat2, Share2, Flag, ChevronDown, MoreHorizontal, PenLine } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import type { ForumPost } from "@/lib/types";
@@ -78,6 +78,7 @@ export default function PostItem({
   const teamShort = getTeamShort(post.author_team);
   const teamColors = teamShort ? getTeamColors(post.author_team) : null;
   const teamAccent = getTeamAccent(post.author_team);
+  const isColumnist = post.author_role === "columnist" || post.author_role === "admin";
   const hasReplies = (post.replies?.length ?? 0) > 0;
   const showLine = showThread || depth > 0 || hasReplies;
 
@@ -184,28 +185,39 @@ export default function PostItem({
           <div className="flex gap-3">
             {/* Avatar + thread line — lagfärgad gradientring visar supporteridentitet */}
             <div className="flex flex-col items-center shrink-0">
-              <div
-                className="rounded-full p-[2px]"
-                style={
-                  teamColors
-                    ? {
-                        background: teamColors.gradientStops
-                          ? `linear-gradient(135deg, ${teamColors.gradientStops.join(", ")})`
-                          : `linear-gradient(135deg, ${teamColors.primary}, ${teamColors.secondary})`,
-                      }
-                    : undefined
-                }
-              >
-                <ProfileLink
-                  userId={post.author_id}
-                  className="w-11 h-11 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-300 text-sm font-semibold overflow-hidden relative hover:opacity-90 transition-opacity border-2 border-background"
+              <div className="relative">
+                <div
+                  className="rounded-full p-[2px]"
+                  style={
+                    teamColors
+                      ? {
+                          background: teamColors.gradientStops
+                            ? `linear-gradient(135deg, ${teamColors.gradientStops.join(", ")})`
+                            : `linear-gradient(135deg, ${teamColors.primary}, ${teamColors.secondary})`,
+                        }
+                      : undefined
+                  }
                 >
-                  {post.author_avatar ? (
-                    <Image src={post.author_avatar} alt="" fill className="object-cover" />
-                  ) : (
-                    initials(post.author_name)
-                  )}
-                </ProfileLink>
+                  <ProfileLink
+                    userId={post.author_id}
+                    className="w-11 h-11 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-300 text-sm font-semibold overflow-hidden relative hover:opacity-90 transition-opacity border-2 border-background"
+                  >
+                    {post.author_avatar ? (
+                      <Image src={post.author_avatar} alt="" fill className="object-cover" />
+                    ) : (
+                      initials(post.author_name)
+                    )}
+                  </ProfileLink>
+                </div>
+                {isColumnist && (
+                  <span
+                    className="absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-pitch ring-2 ring-background"
+                    aria-label="Krönikör hos Athopia"
+                    title="Krönikör hos Athopia"
+                  >
+                    <PenLine className="size-2.5 text-white" strokeWidth={3} />
+                  </span>
+                )}
               </div>
               {showLine && (
                 <div className="w-px flex-1 min-h-[16px] bg-border/40 mt-1.5" />

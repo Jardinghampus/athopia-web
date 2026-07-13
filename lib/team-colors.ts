@@ -12,19 +12,14 @@ export type TeamColors = {
 };
 
 const TEAM_COLORS: Record<string, TeamColors> = {
-  aik: { primary: "#111111", secondary: "#D6B25E", text: "#FFFFFF" },
-  djurgarden: {
-    primary: "#1E4C9A",
-    secondary: "#F3C542",
-    text: "#FFFFFF",
-    gradientStops: ["#F3C542", "#D71920", "#1E4C9A"], // gul, röd, blå
-  },
-  hammarby: { primary: "#0B7A3B", secondary: "#FFFFFF", text: "#FFFFFF" },
-  "malmo-ff": { primary: "#6DB7E8", secondary: "#FFFFFF", text: "#07111F" },
-  "ifk-goteborg": { primary: "#1D5FA7", secondary: "#FFFFFF", text: "#FFFFFF" },
+  aik: { primary: "#111111", secondary: "#F5C518", text: "#FFFFFF" }, // svart och gul
+  djurgarden: { primary: "#0B2A6B", secondary: "#5FA8E0", text: "#FFFFFF" }, // mörkblå/ljusblå
+  hammarby: { primary: "#0B7A3B", secondary: "#4ED17A", text: "#FFFFFF" }, // mörkgrön/ljusgrön
+  "malmo-ff": { primary: "#6DB7E8", secondary: "#FFFFFF", text: "#07111F" }, // himmelsblå
+  "ifk-goteborg": { primary: "#1D5FA7", secondary: "#FFFFFF", text: "#FFFFFF" }, // blå/vitt
   "if-elfsborg": { primary: "#F4D21F", secondary: "#111111", text: "#111111" },
-  "bk-hacken": { primary: "#F5D000", secondary: "#111111", text: "#111111" },
-  sirius: { primary: "#003D8F", secondary: "#111111", text: "#FFFFFF" },
+  "bk-hacken": { primary: "#F5D000", secondary: "#111111", text: "#111111" }, // gul-svart
+  sirius: { primary: "#111111", secondary: "#003D8F", text: "#FFFFFF" }, // svart-mörkblå
   halmstad: { primary: "#0056A4", secondary: "#FFFFFF", text: "#FFFFFF" },
   brommapojkarna: { primary: "#D71920", secondary: "#111111", text: "#FFFFFF" },
   mjallby: { primary: "#F4D21F", secondary: "#111111", text: "#111111" },

@@ -16,7 +16,7 @@ export async function GET(
     const db = createServerClient();
     const { data } = await db
       .from("profiles")
-      .select("clerk_user_id, nickname, display_name, avatar_url, bio, verified, role, created_at")
+      .select("clerk_user_id, nickname, display_name, avatar_url, bio, verified, role, favourite_team_id, created_at")
       .eq("clerk_user_id", id)
       .maybeSingle();
 

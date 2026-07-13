@@ -77,6 +77,14 @@ export async function POST(req: NextRequest) {
 
     const supabase = createServerClient();
 
+    // Snapshot av profiles.role vid postningstillfället — driver krönikör-
+    // badgen på avataren, samma denormaliseringsmönster som author_team.
+    const { data: authorProfile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("clerk_user_id", user.id)
+      .maybeSingle();
+
     let depth = 0;
     if (parent_id) {
       const { data: parentPost } = await supabase
@@ -105,6 +113,7 @@ export async function POST(req: NextRequest) {
         author_avatar: user.imageUrl ?? null,
         // Supporteridentitet: "Nickname (DIF)" + lagfärgad avatarring i forumet
         author_team: (user.unsafeMetadata?.["favoriteTeam"] as string | undefined) ?? null,
+        author_role: authorProfile?.role ?? null,
       })
       .select()
       .single();

@@ -239,6 +239,8 @@ export interface ForumPost {
   author_avatar: string | null;
   /** entities.slug för författarens favoritlag — driver "(DIF)" + lagfärgad avatarring */
   author_team?: string | null;
+  /** Snapshot av profiles.role vid postningstillfället — driver krönikör-badgen */
+  author_role?: string | null;
   sport: string;
   team_slug: string | null;
   like_count: number;

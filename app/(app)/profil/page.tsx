@@ -37,6 +37,8 @@ export default async function ProfilPage() {
     avatar_url: (row?.avatar_url as string | null) ?? user?.imageUrl ?? null,
     bio: (row?.bio as string | null) ?? null,
     verified: (row?.verified as boolean | undefined) ?? false,
+    role: (row?.role as PublicProfile["role"] | undefined) ?? "reader",
+    favourite_team_id: (row?.favourite_team_id as string | null) ?? null,
     created_at: createdAt,
   };
 

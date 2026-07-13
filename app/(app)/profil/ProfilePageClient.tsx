@@ -6,11 +6,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useUser, useSignIn } from "@clerk/nextjs";
 import { createClient } from "@supabase/supabase-js";
 import { AnimatePresence, motion } from "motion/react";
-import { Camera, Check, Loader2, Lock, Mail, ShieldCheck, KeyRound, ArrowRight, Sparkles } from "lucide-react";
-import { ProfileCard, type PublicProfile } from "@/components/profile/ProfileCard";
+import { Camera, Check, Loader2, Lock, Mail, ShieldCheck, KeyRound, ArrowRight, Sparkles, PenLine } from "lucide-react";
+import { type PublicProfile } from "@/components/profile/ProfileCard";
 import { ListGroup } from "@/components/ui/ListGroup";
 import { ListRow } from "@/components/ui/ListRow";
 import { useFavoriteTeam } from "@/hooks/useFavoriteTeam";
+import { getTeamColors } from "@/lib/team-colors";
 
 function WelcomePopup({ onClose }: { onClose: () => void }) {
   const router = useRouter();
@@ -85,9 +86,10 @@ export function ProfilePageClient({
   const [resetSent, setResetSent] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // Lag-lista (Allsvenskan) för lagbyte
+  // Lag-lista (Allsvenskan) för lagbyte. Matchas på slug (samma format som
+  // Clerk-metadata/team-colors/forum author_team) — inte entities.id.
   const [teams, setTeams] = useState<Team[]>([]);
-  const [teamId, setTeamId] = useState(favouriteTeamId ?? "");
+  const [teamSlug, setTeamSlug] = useState(favouriteTeamId ?? "");
 
   useEffect(() => {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
@@ -152,9 +154,9 @@ export function ProfilePageClient({
     }
   }
 
-  async function changeTeam(newId: string) {
-    setTeamId(newId);
-    const team = teams.find((t) => t.id === newId);
+  async function changeTeam(newSlug: string) {
+    setTeamSlug(newSlug);
+    const team = teams.find((t) => (t.slug ?? t.id) === newSlug);
     if (!team) return;
     await setFavoriteTeam(team.slug ?? team.id);
     await fetch("/api/feed/config", {
@@ -242,13 +244,13 @@ export function ProfilePageClient({
           Mitt lag
         </h2>
         <select
-          value={teamId}
+          value={teamSlug}
           onChange={(e) => changeTeam(e.target.value)}
           className="w-full rounded-xl border border-border bg-card px-3 py-3 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <option value="">Välj lag...</option>
           {teams.map((t) => (
-            <option key={t.id} value={t.id}>{t.name}</option>
+            <option key={t.id} value={t.slug ?? t.id}>{t.name}</option>
           ))}
         </select>
       </section>
@@ -326,37 +328,60 @@ function Field({
 
 // ── Profilkort med kamera direkt på avataren ──────────────────────────────────
 function ProfileCardEditable({ profile, onPickFile }: { profile: PublicProfile; onPickFile: () => void }) {
-  const TEAM_GRADIENT = "linear-gradient(135deg, #4DA3FF 0%, #0B2A6B 100%)";
+  const FALLBACK_GRADIENT = "linear-gradient(135deg, #4DA3FF 0%, #0B2A6B 100%)";
   const name = profile.nickname ?? profile.display_name ?? "Anonym";
+  const isColumnist = profile.role === "columnist" || profile.role === "admin";
   function initials(n: string) { return n.split(" ").filter(Boolean).map((w) => w[0]?.toUpperCase() ?? "").join("").slice(0, 2); }
+  function teamGradient(angle: number): string | null {
+    if (!profile.favourite_team_id) return null;
+    const c = getTeamColors(profile.favourite_team_id);
+    const stops = c.gradientStops ?? [c.primary, c.secondary];
+    return `linear-gradient(${angle}deg, ${stops.join(", ")})`;
+  }
 
   return (
     <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
-      <div className="relative h-28" style={{ background: TEAM_GRADIENT }} aria-hidden />
+      <div className="relative h-28" style={{ background: teamGradient(90) ?? FALLBACK_GRADIENT }} aria-hidden />
       <div className="flex flex-col items-center px-6 pb-7 -mt-12">
-        {/* Avatar med kamera-overlay */}
-        <button
-          onClick={onPickFile}
-          className="group relative rounded-full ring-4 ring-card bg-card focus-visible:outline-none focus-visible:ring-pitch"
-          aria-label="Byt profilbild"
-        >
-          {profile.avatar_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={profile.avatar_url} alt={name} className="h-24 w-24 rounded-full object-cover" />
-          ) : (
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted text-2xl font-semibold text-muted-foreground">
-              {initials(name)}
-            </div>
+        {/* Avatar med kamera-overlay + lagfärgad ring */}
+        <div className="relative">
+          <div className="rounded-full p-[3px]" style={teamGradient(135) ? { background: teamGradient(135)! } : undefined}>
+            <button
+              onClick={onPickFile}
+              className="group relative rounded-full ring-4 ring-card bg-card focus-visible:outline-none focus-visible:ring-pitch"
+              aria-label="Byt profilbild"
+            >
+              {profile.avatar_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={profile.avatar_url} alt={name} className="h-24 w-24 rounded-full object-cover" />
+              ) : (
+                <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted text-2xl font-semibold text-muted-foreground">
+                  {initials(name)}
+                </div>
+              )}
+              {/* Overlay */}
+              <span className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity flex items-center justify-center">
+                <Camera className="w-6 h-6 text-white" />
+              </span>
+            </button>
+          </div>
+          {isColumnist && (
+            <span
+              className="absolute -top-0.5 -right-0.5 flex size-7 items-center justify-center rounded-full bg-pitch ring-[3px] ring-card"
+              aria-label="Krönikör hos Athopia"
+              title="Krönikör hos Athopia"
+            >
+              <PenLine className="size-3.5 text-white" strokeWidth={2.5} />
+            </span>
           )}
-          {/* Overlay */}
-          <span className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity flex items-center justify-center">
-            <Camera className="w-6 h-6 text-white" />
-          </span>
-        </button>
+        </div>
 
         <div className="mt-4 flex items-center gap-1.5">
           <h2 className="text-xl font-semibold text-foreground">{name}</h2>
         </div>
+        {isColumnist && (
+          <span className="mt-0.5 text-[11px] font-semibold uppercase tracking-wide text-pitch">Krönikör</span>
+        )}
         <p className="mt-1 text-xs text-muted-foreground">
           Tryck på bilden för att byta
         </p>

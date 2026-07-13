@@ -43,6 +43,7 @@ export async function PATCH(req: Request) {
   const firstName = typeof body.firstName === "string" ? body.firstName.trim() : undefined;
   const lastName = typeof body.lastName === "string" ? body.lastName.trim() : undefined;
   const avatarUrl = typeof body.avatar_url === "string" ? body.avatar_url : undefined;
+  const favouriteTeamId = typeof body.favourite_team_id === "string" ? body.favourite_team_id : undefined;
 
   // Nickname-validering + unikhet (case-insensitivt, exkl. en själv)
   if (nickname !== undefined && nickname.length > 0) {
@@ -86,6 +87,7 @@ export async function PATCH(req: Request) {
   if (nickname !== undefined) update.nickname = nickname || null;
   if (bio !== undefined) update.bio = bio || null;
   if (avatarUrl !== undefined) update.avatar_url = avatarUrl;
+  if (favouriteTeamId !== undefined) update.favourite_team_id = favouriteTeamId || null;
 
   const { error } = await createServerClient().from("profiles").upsert(update, { onConflict: "clerk_user_id" });
   if (error) {
