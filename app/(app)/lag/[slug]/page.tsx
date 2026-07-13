@@ -161,10 +161,14 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
       className="max-w-6xl mx-auto pb-6"
       style={{ "--team-accent": getTeamAccent(hub.team.slug), "--team-accent-2": colors.secondary } as React.CSSProperties}
     >
-      {/* Klubbfärgad accentlinje (audit T6) */}
+      {/* Klubbfärgad accentlinje (audit T6) — gradientStops om laget har fler än 2 klubbfärger */}
       <div
         className="h-1.5 rounded-b-full"
-        style={{ background: `linear-gradient(90deg, ${colors.primary} 0%, ${colors.secondary} 100%)` }}
+        style={{
+          background: colors.gradientStops
+            ? `linear-gradient(90deg, ${colors.gradientStops.join(", ")})`
+            : `linear-gradient(90deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
+        }}
         aria-hidden
       />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(teamJsonLd) }} />

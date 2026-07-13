@@ -188,7 +188,11 @@ export default function PostItem({
                 className="rounded-full p-[2px]"
                 style={
                   teamColors
-                    ? { background: `linear-gradient(135deg, ${teamColors.primary}, ${teamColors.secondary})` }
+                    ? {
+                        background: teamColors.gradientStops
+                          ? `linear-gradient(135deg, ${teamColors.gradientStops.join(", ")})`
+                          : `linear-gradient(135deg, ${teamColors.primary}, ${teamColors.secondary})`,
+                      }
                     : undefined
                 }
               >

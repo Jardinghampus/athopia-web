@@ -3,11 +3,22 @@
  * Används som `--team-accent`/`--team-accent-fg` på lag-hub och matchytor.
  * Lag utan post faller tillbaka på pitch-grönt.
  */
-export type TeamColors = { primary: string; secondary: string; text: string };
+export type TeamColors = {
+  primary: string;
+  secondary: string;
+  text: string;
+  /** Valfria extra gradient-stopp, i ordning — override av det annars 2-stopps primary→secondary. */
+  gradientStops?: string[];
+};
 
 const TEAM_COLORS: Record<string, TeamColors> = {
   aik: { primary: "#111111", secondary: "#D6B25E", text: "#FFFFFF" },
-  djurgarden: { primary: "#1E4C9A", secondary: "#F3C542", text: "#FFFFFF" },
+  djurgarden: {
+    primary: "#1E4C9A",
+    secondary: "#F3C542",
+    text: "#FFFFFF",
+    gradientStops: ["#F3C542", "#D71920", "#1E4C9A"], // gul, röd, blå
+  },
   hammarby: { primary: "#0B7A3B", secondary: "#FFFFFF", text: "#FFFFFF" },
   "malmo-ff": { primary: "#6DB7E8", secondary: "#FFFFFF", text: "#07111F" },
   "ifk-goteborg": { primary: "#1D5FA7", secondary: "#FFFFFF", text: "#FFFFFF" },
