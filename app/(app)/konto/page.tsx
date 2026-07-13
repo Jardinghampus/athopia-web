@@ -8,6 +8,7 @@
  */
 
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { AlertTriangle, Check, CreditCard, User } from "lucide-react";
@@ -105,7 +106,33 @@ export default async function KontoPage({
         </div>
       )}
 
-      <h1 className="font-bold text-4xl text-foreground mb-8">MITT KONTO</h1>
+      {/* Profilhuvud — centrerad avatar + namn + planbadge, Grok/iOS-settings-mönster */}
+      <Link
+        href="/profil"
+        className="mb-8 flex flex-col items-center gap-3 rounded-2xl px-4 py-8 text-center transition-colors hover:bg-card/40 active:bg-card/60"
+      >
+        <span className="relative flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-card text-2xl font-semibold text-muted-foreground ring-1 ring-border">
+          {user?.imageUrl ? (
+            <Image src={user.imageUrl} alt="" fill className="object-cover" sizes="80px" />
+          ) : (
+            (user?.firstName?.[0] ?? user?.emailAddresses?.[0]?.emailAddress?.[0] ?? "?").toUpperCase()
+          )}
+        </span>
+        <span>
+          <span className="block text-xl font-bold text-foreground">
+            {user?.fullName ?? user?.firstName ?? "Din profil"}
+          </span>
+          <span className="mt-1 inline-flex items-center gap-1.5 text-sm text-muted-foreground">
+            {isPaid ? (
+              <span className="rounded-full pitch-gradient px-2 py-0.5 text-xs font-semibold text-white">
+                {planLabel}
+              </span>
+            ) : (
+              "Gratis"
+            )}
+          </span>
+        </span>
+      </Link>
 
       <div className="space-y-6">
         {/* Användarinfo */}
