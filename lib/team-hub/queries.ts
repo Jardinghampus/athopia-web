@@ -13,6 +13,7 @@ import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import { unstable_cache } from "next/cache";
 import { getTeamNews, getTeamThreads } from "@/lib/dashboard/queries";
 import type { DashArticle, DashThread } from "@/lib/dashboard/types";
+import type { PodcastEpisodeSignal } from "@/lib/types";
 
 export const SEASON_2026 = 26806;
 const SPORT = "football";
@@ -341,6 +342,49 @@ export interface TeamHubPayload {
   upcoming: FixtureRow[];
   news: DashArticle[];
   threads: DashThread[];
+}
+
+// ── Unified team feed (Hypertexting-inspirerat kronologiskt scroll) ───────────
+// Slår ihop redan hämtad hub-data (nyheter, forumtrådar, spelade matcher,
+// AI-brief, podcastsignaler) till ett enda reverse-kronologiskt flöde.
+// Hämtar ingen ny data — bara merge+sort av det getTeamHub() redan levererar.
+
+export type TeamFeedItem =
+  | { ts: string; kind: "pulse"; pulse: TeamPulse }
+  | { ts: string; kind: "news"; article: DashArticle }
+  | { ts: string; kind: "thread"; thread: DashThread }
+  | { ts: string; kind: "fixture"; fixture: FixtureRow }
+  | { ts: string; kind: "podcast"; podcast: PodcastEpisodeSignal };
+
+export function buildTeamFeed(input: {
+  pulse: TeamPulse | null;
+  news: DashArticle[];
+  threads: DashThread[];
+  recent: FixtureRow[];
+  podcastSignals: PodcastEpisodeSignal[];
+}): TeamFeedItem[] {
+  const items: TeamFeedItem[] = [];
+
+  if (input.pulse) {
+    items.push({ ts: input.pulse.pulse_date, kind: "pulse", pulse: input.pulse });
+  }
+  for (const article of input.news) {
+    if (article.published_at) items.push({ ts: article.published_at, kind: "news", article });
+  }
+  for (const thread of input.threads) {
+    items.push({ ts: thread.created_at, kind: "thread", thread });
+  }
+  for (const fixture of input.recent) {
+    // Bara avslutade matcher — kommande matcher visas redan i MatchdayBanner.
+    if (fixture.status === "FT" && fixture.kickoff_at) {
+      items.push({ ts: fixture.kickoff_at, kind: "fixture", fixture });
+    }
+  }
+  for (const podcast of input.podcastSignals) {
+    if (podcast.publishedAt) items.push({ ts: podcast.publishedAt, kind: "podcast", podcast });
+  }
+
+  return items.sort((a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime());
 }
 
 const RADAR_DEF: { key: keyof TeamSeasonRow; label: string; invert?: boolean }[] = [
