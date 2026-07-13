@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { BadgeCheck } from "lucide-react";
+import { BadgeCheck, PenLine } from "lucide-react";
 
 export interface PublicProfile {
   clerk_user_id: string;
@@ -10,6 +10,7 @@ export interface PublicProfile {
   avatar_url: string | null;
   bio: string | null;
   verified: boolean;
+  role?: "reader" | "columnist";
   created_at: string;
 }
 
@@ -72,7 +73,13 @@ export function ProfileCard({ profile }: { profile: PublicProfile }) {
               aria-label="Verifierad"
             />
           )}
+          {profile.role === "columnist" && (
+            <PenLine className="h-4 w-4 text-pitch" aria-label="Krönikör hos Athopia" />
+          )}
         </div>
+        {profile.role === "columnist" && (
+          <span className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-pitch">Krönikör</span>
+        )}
 
         {/* Medlem sedan */}
         <p className="mt-1 text-xs text-muted-foreground">
