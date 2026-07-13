@@ -10,6 +10,7 @@ import { MatchLineups } from "@/components/match/MatchLineups";
 import { MatchAskPanel } from "@/components/match/MatchAskPanel";
 import { PodcastSignalsPanel } from "@/components/podcast/PodcastSignalsPanel";
 import { getUserPlan } from "@/lib/user-plan";
+import { BlurPaywall } from "@/components/BlurPaywall";
 import { fetchStandingsFull } from "@/lib/db/fixtures";
 import type { SMStandingRow } from "@/lib/db/fixtures";
 
@@ -319,13 +320,37 @@ export default async function MatchPage({ params }: PageProps) {
         </div>
       </div>
 
-      {/* AI-sammanfattning */}
+      {/* AI-sammanfattning — PRO; free får bara titel-teaser i DOM */}
       {summary && (
-        <div className="bg-amber-500/5 border border-amber-500/30 rounded-xl p-5">
-          <p className="text-xs font-semibold text-amber-500 uppercase tracking-wide mb-2">Athopia AI · Matchanalys</p>
-          {summaryTitle && <p className="font-semibold text-foreground mb-2">{summaryTitle}</p>}
-          <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-line">{summary}</p>
-        </div>
+        <BlurPaywall
+          feature="aiSummaries"
+          plan={plan}
+          teamName={homeName}
+          maxHeight="5rem"
+          tease="Matchanalys — vad som faktiskt betydde något."
+          preview={
+            <div className="space-y-2">
+              <p className="text-xs font-semibold uppercase tracking-wide text-amber-500">
+                Athopia AI · Matchanalys
+              </p>
+              <p className="font-semibold text-foreground line-clamp-2">
+                {summaryTitle ?? `${homeName}–${awayName}`}
+              </p>
+            </div>
+          }
+        >
+          <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-5">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-amber-500">
+              Athopia AI · Matchanalys
+            </p>
+            {summaryTitle && (
+              <p className="mb-2 font-semibold text-foreground">{summaryTitle}</p>
+            )}
+            <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/90">
+              {summary}
+            </p>
+          </div>
+        </BlurPaywall>
       )}
 
       {/* Inför matchen — intelligens-hub innan avspark (Athletic-mönstret) */}

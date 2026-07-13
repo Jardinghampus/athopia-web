@@ -6,7 +6,7 @@ import { AppSidebar } from "@/components/layout/AppSidebar";
 import { GlassNav } from "@/components/layout/GlassNav";
 import { TeamSelectionModal } from "@/components/ui/TeamSelectionModal";
 import { PwaInstallBanner } from "@/components/PwaInstallBanner";
-import { ForumSummaryPopup } from "@/components/ForumSummaryPopup";
+import { ForumSummaryPopupGate } from "@/components/ForumSummaryPopupGate";
 import { MobileNav } from "@/components/layout/MobileNav";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -31,7 +31,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <PwaInstallBanner />
         </>
       )}
-      <ForumSummaryPopup />
+      <Suspense fallback={null}>
+        <ForumSummaryPopupGate />
+      </Suspense>
       <MobileNav />
     </>
   );

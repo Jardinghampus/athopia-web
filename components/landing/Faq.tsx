@@ -4,29 +4,62 @@ import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Container, Label, Display, Reveal, Section } from "./primitives";
+import {
+  FOUNDER_OFFER,
+  TRIAL_DAYS,
+  listMonthlyKr,
+  proOfferMonthlyKr,
+} from "@/lib/pricing";
 
-const FAQS = [
-  {
-    q: "Vad kostar Athopia?",
-    a: "Det är gratis att börja — välj lag, följ flödet och läs forumet utan kreditkort. PRO kostar 99 kr/mån och Elite 199 kr/mån, och du kan avsluta när som helst.",
-  },
-  {
-    q: "Finns Athopia som app?",
-    a: "Athopia är byggd som en webapp med native-känsla. Lägg till den på hemskärmen från webbläsaren så öppnas den i fullskärm, med push-notiser — precis som en vanlig app, fast utan App Store.",
-  },
-  {
-    q: "Vilka ligor och lag täcker ni?",
-    a: "Allsvenskan är vårt fokus — alla 16 lag, varje omgång, hela säsongen. Fler ligor och sporter är på väg.",
-  },
-  {
-    q: "Skriver AI all text?",
-    a: "AI:n sammanfattar och rangordnar, men ingenting publiceras från en enskild källa. Varje analys kräver minst tre oberoende källor, och allt originalinnehåll är vårt eget — vi återpublicerar aldrig andras texter.",
-  },
-  {
-    q: "Kan jag avsluta när som helst?",
-    a: "Ja. En knapptryckning under kontoinställningar, inga frågor, ingen bindningstid. Du behåller gratisnivån så länge du vill.",
-  },
-];
+function buildFaqs() {
+  const founder = FOUNDER_OFFER.active;
+  const pro = proOfferMonthlyKr();
+  const listPro = listMonthlyKr("pro");
+  const elite = listMonthlyKr("elite");
+
+  return [
+    {
+      q: "Vad kostar Athopia?",
+      a: founder
+        ? `Gratis att börja — välj lag, följ flödet och läs forumet utan kreditkort. PRO kostar ${pro} kr/mån för founders (ordinarie ${listPro} kr) för de första ${FOUNDER_OFFER.cap}. Elite kostar ${elite} kr/mån. ${TRIAL_DAYS} dagar gratis på betald plan, avbryt när som helst.`
+        : `Gratis att börja — välj lag, följ flödet och läs forumet utan kreditkort. PRO kostar ${listPro} kr/mån och Elite ${elite} kr/mån. ${TRIAL_DAYS} dagar gratis på betald plan, avbryt när som helst.`,
+    },
+    {
+      q: "Vad får jag gratis — och vad kräver PRO?",
+      a: "Gratis: obegränsat nyhetsflöde, push, live/tabell och forum. PRO: AI-sammanfattningar (artiklar + matcher), forum-läget senaste timmarna, ryktesradar, daglig brief, poddintelligens och AI-chat — så du är uppdaterad utan att scrolla.",
+    },
+    {
+      q: "Vad är founder-priset?",
+      a: founder
+        ? `De första ${FOUNDER_OFFER.cap} som tar PRO låser ${pro} kr/mån för alltid — även när ordinarie pris är ${listPro} kr. Priset sparas i din Stripe-prenumeration. När taket är nått gäller ${listPro} kr/mån för nya.`
+        : `Founder-fönstret är stängt. PRO kostar ${listPro} kr/mån (Elite ${elite} kr/mån), med ${TRIAL_DAYS} dagar gratis.`,
+    },
+    {
+      q: "Behöver jag kreditkort för att börja?",
+      a: `Nej för gratisnivån. När du uppgraderar till PRO/Elite startar ${TRIAL_DAYS} dagars gratisperiod via Stripe — därefter debitering. Avbryt innan trial tar slut om du inte vill fortsätta.`,
+    },
+    {
+      q: "Jag har redan FotMob / Sportbladet — varför Athopia?",
+      a: "FotMob ger resultat. Sportbladet ger rubriker. Athopia ger bekvämligheten: AI som läser artiklar, forum och poddar åt dig — så du är först på transfers och snacket utan nio flikar. Vi återpublicerar aldrig andras texter.",
+    },
+    {
+      q: "Finns Athopia som app?",
+      a: "Athopia är byggd som en webapp med native-känsla. Lägg till den på hemskärmen från webbläsaren så öppnas den i fullskärm, med push-notiser — precis som en vanlig app, fast utan App Store.",
+    },
+    {
+      q: "Vilka ligor och lag täcker ni?",
+      a: "Allsvenskan är vårt fokus — alla 16 lag, varje omgång, hela säsongen. Fler ligor och sporter är på väg.",
+    },
+    {
+      q: "Skriver AI all text?",
+      a: "AI:n sammanfattar och rangordnar, men ingenting publiceras från en enskild källa. Varje analys kräver minst tre oberoende källor, och allt originalinnehåll är vårt eget — vi återpublicerar aldrig andras texter.",
+    },
+    {
+      q: "Kan jag avsluta när som helst?",
+      a: "Ja. En knapptryckning under kontoinställningar via Stripe, inga frågor, ingen bindningstid. Du behåller gratisnivån så länge du vill.",
+    },
+  ];
+}
 
 function FaqItem({
   q,
@@ -76,6 +109,7 @@ function FaqItem({
 
 export function Faq() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const faqs = buildFaqs();
 
   return (
     <Section id="faq">
@@ -101,7 +135,7 @@ export function Faq() {
 
           <Reveal delay={0.1}>
             <div className="border-t border-white/[0.06]">
-              {FAQS.map(({ q, a }, i) => (
+              {faqs.map(({ q, a }, i) => (
                 <FaqItem
                   key={q}
                   q={q}

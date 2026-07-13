@@ -74,9 +74,9 @@ export function CommandPalette() {
     <div className="fixed inset-0 z-[100]">
       <button className="absolute inset-0 bg-black/55" onClick={close} aria-label="Stäng sök" />
       <div className="absolute left-1/2 top-16 -translate-x-1/2 w-[92vw] max-w-2xl">
-        <div className="glass rounded-2xl overflow-hidden">
-          <div className="flex items-center gap-3 p-4 border-b border-white/10">
-            <Search className="w-4 h-4 text-muted-foreground" />
+        <div className="rounded-2xl overflow-hidden border border-border bg-popover text-popover-foreground shadow-2xl ring-1 ring-black/5 dark:ring-white/10">
+          <div className="flex items-center gap-3 p-4 border-b border-border">
+            <Search className="w-4 h-4 shrink-0 text-muted-foreground" />
             <input
               autoFocus
               value={query}
@@ -87,7 +87,7 @@ export function CommandPalette() {
               placeholder="Sök artiklar, lag, spelare, podcasts…"
               className="w-full bg-transparent outline-none text-sm text-foreground placeholder:text-muted-foreground"
             />
-            <span className="text-xs text-muted-foreground flex items-center gap-1">
+            <span className="text-xs text-muted-foreground flex items-center gap-1 shrink-0">
               <CornerDownLeft className="w-3 h-3" /> Enter
             </span>
           </div>
@@ -101,7 +101,7 @@ export function CommandPalette() {
                     <button
                       key={s}
                       onClick={() => setQuery(s)}
-                      className="px-3 py-1 rounded-full border border-white/10 bg-white/5 text-xs text-foreground hover:border-pitch/30"
+                      className="px-3 py-1 rounded-full border border-border bg-muted text-xs text-foreground hover:border-pitch/40"
                     >
                       {s}
                     </button>
@@ -182,7 +182,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 const itemClass =
-  "block w-full text-left px-3 py-2 rounded-xl border border-white/10 bg-white/5 hover:border-pitch/30 transition-colors text-sm text-foreground";
+  "block w-full text-left px-3 py-2 rounded-xl border border-border bg-muted/60 hover:border-pitch/40 hover:bg-muted transition-colors text-sm text-foreground";
 
 function ResultList<T>({
   items,

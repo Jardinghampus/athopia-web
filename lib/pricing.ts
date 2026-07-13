@@ -42,6 +42,24 @@ export const FOUNDER_OFFER = {
   pricing: { label: "PRO Founder", monthly: 6900, yearly: 62100 } as PlanPricing,
 } as const;
 
+/** Stripe trial på nya PRO/Elite-prenumerationer (dagar). */
+export const TRIAL_DAYS = 7;
+
+/** Ordinarie listpris PRO/Elite i kr/mån (alltid 89 / 169). */
+export function listMonthlyKr(plan: PaidPlan): number {
+  return PRICING[plan].monthly / 100;
+}
+
+/** Aktuellt PRO-pris i kr/mån (69 medan founder är aktiv, annars 89). */
+export function proOfferMonthlyKr(): number {
+  return (FOUNDER_OFFER.active ? FOUNDER_OFFER.pricing.monthly : PRICING.pro.monthly) / 100;
+}
+
+/** Kort CTA-rad: "69 kr/mån" eller "89 kr/mån". */
+export function proPriceLabel(): string {
+  return `${proOfferMonthlyKr()} kr/mån`;
+}
+
 /** Belopp i öre för en given plan + intervall. Founder-pris gäller enbart PRO. */
 export function amountFor(plan: PaidPlan, interval: BillingInterval): number {
   const p = plan === "pro" && FOUNDER_OFFER.active ? FOUNDER_OFFER.pricing : PRICING[plan];

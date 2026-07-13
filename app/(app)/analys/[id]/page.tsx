@@ -1,9 +1,9 @@
 /**
  * app/analys/[id]/page.tsx — Matchanalys (post_match_analysis)
  * ─────────────────────────────────────────────────────────────────────────────
- * Fri teaser (title + summary). Full fact pack (body + xG/pressure-diff mot
- * lagets senaste 3 matcher) bakom PRO via PaywallGate. xG/pressure visas
- * ENDAST när metadata.comparisons har riktiga värden — aldrig 0.00/påhittat.
+ * Fri teaser (title + summary). Full fact pack bakom PRO via BlurPaywall
+ * (full body aldrig i free-DOM). xG/pressure visas ENDAST när metadata.comparisons
+ * har riktiga värden — aldrig 0.00/påhittat.
  * Läser articles där status='published' och metadata->>type='post_match_analysis'
  * (skrivs av athopia-os post-match-analysis-agenten, godkänns i athopia-admin).
  * ─────────────────────────────────────────────────────────────────────────────
@@ -15,7 +15,7 @@ import { notFound } from "next/navigation";
 import { Sparkles } from "lucide-react";
 import { getPostMatchAnalysis } from "@/lib/supabase";
 import { getUserPlan } from "@/lib/user-plan";
-import { PaywallGate } from "@/components/PaywallGate";
+import { BlurPaywall } from "@/components/BlurPaywall";
 
 export const revalidate = 60;
 
@@ -101,7 +101,7 @@ export default async function AnalysPage({ params }: PageProps) {
           )}
         </p>
 
-        {/* Fri teaser */}
+        {/* Fri teaser — alltid synlig (kort) */}
         <div className="rounded-xl p-5 mb-8 border border-emerald-500/30 bg-emerald-500/10">
           <div className="flex items-center gap-2 mb-3">
             <Sparkles className="w-4 h-4 text-emerald-400" />
@@ -112,8 +112,18 @@ export default async function AnalysPage({ params }: PageProps) {
           <p className="text-white/90 leading-relaxed">{analysis.summary}</p>
         </div>
 
-        {/* Fact pack — PRO */}
-        <PaywallGate feature="aiSummaries" plan={plan}>
+        {/* Fact pack — PRO; full body aldrig i free-DOM */}
+        <BlurPaywall
+          feature="aiSummaries"
+          plan={plan}
+          maxHeight="6rem"
+          tease="Djupanalys och matchjämförelse — PRO."
+          preview={
+            <p className="text-sm text-white/70 line-clamp-3">
+              {(analysis.body ?? analysis.summary).slice(0, 160)}…
+            </p>
+          }
+        >
           <div className="space-y-6">
             {analysis.body && (
               <div className="prose prose-invert max-w-none whitespace-pre-line text-white/90 leading-relaxed">
@@ -137,23 +147,23 @@ export default async function AnalysPage({ params }: PageProps) {
                 {statRow("Skott på mål", home?.current.shots_on_target ?? null, away?.current.shots_on_target ?? null, 0)}
 
                 {(home?.readable.length || away?.readable.length) ? (
-                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-zinc-300">
-                    {home?.readable.length ? (
-                      <ul className="space-y-1 list-disc list-inside">
-                        {home.readable.map((line) => <li key={line}>{line}</li>)}
-                      </ul>
-                    ) : null}
-                    {away?.readable.length ? (
-                      <ul className="space-y-1 list-disc list-inside">
-                        {away.readable.map((line) => <li key={line}>{line}</li>)}
-                      </ul>
-                    ) : null}
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2 text-sm text-zinc-300">
+                    <ul className="space-y-1">
+                      {(home?.readable ?? []).map((line) => (
+                        <li key={line}>· {line}</li>
+                      ))}
+                    </ul>
+                    <ul className="space-y-1">
+                      {(away?.readable ?? []).map((line) => (
+                        <li key={line}>· {line}</li>
+                      ))}
+                    </ul>
                   </div>
                 ) : null}
               </div>
             )}
           </div>
-        </PaywallGate>
+        </BlurPaywall>
 
         <div className="mt-12">
           <Link href="/" className="text-sm text-zinc-400 hover:text-white transition-colors">

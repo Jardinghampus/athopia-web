@@ -15,7 +15,7 @@ export async function NewsStream({
 
   const items = await getNewsStream({
     sport,
-    limit: isPro ? 100 : 20,
+    limit: 100,
     orderBy: isPro ? "signal_score" : "published_at",
   });
 
@@ -34,9 +34,9 @@ export async function NewsStream({
       ))}
       {!isPro && (
         <div className="py-3 text-center text-xs text-zinc-600">
-          Gratis: 20 nyheter/dag ·{" "}
-          <a href="/prenumerera" className="text-blue-500 hover:text-blue-400">
-            Uppgradera för obegränsat flöde
+          Flödet är gratis ·{" "}
+          <a href="/prenumerera" className="text-pitch hover:opacity-80">
+            PRO ger dig brief, podd &amp; transfer-signaler
           </a>
         </div>
       )}

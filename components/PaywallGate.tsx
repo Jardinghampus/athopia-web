@@ -1,3 +1,7 @@
+/**
+ * PaywallGate — enkel replace-gate (visa children ELLER UpgradePrompt).
+ * För FOMO med blur: använd `BlurPaywall` (skickar aldrig full PRO-text till free-DOM).
+ */
 import type { Plan, AccessFeature } from "@/lib/access-rules";
 import { canAccess } from "@/lib/access-rules";
 import { UpgradePrompt } from "./UpgradePrompt";

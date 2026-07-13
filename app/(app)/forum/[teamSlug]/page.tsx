@@ -11,6 +11,9 @@ import TeamDropdown from "@/components/forum/TeamDropdown";
 import NotificationBell from "@/components/forum/NotificationBell";
 import ForumClient from "./ForumClient";
 import ForumRightSidebar from "@/components/forum/ForumRightSidebar";
+import { getUserPlan } from "@/lib/user-plan";
+import { BlurPaywall } from "@/components/BlurPaywall";
+import { canAccess } from "@/lib/access-rules";
 
 export const dynamic = "force-dynamic";
 
@@ -110,11 +113,12 @@ export default async function ForumTeamPage({
     }
   }
 
-  const [posts, aiSummary, allTeams, clerkUser] = await Promise.all([
+  const [posts, aiSummary, allTeams, clerkUser, plan] = await Promise.all([
     getPosts(teamSlug),
     getAISummary(teamSlug),
     getEntities("team"),
     currentUser(),
+    getUserPlan(),
   ]);
 
   // Filter to Allsvenskan only
@@ -127,6 +131,10 @@ export default async function ForumTeamPage({
     teamSlug.replace(/-/g, " ").toUpperCase();
 
   const sidebarTeams = allsvenskanTeams.map(t => ({ slug: t.slug ?? "", name: t.name ?? "" }));
+  const showForumSummary = Boolean(aiSummary) && canAccess("forumSummary", plan);
+  const forumTeaser = aiSummary
+    ? `${aiSummary.slice(0, 120)}${aiSummary.length > 120 ? "…" : ""}`
+    : "";
 
   return (
     <div className="w-full min-h-screen">
@@ -154,10 +162,26 @@ export default async function ForumTeamPage({
             </div>
 
             <div className="pb-28">
-              {/* AI summarizer */}
+              {/* AI summarizer — PRO (4h FOMO) */}
               {aiSummary && (
                 <div className="px-4 pt-4">
-                  <ForumSummaryBar summary={aiSummary} />
+                  <BlurPaywall
+                    feature="forumSummary"
+                    plan={plan}
+                    teamName={teamName}
+                    maxHeight="4.5rem"
+                    tease="Vad snackas det om just nu — senaste timmarna."
+                    preview={
+                      <div className="space-y-1">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-pitch">
+                          Forum-läget
+                        </p>
+                        <p className="text-sm text-muted-foreground line-clamp-2">{forumTeaser}</p>
+                      </div>
+                    }
+                  >
+                    <ForumSummaryBar summary={aiSummary} />
+                  </BlurPaywall>
                 </div>
               )}
               <div className="px-4 pt-4 pb-2">
@@ -176,7 +200,11 @@ export default async function ForumTeamPage({
 
           {/* Right sidebar — hidden on mobile/tablet */}
           <aside className="hidden lg:block w-[280px] shrink-0 sticky top-4 py-4 max-h-[calc(100vh-2rem)] overflow-y-auto">
-            <ForumRightSidebar teamName={teamName} teamSlug={teamSlug} aiSummary={aiSummary} />
+            <ForumRightSidebar
+              teamName={teamName}
+              teamSlug={teamSlug}
+              aiSummary={showForumSummary ? aiSummary : null}
+            />
           </aside>
 
         </div>

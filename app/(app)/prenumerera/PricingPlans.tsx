@@ -14,6 +14,7 @@ import { CheckoutButton } from "./CheckoutButton";
 import {
   FOUNDER_OFFER,
   PRICING,
+  TRIAL_DAYS,
   amountFor,
   formatKr,
   monthlyEquivalent,
@@ -25,16 +26,16 @@ const FREE_FEATURES = [
   "Obegränsat nyhetsflöde för ditt lag",
   "Push-notiser — mål, transfers, avspark",
   "Live-resultat, tabell & statistik",
-  "Forum (läsning)",
+  "Forum (läs & skriv)",
 ];
 
 const PRO_FEATURES = [
-  "Daglig AI-brief för ditt lag — text & ljud, varje morgon 07:00",
-  "Poddintelligens — sök i allt som sägs i Allsvenskans poddar",
-  "Transfer-signaler med källkonfidens (multi-source)",
-  "xG-analys & avancerade filter",
-  "Smart ranking + AI-chat",
-  "Forum (skriva)",
+  "Daglig AI-brief — text & ljud, 07:00",
+  "AI-sammanfattningar av artiklar & matcher",
+  "Forum-läget senaste timmarna (4h)",
+  "Ryktesradar — transfer före kollegorna",
+  "Poddintelligens — sök i Allsvenskans poddar",
+  "xG, filter & AI-chat på match/lag",
 ];
 
 const ELITE_FEATURES = [
@@ -42,7 +43,6 @@ const ELITE_FEATURES = [
   "Cross-source clustering",
   "Vad som spelar roll idag för ditt lag",
   "Trend detection (eskalerande rykten)",
-  "Export / API (kommande)",
 ];
 
 function ProPriceTag({ interval }: { interval: BillingInterval }) {
@@ -63,13 +63,14 @@ function ProPriceTag({ interval }: { interval: BillingInterval }) {
         <p className="text-xs text-pitch mt-1 font-medium">
           Founder-pris för alltid — först till {FOUNDER_OFFER.cap}
           {interval === "year" && <> · motsvarar {formatKr(Math.round(amountFor("pro", "year") / 12))}/mån</>}
+          {" · "}{TRIAL_DAYS} dagar gratis
         </p>
       ) : interval === "year" ? (
         <p className="text-xs text-pitch mt-1">
-          Motsvarar {formatKr(monthlyEquivalent("pro"))}/mån · spara 25 %
+          Motsvarar {formatKr(monthlyEquivalent("pro"))}/mån · spara 25 % · {TRIAL_DAYS} dagar gratis
         </p>
       ) : (
-        <p className="text-xs text-muted-foreground mt-1">Avbryt när som helst</p>
+        <p className="text-xs text-muted-foreground mt-1">{TRIAL_DAYS} dagar gratis · avbryt när som helst</p>
       )}
     </div>
   );
@@ -169,7 +170,11 @@ export function PricingPlans() {
           </div>
           <ProPriceTag interval={interval} />
           <FeatureList features={PRO_FEATURES} paid hero={3} />
-          <CheckoutButton plan="pro" interval={interval} label="Bli founder" />
+          <CheckoutButton
+            plan="pro"
+            interval={interval}
+            label={FOUNDER_OFFER.active ? "Bli founder" : "Prova PRO"}
+          />
         </div>
 
         {/* Elite */}

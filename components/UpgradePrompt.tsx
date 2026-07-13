@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { AccessFeature } from "@/lib/access-rules";
 import { ProductEventTracker } from "@/components/analytics/ProductEventTracker";
+import { FOUNDER_OFFER, TRIAL_DAYS, proPriceLabel, listMonthlyKr } from "@/lib/pricing";
 
 const FEATURE_LABELS: Record<AccessFeature, string> = {
   basicFilter:        "grundfilter",
@@ -14,6 +15,8 @@ const FEATURE_LABELS: Record<AccessFeature, string> = {
   aiChat:             "AI-chat",
   podcastClips:       "podcastkuratering",
   briefAudio:         "lyssna på brief",
+  forumSummary:       "forum-läget senaste timmarna",
+  transferSignals:    "ryktesradar (Rykte/Bekräftad)",
 };
 
 export function UpgradePrompt({
@@ -25,6 +28,9 @@ export function UpgradePrompt({
   teamName?: string;
 }) {
   const label = FEATURE_LABELS[feature] ?? feature;
+  const price = proPriceLabel();
+  const founder = FOUNDER_OFFER.active;
+
   return (
     <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 px-5 py-6 text-center">
       <ProductEventTracker
@@ -37,13 +43,19 @@ export function UpgradePrompt({
         <p className="text-sm font-semibold text-white mb-1">Missa inget om {teamName}</p>
       )}
       <p className="text-sm text-zinc-400">
-        <span className="font-medium text-white">{label}</span> kräver PRO eller ELITE.
+        <span className="font-medium text-white">{label}</span> — så du är först utan att scrolla.
+        Kräver PRO eller Elite.
+      </p>
+      <p className="mt-1 text-xs text-zinc-500">
+        {founder
+          ? `Founder ${price} för alltid (ordinarie ${listMonthlyKr("pro")} kr) · ${TRIAL_DAYS} dagar gratis`
+          : `${price} · ${TRIAL_DAYS} dagar gratis`}
       </p>
       <Link
         href="/prenumerera"
-        className="mt-3 inline-block rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 transition-colors"
+        className="mt-3 inline-block rounded-lg bg-pitch px-4 py-2 text-sm font-medium text-white hover:opacity-90 transition-opacity"
       >
-        Uppgradera
+        {founder ? `Bli founder — ${price}` : `Prova ${TRIAL_DAYS} dagar`}
       </Link>
     </div>
   );

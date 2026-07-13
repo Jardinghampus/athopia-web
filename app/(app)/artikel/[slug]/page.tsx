@@ -21,6 +21,9 @@ import { EntityChip } from "@/components/ui/EntityChip";
 import { createServerClient } from "@/lib/supabase";
 import type { Article } from "@/lib/types";
 import { ArticleScrollTracker } from "@/components/gamification/ArticleScrollTracker";
+import { getUserPlan } from "@/lib/user-plan";
+import { canAccess } from "@/lib/access-rules";
+import { BlurPaywall } from "@/components/BlurPaywall";
 
 export const revalidate = 3600;
 
@@ -138,9 +141,10 @@ export default async function ArtikelPage({
   const article = await getArticle(slug);
   if (!article) notFound();
 
-  const [relatedArticles, discussionCount] = await Promise.all([
+  const [relatedArticles, discussionCount, plan] = await Promise.all([
     getRelatedArticles(article.id),
     getDiscussionCount(article.id),
+    getUserPlan(),
   ]);
 
   // Forum-CTA:t går till artikelns lag-forum; utan lag → forum-index
@@ -148,6 +152,8 @@ export default async function ArtikelPage({
   const forumHref = teamEntity
     ? `/forum/${teamEntity.slug}?artikel=${article.id}`
     : "/forum";
+  const unlockedAi = canAccess("aiSummaries", plan);
+  const teamName = teamEntity?.name;
 
   return (
     <>
@@ -199,28 +205,69 @@ export default async function ArtikelPage({
           <ShareButton title={article.title} url={`https://athopia.se/artikel/${article.slug}`} />
         </div>
 
-        {/* AI-Summary box */}
-        <div
-          className="rounded-xl p-5 mb-8 border border-pitch/30"
-          style={{ backgroundColor: "rgba(45, 83, 73, 0.10)" }}
-        >
-          <div className="flex items-center gap-2 mb-3">
-            <Sparkles className="w-4 h-4 text-pitch" />
-            <span className="text-sm font-medium text-pitch uppercase tracking-wider">
-              AI-sammanfattning
-            </span>
-          </div>
-          <p className="text-foreground/90 leading-relaxed">{article.summary}</p>
-        </div>
+        {/* AI-Summary — PRO; free får bara teaser i DOM */}
+        {article.summary && (
+          <BlurPaywall
+            feature="aiSummaries"
+            plan={plan}
+            teamName={teamName}
+            className="mb-8"
+            maxHeight="5.5rem"
+            tease="AI-sammanfattning — så du slipper läsa hela källan."
+            preview={
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-pitch" />
+                  <span className="text-sm font-medium uppercase tracking-wider text-pitch">
+                    AI-sammanfattning
+                  </span>
+                </div>
+                <p className="leading-relaxed text-foreground/90 line-clamp-3">
+                  {article.summary.slice(0, 160)}
+                  {article.summary.length > 160 ? "…" : ""}
+                </p>
+              </div>
+            }
+          >
+            <div
+              className="rounded-xl border border-pitch/30 p-5"
+              style={{ backgroundColor: "rgba(45, 83, 73, 0.10)" }}
+            >
+              <div className="mb-3 flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-pitch" />
+                <span className="text-sm font-medium uppercase tracking-wider text-pitch">
+                  AI-sammanfattning
+                </span>
+              </div>
+              <p className="leading-relaxed text-foreground/90">{article.summary}</p>
+            </div>
+          </BlurPaywall>
+        )}
 
         <Separator className="mb-8" />
 
-        {/* Fulltext eller källlänk */}
-        {article.content ? (
+        {/* Fulltext — PRO only i DOM; free: källlänk (upphovsrättssäkert) */}
+        {article.content && unlockedAi ? (
           <div
             className="prose-athopia max-w-none"
             dangerouslySetInnerHTML={{ __html: article.content }}
           />
+        ) : article.content && !unlockedAi ? (
+          <BlurPaywall
+            feature="aiSummaries"
+            plan={plan}
+            teamName={teamName}
+            className="mb-8"
+            maxHeight="6rem"
+            tease="Full Athopia-analys bakom PRO."
+            preview={
+              <p className="text-sm leading-relaxed text-foreground/80">
+                {(article.summary ?? article.title).slice(0, 140)}…
+              </p>
+            }
+          >
+            {null}
+          </BlurPaywall>
         ) : (
           <div className="flex flex-col items-center gap-4 py-12 text-center">
             <p className="text-muted-foreground">
@@ -230,12 +277,26 @@ export default async function ArtikelPage({
               href={article.sourceUrl ?? "#"}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full pitch-gradient text-white font-medium hover:opacity-90 transition-opacity"
+              className="inline-flex items-center gap-2 rounded-full pitch-gradient px-5 py-2.5 font-medium text-white transition-opacity hover:opacity-90"
             >
               Läs på {article.sourceName}
-              <ExternalLink className="w-4 h-4" />
+              <ExternalLink className="h-4 w-4" />
             </a>
           </div>
+        )}
+
+        {article.content && !unlockedAi && article.sourceUrl && (
+          <p className="mb-8 text-center text-xs text-muted-foreground">
+            Eller läs originalet på{" "}
+            <a
+              href={article.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-pitch hover:underline"
+            >
+              {article.sourceName}
+            </a>
+          </p>
         )}
 
         {/* Diskussion — Athletic-kroken: artikeln är en social yta */}

@@ -14,6 +14,7 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { AlertTriangle, Check, CreditCard, User } from "lucide-react";
 import { ListGroup } from "@/components/ui/ListGroup";
 import { ListRow } from "@/components/ui/ListRow";
+import { FOUNDER_OFFER, TRIAL_DAYS, proPriceLabel, listMonthlyKr } from "@/lib/pricing";
 import Stripe from "stripe";
 
 export const dynamic = 'force-dynamic';
@@ -200,7 +201,13 @@ export default async function KontoPage({
             <ListRow
               href="/prenumerera"
               title={isPaid ? "Byt plan" : "Uppgradera till PRO"}
-              subtitle={isPaid ? undefined : "89 kr/mån · 25 % rabatt vid årsbetalning"}
+              subtitle={
+                isPaid
+                  ? undefined
+                  : FOUNDER_OFFER.active
+                    ? `Founder ${proPriceLabel()} för alltid (ordinarie ${listMonthlyKr("pro")} kr) · ${TRIAL_DAYS} dagar gratis`
+                    : `${proPriceLabel()} · ${TRIAL_DAYS} dagar gratis · 25 % rabatt årsvis`
+              }
               trailing={<Check className="w-4 h-4 text-pitch" />}
             />
           )}

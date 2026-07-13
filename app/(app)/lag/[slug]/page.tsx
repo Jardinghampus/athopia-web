@@ -201,7 +201,7 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
 
       <PositionTrend teamSlug={hub.team.slug} />
 
-      <TransferRadar teamSlug={hub.team.slug} />
+      <TransferRadar teamSlug={hub.team.slug} plan={plan} teamName={hub.team.name} />
 
       <TeamHubTabs hub={hub} plan={plan} insights={insights} />
     </div>

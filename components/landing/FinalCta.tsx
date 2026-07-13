@@ -54,9 +54,10 @@ export function FinalCta() {
             </Reveal>
 
             <Reveal delay={0.16}>
-              <p className="mx-auto mb-10 mt-6 max-w-[380px] text-[17px] leading-[1.65] text-white/55">
-                Gratis att börja. Inget kreditkort. 30 sekunder från att du
-                väljer lag tills ditt flöde är igång — avsluta när du vill.
+              <p className="mx-auto mb-10 mt-6 max-w-[400px] text-[17px] leading-[1.65] text-white/55">
+                Gratis flöde utan kort. Vill du ha briefen och signalerna —
+                PRO med 7 dagar gratis, founder-pris 69 kr för de första 500.
+                Avsluta när du vill.
               </p>
             </Reveal>
 

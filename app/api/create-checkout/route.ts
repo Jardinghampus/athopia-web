@@ -20,6 +20,7 @@ import { logFunnelEvent } from "@/lib/funnel";
 import {
   FOUNDER_OFFER,
   PRICING,
+  TRIAL_DAYS,
   amountFor,
   isPaidPlan,
   isBillingInterval,
@@ -86,6 +87,7 @@ export async function POST(req: Request & { headers: Headers }) {
       success_url: `${base}/konto?checkout=success`,
       cancel_url: `${base}/prenumerera`,
       subscription_data: {
+        trial_period_days: TRIAL_DAYS,
         metadata: { clerkUserId: userId, plan, interval, founder: String(plan === "pro" && FOUNDER_OFFER.active) },
       },
     });
