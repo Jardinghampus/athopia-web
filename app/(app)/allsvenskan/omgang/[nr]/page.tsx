@@ -90,7 +90,7 @@ export default async function OmgangPage({
                   <span className={`px-3 py-1 rounded-lg text-sm font-bold tabular-nums ${played ? "bg-muted text-foreground" : "text-muted-foreground"}`}>
                     {played && homeGoals != null && awayGoals != null
                       ? `${homeGoals} – ${awayGoals}`
-                      : new Date(f.starting_at).toLocaleString("sv-SE", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                      : new Date(f.starting_at).toLocaleString("sv-SE", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Stockholm" })}
                   </span>
                   <span className="flex-1 font-medium text-foreground truncate">{away?.name}</span>
                 </Link>

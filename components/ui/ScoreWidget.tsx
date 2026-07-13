@@ -33,7 +33,7 @@ function kickoffLabel(iso: string): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
 
-  const time = d.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
+  const time = d.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Stockholm" });
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);
   const startOfKickoff = new Date(d);
@@ -50,6 +50,7 @@ function kickoffLabel(iso: string): string {
     weekday: "short",
     day: "numeric",
     month: "short",
+    timeZone: "Europe/Stockholm",
   });
   return `${date} ${time}`;
 }

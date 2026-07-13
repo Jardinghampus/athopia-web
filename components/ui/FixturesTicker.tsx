@@ -18,9 +18,9 @@ function shortLabel(iso: string): string {
   if (Number.isNaN(d.getTime())) return "";
   const today = new Date();
   const sameDay = d.toDateString() === today.toDateString();
-  const time = d.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
+  const time = d.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Stockholm" });
   if (sameDay) return time;
-  return d.toLocaleDateString("sv-SE", { weekday: "short", day: "numeric", month: "short" });
+  return d.toLocaleDateString("sv-SE", { weekday: "short", day: "numeric", month: "short", timeZone: "Europe/Stockholm" });
 }
 
 /** "IFK Göteborg" → "IFK GÖT" är fel riktning — ta sista ordet om prefix är IFK/IF/BK/GAIS-stil. */

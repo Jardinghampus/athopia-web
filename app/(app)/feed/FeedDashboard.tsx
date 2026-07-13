@@ -89,11 +89,11 @@ function timeAgo(iso: string): string {
 
 function fmtDate(iso: string): string {
   const d = new Date(iso);
-  return d.toLocaleDateString("sv-SE", { weekday: "short", day: "numeric", month: "short" });
+  return d.toLocaleDateString("sv-SE", { weekday: "short", day: "numeric", month: "short", timeZone: "Europe/Stockholm" });
 }
 
 function fmtTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
+  return new Date(iso).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Stockholm" });
 }
 
 // ─── Primitives ───────────────────────────────────────────────────────────────
@@ -177,6 +177,7 @@ function AIBriefCard({ news }: { news: DashArticle[] }) {
   const now = new Date().toLocaleTimeString("sv-SE", {
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: "Europe/Stockholm",
   });
 
   return (

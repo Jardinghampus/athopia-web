@@ -86,6 +86,7 @@ export function ForumSummaryPopup() {
   const timeLabel = new Date(digest.created_at).toLocaleTimeString("sv-SE", {
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: "Europe/Stockholm",
   });
 
   return (

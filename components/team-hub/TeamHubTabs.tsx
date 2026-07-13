@@ -108,7 +108,7 @@ function MatchQuickview({ fixture, smId, onClose }: { fixture: FixtureRow | null
                 </span>
               ) : (
                 <span className="text-2xl font-bold text-muted-foreground">
-                  {f.kickoff_at ? new Date(f.kickoff_at).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" }) : "–"}
+                  {f.kickoff_at ? new Date(f.kickoff_at).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Stockholm" }) : "–"}
                 </span>
               )}
               <span className="flex-1 truncate text-sm font-medium">{f.away_team_name}</span>

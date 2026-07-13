@@ -108,7 +108,7 @@ function LiveForumFeed({ teamIds }: { teamIds: string[] }) {
             <div className="flex items-center gap-2 mb-1">
               <span className="text-xs font-medium text-foreground">{r.author_name}</span>
               <span className="text-[10px] text-muted-foreground">
-                {new Date(r.created_at).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
+                {new Date(r.created_at).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Stockholm" })}
               </span>
             </div>
             <p className="text-xs text-muted-foreground">{r.content}</p>

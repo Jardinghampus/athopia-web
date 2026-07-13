@@ -43,9 +43,9 @@ export interface ClubChip {
 function kickoffLabel(iso: string): string {
   const d = new Date(iso);
   const today = new Date().toDateString() === d.toDateString();
-  const time = d.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
+  const time = d.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Stockholm" });
   if (today) return `Idag ${time}`;
-  return `${d.toLocaleDateString("sv-SE", { weekday: "short", day: "numeric", month: "short" })} ${time}`;
+  return `${d.toLocaleDateString("sv-SE", { weekday: "short", day: "numeric", month: "short", timeZone: "Europe/Stockholm" })} ${time}`;
 }
 
 /** Levande sportpuls istället för statisk label — riktig data, aldrig påhittad. */

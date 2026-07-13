@@ -61,7 +61,7 @@ export default async function AllsvenskanSpelschemePage() {
                   <span className="font-medium w-[40%] truncate">{(away as unknown as Record<string,unknown>)?.name as string ?? "—"}</span>
                 </div>
                 <span className="text-xs text-muted-foreground ml-4 shrink-0">
-                  {new Date(f.starting_at).toLocaleString("sv-SE", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                  {new Date(f.starting_at).toLocaleString("sv-SE", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Stockholm" })}
                 </span>
               </Link>
             );
