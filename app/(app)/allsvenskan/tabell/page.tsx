@@ -5,6 +5,29 @@ import type { SMStandingRow } from "@/lib/db/fixtures";
 
 export const revalidate = 60;
 
+// Allsvenskan-kval/nedflyttningszoner (16 lag). Sportmonks levererar ingen
+// zon-flagga i vår standings-vy, så den härleds från placering (stabil regel).
+type Zone = "cl" | "el" | "playoff" | "relegation" | null;
+function zoneFor(position: number): Zone {
+  if (position === 1) return "cl";
+  if (position === 2 || position === 3) return "el";
+  if (position === 14) return "playoff";
+  if (position >= 15) return "relegation";
+  return null;
+}
+const ZONE_DOT: Record<Exclude<Zone, null>, string> = {
+  cl: "bg-success",
+  el: "bg-sky-500",
+  playoff: "bg-amber-500",
+  relegation: "bg-destructive",
+};
+const ZONE_LABEL: Record<Exclude<Zone, null>, string> = {
+  cl: "Champions League",
+  el: "Europa/Conference League",
+  playoff: "Kval",
+  relegation: "Nedflyttning",
+};
+
 export const metadata: Metadata = {
   title: "Allsvenskan Tabell 2026 – Poängtabell & Ställning",
   description: "Aktuell Allsvenskan-tabell 2026 med poäng, målskillnad och form för alla 16 lag. Uppdateras automatiskt efter varje match.",
@@ -83,10 +106,18 @@ export default async function AllsvenskanTabellPage() {
                 </td>
               </tr>
             )}
-            {standings.map((row) => (
+            {standings.map((row) => {
+              const zone = zoneFor(row.position);
+              return (
               <tr key={row.team.name} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
                 <td className="py-3 px-4 text-muted-foreground">
-                  <span className="inline-flex items-center gap-1">
+                  <span className="inline-flex items-center gap-1.5">
+                    {zone && (
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full shrink-0 ${ZONE_DOT[zone]}`}
+                        aria-hidden
+                      />
+                    )}
                     {row.position}
                     {row.trend != null && row.trend !== 0 && (
                       <span
@@ -120,10 +151,22 @@ export default async function AllsvenskanTabellPage() {
                   </span>
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>
+
+      {standings.length > 0 && (
+        <div className="flex flex-wrap gap-x-4 gap-y-1.5 mt-4 px-1 text-xs text-muted-foreground">
+          {(Object.keys(ZONE_LABEL) as Array<keyof typeof ZONE_LABEL>).map((z) => (
+            <span key={z} className="inline-flex items-center gap-1.5">
+              <span className={`w-1.5 h-1.5 rounded-full ${ZONE_DOT[z]}`} aria-hidden />
+              {ZONE_LABEL[z]}
+            </span>
+          ))}
+        </div>
+      )}
 
     </div>
   );

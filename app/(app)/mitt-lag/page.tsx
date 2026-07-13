@@ -17,6 +17,7 @@ import { getUserPlan } from "@/lib/user-plan";
 import { TeamHubBriefRitual } from "@/components/team-hub/TeamHubBriefRitual";
 import { MatchdayBanner } from "@/components/team-hub/MatchdayBanner";
 import { FeedMatchHero } from "@/components/feed/FeedMatchHero";
+import { StatNumber } from "@/components/ui/StatNumber";
 
 export const dynamic = "force-dynamic";
 
@@ -108,6 +109,36 @@ export default async function MittLagPage({
           <ArrowRight className="h-3.5 w-3.5" />
         </Link>
       </header>
+
+      {/* Hero-stat: tabellposition äger raden (Revolut-hierarkin) — övriga siffror underordnade */}
+      {hub.position != null && (
+        <Link
+          href="/allsvenskan/tabell"
+          className="mb-5 flex items-center justify-between gap-4 rounded-2xl border border-border bg-card px-5 py-4 hover:border-pitch/40 transition-colors"
+        >
+          <div>
+            <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Tabellplacering</p>
+            <div className="flex items-baseline gap-1.5">
+              <StatNumber value={hub.position} className="text-4xl" />
+              <span className="text-sm text-muted-foreground">av 16</span>
+            </div>
+          </div>
+          {hub.form.length > 0 && (
+            <div className="flex gap-1 shrink-0">
+              {hub.form.slice(-5).map((r, i) => (
+                <span
+                  key={i}
+                  className={`w-6 h-6 rounded-full text-[10px] font-bold flex items-center justify-center ${
+                    r === "W" ? "bg-success/20 text-success" : r === "L" ? "bg-destructive/20 text-destructive" : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {r === "W" ? "V" : r === "L" ? "F" : "O"}
+                </span>
+              ))}
+            </div>
+          )}
+        </Link>
+      )}
 
       <TeamHubBriefRitual pulse={hub.pulse} dailyEpisode={hub.dailyEpisode} plan={plan} />
 
