@@ -1,9 +1,8 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { Send, Sparkles, ChevronRight } from 'lucide-react'
+import { Send, Sparkles, Copy, Check, RotateCcw } from 'lucide-react'
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react'
-import { WavyBackground } from '@/components/ui/wavy-background'
 import Link from 'next/link'
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -88,16 +87,17 @@ export default function AiChatPage() {
   }, [messages, loading, prefersReduced])
 
   // ── Send ────────────────────────────────────────────────────────────────
-  const ask = useCallback(async (question: string) => {
+  const ask = useCallback(async (question: string, historyOverride?: Msg[]) => {
     if (!question.trim() || loading) return
     const q = question.trim()
+    const baseHistory = historyOverride ?? messages
     setInput('')
     if (textareaRef.current) textareaRef.current.style.height = 'auto'
-    setMessages(prev => [...prev, { role: 'user', text: q }])
+    if (!historyOverride) setMessages(prev => [...prev, { role: 'user', text: q }])
     setLoading(true)
 
     try {
-      const history = messages.map(m => ({ role: m.role, content: m.text }))
+      const history = baseHistory.map(m => ({ role: m.role, content: m.text }))
       const res = await fetch('/api/elite/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -141,84 +141,58 @@ export default function AiChatPage() {
     }
   }
 
+  // ── Regenerate last response ────────────────────────────────────────────
+  const regenerate = useCallback((assistantIndex: number) => {
+    const lastUser = [...messages.slice(0, assistantIndex)].reverse().find(m => m.role === 'user')
+    if (!lastUser || loading) return
+    const historyBefore = messages.slice(0, assistantIndex - 1)
+    setMessages(historyBefore)
+    ask(lastUser.text, historyBefore)
+  }, [messages, loading, ask])
+
   return (
     <div
-      className="relative overflow-hidden flex items-start justify-center p-0 pb-[calc(env(safe-area-inset-bottom)+5rem)] sm:items-center sm:pb-0 sm:p-6"
+      className="relative flex flex-col items-center px-0 sm:px-6"
       style={{ height: viewportH ? `${viewportH}px` : 'calc(100svh - 3.5rem)' }}
     >
-      {/* Wavy canvas background — only on sm+ (desktop) */}
-      {!prefersReduced && (
-        <WavyBackground
-          containerClassName="absolute inset-0 z-0 hidden sm:flex"
-          colors={['#2D5349', '#5FA98C', '#111111', '#8A8885', '#1E3A32', '#B5B5B3']}
-          backgroundFill="oklch(0.07 0.03 240)"
-          blur={6}
-          speed="fast"
-          waveOpacity={0.8}
-          waveWidth={60}
-        />
-      )}
+      {/* Header */}
+      <header className="flex w-full max-w-2xl shrink-0 items-center gap-2.5 px-5 py-4">
+        <Sparkles size={16} className="text-pitch" aria-hidden />
+        <p className="text-sm font-semibold text-foreground">Athopia AI</p>
+        <span className="ml-auto flex shrink-0 items-center gap-1.5 rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-amber-500">
+          <Sparkles size={9} aria-hidden />
+          Elite
+        </span>
+      </header>
 
-      {/* Window */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.985 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-        className="relative z-10 flex h-full w-full max-w-3xl flex-col overflow-hidden sm:h-[min(700px,calc(100svh-7rem))] sm:rounded-2xl"
-        style={{
-          background: 'color-mix(in srgb, var(--background) 58%, transparent)',
-          backdropFilter: 'blur(24px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-          border: '2px solid rgba(45, 83, 73, 0.7)',
-          boxShadow: '0 0 18px 2px rgba(45, 83, 73, 0.25), 0 0 0 1px rgba(45,83,73,0.15) inset, 0 24px 60px -12px rgba(0,0,0,0.6)',
-        }}
-      >
-        {/* Window chrome */}
-        <header className="flex shrink-0 items-center gap-3 px-5 py-3.5" style={{ borderBottom: '1px solid color-mix(in srgb, var(--foreground) 8%, transparent)' }}>
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-pitch">
-            <Sparkles size={14} className="text-white" aria-hidden />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-foreground leading-none">Athopia AI</p>
-            <p className="text-xs text-muted-foreground mt-0.5">Allsvenskan · statistik &amp; nyheter</p>
-          </div>
-          <span className="flex shrink-0 items-center gap-1.5 rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-amber-500">
-            <Sparkles size={9} aria-hidden />
-            Elite
-          </span>
-        </header>
-
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto" role="log" aria-label="Konversation" aria-live="polite">
+      {/* Messages */}
+      <div className="w-full flex-1 overflow-y-auto" role="log" aria-label="Konversation" aria-live="polite">
+        <div className="mx-auto max-w-2xl">
           <AnimatePresence initial={false}>
             {messages.length === 0 && !loading ? (
               <EmptyState key="empty" onAsk={ask} />
             ) : (
-              <div className="space-y-5 px-5 py-5">
+              <div className="space-y-6 px-5 py-4">
                 {messages.map((m, i) => (
                   <motion.div
                     key={i}
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                    className={`flex gap-3 ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                    className={m.role === 'user' ? 'flex justify-end' : ''}
                   >
-                    {m.role === 'assistant' && (
-                      <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-pitch" aria-hidden>
-                        <Sparkles size={13} className="text-white" />
+                    {m.role === 'user' ? (
+                      <div className="max-w-[82%] rounded-2xl rounded-tr-sm bg-muted px-4 py-3 text-sm leading-relaxed text-foreground">
+                        {m.text}
+                      </div>
+                    ) : (
+                      <div className="text-sm leading-relaxed text-foreground">
+                        <AssistantMessage text={m.text} isStreaming={i === messages.length - 1 && loading} />
+                        {!(i === messages.length - 1 && loading) && (
+                          <MessageActions text={m.text} onRegenerate={() => regenerate(i)} />
+                        )}
                       </div>
                     )}
-                    <div
-                      className={`max-w-[82%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-                        m.role === 'user'
-                          ? 'rounded-tr-sm bg-pitch text-white'
-                          : 'rounded-tl-sm bg-muted text-foreground'
-                      }`}
-                    >
-                      {m.role === 'assistant'
-                        ? <AssistantMessage text={m.text} isStreaming={i === messages.length - 1 && loading} />
-                        : m.text}
-                    </div>
                   </motion.div>
                 ))}
 
@@ -227,15 +201,9 @@ export default function AiChatPage() {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.2 }}
-                    className="flex gap-3"
                     aria-label="Athopia AI tänker"
                   >
-                    <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-pitch" aria-hidden>
-                      <Sparkles size={13} className="text-white" />
-                    </div>
-                    <div className="rounded-2xl rounded-tl-sm bg-muted px-4 py-3.5">
-                      <ThinkingIndicator message={thinkingMsg} />
-                    </div>
+                    <ThinkingIndicator message={thinkingMsg} />
                   </motion.div>
                 )}
 
@@ -244,21 +212,23 @@ export default function AiChatPage() {
             )}
           </AnimatePresence>
         </div>
+      </div>
 
-        {/* Input bar */}
-        <div className="shrink-0 border-t border-border px-4 py-4">
+      {/* Input bar */}
+      <div className="w-full shrink-0 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-2 sm:pb-6">
+        <div className="mx-auto max-w-2xl">
           <form
             onSubmit={(e) => { e.preventDefault(); ask(input) }}
             aria-label="Skriv en fråga"
-            className="flex items-end gap-2 rounded-xl px-4 py-2.5 transition-colors focus-within:ring-1 focus-within:ring-pitch/40"
-            style={{ background: 'color-mix(in srgb, var(--background) 60%, transparent)', border: '1px solid color-mix(in srgb, var(--foreground) 10%, transparent)' }}
+            className="flex items-end gap-2 rounded-2xl px-4 py-2.5 shadow-sm transition-colors focus-within:ring-1 focus-within:ring-pitch/40"
+            style={{ background: 'var(--muted)', border: '1px solid color-mix(in srgb, var(--foreground) 10%, transparent)' }}
           >
             <textarea
               ref={textareaRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ställ en fråga om Allsvenskan…"
+              placeholder="Fråga Athopia AI om Allsvenskan…"
               disabled={loading}
               rows={1}
               aria-label="Fråga"
@@ -284,7 +254,7 @@ export default function AiChatPage() {
             {' '}· Enter för att skicka
           </p>
         </div>
-      </motion.div>
+      </div>
     </div>
   )
 }
@@ -299,7 +269,7 @@ function EmptyState({ onAsk }: { onAsk: (q: string) => void }) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.18 }}
-      className="flex h-full flex-col items-center justify-center gap-6 px-6 py-12"
+      className="flex min-h-[60vh] flex-col items-center justify-center gap-6 px-6 py-12"
     >
       {/* Breathing icon */}
       <motion.div
@@ -312,7 +282,7 @@ function EmptyState({ onAsk }: { onAsk: (q: string) => void }) {
       </motion.div>
 
       <div className="text-center">
-        <h2 className="text-base font-semibold text-foreground">Vad vill du veta?</h2>
+        <h2 className="text-xl font-semibold text-foreground">Vad vill du veta?</h2>
         <p className="mt-1 text-sm text-muted-foreground">Fråga om Allsvenskan — statistik, matcher, nyheter</p>
       </div>
 
@@ -328,15 +298,48 @@ function EmptyState({ onAsk }: { onAsk: (q: string) => void }) {
             transition={{ delay: i * 0.06 + 0.1, duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
             whileTap={{ scale: 0.96 }}
             onClick={() => onAsk(s.q)}
-            className="flex items-center justify-between gap-2 rounded-xl border border-border bg-background px-4 py-3 text-left transition-colors hover:border-pitch/40 hover:bg-pitch/5 touch-manipulation"
+            className="rounded-xl border border-border bg-background px-4 py-3 text-left transition-colors hover:border-pitch/40 hover:bg-pitch/5 touch-manipulation"
             aria-label={s.q}
           >
             <span className="text-xs font-medium text-foreground">{s.label}</span>
-            <ChevronRight size={12} className="shrink-0 text-muted-foreground" aria-hidden />
           </motion.button>
         ))}
       </div>
     </motion.div>
+  )
+}
+
+// ── Message Actions (copy / regenerate) ────────────────────────────────────────
+
+function MessageActions({ text, onRegenerate }: { text: string; onRegenerate: () => void }) {
+  const [copied, setCopied] = useState(false)
+
+  const copy = useCallback(() => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+    })
+  }, [text])
+
+  return (
+    <div className="mt-2 flex items-center gap-1">
+      <button
+        type="button"
+        onClick={copy}
+        aria-label="Kopiera svar"
+        className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground touch-manipulation"
+      >
+        {copied ? <Check size={13} /> : <Copy size={13} />}
+      </button>
+      <button
+        type="button"
+        onClick={onRegenerate}
+        aria-label="Generera om svar"
+        className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground touch-manipulation"
+      >
+        <RotateCcw size={13} />
+      </button>
+    </div>
   )
 }
 
