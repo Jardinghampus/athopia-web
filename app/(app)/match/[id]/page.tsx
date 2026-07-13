@@ -10,6 +10,8 @@ import { MatchLineups } from "@/components/match/MatchLineups";
 import { MatchAskPanel } from "@/components/match/MatchAskPanel";
 import { PodcastSignalsPanel } from "@/components/podcast/PodcastSignalsPanel";
 import { getUserPlan } from "@/lib/user-plan";
+import { fetchStandingsFull } from "@/lib/db/fixtures";
+import type { SMStandingRow } from "@/lib/db/fixtures";
 
 export const revalidate = 60;
 
@@ -181,6 +183,35 @@ async function getRatablePlayers(
   }).filter((p) => p.playerId > 0);
 }
 
+/** Tabellrader runt de två lagen (Athletic-mönstret) — max ±2 platser, alltid båda lagen med. */
+function standingsExcerpt(standings: SMStandingRow[], homeTeamId: number, awayTeamId: number): SMStandingRow[] {
+  const homeIdx = standings.findIndex((r) => r.team.id === homeTeamId);
+  const awayIdx = standings.findIndex((r) => r.team.id === awayTeamId);
+  if (homeIdx === -1 && awayIdx === -1) return [];
+  const idxs = [homeIdx, awayIdx].filter((i) => i !== -1);
+  const lo = Math.max(0, Math.min(...idxs) - 1);
+  const hi = Math.min(standings.length - 1, Math.max(...idxs) + 1);
+  return standings.slice(lo, hi + 1);
+}
+
+function FormDots({ form }: { form: string[] }) {
+  if (form.length === 0) return <span className="text-xs text-muted-foreground">–</span>;
+  return (
+    <span className="flex gap-1">
+      {form.slice(-5).map((r, i) => (
+        <span
+          key={i}
+          className={`w-5 h-5 rounded-full text-[9px] font-bold flex items-center justify-center ${
+            r === "W" ? "bg-success/20 text-success" : r === "L" ? "bg-destructive/20 text-destructive" : "bg-muted text-muted-foreground"
+          }`}
+        >
+          {r === "W" ? "V" : r === "L" ? "F" : "O"}
+        </span>
+      ))}
+    </span>
+  );
+}
+
 export default async function MatchPage({ params }: PageProps) {
   const { id } = await params;
   const fid = parseInt(id, 10);
@@ -188,12 +219,13 @@ export default async function MatchPage({ params }: PageProps) {
 
   const d = await getData(fid);
   const fix = d?.fix as Record<string, unknown> | null;
-  const [plan, podcastClips] = await Promise.all([
+  const [plan, podcastClips, standings] = await Promise.all([
     getUserPlan(),
     getPodcastSignalsForEntities(d?.teamEntityIds ?? [], {
       limit: 2,
       teamNames: fix ? [String(fix.home_team_name ?? ""), String(fix.away_team_name ?? "")] : [],
     }),
+    fetchStandingsFull().catch(() => [] as SMStandingRow[]),
   ]);
 
   if (!fix) {
@@ -295,6 +327,58 @@ export default async function MatchPage({ params }: PageProps) {
           <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-line">{summary}</p>
         </div>
       )}
+
+      {/* Inför matchen — intelligens-hub innan avspark (Athletic-mönstret) */}
+      {fix.status === "NS" && (() => {
+        const homeRow = standings.find((r) => r.team.id === Number(fix.home_team_id));
+        const awayRow = standings.find((r) => r.team.id === Number(fix.away_team_id));
+        const excerpt = standingsExcerpt(standings, Number(fix.home_team_id), Number(fix.away_team_id));
+        if (!homeRow && !awayRow && excerpt.length === 0) return null;
+        return (
+          <div className="bg-card border border-border rounded-xl p-4 space-y-4">
+            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Inför matchen</h3>
+
+            {(homeRow || awayRow) && (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center justify-between gap-2">
+                  <div>
+                    <p className="text-sm font-medium text-foreground truncate">{homeName}</p>
+                    {homeRow && <p className="text-xs text-muted-foreground">{homeRow.position}:a plats · {homeRow.points}p</p>}
+                  </div>
+                  {homeRow && <FormDots form={homeRow.form} />}
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <div>
+                    <p className="text-sm font-medium text-foreground truncate">{awayName}</p>
+                    {awayRow && <p className="text-xs text-muted-foreground">{awayRow.position}:a plats · {awayRow.points}p</p>}
+                  </div>
+                  {awayRow && <FormDots form={awayRow.form} />}
+                </div>
+              </div>
+            )}
+
+            {excerpt.length > 0 && (
+              <div className="rounded-lg border border-border/60 overflow-hidden">
+                <table className="w-full text-xs">
+                  <tbody>
+                    {excerpt.map((row) => {
+                      const isMatchTeam = row.team.id === Number(fix.home_team_id) || row.team.id === Number(fix.away_team_id);
+                      return (
+                        <tr key={row.team.name} className={isMatchTeam ? "bg-pitch/5 font-medium" : ""}>
+                          <td className="py-1.5 px-3 text-muted-foreground w-6">{row.position}</td>
+                          <td className="py-1.5 px-3 text-foreground truncate">{row.team.name}</td>
+                          <td className="py-1.5 px-3 text-right text-muted-foreground">{row.played} M</td>
+                          <td className="py-1.5 px-3 text-right font-semibold text-foreground">{row.points}p</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Matchstatistik */}

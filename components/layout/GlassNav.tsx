@@ -3,13 +3,17 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Search, User } from "lucide-react";
-import { useCommandPalette } from "@/hooks/useCommandPalette";
 import { NAV_ITEMS } from "@/lib/nav";
 import "./GlassNav.css";
 
 export function GlassNav({ clerkEnabled: _clerkEnabled }: { clerkEnabled?: boolean }) {
   const pathname = usePathname();
-  const { openPalette } = useCommandPalette();
+
+  // useCommandPalette() är lokal state per anropare — CommandPalette monteras i
+  // (app)/layout.tsx med sin egen instans, så vi öppnar den via globalt event.
+  function openPalette() {
+    window.dispatchEvent(new CustomEvent("athopia:open-search"));
+  }
 
   // On thread pages the compose bar owns the bottom — hide GlassNav
   const hideOnThread = /^\/forum\/.+\/.+/.test(pathname);

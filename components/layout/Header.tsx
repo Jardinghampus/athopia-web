@@ -1,9 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { Menu } from "lucide-react";
+import { Menu, Search } from "lucide-react";
 import { NavAuth } from "@/components/ui/NavAuth";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+
+function openSearch() {
+  window.dispatchEvent(new CustomEvent("athopia:open-search"));
+}
 
 export function Header({ clerkEnabled }: { clerkEnabled: boolean }) {
   return (
@@ -28,6 +32,15 @@ export function Header({ clerkEnabled }: { clerkEnabled: boolean }) {
         </div>
 
         <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={openSearch}
+            aria-label="Sök"
+            title="Sök (⌘K)"
+            className="hidden md:flex w-8 h-8 items-center justify-center rounded-full hover:bg-card transition-colors text-muted-foreground"
+          >
+            <Search className="w-[18px] h-[18px]" />
+          </button>
           <ThemeToggle />
           <NavAuth clerkEnabled={clerkEnabled} />
         </div>

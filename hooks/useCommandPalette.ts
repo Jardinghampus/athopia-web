@@ -24,6 +24,16 @@ export function useCommandPalette() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
+  // Hooken är lokal useState per anropare (ingen delad context) — komponenter
+  // som inte själva monterar <CommandPalette/> (GlassNav, Header) måste öppna
+  // den via detta globala event i stället för att ropa openPalette() på sin
+  // egen, orenderade instans.
+  useEffect(() => {
+    const onOpenEvent = () => setOpen(true);
+    window.addEventListener("athopia:open-search", onOpenEvent);
+    return () => window.removeEventListener("athopia:open-search", onOpenEvent);
+  }, []);
+
   return { open, setOpen, toggle, close, openPalette, query, setQuery };
 }
 
