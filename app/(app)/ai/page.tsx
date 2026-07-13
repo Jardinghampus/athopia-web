@@ -215,12 +215,12 @@ export default function AiChatPage() {
       </div>
 
       {/* Input bar */}
-      <div className="w-full shrink-0 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-2 sm:pb-6">
+      <div className="w-full shrink-0 px-4 pb-[calc(env(safe-area-inset-bottom)+5.5rem)] pt-2">
         <div className="mx-auto max-w-2xl">
           <form
             onSubmit={(e) => { e.preventDefault(); ask(input) }}
             aria-label="Skriv en fråga"
-            className="flex items-end gap-2 rounded-2xl px-4 py-2.5 shadow-sm transition-colors focus-within:ring-1 focus-within:ring-pitch/40"
+            className="flex items-center justify-center gap-2 rounded-2xl px-4 py-2.5 shadow-sm transition-colors focus-within:ring-1 focus-within:ring-pitch/40"
             style={{ background: 'var(--muted)', border: '1px solid color-mix(in srgb, var(--foreground) 10%, transparent)' }}
           >
             <textarea
@@ -232,7 +232,7 @@ export default function AiChatPage() {
               disabled={loading}
               rows={1}
               aria-label="Fråga"
-              className="flex-1 resize-none bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-50 leading-relaxed max-h-[120px]"
+              className="flex-1 resize-none bg-transparent text-center text-sm text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-50 leading-relaxed max-h-[120px]"
               style={{ overflowY: 'auto' }}
             />
             <motion.button
@@ -241,7 +241,7 @@ export default function AiChatPage() {
               whileTap={{ scale: 0.88 }}
               transition={{ duration: 0.1 }}
               aria-label="Skicka fråga"
-              className="mb-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-pitch text-white transition-opacity hover:opacity-90 disabled:opacity-30 touch-manipulation"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-pitch text-white transition-opacity hover:opacity-90 disabled:opacity-30 touch-manipulation"
             >
               <Send size={14} aria-hidden />
             </motion.button>
