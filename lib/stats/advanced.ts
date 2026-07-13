@@ -6,6 +6,7 @@
  */
 import { unstable_cache } from "next/cache";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import { getTeamNameMap } from "@/lib/team-names";
 
 const seasonId = () => Number(process.env.SPORTSMONKS_SEASON_ID_2026 ?? "26806");
 
@@ -27,12 +28,9 @@ export interface ClutchRow {
 }
 
 async function teamEntityMap(db: ReturnType<typeof createServerClient>, teamIds: number[]) {
-  const { data } = await db
-    .from("entities")
-    .select("sportmonks_id,name,logo_url")
-    .in("sportmonks_id", teamIds)
-    .eq("type", "team");
-  return new Map((data ?? []).map((e) => [e.sportmonks_id as number, e]));
+  // entities ensam missade rader för lag vars sync-jobb låg efter — gav rå
+  // sportmonks_id (String(r.team_id)) i UI:t. getTeamNameMap slår även upp teams.
+  return getTeamNameMap(db, teamIds);
 }
 
 export const getProjectionRows = unstable_cache(
@@ -51,8 +49,8 @@ export const getProjectionRows = unstable_cache(
       const ent = ents.get(r.team_id);
       return {
         teamId: r.team_id,
-        teamName: (ent?.name as string) ?? String(r.team_id),
-        logoUrl: (ent?.logo_url as string | null) ?? null,
+        teamName: ent?.name || `Lag ${r.team_id}`,
+        logoUrl: ent?.logo ?? null,
         points: r.current_points, elo: r.elo,
         pChampion: r.p_champion, pTop3: r.p_top3,
         pRelegation: r.p_relegation, pPlayoff: r.p_playoff,
@@ -80,8 +78,8 @@ export const getScheduleFormRows = unstable_cache(
       const ent = ents.get(r.team_id);
       return {
         teamId: r.team_id,
-        teamName: (ent?.name as string) ?? String(r.team_id),
-        logoUrl: (ent?.logo_url as string | null) ?? null,
+        teamName: ent?.name || `Lag ${r.team_id}`,
+        logoUrl: ent?.logo ?? null,
         actualPoints: r.actual_points, xpts: r.xpts, luck: r.luck, sos: r.sos,
         computedAt: r.computed_at,
       };

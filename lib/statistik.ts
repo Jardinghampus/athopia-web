@@ -12,6 +12,7 @@ import { unstable_cache } from "next/cache";
 import * as Sentry from "@sentry/nextjs";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import { getTeamSlugMap } from "@/lib/db/fixtures";
+import { getTeamNameMap } from "@/lib/team-names";
 
 export const SEASON_IDS: Record<string, string> = {
   "2026": process.env.SPORTSMONKS_SEASON_ID_2026 ?? "26806",
@@ -106,16 +107,16 @@ type LeaderMetric =
   | "yellow_cards";
 
 // Cachead teams-lista (JSON-serialiserbar — Map byggs utanför cachen).
-// OBS: faktiska kolumner är sportmonks_id + logo (inte id + logo_path).
+// Slås upp via getTeamNameMap: entities (kanonisk) + teams (logga), inte bara
+// `teams` ensam — den fylls av ett sync-jobb som kan ligga efter för enskilda
+// lag och gav tidigare rå sportmonks_id ("Lag 620") i UI:t när raden saknades.
 const cachedTeams = unstable_cache(
   async (): Promise<TeamLite[]> => {
     if (!isSupabaseConfigured()) return [];
     try {
       const db = createServerClient();
-      const { data } = await db.from("teams").select("sportmonks_id,name,logo");
-      return ((data ?? []) as { sportmonks_id: number; name: string | null; logo: string | null }[]).map(
-        (t) => ({ id: t.sportmonks_id, name: t.name, logo_path: t.logo })
-      );
+      const nameMap = await getTeamNameMap(db);
+      return Array.from(nameMap.entries()).map(([id, t]) => ({ id, name: t.name || null, logo_path: t.logo }));
     } catch (e) {
       Sentry.captureException(e);
       return [];
@@ -128,7 +129,7 @@ const cachedTeams = unstable_cache(
 async function getTeamMap() {
   const teams = await cachedTeams();
   return new Map(
-    teams.map((t) => [t.id, { name: t.name ?? `Lag ${t.id}`, image_path: t.logo_path }])
+    teams.map((t) => [t.id, { name: t.name || `Lag ${t.id}`, image_path: t.logo_path }])
   );
 }
 

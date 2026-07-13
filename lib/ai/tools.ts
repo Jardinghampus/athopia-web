@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { createClient } from '@supabase/supabase-js'
 import { searchArticles } from './embedding'
 import { resolveTeam } from './resolve'
+import { getTeamNameMap } from '@/lib/team-names'
 
 const SEASON_ID = Number(process.env.SPORTSMONKS_SEASON_ID_2026 ?? '26806')
 
@@ -80,18 +81,13 @@ export const tools: Record<string, Tool> = {
           .order('goals_for', { ascending: false })
         if (!stats?.length) return { error: 'Tabelldata saknas.' }
 
-        const { data: ents } = await db
-          .from('entities')
-          .select('sportmonks_id,name')
-          .in('sportmonks_id', stats.map(r => r.team_id))
-          .eq('type', 'team')
-        const nm = new Map((ents ?? []).map(e => [e.sportmonks_id, e.name]))
+        const nm = await getTeamNameMap(db, stats.map(r => r.team_id))
 
         return {
           season: 'Allsvenskan 2026',
           standings: stats.map((r, i) => ({
             pos: i + 1,
-            team: nm.get(r.team_id) ?? `Lag ${r.team_id}`,
+            team: nm.get(r.team_id)?.name || `Lag ${r.team_id}`,
             played: r.played,
             points: r.points,
             wins: r.wins,
