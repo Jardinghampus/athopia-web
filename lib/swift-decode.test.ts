@@ -14,9 +14,15 @@ const modelsDir = path.resolve(
   "Models",
 );
 
-const swiftSource = readdirSync(modelsDir)
+const widgetDir = path.resolve(process.cwd(), "..", "athopia-ios", "AthopiaWidget");
+
+// Widget-extensionen avkodar samma kontrakt och gate:as likadant.
+const swiftSource = [
+  ...readdirSync(modelsDir).map((file) => path.join(modelsDir, file)),
+  ...readdirSync(widgetDir).map((file) => path.join(widgetDir, file)),
+]
   .filter((file) => file.endsWith(".swift"))
-  .map((file) => readFileSync(path.join(modelsDir, file), "utf8"))
+  .map((file) => readFileSync(file, "utf8"))
   .join("\n");
 
 interface SwiftField {

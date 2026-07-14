@@ -105,38 +105,40 @@ const openapiContract = {
       "Genererad ur athopia-web/lib/api-schemas.ts. Redigera aldrig manuellt.",
   },
   servers: [{ url: "https://athopia.se" }],
-  paths: Object.fromEntries(
-    (API_CONTRACTS as readonly {
-      method: string;
-      path: string;
-      name: string;
-      schema: z.ZodTypeAny;
-    }[]).map(({ method, path: route, name, schema }) => [
-      route,
-      {
-        [method]: {
-          operationId: name,
-          responses: {
-            "200": {
-              description: "OK",
-              content: {
-                "application/json": {
-                  schema: zodSchema(schema).jsonSchema,
-                },
+  // Samma path kan ha flera metoder (GET + POST /api/storekit/entitlements),
+  // så metoderna slås ihop per path i stället för att skriva över varandra.
+  paths: (API_CONTRACTS as readonly {
+    method: string;
+    path: string;
+    name: string;
+    schema: z.ZodTypeAny;
+  }[]).reduce<Record<string, Record<string, unknown>>>(
+    (paths, { method, path: route, name, schema }) => {
+      paths[route] ??= {};
+      paths[route][method] = {
+        operationId: name,
+        responses: {
+          "200": {
+            description: "OK",
+            content: {
+              "application/json": {
+                schema: zodSchema(schema).jsonSchema,
               },
             },
-            "403": {
-              description: "Otillräcklig plan — servern är auktoritativ.",
-              content: {
-                "application/json": {
-                  schema: zodSchema(PlanRequiredErrorSchema).jsonSchema,
-                },
+          },
+          "403": {
+            description: "Otillräcklig plan — servern är auktoritativ.",
+            content: {
+              "application/json": {
+                schema: zodSchema(PlanRequiredErrorSchema).jsonSchema,
               },
             },
           },
         },
-      },
-    ]),
+      };
+      return paths;
+    },
+    {},
   ),
 };
 

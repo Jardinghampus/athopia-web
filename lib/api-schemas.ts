@@ -565,6 +565,80 @@ export const DeleteAccountResponseSchema = z.object({
   deleted: z.boolean(),
 });
 
+// ── Widget (GET /api/widget) ─────────────────────────────────────────────────
+//
+// Hem- och låsskärmswidget. Ett publikt anrop, inga plan-gatede värden.
+
+export const WidgetMatchSchema = z.object({
+  id: z.number().int(),
+  isLive: z.boolean(),
+  minute: z.number().int().nullable(),
+  kickoffAt: z.string(),
+  status: z.string(),
+  homeName: z.string(),
+  awayName: z.string(),
+  homeScore: z.number().int().nullable(),
+  awayScore: z.number().int().nullable(),
+});
+
+export const WidgetNewsItemSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  href: z.string(),
+  source: z.string().nullable(),
+  publishedAt: z.string(),
+  importanceTier: ImportanceTierSchema.nullable(),
+});
+
+export const WidgetSnapshotSchema = z.object({
+  teamName: z.string().nullable(),
+  teamSlug: z.string().nullable(),
+  match: WidgetMatchSchema.nullable(),
+  news: z.array(WidgetNewsItemSchema),
+  generatedAt: z.string(),
+});
+
+// ── Transfer radar, commerce, push, feed-config ──────────────────────────────
+
+/** Free-läget skickar bara id/title/publishedAt — resten är PRO. */
+export const TransferRadarItemSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  publishedAt: z.string().nullable(),
+  slug: z.string().nullable().optional(),
+  sourceName: z.string().nullable().optional(),
+  status: z.string().nullable().optional(),
+  label: z.string().nullable().optional(),
+  sourceCount: z.number().int().nullable().optional(),
+});
+
+export const TransferRadarResponseSchema = z.object({
+  items: z.array(TransferRadarItemSchema),
+  unlocked: z.boolean(),
+  requiredPlan: z.enum(["free", "pro", "elite"]).nullable(),
+  tease: z.string().nullable(),
+});
+
+export const StoreAccountTokenResponseSchema = z.object({
+  appAccountToken: z.string().uuid(),
+});
+
+export const StoreEntitlementSyncResponseSchema = z.object({
+  ok: z.boolean(),
+  plan: z.enum(["free", "pro", "elite"]),
+  storekitPlan: z.enum(["free", "pro", "elite"]),
+  expiresAt: z.string().nullable(),
+});
+
+export const APNSSubscriptionResponseSchema = z.object({
+  ok: z.boolean(),
+});
+
+/** GET /api/feed/config svarar med den råa raden ELLER null. */
+export const FeedConfigResponseSchema = z.object({
+  content_types: z.array(z.string()).nullable().optional(),
+});
+
 /** Strukturerad 403 — klienterna renderar paywall ur detta, aldrig ur copy. */
 export const PlanRequiredErrorSchema = z.object({
   error: z.string(),
@@ -607,6 +681,12 @@ export const API_CONTRACTS = [
   { method: "get", path: "/api/search", name: "SearchResponse", schema: SearchResponseSchema },
   { method: "get", path: "/api/forum/posts", name: "ForumPostsResponse", schema: ForumPostsResponseSchema },
   { method: "get", path: "/api/profile", name: "SessionProfileResponse", schema: SessionProfileResponseSchema },
+  { method: "get", path: "/api/widget", name: "WidgetSnapshot", schema: WidgetSnapshotSchema },
+  { method: "get", path: "/api/team/{slug}/transfers", name: "TransferRadarResponse", schema: TransferRadarResponseSchema },
+  { method: "get", path: "/api/storekit/entitlements", name: "StoreAccountTokenResponse", schema: StoreAccountTokenResponseSchema },
+  { method: "post", path: "/api/storekit/entitlements", name: "StoreEntitlementSyncResponse", schema: StoreEntitlementSyncResponseSchema },
+  { method: "post", path: "/api/push/apns-subscribe", name: "APNSSubscriptionResponse", schema: APNSSubscriptionResponseSchema },
+  { method: "get", path: "/api/feed/config", name: "FeedConfigResponse", schema: FeedConfigResponseSchema },
 ] as const;
 
 /**
@@ -673,4 +753,13 @@ export const SWIFT_MODEL_CONTRACTS = [
   { swiftStruct: "PodcastEpisodeResponse", schema: PodcastEpisodeResponseSchema },
   { swiftStruct: "ForumPostsResponse", schema: ForumPostsResponseSchema },
   { swiftStruct: "SearchResponse", schema: SearchResponseSchema },
+  { swiftStruct: "WidgetSnapshot", schema: WidgetSnapshotSchema },
+  { swiftStruct: "WidgetMatch", schema: WidgetMatchSchema },
+  { swiftStruct: "WidgetNewsItem", schema: WidgetNewsItemSchema },
+  { swiftStruct: "TransferRadarResponse", schema: TransferRadarResponseSchema },
+  { swiftStruct: "TransferRadarItem", schema: TransferRadarItemSchema },
+  { swiftStruct: "StoreAccountTokenResponse", schema: StoreAccountTokenResponseSchema },
+  { swiftStruct: "StoreEntitlementSyncResponse", schema: StoreEntitlementSyncResponseSchema },
+  { swiftStruct: "APNSSubscriptionResponse", schema: APNSSubscriptionResponseSchema },
+  { swiftStruct: "FeedConfigResponse", schema: FeedConfigResponseSchema },
 ] as const;
