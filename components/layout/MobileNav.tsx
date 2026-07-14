@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { X, Search, Users } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { NAV_ITEMS, SECONDARY_NAV_ITEMS } from "@/lib/nav";
+import { BOTTOM_NAV_ITEMS, SECONDARY_NAV_ITEMS } from "@/lib/nav";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export function MobileNav() {
@@ -67,7 +67,7 @@ export function MobileNav() {
               <p className="px-3 pb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                 Snabbvägar
               </p>
-              {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+              {BOTTOM_NAV_ITEMS.map(({ href, label, icon: Icon }) => {
                 const active = pathname === href || pathname.startsWith(href + "/");
                 return (
                   <Link
@@ -90,7 +90,7 @@ export function MobileNav() {
               <p className="px-3 pb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                 Mer
               </p>
-              {SECONDARY_NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+              {SECONDARY_NAV_ITEMS.filter((i) => i.href !== "/mer").map(({ href, label, icon: Icon }) => {
                 const active = pathname === href || pathname.startsWith(href + "/");
                 return (
                   <Link

@@ -20,7 +20,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <Suspense fallback={null}>
           <AppSidebar />
         </Suspense>
-        <main className="flex-1 min-w-0 pb-20 md:pb-0">{children}</main>
+        <main className="flex-1 min-w-0 pb-20">{children}</main>
       </div>
       <Footer />
       <GlassNav clerkEnabled={clerkEnabled} />

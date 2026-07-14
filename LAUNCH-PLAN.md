@@ -61,7 +61,7 @@ Kärnloop: **Mitt lag → Flöde → Forum → (PRO) destillat.**
 
 | Fas | Status | Fokus kvar |
 |-----|--------|------------|
-| A Nav | ~70% | feed-dedup, nav e2e, Sheets |
+| A Nav | ~85% | Sheets kvar |
 | B Flöde | ~75% | kommentar→forum, TTFB |
 | C Mitt lag | ~55% | **launch-kritisk** |
 | D Forum | ~60% | optimistic, summary API-gate |

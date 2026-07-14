@@ -6,27 +6,34 @@ import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
 import { Sidebar, DesktopSidebar, useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { NAV_ITEMS, type NavItem as NavItemConfig } from "@/lib/nav";
+import {
+  BOTTOM_NAV_ITEMS,
+  SIDEBAR_NAV_ITEMS,
+  type NavItem as NavItemConfig,
+} from "@/lib/nav";
 
 function NavItem({ href, label, icon: Icon, exact }: NavItemConfig) {
   const { open, animate } = useSidebar();
   const pathname = usePathname();
-  const isActive = exact ? pathname === href : pathname === href || pathname.startsWith(href + "/");
+  const isActive = exact
+    ? pathname === href
+    : pathname === href || pathname.startsWith(href + "/");
 
   return (
     <Link
       href={href}
+      title={label}
       className={cn(
         "flex items-center gap-3 px-2 py-2.5 rounded-lg text-sm transition-colors duration-150",
         isActive
           ? "text-[var(--color-pitch)] bg-[var(--color-pitch)]/10"
-          : "text-muted-foreground hover:text-foreground hover:bg-muted"
+          : "text-muted-foreground hover:text-foreground hover:bg-muted",
       )}
     >
       <Icon
         className={cn(
           "h-5 w-5 shrink-0",
-          isActive ? "text-[var(--color-pitch)]" : "text-foreground/60"
+          isActive ? "text-[var(--color-pitch)]" : "text-foreground/60",
         )}
       />
       <motion.span
@@ -44,14 +51,25 @@ function NavItem({ href, label, icon: Icon, exact }: NavItemConfig) {
 
 export function AppSidebar() {
   const [open, setOpen] = useState(false);
+  const primaryHrefs = new Set(BOTTOM_NAV_ITEMS.map((i) => i.href));
+  const primary = SIDEBAR_NAV_ITEMS.filter((i) => primaryHrefs.has(i.href));
+  const extras = SIDEBAR_NAV_ITEMS.filter((i) => !primaryHrefs.has(i.href));
 
   return (
     <div className="sticky top-14 h-[calc(100vh-3.5rem)] self-start shrink-0">
       <Sidebar open={open} setOpen={setOpen}>
         <DesktopSidebar className="h-full !bg-background border-r border-border/50 py-4 flex-col gap-0.5">
-          {NAV_ITEMS.map((item) => (
+          {primary.map((item) => (
             <NavItem key={item.href} {...item} />
           ))}
+          {extras.length > 0 ? (
+            <>
+              <div className="my-2 mx-2 border-t border-border/40" aria-hidden />
+              {extras.map((item) => (
+                <NavItem key={item.href} {...item} />
+              ))}
+            </>
+          ) : null}
         </DesktopSidebar>
       </Sidebar>
     </div>
