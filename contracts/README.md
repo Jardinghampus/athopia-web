@@ -23,12 +23,17 @@ Sources of truth remain `lib/nav.ts`, `lib/access-rules.ts`,
 Routes answer through `jsonContract()`, so a response that breaks its own schema
 throws in dev and is logged in production.
 
-Covered so far: `/api/feed`, `/api/scores`, `/api/articles/{slug}`,
-`/api/team/{slug}/hub`. Extend
-`API_CONTRACTS` + `SWIFT_MODEL_CONTRACTS` per endpoint; the remaining iOS
-endpoints (match detail, standings, stats, daily, analyses, podcasts, search,
-profile, forum) are
-still unguarded.
+Covered: feed, feed/hero, scores, articles/{slug}, team/list, team/{slug}/hub,
+standings, match/{fixtureId}, stats/{projection,schedule-form,clutch,h2h,compare},
+scout, daily, daily/audio, analyses, podcasts, search, forum/posts, profile.
+
+Still unguarded: StoreKit/APNs endpoints, feed-config, transfer radar, and the
+iOS screens that query Supabase directly (player/team stats) — those decode DB
+rows, not API responses, so they need a different contract.
+
+Note: several routes answer with raw DB rows (snake_case) and iOS decodes them
+with `.convertFromSnakeCase`. Those schemas describe the wire format in
+snake_case; the gate applies the same conversion when matching Swift properties.
 
 Run:
 

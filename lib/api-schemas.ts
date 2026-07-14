@@ -210,6 +210,361 @@ export const TeamHubPayloadSchema = z.object({
   guest: z.boolean(),
 });
 
+// ── Matcher, tabell, statistik ───────────────────────────────────────────────
+
+export const StandingRowSchema = z.object({
+  id: z.string(),
+  position: z.number().int(),
+  teamId: z.number().int().nullable(),
+  teamName: z.string(),
+  teamSlug: z.string().nullable(),
+  played: z.number().int(),
+  won: z.number().int(),
+  drawn: z.number().int(),
+  lost: z.number().int(),
+  goalsFor: z.number().int(),
+  goalsAgainst: z.number().int(),
+  points: z.number().int(),
+  form: z.array(z.string()).nullable(),
+  trend: z.number().int().nullable(),
+});
+
+export const StandingsResponseSchema = z.object({
+  standings: z.array(StandingRowSchema),
+});
+
+/**
+ * GET /api/match/{fixtureId} — routen svarar med den råa fixtures-raden plus
+ * stats, alltså snake_case. iOS avkodar via `.convertFromSnakeCase`.
+ */
+export const FixtureDetailSchema = z.object({
+  home_team_id: z.number().int(),
+  away_team_id: z.number().int(),
+  home_team_name: z.string(),
+  away_team_name: z.string(),
+  home_score: z.number().int().nullable(),
+  away_score: z.number().int().nullable(),
+  kickoff_at: z.string().nullable(),
+  status: z.string(),
+  home_xg: z.number().nullable(),
+  away_xg: z.number().nullable(),
+  home_pressure: z.number().nullable(),
+  away_pressure: z.number().nullable(),
+  home_ppda: z.number().nullable(),
+  away_ppda: z.number().nullable(),
+  home_possession: z.number().nullable(),
+  away_possession: z.number().nullable(),
+  home_shots: z.number().int().nullable(),
+  away_shots: z.number().int().nullable(),
+  home_shots_on_target: z.number().int().nullable(),
+  away_shots_on_target: z.number().int().nullable(),
+});
+
+export const ProjectionRowSchema = z.object({
+  teamId: z.number().int(),
+  teamName: z.string(),
+  logoUrl: z.string().nullable(),
+  points: z.number().int(),
+  elo: z.number(),
+  pChampion: z.number(),
+  pTop3: z.number(),
+  pRelegation: z.number(),
+  pPlayoff: z.number(),
+  nSims: z.number().int(),
+  computedAt: z.string(),
+});
+
+export const ProjectionResponseSchema = z.object({
+  rows: z.array(ProjectionRowSchema),
+});
+
+export const ScheduleFormRowSchema = z.object({
+  teamId: z.number().int(),
+  teamName: z.string(),
+  logoUrl: z.string().nullable(),
+  actualPoints: z.number().int(),
+  xpts: z.number(),
+  luck: z.number(),
+  sos: z.number(),
+  computedAt: z.string(),
+});
+
+export const ScheduleFormResponseSchema = z.object({
+  rows: z.array(ScheduleFormRowSchema),
+});
+
+export const ClutchRowSchema = z.object({
+  rank: z.number().int(),
+  playerId: z.number().int(),
+  playerName: z.string(),
+  teamName: z.string(),
+  image: z.string().nullable(),
+  goals: z.number().int(),
+  clutchScore: z.number(),
+  trailingGoals: z.number().int(),
+  levelGoals: z.number().int(),
+  leadingGoals: z.number().int(),
+});
+
+export const ClutchResponseSchema = z.object({
+  rows: z.array(ClutchRowSchema),
+});
+
+export const H2HTeamRefSchema = z.object({
+  name: z.string(),
+  slug: z.string(),
+});
+
+export const H2HSummarySchema = z.object({
+  teamAWins: z.number().int(),
+  teamBWins: z.number().int(),
+  draws: z.number().int(),
+});
+
+export const H2HFixtureRowSchema = z.object({
+  id: z.number().int(),
+  kickoff: z.string(),
+  status: z.string(),
+  homeTeam: z.string(),
+  awayTeam: z.string(),
+  homeScore: z.number().int().nullable(),
+  awayScore: z.number().int().nullable(),
+});
+
+export const H2HResponseSchema = z.object({
+  teamA: H2HTeamRefSchema,
+  teamB: H2HTeamRefSchema,
+  summary: H2HSummarySchema,
+  fixtures: z.array(H2HFixtureRowSchema),
+});
+
+export const TeamCompareStatsSchema = z.object({
+  name: z.string(),
+  slug: z.string(),
+  position: z.number().int(),
+  points: z.number().int(),
+  played: z.number().int(),
+  won: z.number().int(),
+  drawn: z.number().int(),
+  lost: z.number().int(),
+  goalsFor: z.number().int(),
+  goalsAgainst: z.number().int(),
+  goalDiff: z.number().int(),
+  form: z.array(z.string()),
+});
+
+export const TeamCompareResponseSchema = z.object({
+  teamA: TeamCompareStatsSchema,
+  teamB: TeamCompareStatsSchema,
+  analysis: z.string().nullable(),
+});
+
+/** GET /api/scout — rå ScoutPlayer-rad (snake_case), PRO-gatead. */
+export const ScoutPlayerRowSchema = z.object({
+  player_id: z.number().int(),
+  fullname: z.string(),
+  slug: z.string().nullable(),
+  position: z.string().nullable(),
+  team_id: z.number().int(),
+  team_name: z.string(),
+  appearances: z.number().int(),
+  minutes: z.number().int(),
+  goals: z.number().int(),
+  assists: z.number().int(),
+  shots: z.number().int(),
+  shots_on_target: z.number().int(),
+  key_passes: z.number().int(),
+  passes: z.number().int(),
+  pass_accuracy: z.number(),
+  tackles: z.number().int(),
+  interceptions: z.number().int(),
+  rating: z.number(),
+  xg: z.number(),
+  xa: z.number(),
+  yellow_cards: z.number().int(),
+  red_cards: z.number().int(),
+});
+
+export const ScoutPoolResponseSchema = z.object({
+  pool: z.array(ScoutPlayerRowSchema),
+});
+
+export const TeamListItemSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  slug: z.string(),
+  logo_url: z.string().nullable(),
+});
+
+export const TeamListResponseSchema = z.object({
+  teams: z.array(TeamListItemSchema),
+});
+
+export const HeroResponseSchema = z.object({
+  summary: FeedItemSchema.nullable(),
+  topNews: z.array(FeedItemSchema),
+});
+
+// ── Daily, analyser, poddar, sök ─────────────────────────────────────────────
+
+export const DailyChapterSchema = z.object({
+  label: z.string(),
+  start_sec: z.number().int(),
+});
+
+export const DailyEpisodeSchema = z.object({
+  slug: z.string(),
+  title: z.string(),
+  has_audio: z.boolean(),
+  duration_sec: z.number().int().nullable(),
+  episode_date: z.string(),
+  episode_type: z.enum(["league_daily", "club_daily"]),
+  chapter_markers: z.array(DailyChapterSchema),
+});
+
+export const DailyResponseSchema = z.object({
+  episode: DailyEpisodeSchema.nullable(),
+  access: ArticleAccessStateSchema,
+});
+
+export const DailyAudioResponseSchema = z.object({
+  url: z.string(),
+  expiresIn: z.number().int(),
+});
+
+/** Wire-formatet är snake_case här; iOS konverterar till `shotsOnTarget`. */
+export const AnalysisCurrentStatsSchema = z.object({
+  xg: z.number().nullable(),
+  pressure: z.number().nullable(),
+  possession: z.number().nullable(),
+  shots: z.number().nullable(),
+  shots_on_target: z.number().nullable(),
+});
+
+export const AnalysisComparisonSchema = z.object({
+  team: z.string(),
+  opponent: z.string(),
+  score: z.string(),
+  current: AnalysisCurrentStatsSchema,
+  readable: z.array(z.string()),
+});
+
+export const AnalysisListItemSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  summary: z.string(),
+  publishedAt: z.string(),
+  fixtureId: z.number().int().nullable(),
+  matchName: z.string().nullable(),
+  playedAt: z.string().nullable(),
+});
+
+export const AnalysisListResponseSchema = z.object({
+  analyses: z.array(AnalysisListItemSchema),
+});
+
+export const AnalysisDetailSchema = AnalysisListItemSchema.extend({
+  body: z.string().nullable(),
+  bodyPreview: z.string().nullable(),
+  comparisons: z.array(AnalysisComparisonSchema),
+  hasProtectedContent: z.boolean(),
+});
+
+export const AnalysisDetailResponseSchema = z.object({
+  analysis: AnalysisDetailSchema,
+  access: ArticleAccessStateSchema,
+});
+
+export const PodcastEpisodeSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  showName: z.string(),
+  publishedAt: z.string().nullable(),
+  durationSeconds: z.number().int().nullable(),
+  mentionedTeams: z.array(z.string()),
+  listenUrl: z.string().nullable(),
+});
+
+export const PodcastListResponseSchema = z.object({
+  episodes: z.array(PodcastEpisodeSchema),
+});
+
+export const PodcastEpisodeResponseSchema = z.object({
+  episode: PodcastEpisodeSchema,
+});
+
+export const SearchResponseSchema = z.object({
+  articles: z.array(z.object({ id: z.string(), slug: z.string(), title: z.string() })),
+  teams: z.array(z.object({ id: z.string(), slug: z.string(), name: z.string() })),
+  players: z.array(
+    z.object({
+      id: z.number().int(),
+      slug: z.string().nullable(),
+      name: z.string().nullable(),
+    }),
+  ),
+  podcasts: z.array(z.object({ id: z.string(), title: z.string() })),
+});
+
+// ── Forum, profil, commerce ──────────────────────────────────────────────────
+
+/** GET /api/forum/posts — råa forum_posts-rader (snake_case). */
+export const ForumPostSchema = z.object({
+  id: z.string(),
+  content: z.string(),
+  parent_id: z.string().nullable(),
+  root_id: z.string().nullable(),
+  quoted_post_id: z.string().nullable(),
+  depth: z.number().int(),
+  author_id: z.string(),
+  author_name: z.string(),
+  author_avatar: z.string().nullable(),
+  sport: z.string(),
+  team_slug: z.string().nullable(),
+  article_id: z.string().nullable(),
+  like_count: z.number().int(),
+  reply_count: z.number().int(),
+  pinned: z.boolean(),
+  hot_score: z.number(),
+  status: z.string(),
+  created_at: z.string(),
+});
+
+export const ForumPostsResponseSchema = z.object({
+  posts: z.array(ForumPostSchema),
+});
+
+export const LikeResponseSchema = z.object({
+  liked: z.boolean(),
+});
+
+/**
+ * GET /api/profile — `profile` är den råa profiles-raden (`select("*")`), så
+ * kolumnerna är inte garanterade. Allt är optional: iOS måste tåla att en
+ * kolumn saknas.
+ */
+export const SessionProfileSchema = z.object({
+  favourite_team_id: z.string().nullable().optional(),
+  display_name: z.string().nullable().optional(),
+  nickname: z.string().nullable().optional(),
+  bio: z.string().nullable().optional(),
+});
+
+export const SessionProfileResponseSchema = z.object({
+  profile: SessionProfileSchema.nullable(),
+  favouriteTeamSlug: z.string().nullable(),
+  email: z.string().nullable(),
+  firstName: z.string().nullable(),
+  lastName: z.string().nullable(),
+  imageUrl: z.string().nullable(),
+  plan: z.enum(["free", "pro", "elite"]),
+});
+
+export const DeleteAccountResponseSchema = z.object({
+  ok: z.boolean(),
+  deleted: z.boolean(),
+});
+
 /** Strukturerad 403 — klienterna renderar paywall ur detta, aldrig ur copy. */
 export const PlanRequiredErrorSchema = z.object({
   error: z.string(),
@@ -235,6 +590,23 @@ export const API_CONTRACTS = [
     name: "TeamHubPayload",
     schema: TeamHubPayloadSchema,
   },
+  { method: "get", path: "/api/team/list", name: "TeamListResponse", schema: TeamListResponseSchema },
+  { method: "get", path: "/api/feed/hero", name: "HeroResponse", schema: HeroResponseSchema },
+  { method: "get", path: "/api/standings", name: "StandingsResponse", schema: StandingsResponseSchema },
+  { method: "get", path: "/api/match/{fixtureId}", name: "FixtureDetail", schema: FixtureDetailSchema },
+  { method: "get", path: "/api/stats/projection", name: "ProjectionResponse", schema: ProjectionResponseSchema },
+  { method: "get", path: "/api/stats/schedule-form", name: "ScheduleFormResponse", schema: ScheduleFormResponseSchema },
+  { method: "get", path: "/api/stats/clutch", name: "ClutchResponse", schema: ClutchResponseSchema },
+  { method: "get", path: "/api/stats/h2h", name: "H2HResponse", schema: H2HResponseSchema },
+  { method: "get", path: "/api/stats/compare", name: "TeamCompareResponse", schema: TeamCompareResponseSchema },
+  { method: "get", path: "/api/scout", name: "ScoutPoolResponse", schema: ScoutPoolResponseSchema },
+  { method: "get", path: "/api/daily", name: "DailyResponse", schema: DailyResponseSchema },
+  { method: "get", path: "/api/daily/audio", name: "DailyAudioResponse", schema: DailyAudioResponseSchema },
+  { method: "get", path: "/api/analyses", name: "AnalysisListResponse", schema: AnalysisListResponseSchema },
+  { method: "get", path: "/api/podcasts", name: "PodcastListResponse", schema: PodcastListResponseSchema },
+  { method: "get", path: "/api/search", name: "SearchResponse", schema: SearchResponseSchema },
+  { method: "get", path: "/api/forum/posts", name: "ForumPostsResponse", schema: ForumPostsResponseSchema },
+  { method: "get", path: "/api/profile", name: "SessionProfileResponse", schema: SessionProfileResponseSchema },
 ] as const;
 
 /**
@@ -261,4 +633,44 @@ export const SWIFT_MODEL_CONTRACTS = [
   { swiftStruct: "FixtureRow", schema: FixtureRowSchema },
   { swiftStruct: "DashArticle", schema: DashArticleSchema },
   { swiftStruct: "DashThread", schema: DashThreadSchema },
+  { swiftStruct: "TeamListItem", schema: TeamListItemSchema },
+  { swiftStruct: "HeroResponse", schema: HeroResponseSchema },
+  { swiftStruct: "StandingsResponse", schema: StandingsResponseSchema },
+  { swiftStruct: "StandingRow", schema: StandingRowSchema },
+  { swiftStruct: "FixtureDetail", schema: FixtureDetailSchema },
+  { swiftStruct: "ProjectionRow", schema: ProjectionRowSchema },
+  { swiftStruct: "ScheduleFormRow", schema: ScheduleFormRowSchema },
+  { swiftStruct: "ClutchRow", schema: ClutchRowSchema },
+  { swiftStruct: "H2HResponse", schema: H2HResponseSchema },
+  { swiftStruct: "H2HTeamRef", schema: H2HTeamRefSchema },
+  { swiftStruct: "H2HSummary", schema: H2HSummarySchema },
+  { swiftStruct: "H2HFixtureRow", schema: H2HFixtureRowSchema },
+  { swiftStruct: "TeamCompareResponse", schema: TeamCompareResponseSchema },
+  { swiftStruct: "TeamCompareStats", schema: TeamCompareStatsSchema },
+  { swiftStruct: "ScoutPlayerRow", schema: ScoutPlayerRowSchema },
+  { swiftStruct: "DailyResponse", schema: DailyResponseSchema },
+  { swiftStruct: "DailyEpisode", schema: DailyEpisodeSchema },
+  { swiftStruct: "DailyChapter", schema: DailyChapterSchema },
+  { swiftStruct: "DailyAudioResponse", schema: DailyAudioResponseSchema },
+  { swiftStruct: "AnalysisListItem", schema: AnalysisListItemSchema },
+  { swiftStruct: "AnalysisDetail", schema: AnalysisDetailSchema },
+  { swiftStruct: "AnalysisComparison", schema: AnalysisComparisonSchema },
+  { swiftStruct: "AnalysisCurrentStats", schema: AnalysisCurrentStatsSchema },
+  { swiftStruct: "PodcastEpisode", schema: PodcastEpisodeSchema },
+  { swiftStruct: "ForumPost", schema: ForumPostSchema },
+  { swiftStruct: "LikeResponse", schema: LikeResponseSchema },
+  { swiftStruct: "SessionProfileResponse", schema: SessionProfileResponseSchema },
+  { swiftStruct: "SessionProfile", schema: SessionProfileSchema },
+  { swiftStruct: "ArticleDetailResponse", schema: ArticleDetailResponseSchema },
+  { swiftStruct: "TeamListResponse", schema: TeamListResponseSchema },
+  { swiftStruct: "ProjectionResponse", schema: ProjectionResponseSchema },
+  { swiftStruct: "ScheduleFormResponse", schema: ScheduleFormResponseSchema },
+  { swiftStruct: "ClutchResponse", schema: ClutchResponseSchema },
+  { swiftStruct: "ScoutPoolResponse", schema: ScoutPoolResponseSchema },
+  { swiftStruct: "AnalysisListResponse", schema: AnalysisListResponseSchema },
+  { swiftStruct: "AnalysisDetailResponse", schema: AnalysisDetailResponseSchema },
+  { swiftStruct: "PodcastListResponse", schema: PodcastListResponseSchema },
+  { swiftStruct: "PodcastEpisodeResponse", schema: PodcastEpisodeResponseSchema },
+  { swiftStruct: "ForumPostsResponse", schema: ForumPostsResponseSchema },
+  { swiftStruct: "SearchResponse", schema: SearchResponseSchema },
 ] as const;

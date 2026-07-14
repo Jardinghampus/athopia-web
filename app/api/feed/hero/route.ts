@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { createServiceClient, isSupabaseConfigured } from "@/lib/supabase";
 import type { FeedItem } from "@/lib/types";
 import { mapNewsFeedRow } from "@/lib/feed/map-feed-row";
+import { jsonContract } from "@/lib/api-contract";
+import { HeroResponseSchema } from "@/lib/api-schemas";
 
 export const dynamic = "force-dynamic";
 
@@ -83,7 +85,7 @@ export async function GET(req: Request) {
     newsQ,
   ]);
 
-  return NextResponse.json({
+  return jsonContract(HeroResponseSchema, {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     summary: isPro && (sumData as any[])?.[0] ? toItem((sumData as any[])[0], "summary") : null,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

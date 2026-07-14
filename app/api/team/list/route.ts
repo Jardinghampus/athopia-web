@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import { jsonContract } from "@/lib/api-contract";
+import { TeamListResponseSchema } from "@/lib/api-schemas";
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +22,7 @@ export async function GET() {
           logo_url: (meta.logo_url as string | null) ?? null,
         };
       });
-    return NextResponse.json({ teams }, { headers: { "Cache-Control": "s-maxage=600, stale-while-revalidate=1200" } });
+    return jsonContract(TeamListResponseSchema, { teams }, { headers: { "Cache-Control": "s-maxage=600, stale-while-revalidate=1200" } });
   } catch (e) {
     Sentry.captureException(e);
     return NextResponse.json({ teams: [] }, { status: 500 });

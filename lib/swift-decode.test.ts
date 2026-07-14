@@ -60,6 +60,18 @@ function mayBeMissingOrNull(schema: z.ZodTypeAny): boolean {
   return schema.isOptional() || schema.isNullable();
 }
 
+const snakeCase = (value: string) =>
+  value.replace(/[A-Z]/g, (char) => `_${char.toLowerCase()}`);
+
+/**
+ * iOS avkodar med `.convertFromSnakeCase`, så en Swift-property `homeTeamName`
+ * matchar wire-nyckeln `home_team_name`. Routes som svarar med råa DB-rader
+ * beskrivs därför i snake_case i schemat — slå upp båda formerna.
+ */
+function lookupField(shape: z.ZodRawShape, swiftName: string): z.ZodTypeAny | undefined {
+  return shape[swiftName] ?? shape[snakeCase(swiftName)];
+}
+
 for (const { swiftStruct, schema } of SWIFT_MODEL_CONTRACTS) {
   const shape = (schema as unknown as z.ZodObject<z.ZodRawShape>).shape;
   const swiftFields = parseSwiftStruct(swiftSource, swiftStruct);
@@ -67,7 +79,7 @@ for (const { swiftStruct, schema } of SWIFT_MODEL_CONTRACTS) {
   test(`${swiftStruct} avkodar bara fält servern skickar`, () => {
     for (const field of swiftFields) {
       assert.ok(
-        field.name in shape,
+        lookupField(shape, field.name) !== undefined,
         `${swiftStruct}.${field.name} finns inte i serverkontraktet — iOS avkodar ett fält som aldrig skickas`,
       );
     }
@@ -75,7 +87,7 @@ for (const { swiftStruct, schema } of SWIFT_MODEL_CONTRACTS) {
 
   test(`${swiftStruct} är optional där servern kan utelämna eller nulla`, () => {
     for (const field of swiftFields) {
-      const fieldSchema = shape[field.name];
+      const fieldSchema = lookupField(shape, field.name);
       if (!fieldSchema) continue;
       if (mayBeMissingOrNull(fieldSchema) && !field.optional) {
         assert.fail(

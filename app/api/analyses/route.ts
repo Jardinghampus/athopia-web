@@ -5,6 +5,8 @@ import {
   getPostMatchAnalysis,
 } from "@/lib/supabase";
 import { getUserPlan } from "@/lib/user-plan";
+import { jsonContract } from "@/lib/api-contract";
+import { AnalysisListResponseSchema, AnalysisDetailResponseSchema } from "@/lib/api-schemas";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +26,7 @@ export async function GET(request: NextRequest) {
   const id = request.nextUrl.searchParams.get("id");
   if (!id) {
     const analyses = await getPostMatchAnalyses(30);
-    return NextResponse.json({ analyses: analyses.map(listItem) });
+    return jsonContract(AnalysisListResponseSchema, { analyses: analyses.map(listItem) });
   }
 
   const analysis = await getPostMatchAnalysis(id);
@@ -37,7 +39,7 @@ export async function GET(request: NextRequest) {
 
   const plan = await getUserPlan();
   const unlocked = canAccess("aiSummaries", plan);
-  return NextResponse.json({
+  return jsonContract(AnalysisDetailResponseSchema, {
     analysis: {
       ...listItem(analysis),
       body: unlocked ? analysis.body : null,
