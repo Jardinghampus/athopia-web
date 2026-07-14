@@ -5,6 +5,8 @@ import { enforceRateLimit } from "@/lib/ratelimit";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import { syncStoreKitTransaction } from "@/lib/storekit-entitlements";
 import { parseBody, z } from "@/lib/validation";
+import { jsonContract } from "@/lib/api-contract";
+import { StoreAccountTokenResponseSchema, StoreEntitlementSyncResponseSchema } from "@/lib/api-schemas";
 
 const TransactionSchema = z.object({
   transactionId: z.string().regex(/^[0-9]{5,40}$/),
@@ -44,7 +46,7 @@ export async function GET() {
 
   try {
     const appAccountToken = await getOrCreateAccountToken(userId);
-    return NextResponse.json({ appAccountToken });
+    return jsonContract(StoreAccountTokenResponseSchema, { appAccountToken });
   } catch (error) {
     console.error("[storekit GET]", error);
     return NextResponse.json({ error: "Kunde inte förbereda köp" }, { status: 500 });
@@ -79,7 +81,7 @@ export async function POST(req: Request) {
     const synced = await syncStoreKitTransaction(transaction);
     if (synced.userId !== userId) throw new Error("Synced entitlement user mismatch");
 
-    return NextResponse.json({
+    return jsonContract(StoreEntitlementSyncResponseSchema, {
       ok: true,
       plan: synced.effectivePlan,
       storekitPlan: synced.storekitPlan,
