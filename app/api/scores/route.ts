@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
 import { fetchLiveScores, fetchAllsvenskanFixtures, parseFixtureScore } from "@/lib/db/fixtures";
+import { jsonContract } from "@/lib/api-contract";
+import { ScoresResponseSchema } from "@/lib/api-schemas";
 
 export const revalidate = 60;
 
@@ -29,7 +30,7 @@ export async function GET() {
       scoreAway: awayGoals,
     };
   });
-  return NextResponse.json(normalized, {
+  return jsonContract(ScoresResponseSchema, normalized, {
     headers: {
       "Cache-Control": "public, max-age=60, stale-while-revalidate=300",
     },

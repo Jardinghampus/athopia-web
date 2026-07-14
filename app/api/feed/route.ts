@@ -1,6 +1,8 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { jsonContract } from "@/lib/api-contract";
+import { FeedResponseSchema } from "@/lib/api-schemas";
 import type { FeedItem } from "@/lib/types";
 import { interestsToNewsTags } from "@/lib/feed/content-preferences";
 import { mapNewsFeedRow } from "@/lib/feed/map-feed-row";
@@ -47,7 +49,12 @@ export async function GET(req: Request) {
 
   const db = getDb();
   if (!db) {
-    return NextResponse.json({ items: [], hasMore: false, gated: false });
+    return jsonContract(FeedResponseSchema, {
+      items: [],
+      hasMore: false,
+      gated: false,
+      remainingToday: null,
+    });
   }
 
   // Plan-check via Clerk publicMetadata (sätts av Stripe-webhook)
@@ -138,5 +145,12 @@ export async function GET(req: Request) {
 
   const hasMore = items.length === effectiveLimit;
 
-  return NextResponse.json({ items, hasMore, gated: false, remainingToday: null, isPro, isElite });
+  return jsonContract(FeedResponseSchema, {
+    items,
+    hasMore,
+    gated: false,
+    remainingToday: null,
+    isPro,
+    isElite,
+  });
 }

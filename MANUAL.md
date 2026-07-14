@@ -86,7 +86,7 @@ proxy.ts                — Clerk auth + PRO-gate (Next.js 16)
 
 ### Tailwind v4
 - Ingen `tailwind.config.ts` — konfigureras via `@theme` i `globals.css`
-- CSS-token: `--color-pitch: #1D9E75`
+- CSS-token: `--color-pitch: #2D5349` (Racing Green; mörk valör `#5FA98C`)
 
 ## PRO-gate
 

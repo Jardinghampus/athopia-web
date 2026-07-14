@@ -2,6 +2,10 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { ACCESS, type AccessFeature, type Plan } from "../lib/access-rules";
 import { BOTTOM_NAV_ITEMS, SECONDARY_NAV_ITEMS } from "../lib/nav";
+import { DEEP_LINK_ROUTES } from "../lib/deep-links";
+import { API_CONTRACTS, PlanRequiredErrorSchema } from "../lib/api-schemas";
+import { zodSchema } from "ai";
+import type { z } from "zod";
 import { APP_STORE_PRODUCTS } from "../lib/product-contract";
 
 const VERSION = 1;
@@ -75,6 +79,7 @@ const navigationContract = {
     label,
     iosSymbol,
   })),
+  deepLinks: DEEP_LINK_ROUTES,
 };
 
 const accessContract = {
@@ -88,6 +93,51 @@ const storekitContract = {
   schemaVersion: VERSION,
   generatedFrom: "athopia-web/lib/product-contract.ts",
   products: APP_STORE_PRODUCTS,
+};
+
+/** OpenAPI för de svar iOS avkodar. Genereras ur `lib/api-schemas.ts`. */
+const openapiContract = {
+  openapi: "3.1.0",
+  info: {
+    title: "Athopia client API",
+    version: `${VERSION}.0.0`,
+    description:
+      "Genererad ur athopia-web/lib/api-schemas.ts. Redigera aldrig manuellt.",
+  },
+  servers: [{ url: "https://athopia.se" }],
+  paths: Object.fromEntries(
+    (API_CONTRACTS as readonly {
+      method: string;
+      path: string;
+      name: string;
+      schema: z.ZodTypeAny;
+    }[]).map(({ method, path: route, name, schema }) => [
+      route,
+      {
+        [method]: {
+          operationId: name,
+          responses: {
+            "200": {
+              description: "OK",
+              content: {
+                "application/json": {
+                  schema: zodSchema(schema).jsonSchema,
+                },
+              },
+            },
+            "403": {
+              description: "Otillräcklig plan — servern är auktoritativ.",
+              content: {
+                "application/json": {
+                  schema: zodSchema(PlanRequiredErrorSchema).jsonSchema,
+                },
+              },
+            },
+          },
+        },
+      },
+    ]),
+  ),
 };
 
 function json(value: unknown): string {
@@ -232,6 +282,7 @@ async function main(): Promise<void> {
     assertOrWrite(path.join(generatedDir, "access.json"), json(accessContract)),
     assertOrWrite(path.join(generatedDir, "storekit.json"), json(storekitContract)),
     assertOrWrite(path.join(generatedDir, "design-tokens.json"), json(brandTokens)),
+    assertOrWrite(path.join(generatedDir, "openapi.json"), json(openapiContract)),
     assertOrWrite(iosGeneratedFile, makeSwiftContract(brandTokens)),
   ]);
 

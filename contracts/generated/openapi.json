@@ -1,0 +1,544 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Athopia client API",
+    "version": "1.0.0",
+    "description": "Genererad ur athopia-web/lib/api-schemas.ts. Redigera aldrig manuellt."
+  },
+  "servers": [
+    {
+      "url": "https://athopia.se"
+    }
+  ],
+  "paths": {
+    "/api/feed": {
+      "get": {
+        "operationId": "FeedResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "subtitle": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "source": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "time": {
+                            "type": "string"
+                          },
+                          "href": {
+                            "type": "string"
+                          },
+                          "newsTag": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "sourceCount": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "storyClusterId": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "importanceTier": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "enum": [
+                                  "breaking",
+                                  "major",
+                                  "normal",
+                                  "noise"
+                                ]
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "type",
+                          "title",
+                          "time",
+                          "href"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "hasMore": {
+                      "type": "boolean"
+                    },
+                    "gated": {
+                      "type": "boolean"
+                    },
+                    "remainingToday": {
+                      "anyOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "isPro": {
+                      "type": "boolean"
+                    },
+                    "isElite": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "hasMore",
+                    "gated",
+                    "remainingToday"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/scores": {
+      "get": {
+        "operationId": "ScoresResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "startingAt": {
+                        "type": "string"
+                      },
+                      "status": {
+                        "type": "string"
+                      },
+                      "minute": {
+                        "anyOf": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "home": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "slug": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "logoUrl": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "slug",
+                          "logoUrl"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "away": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "slug": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "logoUrl": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "slug",
+                          "logoUrl"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "scoreHome": {
+                        "anyOf": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "scoreAway": {
+                        "anyOf": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "startingAt",
+                      "status",
+                      "minute",
+                      "home",
+                      "away",
+                      "scoreHome",
+                      "scoreAway"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/articles/{slug}": {
+      "get": {
+        "operationId": "ArticleDetailResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "article": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "slug": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "sourceName": {
+                          "type": "string"
+                        },
+                        "sourceUrl": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "publishedAt": {
+                          "type": "string"
+                        },
+                        "updatedAt": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "imageUrl": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "athopia",
+                            "external"
+                          ]
+                        },
+                        "summary": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "summaryPreview": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "content": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "hasProtectedContent": {
+                          "type": "boolean"
+                        },
+                        "discussionCount": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "slug",
+                        "title",
+                        "sourceName",
+                        "sourceUrl",
+                        "publishedAt",
+                        "updatedAt",
+                        "imageUrl",
+                        "kind",
+                        "summary",
+                        "summaryPreview",
+                        "content",
+                        "hasProtectedContent",
+                        "discussionCount"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "access": {
+                      "type": "object",
+                      "properties": {
+                        "feature": {
+                          "type": "string"
+                        },
+                        "unlocked": {
+                          "type": "boolean"
+                        },
+                        "requiredPlan": {
+                          "type": "string",
+                          "enum": [
+                            "free",
+                            "pro",
+                            "elite"
+                          ]
+                        },
+                        "upgradePath": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "feature",
+                        "unlocked",
+                        "requiredPlan",
+                        "upgradePath"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "article",
+                    "access"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

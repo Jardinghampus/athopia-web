@@ -1,31 +1,9 @@
 import { NextResponse } from "next/server";
+import { universalLinkPaths } from "@/lib/deep-links";
 
 export const revalidate = 3600;
 
-const UNIVERSAL_LINK_COMPONENTS = [
-  "/artikel/*",
-  "/nyhet/*",
-  "/lag/*",
-  "/spelare/*",
-  "/match/*",
-  "/match",
-  "/forum/*",
-  "/forum",
-  "/allsvenskan",
-  "/allsvenskan/*",
-  "/analys",
-  "/analys/*",
-  "/daily",
-  "/podcast",
-  "/podcast/*",
-  "/nyheter",
-  "/statistik",
-  "/statistik/*",
-  "/mitt-lag",
-  "/profil",
-  "/konto",
-  "/ai",
-].map((path) => ({ "/": path }));
+const UNIVERSAL_LINK_COMPONENTS = universalLinkPaths().map((path) => ({ "/": path }));
 
 export function GET() {
   const teamId = process.env.APPLE_TEAM_ID;

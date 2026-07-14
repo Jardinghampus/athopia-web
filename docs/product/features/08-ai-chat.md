@@ -14,7 +14,7 @@ User → athopia-web POST /api/elite/chat | /api/match/chat
 
 | Lager | Filer |
 |-------|-------|
-| web | `app/api/elite/chat/route.ts` — Elite only |
+| web | `app/api/elite/chat/route.ts` — PRO+ (globalAiChat, founderbeslut D2 2026-07-14) |
 | web | `app/api/match/chat/route.ts` — PRO+, match context |
 | web | `lib/ai/tools.ts`, `lib/ai/chat-limits.ts` |
 | web | `app/(app)/elite/chat/page.tsx`, `CompactChatPanel.tsx` |
@@ -32,4 +32,5 @@ User → athopia-web POST /api/elite/chat | /api/match/chat
 User-chat körs på **Vercel**, inte os `withBudget`. Framtida: central LLM-gateway i os.
 
 ## PRO-gate
-Elite: `/elite/chat`. PRO: `/api/match/chat`. Free: UpgradePrompt.
+PRO: `/ai` (global) och `/api/match/chat` (matchkontext). Free: UpgradePrompt.
+Gaten kommer alltid från `lib/access-rules.ts` — hårdkoda aldrig plannamn i copy.
