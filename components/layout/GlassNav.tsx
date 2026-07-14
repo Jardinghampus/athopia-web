@@ -1,12 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BOTTOM_NAV_ITEMS } from "@/lib/nav";
-import { TabBar } from "@/components/ui/TabBar";
+import "./GlassNav.css";
 
 /**
- * Bottennav — 5 flikar (Mitt lag · Flöde · Allsvenskan · Matcher · AI).
- * Synlig på alla bredder. Döljs bara på forum-tråd där compose äger bottenytan.
+ * Floating liquid-glass tab bar — botten-dock på alla viewports.
+ * Ikoner + sliding glass thumb. Döljs på forum-tråd (compose äger bottenytan).
  */
 export function GlassNav({ clerkEnabled: _clerkEnabled }: { clerkEnabled?: boolean }) {
   const pathname = usePathname();
@@ -14,13 +15,40 @@ export function GlassNav({ clerkEnabled: _clerkEnabled }: { clerkEnabled?: boole
 
   if (hideOnThread) return null;
 
+  const activeIndex = BOTTOM_NAV_ITEMS.findIndex(
+    ({ href }) => pathname === href || pathname.startsWith(`${href}/`),
+  );
+
   return (
-    <TabBar
-      items={BOTTOM_NAV_ITEMS.map(({ href, label, icon: Icon }) => ({
-        href,
-        label,
-        icon: <Icon strokeWidth={2} />,
-      }))}
-    />
+    <div className="pointer-events-none fixed inset-x-0 z-50 flex justify-center bottom-[calc(env(safe-area-inset-bottom)+1rem)]">
+      <nav
+        className="glassnav pointer-events-auto"
+        aria-label="Huvudnavigation"
+        style={{ ["--active" as string]: Math.max(activeIndex, 0) }}
+      >
+        <span
+          className="glassnav__thumb"
+          aria-hidden
+          style={{ opacity: activeIndex === -1 ? 0 : 1 }}
+        />
+
+        {BOTTOM_NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+          const active = pathname === href || pathname.startsWith(`${href}/`);
+          return (
+            <Link
+              key={href}
+              href={href}
+              title={label}
+              aria-label={label}
+              aria-current={active ? "page" : undefined}
+              data-active={active}
+              className="glassnav__item"
+            >
+              <Icon strokeWidth={2} />
+            </Link>
+          );
+        })}
+      </nav>
+    </div>
   );
 }

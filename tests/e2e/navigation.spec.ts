@@ -19,27 +19,25 @@ test.describe("Desktop navigation", () => {
   });
 });
 
-test.describe("TabBar", () => {
+test.describe("GlassNav liquid dock", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test("TabBar visar fem flikar", async ({ page }) => {
+  test("GlassNav visar fem flikar", async ({ page }) => {
     await page.goto("/nyheter");
-    const tabBar = page.getByRole("navigation").filter({ hasText: "Mitt lag" });
-    await expect(tabBar).toBeVisible({ timeout: 10000 });
-    await expect(tabBar.getByRole("link", { name: "Mitt lag" })).toBeVisible();
-    await expect(tabBar.getByRole("link", { name: "Flöde" })).toBeVisible();
-    await expect(tabBar.getByRole("link", { name: "Allsvenskan" })).toBeVisible();
-    await expect(tabBar.getByRole("link", { name: "Matcher" })).toBeVisible();
-    await expect(tabBar.getByRole("link", { name: "AI" })).toBeVisible();
+    const nav = page.locator(".glassnav");
+    await expect(nav).toBeVisible({ timeout: 10000 });
+    await expect(nav.getByRole("link", { name: "Mitt lag" })).toBeVisible();
+    await expect(nav.getByRole("link", { name: "Flöde" })).toBeVisible();
+    await expect(nav.getByRole("link", { name: "Allsvenskan" })).toBeVisible();
+    await expect(nav.getByRole("link", { name: "Matcher" })).toBeVisible();
+    await expect(nav.getByRole("link", { name: "AI" })).toBeVisible();
   });
 
   test("Flöde-flik är aktiv på /nyheter", async ({ page }) => {
     await page.goto("/nyheter");
-    const flow = page
-      .getByRole("navigation")
-      .filter({ hasText: "Flöde" })
-      .getByRole("link", { name: "Flöde" });
-    await expect(flow).toHaveAttribute("aria-current", "page");
+    await expect(
+      page.locator(".glassnav").getByRole("link", { name: "Flöde" }),
+    ).toHaveAttribute("aria-current", "page");
   });
 
   test("Hamburger-meny öppnas", async ({ page }) => {
