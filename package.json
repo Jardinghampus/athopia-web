@@ -10,6 +10,10 @@
     "typecheck": "tsc --noEmit",
     "test:links": "ts-node --project tsconfig.json scripts/link-audit.ts",
     "test:provenance": "npx --yes tsx --test lib/provenance.test.ts",
+    "test:access": "tsx --test lib/access-rules.test.ts",
+    "test:parity": "tsx --test lib/access-rules.test.ts lib/plan-sources.test.ts lib/product-contract.test.ts",
+    "contracts:generate": "tsx scripts/generate-parity-contracts.ts",
+    "contracts:check": "tsx scripts/generate-parity-contracts.ts --check",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
@@ -20,6 +24,7 @@
     "@ai-sdk/anthropic": "^4.0.0",
     "@ai-sdk/openai": "^4.0.1",
     "@ai-sdk/react": "^4.0.4",
+    "@apple/app-store-server-library": "^3.1.0",
     "@base-ui/react": "^1.5.0",
     "@clerk/localizations": "^4.8.1",
     "@clerk/nextjs": "^7.4.1",
@@ -70,6 +75,7 @@
     "eslint-config-next": "16.2.6",
     "playwright": "^1.60.0",
     "tailwindcss": "^4",
+    "tsx": "^4.23.1",
     "typescript": "^5"
   }
 }

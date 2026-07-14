@@ -4,74 +4,12 @@
  */
 
 import Link from "next/link";
-import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import type { Plan } from "@/lib/access-rules";
 import { BlurPaywall } from "@/components/BlurPaywall";
 import {
-  resolveTransferStatus,
   transferStatusBadgeClass,
-  type TransferStatus,
 } from "@/lib/transfer-status";
-
-interface RadarItem {
-  id: string;
-  slug: string | null;
-  title: string;
-  source_name: string | null;
-  published_at: string | null;
-  status: TransferStatus;
-  label: "Rykte" | "Bekräftad";
-  sourceCount: number;
-}
-
-async function getRadar(teamSlug: string): Promise<RadarItem[]> {
-  if (!isSupabaseConfigured()) return [];
-  try {
-    const db = createServerClient();
-    const { data: entity } = await db
-      .from("entities")
-      .select("id")
-      .eq("type", "team")
-      .eq("slug", teamSlug)
-      .maybeSingle();
-    if (!entity?.id) return [];
-
-    const since = new Date(Date.now() - 30 * 24 * 3600_000).toISOString();
-    const { data } = await db
-      .from("articles")
-      .select("id, slug, title, source_name, published_at, source_count, duplicate_sources")
-      .eq("sport", "football")
-      .eq("status", "published")
-      .eq("event_type", "transfer")
-      .contains("entity_ids", [entity.id])
-      .gte("published_at", since)
-      .order("published_at", { ascending: false })
-      .limit(8);
-
-    return (data ?? []).map((a) => {
-      const resolved = resolveTransferStatus({
-        sourceCount: a.source_count,
-        sourceName: a.source_name,
-        title: a.title,
-        duplicateSources: Array.isArray(a.duplicate_sources)
-          ? (a.duplicate_sources as string[])
-          : null,
-      });
-      return {
-        id: String(a.id),
-        slug: a.slug ? String(a.slug) : null,
-        title: String(a.title),
-        source_name: a.source_name ? String(a.source_name) : null,
-        published_at: a.published_at ? String(a.published_at) : null,
-        status: resolved.status,
-        label: resolved.label,
-        sourceCount: resolved.sourceCount,
-      };
-    });
-  } catch {
-    return [];
-  }
-}
+import { getTransferRadar } from "@/lib/team-hub/transfers";
 
 function relTime(iso: string | null): string {
   if (!iso) return "";
@@ -81,7 +19,7 @@ function relTime(iso: string | null): string {
   return `${Math.round(h / 24)} d`;
 }
 
-function RadarList({ items }: { items: RadarItem[] }) {
+function RadarList({ items }: { items: Awaited<ReturnType<typeof getTransferRadar>> }) {
   return (
     <ul className="divide-y divide-border/50">
       {items.map((it) => (
@@ -100,10 +38,10 @@ function RadarList({ items }: { items: RadarItem[] }) {
                 {it.title}
               </span>
               <span className="mt-0.5 block text-[11px] text-muted-foreground">
-                {it.source_name ?? "Okänd källa"}
+                {it.sourceName ?? "Okänd källa"}
                 {it.sourceCount >= 2 ? ` · ${it.sourceCount} källor` : ""}
                 {" · "}
-                {relTime(it.published_at)}
+                {relTime(it.publishedAt)}
               </span>
             </span>
           </Link>
@@ -122,7 +60,7 @@ export async function TransferRadar({
   plan: Plan;
   teamName?: string;
 }) {
-  const items = await getRadar(teamSlug);
+  const items = await getTransferRadar(teamSlug);
   if (items.length === 0) return null;
 
   const confirmed = items.filter((i) => i.status === "bekraftad").length;

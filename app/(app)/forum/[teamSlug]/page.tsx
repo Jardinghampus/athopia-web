@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { currentUser } from "@clerk/nextjs/server";
 import { createServerClient, isSupabaseConfigured, getEntities } from "@/lib/supabase";
+import { getForumTeamSummary } from "@/lib/forum/summary";
 import type { ForumPost } from "@/lib/types";
 import ForumSummaryBar from "@/components/forum/ForumSummaryBar";
 import ForumDailySummary from "@/components/forum/ForumDailySummary";
@@ -58,19 +59,7 @@ async function getPosts(teamSlug: string): Promise<ForumPost[]> {
 }
 
 async function getAISummary(teamSlug: string): Promise<string | null> {
-  if (!isSupabaseConfigured()) return null;
-  try {
-    const supabase = createServerClient();
-    const { data } = await supabase
-      .from("agent_memory")
-      .select("content")
-      .eq("agent_id", "forum-summarizer")
-      .eq("category", `forum_summary_${teamSlug}`)
-      .maybeSingle();
-    return (data as any)?.content ?? null;
-  } catch {
-    return null;
-  }
+  return getForumTeamSummary(teamSlug);
 }
 
 export async function generateMetadata({

@@ -5,6 +5,7 @@ import { ChevronLeft } from "lucide-react";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import type { ForumPost } from "@/lib/types";
 import ThreadClient from "./ThreadClient";
+import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
 
 export const dynamic = 'force-dynamic';
 
@@ -58,6 +59,22 @@ export async function generateMetadata({
   };
 }
 
+async function getTeamName(teamSlug: string): Promise<string> {
+  if (!isSupabaseConfigured()) return teamSlug.replace(/-/g, " ");
+  try {
+    const supabase = createServerClient();
+    const { data } = await supabase
+      .from("entities")
+      .select("name")
+      .eq("type", "team")
+      .eq("slug", teamSlug)
+      .maybeSingle();
+    return (data?.name as string | undefined) ?? teamSlug.replace(/-/g, " ");
+  } catch {
+    return teamSlug.replace(/-/g, " ");
+  }
+}
+
 export default async function ThreadPage({
   params,
 }: {
@@ -67,20 +84,31 @@ export default async function ThreadPage({
   const root = await getPost(postId);
   if (!root) notFound();
 
-  const replies = await getReplies(root.root_id ?? root.id);
+  const [replies, teamName] = await Promise.all([
+    getReplies(root.root_id ?? root.id),
+    getTeamName(teamSlug),
+  ]);
 
   return (
     <div className="w-full min-h-screen">
       <div className="mx-auto w-full max-w-[600px] border-x border-border/20">
-        {/* Sticky top nav */}
-        <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/30 px-4 py-3 flex items-center gap-3">
-          <Link
-            href={`/forum/${teamSlug}`}
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted/60 transition-colors shrink-0"
-          >
-            <ChevronLeft className="w-5 h-5 text-muted-foreground" />
-          </Link>
-          <span className="font-semibold text-base text-foreground">Tråd</span>
+        <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/30 px-4 py-3 space-y-2">
+          <AppBreadcrumbs
+            items={[
+              { label: "Forum", href: "/forum" },
+              { label: teamName, href: `/forum/${teamSlug}` },
+              { label: "Tråd" },
+            ]}
+          />
+          <div className="flex items-center gap-3">
+            <Link
+              href={`/forum/${teamSlug}`}
+              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted/60 transition-colors shrink-0"
+            >
+              <ChevronLeft className="w-5 h-5 text-muted-foreground" />
+            </Link>
+            <span className="font-semibold text-base text-foreground">Tråd</span>
+          </div>
         </div>
 
         <div className="px-4 pt-5 pb-28">

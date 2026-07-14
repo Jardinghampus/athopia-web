@@ -7,6 +7,7 @@ import { ListGroup } from "@/components/ui/ListGroup";
 import { ListRow } from "@/components/ui/ListRow";
 import { StatNumber } from "@/components/ui/StatNumber";
 import { PlayerProfileAnalytics, type ProfileMetric } from "./PlayerProfileAnalytics";
+import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
 
 export const revalidate = 60;
 
@@ -230,6 +231,12 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 space-y-8">
+      <AppBreadcrumbs
+        items={[
+          { label: "Statistik", href: "/statistik" },
+          { label: String(player.fullname ?? "Spelare") },
+        ]}
+      />
       {/* Header */}
       <div className="flex items-center gap-6">
         {!!player.image && (

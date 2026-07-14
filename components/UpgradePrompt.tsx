@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { AccessFeature } from "@/lib/access-rules";
+import { requiredPlanFor, type AccessFeature } from "@/lib/access-rules";
 import { ProductEventTracker } from "@/components/analytics/ProductEventTracker";
 import { FOUNDER_OFFER, TRIAL_DAYS, proPriceLabel, listMonthlyKr } from "@/lib/pricing";
 
@@ -12,7 +12,8 @@ const FEATURE_LABELS: Record<AccessFeature, string> = {
   eliteBrief:         "daglig AI-brief för ditt lag",
   pushAlerts:         "push-notiser",
   unlimitedFeed:      "obegränsat flöde",
-  aiChat:             "AI-chat",
+  aiChat:             "matchchatten",
+  globalAiChat:       "Athopia AI",
   podcastClips:       "podcastkuratering",
   briefAudio:         "lyssna på brief",
   forumSummary:       "forum-läget senaste timmarna",
@@ -28,6 +29,7 @@ export function UpgradePrompt({
   teamName?: string;
 }) {
   const label = FEATURE_LABELS[feature] ?? feature;
+  const requiredPlan = requiredPlanFor(feature);
   const price = proPriceLabel();
   const founder = FOUNDER_OFFER.active;
 
@@ -44,7 +46,7 @@ export function UpgradePrompt({
       )}
       <p className="text-sm text-zinc-400">
         <span className="font-medium text-white">{label}</span> — så du är först utan att scrolla.
-        Kräver PRO eller Elite.
+        Kräver {requiredPlan === "elite" ? "Elite" : "PRO eller Elite"}.
       </p>
       <p className="mt-1 text-xs text-zinc-500">
         {founder

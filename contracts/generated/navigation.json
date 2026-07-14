@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "generatedFrom": "athopia-web/lib/nav.ts",
+  "primary": [
+    {
+      "id": "mitt_lag",
+      "route": "/mitt-lag",
+      "label": "Mitt lag",
+      "iosSymbol": "shield.fill",
+      "accessFeature": null
+    },
+    {
+      "id": "nyheter",
+      "route": "/nyheter",
+      "label": "Flöde",
+      "iosSymbol": "newspaper.fill",
+      "accessFeature": null
+    },
+    {
+      "id": "allsvenskan",
+      "route": "/allsvenskan",
+      "label": "Allsvenskan",
+      "iosSymbol": "trophy.fill",
+      "accessFeature": null
+    },
+    {
+      "id": "match",
+      "route": "/match",
+      "label": "Matcher",
+      "iosSymbol": "calendar",
+      "accessFeature": null
+    },
+    {
+      "id": "ai",
+      "route": "/ai",
+      "label": "AI",
+      "iosSymbol": "sparkles",
+      "accessFeature": "globalAiChat"
+    }
+  ],
+  "secondary": [
+    {
+      "id": "forum",
+      "route": "/forum",
+      "label": "Forum",
+      "iosSymbol": "bubble.left.and.bubble.right.fill"
+    },
+    {
+      "id": "statistik",
+      "route": "/statistik",
+      "label": "Statistik",
+      "iosSymbol": "chart.bar.fill"
+    },
+    {
+      "id": "analys",
+      "route": "/analys",
+      "label": "Matchanalyser",
+      "iosSymbol": "doc.text.magnifyingglass"
+    },
+    {
+      "id": "daily",
+      "route": "/daily",
+      "label": "Athopia Daily",
+      "iosSymbol": "headphones"
+    },
+    {
+      "id": "podcast",
+      "route": "/podcast",
+      "label": "Poddar",
+      "iosSymbol": "waveform"
+    },
+    {
+      "id": "konto",
+      "route": "/konto",
+      "label": "Konto",
+      "iosSymbol": "person.crop.circle"
+    },
+    {
+      "id": "prenumerera",
+      "route": "/prenumerera",
+      "label": "Prenumeration",
+      "iosSymbol": "creditcard.fill"
+    },
+    {
+      "id": "om_oss",
+      "route": "/om-oss",
+      "label": "Om Athopia",
+      "iosSymbol": "info.circle"
+    },
+    {
+      "id": "mer",
+      "route": "/mer",
+      "label": "Mer",
+      "iosSymbol": "ellipsis"
+    }
+  ]
+}

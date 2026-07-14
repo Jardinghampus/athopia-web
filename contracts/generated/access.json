@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "generatedFrom": "athopia-web/lib/access-rules.ts",
+  "plans": [
+    "free",
+    "pro",
+    "elite"
+  ],
+  "features": {
+    "basicFilter": "free",
+    "advancedFilter": "pro",
+    "aiSummaries": "pro",
+    "smartRanking": "pro",
+    "crossSourceCluster": "elite",
+    "eliteBrief": "pro",
+    "pushAlerts": "free",
+    "unlimitedFeed": "free",
+    "aiChat": "pro",
+    "globalAiChat": "elite",
+    "podcastClips": "pro",
+    "briefAudio": "pro",
+    "forumSummary": "pro",
+    "transferSignals": "pro"
+  }
+}

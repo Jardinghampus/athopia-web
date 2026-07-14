@@ -10,7 +10,7 @@ export async function GET() {
     position: r.position,
     teamId: r.team.id,
     teamName: r.team.name,
-    teamSlug: r.team.name.toLowerCase().replace(/\s+/g, "-"),
+    teamSlug: r.team.slug,
     played: r.played,
     won: r.wins,
     drawn: r.draws,
@@ -18,6 +18,8 @@ export async function GET() {
     goalsFor: r.goals_for,
     goalsAgainst: r.goals_against,
     points: r.points,
+    form: r.form,
+    trend: r.trend,
   }));
 
   return NextResponse.json(

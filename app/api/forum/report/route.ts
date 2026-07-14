@@ -22,11 +22,47 @@ export async function POST(req: Request) {
   }
 
   const supabase = createServerClient();
-  await supabase.from("forum_reports").insert({
+  const { data: post, error: postError } = await supabase
+    .from("forum_posts")
+    .select("id, author_id, status")
+    .eq("id", postId)
+    .maybeSingle();
+
+  if (postError) {
+    console.error("[forum/report]", postError);
+    return NextResponse.json({ error: "Serverfel" }, { status: 500 });
+  }
+  if (!post || post.status !== "published") {
+    return NextResponse.json({ error: "Inlägget hittades inte" }, { status: 404 });
+  }
+  if (post.author_id === userId) {
+    return NextResponse.json(
+      { error: "Du kan inte rapportera ditt eget inlägg" },
+      { status: 400 },
+    );
+  }
+
+  const { data: existing } = await supabase
+    .from("forum_reports")
+    .select("id")
+    .eq("post_id", postId)
+    .eq("reporter_id", userId)
+    .maybeSingle();
+
+  if (existing) {
+    return NextResponse.json({ ok: true, duplicate: true });
+  }
+
+  const { error: insertError } = await supabase.from("forum_reports").insert({
     post_id: postId,
     reporter_id: userId,
     status: "pending",
   });
+
+  if (insertError) {
+    console.error("[forum/report] insert:", insertError);
+    return NextResponse.json({ error: "Kunde inte skicka rapport" }, { status: 500 });
+  }
 
   return NextResponse.json({ ok: true });
 }

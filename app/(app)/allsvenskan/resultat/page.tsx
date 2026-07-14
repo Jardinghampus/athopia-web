@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { fetchAllsvenskanFixtures } from "@/lib/db/fixtures";
 import type { SMFixture } from "@/lib/db/fixtures";
+import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
 
 export const revalidate = 60;
 
@@ -40,6 +41,14 @@ export default async function AllsvenskanResultatPage() {
 
   return (
     <div className="w-full px-4 sm:px-8 py-10 max-w-3xl mx-auto">
+      <div className="mb-4">
+        <AppBreadcrumbs
+          items={[
+            { label: "Allsvenskan", href: "/allsvenskan" },
+            { label: "Resultat" },
+          ]}
+        />
+      </div>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",

@@ -15,6 +15,7 @@ import {
   sourceDomain,
 } from "@/lib/provenance";
 import { getSiteUrl } from "@/lib/site-url";
+import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
 
 export const revalidate = 60;
 
@@ -124,6 +125,14 @@ export default async function NyhetPage({
 
   return (
     <div className="mx-auto max-w-2xl px-4 sm:px-6 py-12">
+      <div className="mb-5">
+        <AppBreadcrumbs
+          items={[
+            { label: "Flöde", href: "/nyheter" },
+            { label: article.title },
+          ]}
+        />
+      </div>
       <p className="text-[11px] font-semibold uppercase tracking-wide text-pitch">
         Extern källa
       </p>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { unstable_cache } from "next/cache";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
 
 export const revalidate = 3600;
 
@@ -96,11 +97,14 @@ export default async function TalangerPage() {
 
   return (
     <div className="w-full px-4 sm:px-8 py-10 max-w-3xl mx-auto">
-      <nav className="text-xs text-muted-foreground mb-6 flex gap-2">
-        <Link href="/allsvenskan" className="hover:text-foreground">Allsvenskan</Link>
-        <span>›</span>
-        <span className="text-foreground">Talanger</span>
-      </nav>
+      <div className="mb-6">
+        <AppBreadcrumbs
+          items={[
+            { label: "Allsvenskan", href: "/allsvenskan" },
+            { label: "Talanger" },
+          ]}
+        />
+      </div>
 
       <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2">U21-TALANGERNA</h1>
       <p className="text-muted-foreground mb-8 max-w-xl">

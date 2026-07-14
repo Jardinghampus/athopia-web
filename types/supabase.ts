@@ -305,6 +305,110 @@ export type Database = {
           },
         ]
       }
+      apns_subscriptions: {
+        Row: {
+          clerk_user_id: string
+          created_at: string
+          device_token: string
+          environment: string
+          id: string
+          is_active: boolean
+          sport: string
+          team_ids: string[]
+          updated_at: string
+        }
+        Insert: {
+          clerk_user_id: string
+          created_at?: string
+          device_token: string
+          environment?: string
+          id?: string
+          is_active?: boolean
+          sport?: string
+          team_ids?: string[]
+          updated_at?: string
+        }
+        Update: {
+          clerk_user_id?: string
+          created_at?: string
+          device_token?: string
+          environment?: string
+          id?: string
+          is_active?: boolean
+          sport?: string
+          team_ids?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      app_store_accounts: {
+        Row: {
+          app_account_token: string
+          clerk_user_id: string
+          created_at: string
+        }
+        Insert: {
+          app_account_token?: string
+          clerk_user_id: string
+          created_at?: string
+        }
+        Update: {
+          app_account_token?: string
+          clerk_user_id?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
+      app_store_entitlements: {
+        Row: {
+          app_account_token: string
+          clerk_user_id: string
+          environment: string
+          expires_at: string | null
+          original_transaction_id: string
+          plan: string
+          product_id: string
+          purchased_at: string | null
+          revoked_at: string | null
+          transaction_id: string
+          updated_at: string
+        }
+        Insert: {
+          app_account_token: string
+          clerk_user_id: string
+          environment: string
+          expires_at?: string | null
+          original_transaction_id: string
+          plan: string
+          product_id: string
+          purchased_at?: string | null
+          revoked_at?: string | null
+          transaction_id: string
+          updated_at?: string
+        }
+        Update: {
+          app_account_token?: string
+          clerk_user_id?: string
+          environment?: string
+          expires_at?: string | null
+          original_transaction_id?: string
+          plan?: string
+          product_id?: string
+          purchased_at?: string | null
+          revoked_at?: string | null
+          transaction_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "app_store_entitlements_clerk_user_id_fkey"
+            columns: ["clerk_user_id"]
+            isOneToOne: false
+            referencedRelation: "app_store_accounts"
+            referencedColumns: ["clerk_user_id"]
+          },
+        ]
+      }
       articles: {
         Row: {
           approval_reason: string | null
@@ -4849,6 +4953,10 @@ export type Database = {
       bump_data_version: { Args: { p_sport: string }; Returns: undefined }
       cleanup_expired_agent_memory: { Args: never; Returns: number }
       cleanup_old_data: { Args: never; Returns: undefined }
+      delete_user_account: {
+        Args: { p_clerk_user_id: string }
+        Returns: undefined
+      }
       get_pending_tasks: {
         Args: { p_agent_to: string; p_limit?: number }
         Returns: {

@@ -4,8 +4,22 @@ import { streamText, stepCountIs } from "ai";
 import { getUserPlan } from "@/lib/user-plan";
 import { tools } from "@/lib/ai/tools";
 import { checkChatLimits, bumpChatUsage } from "@/lib/ai/chat-limits";
+import { canAccess } from "@/lib/access-rules";
+import { parseBody, z } from "@/lib/validation";
 
 export const maxDuration = 30;
+
+const ChatSchema = z.object({
+  messages: z
+    .array(
+      z.object({
+        role: z.enum(["user", "assistant"]),
+        content: z.string().trim().min(1).max(4_000),
+      }),
+    )
+    .min(1)
+    .max(20),
+});
 
 export async function POST(req: Request) {
   const { userId } = await auth();
@@ -13,9 +27,15 @@ export async function POST(req: Request) {
 
   // Server-side plan only — never trust client-sent plan (LAUNCH-04).
   const plan = await getUserPlan();
-  if (plan !== "elite") {
+  if (!canAccess("globalAiChat", plan)) {
     return Response.json(
-      { error: "Elite-prenumeration krävs för AI-chatten." },
+      {
+        error: "Elite-prenumeration krävs för AI-chatten.",
+        code: "plan_required",
+        feature: "globalAiChat",
+        requiredPlan: "elite",
+        upgradePath: "/prenumerera",
+      },
       { status: 403 },
     );
   }
@@ -26,11 +46,14 @@ export async function POST(req: Request) {
   }
   const { db } = limits;
 
-  const { messages } = await req.json();
+  const parsed = await parseBody(req, ChatSchema);
+  if (!parsed.ok) return parsed.response;
+  const { messages } = parsed.data;
   const model = anthropic(process.env.CHAT_MODEL ?? "claude-haiku-4-5-20251001");
 
   const result = streamText({
     model,
+    maxOutputTokens: 600,
     system: `Du är Athopias AI-assistent för Allsvenskan. Idag är det ${new Date().toLocaleDateString("sv-SE", { year: "numeric", month: "long", day: "numeric" })} och du har tillgång till live-data från Allsvenskan 2026.
 
 ## Tillgänglig data (alltid uppdaterad)

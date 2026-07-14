@@ -1,0 +1,133 @@
+{
+  "$schema": "athopia-brand-tokens",
+  "version": "1.1.0",
+  "updated": "2026-07-11",
+  "brand": {
+    "logoOnLight": "#131111",
+    "logoOnDark": "#F4F4F2",
+    "green": "#2D5349",
+    "greenOnDark": "#5FA98C",
+    "successLight": "#12805F",
+    "successDark": "#25C48F",
+    "destructive": "#D61F1F"
+  },
+  "light": {
+    "background": "#FAFAF8",
+    "foreground": "#111111",
+    "surface": "#F3F2F0",
+    "card": "#FFFFFF",
+    "cardForeground": "#111111",
+    "popover": "#FFFFFF",
+    "popoverForeground": "#111111",
+    "primary": "#2D5349",
+    "primaryForeground": "#FFFFFF",
+    "primaryHover": "#234239",
+    "primaryActive": "#1E3A32",
+    "secondary": "#F3F2F0",
+    "secondaryForeground": "#111111",
+    "muted": "#F3F2F0",
+    "mutedForeground": "#8A8885",
+    "textSecondary": "#525254",
+    "accent": "#EAF0ED",
+    "accentForeground": "#111111",
+    "destructive": "#D61F1F",
+    "success": "#12805F",
+    "warning": "#D59B00",
+    "border": "#E2E0DC",
+    "input": "#E2E0DC",
+    "ring": "#2D5349",
+    "chart": [
+      "#2D5349",
+      "#111111",
+      "#8A8885",
+      "#C6C4C0",
+      "#525254"
+    ],
+    "chartGrid": "rgba(17,17,17,0.06)"
+  },
+  "dark": {
+    "background": "#000000",
+    "foreground": "#F4F4F2",
+    "surface": "#151516",
+    "card": "#1B1B1C",
+    "cardForeground": "#F4F4F2",
+    "elevated": "#222224",
+    "popover": "#151516",
+    "popoverForeground": "#F4F4F2",
+    "primary": "#2D5349",
+    "primaryForeground": "#FFFFFF",
+    "primaryHover": "#5FA98C",
+    "primaryActive": "#1E3A32",
+    "secondary": "#1B1B1C",
+    "secondaryForeground": "#F4F4F2",
+    "muted": "#151516",
+    "mutedForeground": "#7D7D7A",
+    "textSecondary": "#B5B5B3",
+    "accent": "#14201C",
+    "accentForeground": "#F4F4F2",
+    "destructive": "#FF453A",
+    "success": "#25C48F",
+    "warning": "#F2A900",
+    "border": "#2C2C2E",
+    "divider": "#333336",
+    "input": "#2C2C2E",
+    "ring": "#2D5349",
+    "chart": [
+      "#5FA98C",
+      "#F4F4F2",
+      "#7D7D7A",
+      "#3A3A3C",
+      "#B5B5B3"
+    ],
+    "chartGrid": "rgba(255,255,255,0.06)"
+  },
+  "typography": {
+    "sans": "Geist, Inter, system-ui, sans-serif",
+    "mono": "'Geist Mono', ui-monospace, monospace",
+    "tracking": {
+      "caption": "0.01em",
+      "eyebrow": "0.06em",
+      "ui": "-0.006em",
+      "body": "-0.011em",
+      "heading": "-0.017em",
+      "display": "-0.022em"
+    },
+    "lineHeight": {
+      "display": 1.1,
+      "heading": 1.18,
+      "body": 1.65
+    },
+    "numerics": "tabular-nums"
+  },
+  "icons": {
+    "library": "lucide-react",
+    "stroke": 2,
+    "sizing": "1em — icon size follows font size; standalone 16/20/24px",
+    "color": "currentColor"
+  },
+  "spacing": {
+    "grid": 8,
+    "fineStep": 4,
+    "macroMin": 32,
+    "touchTargetMin": 44
+  },
+  "radius": [
+    8,
+    12,
+    16,
+    20,
+    24
+  ],
+  "shadows": {
+    "sm": "0 2px 8px rgba(0,0,0,0.05)",
+    "md": "0 8px 30px rgba(0,0,0,0.08)",
+    "lg": "0 20px 60px rgba(0,0,0,0.12)"
+  },
+  "motion": {
+    "durationFastMs": 200,
+    "durationBaseMs": 250,
+    "easeOut": "cubic-bezier(0.23, 1, 0.32, 1)",
+    "easeInOut": "cubic-bezier(0.77, 0, 0.175, 1)",
+    "bounce": false
+  }
+}

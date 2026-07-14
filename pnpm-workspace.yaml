@@ -1,6 +1,7 @@
 allowBuilds:
   '@clerk/shared': true
   '@sentry/cli': false
+  esbuild: true
   msw: false
   sharp: true
   unrs-resolver: true

@@ -12,7 +12,6 @@ import { ExternalLink, MessageSquare, Sparkles } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { ArticleCard } from "@/components/ui/ArticleCard";
 import { EntityChip } from "@/components/ui/EntityChip";
-import { createServerClient } from "@/lib/supabase";
 import type { Article } from "@/lib/types";
 import { ArticleScrollTracker } from "@/components/gamification/ArticleScrollTracker";
 import { getUserPlan } from "@/lib/user-plan";
@@ -23,57 +22,14 @@ import {
   resolveRightsStatus,
   sanitizeArticleForPublic,
 } from "@/lib/provenance";
+import {
+  getArticleDiscussionCount,
+  getPublicArticleBySlug,
+} from "@/lib/articles/public-article";
 import { getSiteUrl } from "@/lib/site-url";
+import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
 
 export const revalidate = 3600;
-
-async function getArticle(slug: string): Promise<Article | null> {
-  try {
-    const supabase = createServerClient();
-    const { data } = await supabase
-      .from("articles")
-      .select("*")
-      .eq("slug", slug)
-      .single();
-    if (!data) return null;
-    const row = data as Record<string, unknown>;
-    const mapped: Article = {
-      id: String(row.id),
-      slug: String(row.slug ?? ""),
-      title: String(row.title ?? ""),
-      summary: String(row.summary ?? ""),
-      content: (row.content as string | null) ?? null,
-      sourceUrl: (row.url as string | null) ?? null,
-      url: (row.url as string | null) ?? null,
-      sourceName: String(row.source_name ?? "Okänd källa"),
-      imageUrl: null,
-      publishedAt: String(row.published_at ?? new Date().toISOString()),
-      updatedAt: (row.updated_at as string | null) ?? null,
-      entities: [],
-      contentOrigin: (row.content_origin as Article["contentOrigin"]) ?? null,
-      rightsStatus: resolveRightsStatus(row as Parameters<typeof resolveRightsStatus>[0]),
-      isAthopiaGenerated: (row.is_athopia_generated as boolean | null) ?? null,
-    };
-    return sanitizeArticleForPublic(mapped);
-  } catch {
-    return null;
-  }
-}
-
-async function getDiscussionCount(articleId: string): Promise<number> {
-  try {
-    const supabase = createServerClient();
-    const { count, error } = await supabase
-      .from("forum_posts")
-      .select("id", { count: "exact", head: true })
-      .eq("article_id", articleId)
-      .eq("status", "published");
-    if (error) return 0;
-    return count ?? 0;
-  } catch {
-    return 0;
-  }
-}
 
 async function getRelatedArticles(articleId: string): Promise<Article[]> {
   try {
@@ -95,7 +51,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const article = await getArticle(slug);
+  const article = await getPublicArticleBySlug(slug);
 
   if (!article) return { title: "Artikel hittades inte" };
 
@@ -161,7 +117,7 @@ export default async function ArtikelPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const article = await getArticle(slug);
+  const article = await getPublicArticleBySlug(slug);
   if (!article) notFound();
 
   const rights = article.rightsStatus ?? resolveRightsStatus(article);
@@ -171,7 +127,7 @@ export default async function ArtikelPage({
 
   const [relatedArticles, discussionCount, plan] = await Promise.all([
     getRelatedArticles(article.id),
-    getDiscussionCount(article.id),
+    getArticleDiscussionCount(article.id),
     getUserPlan(),
   ]);
 
@@ -188,6 +144,17 @@ export default async function ArtikelPage({
       <ArticleScrollTracker articleType="match_report" />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
+        <div className="mb-5">
+          <AppBreadcrumbs
+            items={[
+              { label: "Flöde", href: "/nyheter" },
+              ...(teamEntity
+                ? [{ label: teamEntity.name, href: `/lag/${teamEntity.slug}` }]
+                : []),
+              { label: article.title },
+            ]}
+          />
+        </div>
         {article.imageUrl && (
           <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden mb-8">
             <Image

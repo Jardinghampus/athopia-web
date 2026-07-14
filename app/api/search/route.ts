@@ -15,18 +15,47 @@ export async function GET(req: Request) {
   try {
     const supabase = createServerClient();
 
-    const [{ data: articles }, { data: teams }, { data: players }, { data: podcasts }] = await Promise.all([
-      supabase.from("articles").select("id,slug,title").ilike("title", `%${q}%`).limit(6),
-      supabase.from("teams").select("id,slug,name").ilike("name", `%${q}%`).limit(6),
-      supabase.from("players").select("id,slug,name").ilike("name", `%${q}%`).limit(6),
-      supabase.from("podcasts").select("id,title").ilike("title", `%${q}%`).limit(6),
-    ]);
+    const [{ data: articles }, { data: teams }, { data: players }, { data: podcasts }] =
+      await Promise.all([
+        supabase
+          .from("articles")
+          .select("id,slug,title")
+          .eq("sport", "football")
+          .eq("status", "published")
+          .not("slug", "is", null)
+          .neq("slug", "")
+          .ilike("title", `%${q}%`)
+          .limit(6),
+        supabase
+          .from("entities")
+          .select("id,slug,name")
+          .eq("type", "team")
+          .eq("metadata->>league", "Allsvenskan")
+          .ilike("name", `%${q}%`)
+          .limit(6),
+        supabase
+          .from("players")
+          .select("sportmonks_id,slug,fullname")
+          .eq("sport", "football")
+          .ilike("fullname", `%${q}%`)
+          .limit(6),
+        supabase
+          .from("podcasts")
+          .select("id,title,rss_sources!inner(sport)")
+          .eq("rss_sources.sport", "football")
+          .ilike("title", `%${q}%`)
+          .limit(6),
+      ]);
 
     return NextResponse.json({
       articles: articles ?? [],
       teams: teams ?? [],
-      players: players ?? [],
-      podcasts: podcasts ?? [],
+      players: (players ?? []).map((player) => ({
+        id: player.sportmonks_id,
+        slug: player.slug,
+        name: player.fullname,
+      })),
+      podcasts: (podcasts ?? []).map(({ id, title }) => ({ id, title })),
     });
   } catch (e) {
     console.error("[search]", e);

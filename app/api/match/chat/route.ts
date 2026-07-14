@@ -6,8 +6,27 @@ import { tools } from '@/lib/ai/tools'
 import { bumpChatUsage, checkChatLimits } from '@/lib/ai/chat-limits'
 import { getUserPlan } from '@/lib/user-plan'
 import { canAccess } from '@/lib/access-rules'
+import { parseBody, z } from '@/lib/validation'
 
 export const maxDuration = 30
+
+const MatchChatSchema = z.object({
+  messages: z
+    .array(
+      z.object({
+        role: z.enum(['user', 'assistant']),
+        content: z.string().trim().min(1).max(4_000),
+      }),
+    )
+    .min(1)
+    .max(20),
+  fixtureId: z.number().int().positive().optional(),
+  homeTeam: z.string().trim().max(100).optional(),
+  awayTeam: z.string().trim().max(100).optional(),
+  score: z.string().trim().max(30).optional(),
+  status: z.string().trim().max(30).optional(),
+  kickoff: z.string().trim().max(100).optional(),
+})
 
 function getDb() {
   return createClient(
@@ -24,7 +43,13 @@ export async function POST(req: Request) {
   const plan = await getUserPlan()
   if (!canAccess('aiChat', plan)) {
     return Response.json(
-      { error: 'PRO krävs för AI-chatten.' },
+      {
+        error: 'PRO krävs för matchchatten.',
+        code: 'plan_required',
+        feature: 'aiChat',
+        requiredPlan: 'pro',
+        upgradePath: '/prenumerera',
+      },
       { status: 403 }
     )
   }
@@ -37,8 +62,9 @@ export async function POST(req: Request) {
     return Response.json({ error: limits.error }, { status: limits.status })
   }
 
-  const body = await req.json()
-  const { messages, fixtureId, homeTeam, awayTeam, score, status, kickoff } = body
+  const parsed = await parseBody(req, MatchChatSchema)
+  if (!parsed.ok) return parsed.response
+  const { messages, fixtureId, homeTeam, awayTeam, score, status, kickoff } = parsed.data
 
   let matchExtra = ''
   if (fixtureId) {
@@ -69,6 +95,7 @@ Svara utifrån denna match först — använd verktyg för tabell/nyheter vid be
 
   const result = streamText({
     model,
+    maxOutputTokens: 600,
     system: `Du är Athopias AI-assistent för Allsvenskan. Idag är det ${new Date().toLocaleDateString('sv-SE', { year: 'numeric', month: 'long', day: 'numeric' })}.${matchContext}
 
 ## Hur du svarar

@@ -31,6 +31,7 @@ import { PodcastSignalsPanel } from "@/components/podcast/PodcastSignalsPanel";
 import { TransferRadar } from "@/components/team-hub/TransferRadar";
 import { PositionTrend } from "@/components/team-hub/PositionTrend";
 import type { SwitcherTeam } from "@/components/team-hub/TeamSwitcher";
+import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
 
 export const revalidate = 60;
 
@@ -172,6 +173,15 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
       />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(teamJsonLd) }} />
       <TeamContextTracker slug={hub.team.slug} name={hub.team.name} logo_url={hub.team.logo_url} />
+
+      <div className="px-4 sm:px-6 pt-3 pb-1">
+        <AppBreadcrumbs
+          items={[
+            { label: "Allsvenskan", href: "/allsvenskan" },
+            { label: hub.team.name },
+          ]}
+        />
+      </div>
 
       <TeamHubHeader
         teams={teams}

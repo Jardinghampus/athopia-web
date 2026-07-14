@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { fetchTeamsWithSlugs, fetchH2HFixtures, type SMTeam } from "@/lib/db/fixtures";
+import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
 
 export const revalidate = 3600;
 
@@ -89,11 +90,14 @@ export default async function MotenPage({
 
   return (
     <div className="w-full px-4 sm:px-8 py-10 max-w-3xl mx-auto">
-      <nav className="text-xs text-muted-foreground mb-6 flex gap-2">
-        <Link href="/allsvenskan" className="hover:text-foreground">Allsvenskan</Link>
-        <span>›</span>
-        <span className="text-foreground">{a.name} – {b.name}</span>
-      </nav>
+      <div className="mb-6">
+        <AppBreadcrumbs
+          items={[
+            { label: "Allsvenskan", href: "/allsvenskan" },
+            { label: `${a.name} – ${b.name}` },
+          ]}
+        />
+      </div>
 
       <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2">
         {a.name.toUpperCase()} – {b.name.toUpperCase()}

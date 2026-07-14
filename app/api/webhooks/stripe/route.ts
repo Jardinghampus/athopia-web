@@ -18,6 +18,7 @@ import Stripe from "stripe";
 import { NextResponse } from "next/server";
 import { clerkClient } from "@clerk/nextjs/server";
 import { logFunnelEvent } from "@/lib/funnel";
+import { updatePlanSource } from "@/lib/entitlements";
 
 // Lazy — initieras i POST() för att undvika build-time env-fel;
 
@@ -66,9 +67,9 @@ export async function POST(req: Request) {
       }
       const plan = session.metadata?.plan === "elite" ? "elite" : "pro";
 
+      await updatePlanSource(clerkUserId, "stripe", plan);
       await clerk.users.updateUserMetadata(clerkUserId, {
-        publicMetadata: {
-          plan,
+        privateMetadata: {
           stripeCustomerId: session.customer as string,
           stripeSubscriptionId: session.subscription as string,
         },
@@ -96,9 +97,11 @@ export async function POST(req: Request) {
         subscription.status === "unpaid" ||
         subscription.status === "canceled"
       ) {
+        await updatePlanSource(clerkUserId, "stripe", "free");
         await clerk.users.updateUserMetadata(clerkUserId, {
-          publicMetadata: { plan: "free", stripeSubscriptionId: subscription.id },
           privateMetadata: {
+            stripeCustomerId: subscription.customer as string,
+            stripeSubscriptionId: subscription.id,
             subscription: {
               id: subscription.id,
               status: subscription.status,
@@ -109,13 +112,11 @@ export async function POST(req: Request) {
         });
       } else if (subscription.status === "active" || subscription.status === "trialing") {
         const plan = subscription.metadata?.plan === "elite" ? "elite" : "pro";
+        await updatePlanSource(clerkUserId, "stripe", plan);
         await clerk.users.updateUserMetadata(clerkUserId, {
-          publicMetadata: {
-            plan,
+          privateMetadata: {
             stripeCustomerId: subscription.customer as string,
             stripeSubscriptionId: subscription.id,
-          },
-          privateMetadata: {
             subscription: {
               id: subscription.id,
               status: subscription.status,
@@ -139,9 +140,12 @@ export async function POST(req: Request) {
         break;
       }
 
+      await updatePlanSource(clerkUserId, "stripe", "free");
       await clerk.users.updateUserMetadata(clerkUserId, {
-        publicMetadata: { plan: "free", stripeSubscriptionId: null },
-        privateMetadata: { subscription: null },
+        privateMetadata: {
+          stripeSubscriptionId: null,
+          subscription: null,
+        },
       });
 
       console.log(`[stripe-webhook] Prenumeration avbruten för ${clerkUserId}`);

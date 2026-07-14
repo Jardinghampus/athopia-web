@@ -50,32 +50,30 @@ export default async function KontoPage({
 }) {
   const { userId } = await auth();
   const user = await currentUser();
-  // Källa: publicMetadata.plan (sätts av Stripe-webhooken). INTE subscriptionTier.
-  const meta = (user?.publicMetadata ?? {}) as {
-    plan?: string;
+  const publicMeta = (user?.publicMetadata ?? {}) as { plan?: string };
+  const privateMeta = (user?.privateMetadata ?? {}) as {
     stripeCustomerId?: string;
+    subscription?: {
+      currentPeriodEnd?: string;
+      cancelAtPeriodEnd?: boolean;
+    } | null;
   };
-  const subMeta = (user?.privateMetadata as Record<string, unknown> | undefined)
-    ?.subscription as {
-    currentPeriodEnd?: string;
-    cancelAtPeriodEnd?: boolean;
-  } | null | undefined;
 
-  const plan = meta.plan ?? "free";
+  const plan = publicMeta.plan ?? "free";
   const isPaid = plan === "pro" || plan === "elite";
   const planLabel = plan === "elite" ? "ELITE" : plan === "pro" ? "PRO" : "GRATIS";
   const { checkout } = await searchParams;
 
-  const periodEndFormatted = subMeta?.currentPeriodEnd
-    ? new Date(subMeta.currentPeriodEnd).toLocaleDateString("sv-SE", {
+  const periodEndFormatted = privateMeta.subscription?.currentPeriodEnd
+    ? new Date(privateMeta.subscription.currentPeriodEnd).toLocaleDateString("sv-SE", {
         day: "numeric",
         month: "long",
         year: "numeric",
       })
     : null;
 
-  const portalUrl = meta.stripeCustomerId
-    ? await getBillingPortalUrl(meta.stripeCustomerId)
+  const portalUrl = privateMeta.stripeCustomerId
+    ? await getBillingPortalUrl(privateMeta.stripeCustomerId)
     : null;
 
   return (
@@ -178,14 +176,14 @@ export default async function KontoPage({
               )
             }
           />
-          {subMeta?.cancelAtPeriodEnd && periodEndFormatted && (
+          {privateMeta.subscription?.cancelAtPeriodEnd && periodEndFormatted && (
             <ListRow
               leading={<AlertTriangle className="text-amber-400" />}
               title="Prenumerationen avslutas"
               subtitle={`Du har tillgång till ${periodEndFormatted}. Förnya via "Hantera prenumeration".`}
             />
           )}
-          {isPaid && !subMeta?.cancelAtPeriodEnd && periodEndFormatted && (
+          {isPaid && !privateMeta.subscription?.cancelAtPeriodEnd && periodEndFormatted && (
             <ListRow
               title="Förnyas"
               trailing={<span className="text-foreground text-sm">{periodEndFormatted}</span>}

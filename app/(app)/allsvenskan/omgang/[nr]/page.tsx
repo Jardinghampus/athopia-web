@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { fetchRoundFixtures } from "@/lib/db/fixtures";
+import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
 
 export const revalidate = 300;
 
@@ -62,11 +63,14 @@ export default async function OmgangPage({
         }}
       />
 
-      <nav className="text-xs text-muted-foreground mb-6 flex gap-2">
-        <Link href="/allsvenskan" className="hover:text-foreground">Allsvenskan</Link>
-        <span>›</span>
-        <span className="text-foreground">Omgång {round}</span>
-      </nav>
+      <div className="mb-6">
+        <AppBreadcrumbs
+          items={[
+            { label: "Allsvenskan", href: "/allsvenskan" },
+            { label: `Omgång ${round}` },
+          ]}
+        />
+      </div>
 
       <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2">OMGÅNG {round}</h1>
       <p className="text-muted-foreground mb-8">Allsvenskan 2026 — {fixtures.length || 8} matcher.</p>

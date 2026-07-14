@@ -13,6 +13,7 @@ import { getUserPlan } from "@/lib/user-plan";
 import { BlurPaywall } from "@/components/BlurPaywall";
 import { fetchStandingsFull } from "@/lib/db/fixtures";
 import type { SMStandingRow } from "@/lib/db/fixtures";
+import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
 
 export const revalidate = 60;
 
@@ -304,6 +305,12 @@ export default async function MatchPage({ params }: PageProps) {
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
       <ProductEventTracker event="match_page_view" props={{ fixture_id: fid }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(matchJsonLd) }} />
+      <AppBreadcrumbs
+        items={[
+          { label: "Matcher", href: "/match" },
+          { label: `${homeName} – ${awayName}` },
+        ]}
+      />
       {/* Resultat-header */}
       <div className="bg-card border border-border rounded-2xl p-6">
         <p className="text-xs text-muted-foreground text-center mb-3">

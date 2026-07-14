@@ -1,38 +1,53 @@
 export type Plan = "free" | "pro" | "elite";
 
 /**
- * Gating — "vi säljer bekvämlighet + FOMO att vara först".
+ * Kanoniskt accesskontrakt — minsta plan per feature.
  *
  * Gratis = FotMob-paritet (hänga med): flöde, push, live/tabell, forum läsa/skriva.
  * PRO = destillatet (låta smart utan att scrolla): AI-texter, matchanalys, forum-4h,
- *        transfer-radar, brief, poddklipp, chat, filter.
- * Elite = edge ovanpå PRO: clustering-UI, global AI-chat (när byggt).
+ *        transfer-radar, brief, poddklipp, match-chat, filter.
+ * Elite = edge ovanpå PRO: clustering-UI och global AI-chat.
+ *
+ * Denna deklarativa map exporteras till iOS via `pnpm contracts:generate`.
  */
 export const ACCESS = {
-  basicFilter:        (_: Plan) => true,
-  advancedFilter:     (p: Plan) => p !== "free",
+  basicFilter:        "free",
+  advancedFilter:     "pro",
   /** AI-artiklar / lag-sammanfattning / matchanalys-body */
-  aiSummaries:        (p: Plan) => p !== "free",
-  smartRanking:       (p: Plan) => p !== "free",
-  crossSourceCluster: (p: Plan) => p === "elite",
+  aiSummaries:        "pro",
+  smartRanking:       "pro",
+  crossSourceCluster: "elite",
   /**
    * Daglig brief — PRO (hemmaplan). Nyckelnamnet är legacy; beteendet är PRO+.
    * @deprecated Prefer aiSummaries / briefAudio for Daily.
    */
-  eliteBrief:         (p: Plan) => p !== "free",
-  pushAlerts:         (_: Plan) => true,
-  unlimitedFeed:      (_: Plan) => true,
-  aiChat:             (p: Plan) => p !== "free",
-  podcastClips:       (p: Plan) => p !== "free",
-  briefAudio:         (p: Plan) => p !== "free",
+  eliteBrief:         "pro",
+  pushAlerts:         "free",
+  unlimitedFeed:      "free",
+  /** Matchkontext-chatten. */
+  aiChat:             "pro",
+  /** Global Athopia AI med verktyg över hela Allsvenskan. */
+  globalAiChat:       "elite",
+  podcastClips:       "pro",
+  briefAudio:         "pro",
   /** Forum AI-sammanfattning senaste ~4h */
-  forumSummary:       (p: Plan) => p !== "free",
+  forumSummary:       "pro",
   /** Ryktesradar / transfer-lista med status */
-  transferSignals:    (p: Plan) => p !== "free",
-} as const;
+  transferSignals:    "pro",
+} as const satisfies Record<string, Plan>;
 
 export type AccessFeature = keyof typeof ACCESS;
 
+const PLAN_RANK: Record<Plan, number> = {
+  free: 0,
+  pro: 1,
+  elite: 2,
+};
+
 export function canAccess(feature: AccessFeature, plan: Plan): boolean {
-  return ACCESS[feature](plan);
+  return PLAN_RANK[plan] >= PLAN_RANK[ACCESS[feature]];
+}
+
+export function requiredPlanFor(feature: AccessFeature): Plan {
+  return ACCESS[feature];
 }

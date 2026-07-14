@@ -1,26 +1,32 @@
-# Athopia Web — navigationsstruktur (2026-07-13)
+# Athopia — kanonisk navigationsstruktur (2026-07-14)
 
-Enda källan för top-level-IA. Ändra `lib/nav.ts`, inte enskilda nav-komponenter.
+Kodens enda källa för top-level-IA är `lib/nav.ts`. Det versionsmärkta
+cross-platform-kontraktet genereras till `contracts/generated/navigation.json`.
+Ändra aldrig enskilda navkomponenter eller iOS-tabbar direkt.
 
-## 4 flikar (botten / sidebar)
+## 5 primära destinationer
 
 | Flik | Route | Innehåll |
 |---|---|---|
 | Mitt lag | `/mitt-lag` | Favoritlagets hem: brief, matchdag, snabbvägar → `/lag/[slug]` |
 | Flöde | `/nyheter` | Athletic-feed: hero + dividerlista, sort För dig / Senaste / Viktigt |
-| Forum | `/forum` | Team-forum |
-| Mer | `/mer` | Allsvenskan, Matcher, Statistik, AI, Poddar, Konto… |
+| Allsvenskan | `/allsvenskan` | Ligan: tabell, spelschema, resultat och topplistor |
+| Matcher | `/match` | Live, kommande och avslutade matcher |
+| AI | `/ai` | Global Athopia AI för Elite |
 
-`lib/nav.ts` → `NAV_ITEMS` (4) + `SECONDARY_NAV_ITEMS` (hamburger).
+Forum, Statistik, Daily, Analys, Poddar och Konto är sekundära destinationer
+under toolbar/overflow och desktop-sidebar.
 
-- Mobil botten: `GlassNav` → `TabBar` (ikon + etikett)
-- Hamburger: `MobileNav` (sekundärt + byt lag + sök + tema)
-- Desktop: `AppSidebar` läser samma `NAV_ITEMS`
+- Webb: `GlassNav`, `MobileNav` och `AppSidebar` läser `lib/nav.ts`.
+- iOS: genererad navigation mappas till native `TabView` + `NavigationStack`.
+- Profil/Konto nås från toolbar/overflow och upptar inte en sjätte tab.
 
 ## Primärt lag
 
 `entities.slug` i Clerk `unsafeMetadata.favoriteTeam` — skriv via `useFavoriteTeam`, läs via `getPrimaryTeam()`.
 
-## SEO-djupsidor (inte bottenflikar)
+## Djupsidor
 
-`/allsvenskan/*`, `/match`, `/statistik`, `/artikel/[slug]` m.m. nås via Mer eller inline-länkar.
+`/allsvenskan/*`, `/statistik`, `/artikel/[slug]`, `/spelare/[slug]`,
+`/forum/*` m.m. nås via primär destination, overflow eller inline-länkar.
+Samma route registry används för Universal Links på iOS.

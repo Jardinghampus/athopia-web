@@ -400,6 +400,7 @@ function AccountManagement({ clerkUserId: _ }: { clerkUserId: string }) {
   const [portalLoading, setPortalLoading] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   async function openPortal() {
     setPortalLoading(true);
@@ -414,10 +415,20 @@ function AccountManagement({ clerkUserId: _ }: { clerkUserId: string }) {
   async function deleteAccount() {
     if (!user) return;
     setDeleting(true);
+    setDeleteError(null);
     try {
-      await user.delete();
+      const response = await fetch("/api/profile", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ confirmation: "RADERA" }),
+      });
+      if (!response.ok) {
+        const payload = (await response.json().catch(() => ({}))) as { error?: string };
+        throw new Error(payload.error ?? "Kontot kunde inte raderas.");
+      }
       router.push("/");
-    } catch {
+    } catch (error) {
+      setDeleteError(error instanceof Error ? error.message : "Kontot kunde inte raderas.");
       setDeleting(false);
     }
   }
@@ -447,8 +458,13 @@ function AccountManagement({ clerkUserId: _ }: { clerkUserId: string }) {
       ) : (
         <div className="rounded-xl border border-red-900/40 bg-red-950/10 p-4 space-y-3">
           <p className="text-sm text-red-300 text-center">
-            Är du säker? Ditt konto och all data raderas permanent.
+            Är du säker? Privat data raderas permanent och delade foruminlägg anonymiseras.
           </p>
+          {deleteError && (
+            <p role="alert" className="text-xs text-red-300 text-center">
+              {deleteError}
+            </p>
+          )}
           <div className="flex gap-2">
             <button
               onClick={() => setDeleteConfirm(false)}

@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "generatedFrom": "athopia-web/lib/product-contract.ts",
+  "products": {
+    "proMonthly": {
+      "id": "se.athopia.app.pro.monthly",
+      "plan": "pro",
+      "interval": "month"
+    },
+    "proYearly": {
+      "id": "se.athopia.app.pro.yearly",
+      "plan": "pro",
+      "interval": "year"
+    },
+    "eliteMonthly": {
+      "id": "se.athopia.app.elite.monthly",
+      "plan": "elite",
+      "interval": "month"
+    },
+    "eliteYearly": {
+      "id": "se.athopia.app.elite.yearly",
+      "plan": "elite",
+      "interval": "year"
+    }
+  }
+}

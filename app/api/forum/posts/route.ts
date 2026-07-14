@@ -16,6 +16,8 @@ const ForumPostSchema = z.object({
   article_id: z.string().uuid().nullable().optional(),
 });
 
+const MAX_FORUM_DEPTH = 2;
+
 export async function GET(req: NextRequest) {
   if (!isSupabaseConfigured()) {
     return NextResponse.json({ posts: [] });
@@ -26,6 +28,17 @@ export async function GET(req: NextRequest) {
     const sport = searchParams.get("sport") ?? "football";
     const sort = searchParams.get("sort") ?? "hot";
     const rootId = searchParams.get("rootId");
+    const postId = searchParams.get("postId");
+    const articleId = searchParams.get("articleId");
+    const uuidPattern =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (
+      (rootId && !uuidPattern.test(rootId)) ||
+      (postId && !uuidPattern.test(postId)) ||
+      (articleId && !uuidPattern.test(articleId))
+    ) {
+      return NextResponse.json({ error: "Ogiltigt inläggs-id" }, { status: 400 });
+    }
 
     const supabase = createServerClient();
     let q = supabase
@@ -34,11 +47,14 @@ export async function GET(req: NextRequest) {
       .eq("sport", sport)
       .eq("status", "published");
 
-    if (rootId) {
+    if (postId) {
+      q = q.eq("id", postId);
+    } else if (rootId) {
       q = q.eq("root_id", rootId);
     } else {
       q = q.is("parent_id", null);
       if (teamSlug) q = q.eq("team_slug", teamSlug);
+      if (articleId) q = q.eq("article_id", articleId);
     }
 
     if (sort === "hot") {
@@ -77,6 +93,19 @@ export async function POST(req: NextRequest) {
 
     const supabase = createServerClient();
 
+    if (team_slug) {
+      const { data: team } = await supabase
+        .from("entities")
+        .select("slug")
+        .eq("type", "team")
+        .eq("slug", team_slug)
+        .eq("metadata->>league", "Allsvenskan")
+        .maybeSingle();
+      if (!team) {
+        return NextResponse.json({ message: "Ogiltigt lag" }, { status: 400 });
+      }
+    }
+
     // Snapshot av profiles.role vid postningstillfället — driver krönikör-
     // badgen på avataren, samma denormaliseringsmönster som author_team.
     const { data: authorProfile } = await supabase
@@ -86,13 +115,43 @@ export async function POST(req: NextRequest) {
       .maybeSingle();
 
     let depth = 0;
+    let resolvedRootId = root_id ?? null;
     if (parent_id) {
       const { data: parentPost } = await supabase
         .from("forum_posts")
-        .select("depth")
+        .select("depth, sport, root_id, id, status")
         .eq("id", parent_id)
-        .single();
-      depth = (parentPost?.depth ?? 0) + 1;
+        .maybeSingle();
+
+      if (!parentPost || parentPost.status !== "published") {
+        return NextResponse.json({ message: "Svarar på ett ogiltigt inlägg" }, { status: 400 });
+      }
+      if (parentPost.sport !== sport) {
+        return NextResponse.json({ message: "Sport matchar inte tråden" }, { status: 400 });
+      }
+      if ((parentPost.depth ?? 0) >= MAX_FORUM_DEPTH) {
+        return NextResponse.json(
+          { message: "Maximalt svar-djup nått" },
+          { status: 400 },
+        );
+      }
+
+      depth = (parentPost.depth ?? 0) + 1;
+      resolvedRootId = parentPost.root_id ?? parentPost.id;
+      if (root_id && root_id !== resolvedRootId) {
+        return NextResponse.json({ message: "Ogiltig tråd-referens" }, { status: 400 });
+      }
+    }
+
+    if (quoted_post_id) {
+      const { data: quotedPost } = await supabase
+        .from("forum_posts")
+        .select("id, status, sport")
+        .eq("id", quoted_post_id)
+        .maybeSingle();
+      if (!quotedPost || quotedPost.status !== "published" || quotedPost.sport !== sport) {
+        return NextResponse.json({ message: "Ogiltigt citerat inlägg" }, { status: 400 });
+      }
     }
 
     const { data: post, error } = await supabase
@@ -100,7 +159,7 @@ export async function POST(req: NextRequest) {
       .insert({
         content: content.trim(),
         parent_id: parent_id ?? null,
-        root_id: root_id ?? null,
+        root_id: resolvedRootId,
         quoted_post_id: quoted_post_id ?? null,
         team_slug: team_slug ?? null,
         sport,

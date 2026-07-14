@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { createServerClient } from "@/lib/supabase";
-import { isSupabaseConfigured } from "@/lib/supabase";
-import { fetchStandingsFull } from "@/lib/db/fixtures";
+import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import {
+  getTeamCompareAnalysis,
+  getTeamCompareStats,
+  type TeamCompareStats,
+} from "@/lib/statistik/team-compare";
 import { TeamSearchBar } from "./TeamSearchBar";
 
 export const dynamic = 'force-dynamic';
@@ -26,142 +29,6 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
 }
 
 // ── Datahämtning ───────────────────────────────────────────────────────────────
-
-interface TeamStats {
-  name: string;
-  slug: string;
-  position: number;
-  points: number;
-  played: number;
-  won: number;
-  drawn: number;
-  lost: number;
-  goals_for: number;
-  goals_against: number;
-  goal_diff: number;
-  form: string[];
-}
-
-interface MatchRow {
-  home_team_name: string;
-  away_team_name: string;
-  home_score: number;
-  away_score: number;
-  played_at: string | null;
-}
-
-async function getTeamStats(slug: string): Promise<TeamStats | null> {
-  if (!isSupabaseConfigured()) return null;
-
-  const db = createServerClient();
-
-  // Hämta entity för detta lag
-  const { data: entity } = await db
-    .from("entities")
-    .select("id, name, slug, sportmonks_id")
-    .eq("slug", slug)
-    .eq("type", "team")
-    .single();
-
-  if (!entity) return null;
-
-  // Buggfix: metadata.sportsmonks_id har aldrig funnits — id:t lever i kolumnen sportmonks_id
-  const sportsmonksId = entity.sportmonks_id != null ? Number(entity.sportmonks_id) : undefined;
-
-  // Hämta match_stats för laget
-  let matches: MatchRow[] = [];
-  if (sportsmonksId) {
-    const { data } = await db
-      .from("match_stats")
-      .select(
-        "home_team_name, away_team_name, home_score, away_score, played_at",
-      )
-      .or(
-        `home_sportsmonks_id.eq.${sportsmonksId},away_sportsmonks_id.eq.${sportsmonksId}`,
-      )
-      .not("played_at", "is", null)
-      .order("played_at", { ascending: true })
-      .limit(20);
-    matches = (data ?? []) as MatchRow[];
-  }
-
-  // Beräkna aggregat
-  let won = 0;
-  let drawn = 0;
-  let lost = 0;
-  let goalsFor = 0;
-  let goalsAgainst = 0;
-  const form: string[] = [];
-
-  for (const m of matches) {
-    const isHome = m.home_team_name.toLowerCase() === (entity.name as string).toLowerCase();
-    const myGoals = isHome ? m.home_score : m.away_score;
-    const oppGoals = isHome ? m.away_score : m.home_score;
-
-    goalsFor += myGoals;
-    goalsAgainst += oppGoals;
-
-    if (myGoals > oppGoals) won++;
-    else if (myGoals === oppGoals) drawn++;
-    else lost++;
-
-    form.push(myGoals > oppGoals ? "W" : myGoals === oppGoals ? "D" : "L");
-  }
-
-  // Försök hämta standings från Sportsmonks för position och poäng
-  let position = 0;
-  let points = won * 3 + drawn;
-
-  try {
-    const standings = await fetchStandingsFull();
-    const teamName = (entity.name as string).toLowerCase();
-    const standing = standings.find(
-      (s) =>
-        s.team.name.toLowerCase() === teamName ||
-        s.team.name.toLowerCase().includes(teamName.split(" ")[0] ?? ""),
-    );
-    if (standing) {
-      position = standing.position;
-      points = standing.points;
-    }
-  } catch {
-    // Sportsmonks ej konfigurerat — använd beräknade värden
-  }
-
-  return {
-    name: entity.name as string,
-    slug: entity.slug as string,
-    position,
-    points,
-    played: matches.length,
-    won,
-    drawn,
-    lost,
-    goals_for: goalsFor,
-    goals_against: goalsAgainst,
-    goal_diff: goalsFor - goalsAgainst,
-    form: form.slice(-5),
-  };
-}
-
-async function getAiAnalysis(slugA: string, slugB: string): Promise<string | null> {
-  if (!isSupabaseConfigured()) return null;
-  const db = createServerClient();
-
-  const { data } = await db
-    .from("content_queue")
-    .select("content")
-    .eq("content_type", "digest")
-    .contains("metadata", { subtype: "comparison", team_a: slugA, team_b: slugB })
-    .eq("status", "approved")
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .single();
-
-  if (!data) return null;
-  const content = data.content as Record<string, unknown>;
-  return (content?.["text"] as string | undefined) ?? null;
-}
 
 async function getTeamList(): Promise<{ name: string; slug: string }[]> {
   if (!isSupabaseConfigured()) return [];
@@ -238,15 +105,15 @@ export default async function JamforPage({ searchParams }: PageProps) {
   const { a: slugA, b: slugB } = await searchParams;
   const teams = await getTeamList();
 
-  let statsA: TeamStats | null = null;
-  let statsB: TeamStats | null = null;
+  let statsA: TeamCompareStats | null = null;
+  let statsB: TeamCompareStats | null = null;
   let aiAnalysis: string | null = null;
 
   if (slugA && slugB && slugA !== slugB) {
     [statsA, statsB, aiAnalysis] = await Promise.all([
-      getTeamStats(slugA),
-      getTeamStats(slugB),
-      getAiAnalysis(slugA, slugB),
+      getTeamCompareStats(slugA),
+      getTeamCompareStats(slugB),
+      getTeamCompareAnalysis(slugA, slugB),
     ]);
   }
 
@@ -316,9 +183,9 @@ export default async function JamforPage({ searchParams }: PageProps) {
             <StatRow label="Vinster" a={statsA.won} b={statsB.won} />
             <StatRow label="Oavgjorda" a={statsA.drawn} b={statsB.drawn} />
             <StatRow label="Förluster" a={statsA.lost} b={statsB.lost} higherIsBetter={false} />
-            <StatRow label="Mål gjorda" a={statsA.goals_for} b={statsB.goals_for} />
-            <StatRow label="Mål insläppta" a={statsA.goals_against} b={statsB.goals_against} higherIsBetter={false} />
-            <StatRow label="Målskillnad" a={statsA.goal_diff} b={statsB.goal_diff} />
+            <StatRow label="Mål gjorda" a={statsA.goalsFor} b={statsB.goalsFor} />
+            <StatRow label="Mål insläppta" a={statsA.goalsAgainst} b={statsB.goalsAgainst} higherIsBetter={false} />
+            <StatRow label="Målskillnad" a={statsA.goalDiff} b={statsB.goalDiff} />
             <FormRow label="Form (5 sista)" a={statsA.form} b={statsB.form} />
           </div>
 

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { getTopScorersFromDb, SEASON_IDS } from "@/lib/statistik";
+import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
 
 export const revalidate = 300;
 
@@ -28,11 +29,14 @@ export default async function AllsvenskanSkytteligaPage() {
 
   return (
     <div className="w-full px-4 sm:px-8 py-10 max-w-3xl mx-auto">
-      <nav className="text-xs text-muted-foreground mb-6 flex gap-2">
-        <Link href="/allsvenskan" className="hover:text-foreground">Allsvenskan</Link>
-        <span>›</span>
-        <span className="text-foreground">Skytteliga</span>
-      </nav>
+      <div className="mb-6">
+        <AppBreadcrumbs
+          items={[
+            { label: "Allsvenskan", href: "/allsvenskan" },
+            { label: "Skytteliga" },
+          ]}
+        />
+      </div>
 
       <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2">ALLSVENSKAN SKYTTELIGA 2026</h1>
       <p className="text-muted-foreground mb-8">Vem leder skytteligan just nu?</p>

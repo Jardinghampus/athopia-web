@@ -19,6 +19,7 @@ import {
   spotifyEpisodeEmbedUrl,
   spotifyShowEmbedUrl,
 } from "@/lib/podcast/spotify";
+import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
 
 export const revalidate = 300;
 
@@ -106,6 +107,14 @@ export default async function PodcastEpisodePage({
       <EpisodeJsonLd ep={episode} />
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+        <div className="mb-5">
+          <AppBreadcrumbs
+            items={[
+              { label: "Poddar", href: "/podcast" },
+              { label: episode.title },
+            ]}
+          />
+        </div>
         <div className="flex items-center gap-2 mb-3">
           <Mic className="w-4 h-4 text-pitch" />
           <span className="text-sm text-pitch font-medium">{episode.show_name ?? "Podcast"}</span>

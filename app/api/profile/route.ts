@@ -1,8 +1,14 @@
 import { auth, currentUser, clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import Stripe from "stripe";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import { enforceRateLimit } from "@/lib/ratelimit";
 import { sanitizeInline } from "@/lib/sanitize";
+import { parseBody, z } from "@/lib/validation";
+
+const DeleteAccountSchema = z.object({
+  confirmation: z.literal("RADERA"),
+});
 
 // GET /api/profile — egen fullständig profil (privat)
 export async function GET() {
@@ -16,13 +22,30 @@ export async function GET() {
     .select("*")
     .eq("clerk_user_id", userId)
     .maybeSingle();
+  const favouriteTeamId = data?.favourite_team_id;
+  const { data: favouriteTeam } = favouriteTeamId
+    ? await createServerClient()
+        .from("entities")
+        .select("slug")
+        .eq("id", favouriteTeamId)
+        .eq("type", "team")
+        .eq("metadata->>league", "Allsvenskan")
+        .maybeSingle()
+    : { data: null };
 
   return NextResponse.json({
     profile: data ?? null,
+    favouriteTeamSlug: favouriteTeam?.slug ?? null,
     email: user?.emailAddresses?.[0]?.emailAddress ?? null,
     firstName: user?.firstName ?? null,
     lastName: user?.lastName ?? null,
     imageUrl: user?.imageUrl ?? null,
+    plan:
+      user?.publicMetadata?.plan === "elite"
+        ? "elite"
+        : user?.publicMetadata?.plan === "pro"
+          ? "pro"
+          : "free",
   });
 }
 
@@ -43,7 +66,10 @@ export async function PATCH(req: Request) {
   const firstName = typeof body.firstName === "string" ? body.firstName.trim() : undefined;
   const lastName = typeof body.lastName === "string" ? body.lastName.trim() : undefined;
   const avatarUrl = typeof body.avatar_url === "string" ? body.avatar_url : undefined;
-  const favouriteTeamId = typeof body.favourite_team_id === "string" ? body.favourite_team_id : undefined;
+  const favouriteTeamInput =
+    typeof body.favourite_team_id === "string"
+      ? body.favourite_team_id.trim()
+      : undefined;
 
   // Nickname-validering + unikhet (case-insensitivt, exkl. en själv)
   if (nickname !== undefined && nickname.length > 0) {
@@ -61,6 +87,37 @@ export async function PATCH(req: Request) {
       .maybeSingle();
     if (taken) {
       return NextResponse.json({ error: "Nickname är upptaget", field: "nickname" }, { status: 409 });
+    }
+  }
+
+  let favouriteTeam:
+    | { id: string; slug: string }
+    | null
+    | undefined;
+  if (favouriteTeamInput !== undefined) {
+    if (!favouriteTeamInput) {
+      favouriteTeam = null;
+    } else {
+      const isUuid =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+          favouriteTeamInput,
+        );
+      let teamQuery = createServerClient()
+        .from("entities")
+        .select("id,slug")
+        .eq("type", "team")
+        .eq("metadata->>league", "Allsvenskan");
+      teamQuery = isUuid
+        ? teamQuery.eq("id", favouriteTeamInput)
+        : teamQuery.eq("slug", favouriteTeamInput);
+      const { data: team } = await teamQuery.maybeSingle();
+      if (!team?.id || !team.slug) {
+        return NextResponse.json(
+          { error: "Laget hittades inte", field: "favourite_team_id" },
+          { status: 400 },
+        );
+      }
+      favouriteTeam = { id: String(team.id), slug: String(team.slug) };
     }
   }
 
@@ -87,7 +144,9 @@ export async function PATCH(req: Request) {
   if (nickname !== undefined) update.nickname = nickname || null;
   if (bio !== undefined) update.bio = bio || null;
   if (avatarUrl !== undefined) update.avatar_url = avatarUrl;
-  if (favouriteTeamId !== undefined) update.favourite_team_id = favouriteTeamId || null;
+  if (favouriteTeam !== undefined) {
+    update.favourite_team_id = favouriteTeam?.id ?? null;
+  }
 
   const { error } = await createServerClient().from("profiles").upsert(update, { onConflict: "clerk_user_id" });
   if (error) {
@@ -97,5 +156,105 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  if (favouriteTeam !== undefined) {
+    try {
+      const client = await clerkClient();
+      const unsafeMetadata = {
+        ...((user?.unsafeMetadata as Record<string, unknown> | undefined) ?? {}),
+      };
+      if (favouriteTeam) {
+        unsafeMetadata.favoriteTeam = favouriteTeam.slug;
+        unsafeMetadata.onboardingDone = true;
+      } else {
+        delete unsafeMetadata.favoriteTeam;
+      }
+      await client.users.updateUserMetadata(userId, { unsafeMetadata });
+    } catch {
+      return NextResponse.json(
+        { error: "Laget sparades men kunde inte synkas till kontot" },
+        { status: 502 },
+      );
+    }
+
+    const { error: feedConfigError } = await createServerClient()
+      .from("user_feed_config")
+      .upsert(
+        {
+          clerk_user_id: userId,
+          sport: "football",
+          followed_team_ids: favouriteTeam ? [favouriteTeam.id] : [],
+        },
+        { onConflict: "clerk_user_id" },
+      );
+    if (feedConfigError) {
+      console.error("[profile PATCH] favorite team feed sync:", feedConfigError);
+    }
+  }
+
   return NextResponse.json({ ok: true });
+}
+
+// DELETE /api/profile — permanent account deletion for web and iOS.
+export async function DELETE(req: Request) {
+  const { userId } = await auth();
+  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!isSupabaseConfigured()) {
+    return NextResponse.json({ error: "DB ej konfigurerad" }, { status: 503 });
+  }
+
+  const blocked = await enforceRateLimit("write", req, userId);
+  if (blocked) return blocked;
+
+  const parsed = await parseBody(req, DeleteAccountSchema);
+  if (!parsed.ok) return parsed.response;
+
+  const { error } = await createServerClient().rpc("delete_user_account", {
+    p_clerk_user_id: userId,
+  });
+  if (error) {
+    console.error("[profile DELETE] delete_user_account:", error);
+    return NextResponse.json(
+      { error: "Kunde inte radera kontodata", code: "account_delete_failed" },
+      { status: 500 },
+    );
+  }
+
+  if (process.env.STRIPE_SECRET_KEY) {
+    try {
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+        apiVersion: "2026-04-22.dahlia",
+      });
+      const customers = await stripe.customers.search({
+        query: `metadata['clerkUserId']:'${userId}'`,
+      });
+      for (const customer of customers.data) {
+        await stripe.customers.del(customer.id);
+      }
+    } catch (stripeError) {
+      console.error("[profile DELETE] Stripe:", stripeError);
+      return NextResponse.json(
+        {
+          error: "Kontodata raderades men betalningsprofilen kunde inte avslutas.",
+          code: "stripe_deletion_failed",
+        },
+        { status: 502 },
+      );
+    }
+  }
+
+  try {
+    const client = await clerkClient();
+    await client.users.deleteUser(userId);
+  } catch (error) {
+    console.error("[profile DELETE] Clerk:", error);
+    return NextResponse.json(
+      {
+        error: "Kontodata raderades, men inloggningskontot kunde inte avslutas. Försök igen.",
+        code: "identity_delete_failed",
+      },
+      { status: 502 },
+    );
+  }
+
+  return NextResponse.json({ ok: true, deleted: true });
 }
