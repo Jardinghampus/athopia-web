@@ -539,6 +539,750 @@
           }
         }
       }
+    },
+    "/api/team/{slug}/hub": {
+      "get": {
+        "operationId": "TeamHubPayload",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "team": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "slug": {
+                          "type": "string"
+                        },
+                        "logoUrl": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "sportsmonksId": {
+                          "anyOf": [
+                            {
+                              "type": "integer"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "slug",
+                        "logoUrl",
+                        "sportsmonksId"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "position": {
+                      "anyOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "stats": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "teamId": {
+                              "anyOf": [
+                                {
+                                  "type": "integer"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "played": {
+                              "type": "integer"
+                            },
+                            "wins": {
+                              "type": "integer"
+                            },
+                            "draws": {
+                              "type": "integer"
+                            },
+                            "losses": {
+                              "type": "integer"
+                            },
+                            "goalsFor": {
+                              "type": "integer"
+                            },
+                            "goalsAgainst": {
+                              "type": "integer"
+                            },
+                            "goalDiff": {
+                              "type": "integer"
+                            },
+                            "points": {
+                              "type": "integer"
+                            },
+                            "position": {
+                              "anyOf": [
+                                {
+                                  "type": "integer"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "possession": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "xgFor": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "xgAgainst": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "xg": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "xga": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "teamId",
+                            "played",
+                            "wins",
+                            "draws",
+                            "losses",
+                            "goalsFor",
+                            "goalsAgainst",
+                            "goalDiff",
+                            "points",
+                            "position",
+                            "possession",
+                            "xgFor",
+                            "xgAgainst"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "form": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "radar": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "metric": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "number"
+                          },
+                          "raw": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "metric",
+                          "value",
+                          "raw"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "topScorers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "playerId": {
+                            "type": "integer"
+                          },
+                          "fullname": {
+                            "type": "string"
+                          },
+                          "slug": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "image": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "position": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "goals": {
+                            "type": "integer"
+                          },
+                          "assists": {
+                            "type": "integer"
+                          },
+                          "appearances": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "playerId",
+                          "fullname",
+                          "slug",
+                          "image",
+                          "position",
+                          "goals",
+                          "assists",
+                          "appearances"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "topAssists": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "playerId": {
+                            "type": "integer"
+                          },
+                          "fullname": {
+                            "type": "string"
+                          },
+                          "slug": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "image": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "position": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "goals": {
+                            "type": "integer"
+                          },
+                          "assists": {
+                            "type": "integer"
+                          },
+                          "appearances": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "playerId",
+                          "fullname",
+                          "slug",
+                          "image",
+                          "position",
+                          "goals",
+                          "assists",
+                          "appearances"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "squad": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "playerId": {
+                            "type": "integer"
+                          },
+                          "fullname": {
+                            "type": "string"
+                          },
+                          "slug": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "image": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "position": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "goals": {
+                            "type": "integer"
+                          },
+                          "assists": {
+                            "type": "integer"
+                          },
+                          "appearances": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "playerId",
+                          "fullname",
+                          "slug",
+                          "image",
+                          "position",
+                          "goals",
+                          "assists",
+                          "appearances"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "recent": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "sportsmonksId": {
+                            "type": "integer"
+                          },
+                          "homeTeamId": {
+                            "type": "integer"
+                          },
+                          "awayTeamId": {
+                            "type": "integer"
+                          },
+                          "homeTeamName": {
+                            "type": "string"
+                          },
+                          "awayTeamName": {
+                            "type": "string"
+                          },
+                          "homeScore": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "awayScore": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "kickoffAt": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "sportsmonksId",
+                          "homeTeamId",
+                          "awayTeamId",
+                          "homeTeamName",
+                          "awayTeamName",
+                          "homeScore",
+                          "awayScore",
+                          "kickoffAt",
+                          "status"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "upcoming": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "sportsmonksId": {
+                            "type": "integer"
+                          },
+                          "homeTeamId": {
+                            "type": "integer"
+                          },
+                          "awayTeamId": {
+                            "type": "integer"
+                          },
+                          "homeTeamName": {
+                            "type": "string"
+                          },
+                          "awayTeamName": {
+                            "type": "string"
+                          },
+                          "homeScore": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "awayScore": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "kickoffAt": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "sportsmonksId",
+                          "homeTeamId",
+                          "awayTeamId",
+                          "homeTeamName",
+                          "awayTeamName",
+                          "homeScore",
+                          "awayScore",
+                          "kickoffAt",
+                          "status"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "news": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "slug": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "href": {
+                            "type": "string"
+                          },
+                          "publishedAt": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "sourceName": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "slug",
+                          "title",
+                          "href",
+                          "publishedAt",
+                          "sourceName"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "threads": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "replyCount": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "href": {
+                            "type": "string"
+                          },
+                          "createdAt": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "replyCount",
+                          "href",
+                          "createdAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "points": {
+                      "anyOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "played": {
+                      "anyOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "nextMatch": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "integer"
+                            },
+                            "home": {
+                              "type": "string"
+                            },
+                            "away": {
+                              "type": "string"
+                            },
+                            "kickoffAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "status": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "home",
+                            "away",
+                            "kickoffAt",
+                            "status"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "lastMatch": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "integer"
+                            },
+                            "home": {
+                              "type": "string"
+                            },
+                            "away": {
+                              "type": "string"
+                            },
+                            "homeScore": {
+                              "anyOf": [
+                                {
+                                  "type": "integer"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "awayScore": {
+                              "anyOf": [
+                                {
+                                  "type": "integer"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "kickoffAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "home",
+                            "away",
+                            "homeScore",
+                            "awayScore",
+                            "kickoffAt"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "guest": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "team",
+                    "position",
+                    "stats",
+                    "form",
+                    "radar",
+                    "topScorers",
+                    "topAssists",
+                    "squad",
+                    "recent",
+                    "upcoming",
+                    "news",
+                    "threads",
+                    "points",
+                    "played",
+                    "nextMatch",
+                    "lastMatch",
+                    "guest"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

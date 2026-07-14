@@ -23,9 +23,11 @@ Sources of truth remain `lib/nav.ts`, `lib/access-rules.ts`,
 Routes answer through `jsonContract()`, so a response that breaks its own schema
 throws in dev and is logged in production.
 
-Covered so far: `/api/feed`, `/api/scores`, `/api/articles/{slug}`. Extend
+Covered so far: `/api/feed`, `/api/scores`, `/api/articles/{slug}`,
+`/api/team/{slug}/hub`. Extend
 `API_CONTRACTS` + `SWIFT_MODEL_CONTRACTS` per endpoint; the remaining iOS
-endpoints (team hub, daily, analyses, podcasts, search, profile, forum) are
+endpoints (match detail, standings, stats, daily, analyses, podcasts, search,
+profile, forum) are
 still unguarded.
 
 Run:

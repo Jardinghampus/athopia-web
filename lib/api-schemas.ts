@@ -90,6 +90,126 @@ export const ArticleDetailResponseSchema = z.object({
   access: ArticleAccessStateSchema,
 });
 
+// ── Team hub (GET /api/team/{slug}/hub) ──────────────────────────────────────
+//
+// Routen är en superset: web (onboarding + gäst-preview) läser points/nextMatch/
+// lastMatch/href, iOS avkodar stats/radar/leaders/squad/recent/upcoming.
+// Wire-formatet är explicit camelCase — förlita dig aldrig på iOS
+// `.convertFromSnakeCase` här: DB blandar `sportmonks_id` och `sportsmonks_id`.
+// AI-ytor (pulse, dailyEpisode) ligger medvetet UTANFÖR denna route: de är
+// PRO-gatede och får inte läcka via en publik preview.
+
+export const TeamSeasonStatsSchema = z.object({
+  teamId: z.number().int().nullable(),
+  played: z.number().int(),
+  wins: z.number().int(),
+  draws: z.number().int(),
+  losses: z.number().int(),
+  goalsFor: z.number().int(),
+  goalsAgainst: z.number().int(),
+  goalDiff: z.number().int(),
+  points: z.number().int(),
+  position: z.number().int().nullable(),
+  possession: z.number().nullable(),
+  /** Endast verkligt syncade värden — aldrig placeholder-nollor. */
+  xgFor: z.number().nullable(),
+  xgAgainst: z.number().nullable(),
+  xg: z.number().nullable().optional(),
+  xga: z.number().nullable().optional(),
+});
+
+export const RadarPointSchema = z.object({
+  metric: z.string(),
+  value: z.number(),
+  raw: z.number(),
+});
+
+export const LeaderRowSchema = z.object({
+  playerId: z.number().int(),
+  fullname: z.string(),
+  slug: z.string().nullable(),
+  image: z.string().nullable(),
+  position: z.string().nullable(),
+  goals: z.number().int(),
+  assists: z.number().int(),
+  appearances: z.number().int(),
+});
+
+export const FixtureRowSchema = z.object({
+  sportsmonksId: z.number().int(),
+  homeTeamId: z.number().int(),
+  awayTeamId: z.number().int(),
+  homeTeamName: z.string(),
+  awayTeamName: z.string(),
+  homeScore: z.number().int().nullable(),
+  awayScore: z.number().int().nullable(),
+  kickoffAt: z.string().nullable(),
+  status: z.string(),
+});
+
+export const DashArticleSchema = z.object({
+  id: z.string(),
+  slug: z.string(),
+  title: z.string(),
+  href: z.string(),
+  publishedAt: z.string().nullable(),
+  sourceName: z.string().nullable(),
+});
+
+export const DashThreadSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  replyCount: z.number().int().nullable(),
+  href: z.string(),
+  createdAt: z.string().nullable(),
+});
+
+export const TeamInfoSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  slug: z.string(),
+  logoUrl: z.string().nullable(),
+  sportsmonksId: z.number().int().nullable(),
+});
+
+export const TeamHubPayloadSchema = z.object({
+  team: TeamInfoSchema,
+  position: z.number().int().nullable(),
+  stats: TeamSeasonStatsSchema.nullable(),
+  form: z.array(z.string()),
+  radar: z.array(RadarPointSchema),
+  topScorers: z.array(LeaderRowSchema),
+  topAssists: z.array(LeaderRowSchema),
+  squad: z.array(LeaderRowSchema),
+  recent: z.array(FixtureRowSchema),
+  upcoming: z.array(FixtureRowSchema),
+  news: z.array(DashArticleSchema),
+  threads: z.array(DashThreadSchema),
+  // Preview-fält som webbens onboarding och gäst-preview läser.
+  points: z.number().int().nullable(),
+  played: z.number().int().nullable(),
+  nextMatch: z
+    .object({
+      id: z.number().int(),
+      home: z.string(),
+      away: z.string(),
+      kickoffAt: z.string().nullable(),
+      status: z.string(),
+    })
+    .nullable(),
+  lastMatch: z
+    .object({
+      id: z.number().int(),
+      home: z.string(),
+      away: z.string(),
+      homeScore: z.number().int().nullable(),
+      awayScore: z.number().int().nullable(),
+      kickoffAt: z.string().nullable(),
+    })
+    .nullable(),
+  guest: z.boolean(),
+});
+
 /** Strukturerad 403 — klienterna renderar paywall ur detta, aldrig ur copy. */
 export const PlanRequiredErrorSchema = z.object({
   error: z.string(),
@@ -109,6 +229,12 @@ export const API_CONTRACTS = [
     name: "ArticleDetailResponse",
     schema: ArticleDetailResponseSchema,
   },
+  {
+    method: "get",
+    path: "/api/team/{slug}/hub",
+    name: "TeamHubPayload",
+    schema: TeamHubPayloadSchema,
+  },
 ] as const;
 
 /**
@@ -127,4 +253,12 @@ export const SWIFT_MODEL_CONTRACTS = [
   { swiftStruct: "TeamRef", schema: TeamRefSchema },
   { swiftStruct: "NativeArticleDetail", schema: NativeArticleDetailSchema },
   { swiftStruct: "ArticleAccessState", schema: ArticleAccessStateSchema },
+  { swiftStruct: "TeamHubPayload", schema: TeamHubPayloadSchema },
+  { swiftStruct: "TeamInfo", schema: TeamInfoSchema },
+  { swiftStruct: "TeamSeasonStats", schema: TeamSeasonStatsSchema },
+  { swiftStruct: "RadarPoint", schema: RadarPointSchema },
+  { swiftStruct: "LeaderRow", schema: LeaderRowSchema },
+  { swiftStruct: "FixtureRow", schema: FixtureRowSchema },
+  { swiftStruct: "DashArticle", schema: DashArticleSchema },
+  { swiftStruct: "DashThread", schema: DashThreadSchema },
 ] as const;
