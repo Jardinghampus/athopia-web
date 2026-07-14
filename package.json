@@ -9,6 +9,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test:links": "ts-node --project tsconfig.json scripts/link-audit.ts",
+    "test:provenance": "npx --yes tsx --test lib/provenance.test.ts",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",

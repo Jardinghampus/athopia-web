@@ -12,6 +12,7 @@ export type DashArticle = {
   summary: string | null
   image_url: string | null
   published_at: string
+  rights_status?: string | null
 }
 
 export type DashThread = {

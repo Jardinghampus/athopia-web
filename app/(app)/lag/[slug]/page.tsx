@@ -21,7 +21,6 @@ import { getFollowedTeams } from "@/lib/dashboard/queries";
 import { getUserFeedPreferences } from "@/lib/feed/getUserFeedPreferences";
 import { getTeamHub } from "@/lib/team-hub/queries";
 import { getUserPlan } from "@/lib/user-plan";
-import { MOCK_TEAM_LIST_ITEM } from "@/lib/team-hub/mock";
 import { TeamContextTracker } from "@/components/team-hub/TeamContextTracker";
 import { getTeamColors, getTeamAccent } from "@/lib/team-colors";
 import { TeamHubHeader } from "@/components/team-hub/TeamHubHeader";
@@ -83,7 +82,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 /** Alla lag för lagväxlaren (namn/slug/logo). */
 async function getTeams(): Promise<SwitcherTeam[]> {
-  if (!isSupabaseConfigured()) return [MOCK_TEAM_LIST_ITEM];
+  if (!isSupabaseConfigured()) return [];
   try {
     const db = createServerClient();
     const { data } = await db

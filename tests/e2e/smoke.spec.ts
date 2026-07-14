@@ -1,12 +1,13 @@
 import { test, expect } from '@playwright/test'
 
 const CRITICAL_PAGES = [
-  { path: '/',           label: 'Startsida' },
-  { path: '/nyheter',   label: 'Nyheter' },
-  { path: '/forum',     label: 'Forum' },
-  { path: '/priser',    label: 'Priser' },
-  { path: '/allsvenskan', label: 'Allsvenskan' },
-  { path: '/sign-in',   label: 'Inloggning' },
+  { path: "/", label: "Startsida" },
+  { path: "/mitt-lag", label: "Mitt lag" },
+  { path: "/nyheter", label: "Flöde" },
+  { path: "/forum", label: "Forum" },
+  { path: "/prenumerera", label: "Prenumerera" },
+  { path: "/allsvenskan", label: "Allsvenskan" },
+  { path: "/sign-in", label: "Inloggning" },
 ]
 
 for (const { path, label } of CRITICAL_PAGES) {

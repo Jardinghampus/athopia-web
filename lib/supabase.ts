@@ -19,6 +19,11 @@ import { unstable_cache } from "next/cache";
 import * as Sentry from "@sentry/nextjs";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/supabase";
+import {
+  canPublishBody,
+  resolveContentOrigin,
+  resolveRightsStatus,
+} from "@/lib/provenance";
 import type {
   AgentLog,
   Article,
@@ -166,12 +171,16 @@ function mapEntity(row: any): Entity {
 function mapArticle(row: any): Article {
   const slug = row.slug ? String(row.slug) : "";
   const sourceUrl = row.source_url ?? row.sourceUrl ?? row.url ?? null;
+  const isAthopiaGenerated = row.is_athopia_generated ?? row.isAthopiaGenerated ?? null;
+  const rightsStatus = resolveRightsStatus(row);
+  const contentOrigin = resolveContentOrigin(row);
+  const canBody = canPublishBody(rightsStatus);
   return {
     id: String(row.id),
     slug,
     title: String(row.title ?? ""),
-    summary: String(row.summary ?? ""),
-    content: row.content ?? null,
+    summary: canBody ? String(row.summary ?? "") : "",
+    content: canBody ? (row.content ?? null) : null,
     sourceUrl,
     url: row.url ?? sourceUrl,
     sourceName: String(row.source_name ?? row.sourceName ?? "Okänd källa"),
@@ -186,6 +195,9 @@ function mapArticle(row: any): Article {
     eventType: row.event_type ?? row.eventType ?? null,
     sentimentScore: row.sentiment_score ?? row.sentimentScore ?? null,
     entities: Array.isArray(row.entities) ? row.entities.map(mapEntity) : [],
+    contentOrigin,
+    rightsStatus,
+    isAthopiaGenerated,
   };
 }
 

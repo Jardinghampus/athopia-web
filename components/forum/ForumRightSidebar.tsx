@@ -25,29 +25,13 @@ interface Props {
   upcomingMatch?: { opponent: string; date: string; competition: string } | null;
 }
 
-const MOCK_NEWS: NewsItem[] = [
-  { title: "Klaesson aktuell för Premier League-flytt i januari", source: "Sportbladet", timeAgo: "2h", href: "#" },
-  { title: "Isaks header avgör derbyt mot Hammarby", source: "Aftonbladet", timeAgo: "18h", href: "#" },
-  { title: "Brorsson håller nollan för tredje matchen i rad", source: "Fotbollskanalen", timeAgo: "1d", href: "#" },
-];
-
-const MOCK_MATCHES: MatchResult[] = [
-  { home: "DIF", away: "Hammarby", score: "1–0", date: "23 jun", competition: "Allsvenskan" },
-  { home: "Häcken", away: "DIF", score: "0–2", date: "17 jun", competition: "Allsvenskan" },
-  { home: "DIF", away: "AIK", score: "1–1", date: "10 jun", competition: "Allsvenskan" },
-];
-
-const MOCK_UPCOMING = { opponent: "IK Sirius", date: "Sön 29 jun, 15:00", competition: "Allsvenskan" };
-
-const MOCK_AI_SUMMARY = "Intensivt dygn i forumet. Derbysegern mot Hammarby dominerar med Isaks avgörande header. Rykten om Klaesson till Premier League skapar oro, och taktikdebatten kring den höga försvarslinjen fortsätter.";
-
 export default function ForumRightSidebar({
   teamName,
   teamSlug,
-  news = MOCK_NEWS,
-  aiSummary = MOCK_AI_SUMMARY,
-  recentMatches = MOCK_MATCHES,
-  upcomingMatch = MOCK_UPCOMING,
+  news = [],
+  aiSummary = null,
+  recentMatches = [],
+  upcomingMatch = null,
 }: Props) {
   return (
     <div className="space-y-4">

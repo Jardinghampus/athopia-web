@@ -1,19 +1,13 @@
 /**
- * app/artikel/[slug]/page.tsx — Artikeldetaljsida
- * ─────────────────────────────────────────────────────────────────────────────
- * - AI-summary box med accent-bakgrund (brand: UI Red)
- * - Fulltext eller källlänk
- * - EntityChip-array
- * - Relaterade artiklar via /api/related (pgvector)
- * - generateMetadata() med OG-tags + JSON-LD NewsArticle
- * ─────────────────────────────────────────────────────────────────────────────
+ * app/artikel/[slug]/page.tsx — Artikeldetaljsida (owned/licensed only)
+ * Link-only redirects to /nyhet/[slug] (LAUNCH-01 provenance).
  */
 
 import type { Metadata } from "next";
 import { ShareButton } from "@/components/ui/ShareButton";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ExternalLink, MessageSquare, Sparkles } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { ArticleCard } from "@/components/ui/ArticleCard";
@@ -24,10 +18,15 @@ import { ArticleScrollTracker } from "@/components/gamification/ArticleScrollTra
 import { getUserPlan } from "@/lib/user-plan";
 import { canAccess } from "@/lib/access-rules";
 import { BlurPaywall } from "@/components/BlurPaywall";
+import {
+  canPublishBody,
+  resolveRightsStatus,
+  sanitizeArticleForPublic,
+} from "@/lib/provenance";
+import { getSiteUrl } from "@/lib/site-url";
 
 export const revalidate = 3600;
 
-// ─── Hjälpfunktioner ───────────────────────────────────────────────────────────
 async function getArticle(slug: string): Promise<Article | null> {
   try {
     const supabase = createServerClient();
@@ -36,13 +35,31 @@ async function getArticle(slug: string): Promise<Article | null> {
       .select("*")
       .eq("slug", slug)
       .single();
-    return (data as Article) ?? null;
+    if (!data) return null;
+    const row = data as Record<string, unknown>;
+    const mapped: Article = {
+      id: String(row.id),
+      slug: String(row.slug ?? ""),
+      title: String(row.title ?? ""),
+      summary: String(row.summary ?? ""),
+      content: (row.content as string | null) ?? null,
+      sourceUrl: (row.url as string | null) ?? null,
+      url: (row.url as string | null) ?? null,
+      sourceName: String(row.source_name ?? "Okänd källa"),
+      imageUrl: null,
+      publishedAt: String(row.published_at ?? new Date().toISOString()),
+      updatedAt: (row.updated_at as string | null) ?? null,
+      entities: [],
+      contentOrigin: (row.content_origin as Article["contentOrigin"]) ?? null,
+      rightsStatus: resolveRightsStatus(row as Parameters<typeof resolveRightsStatus>[0]),
+      isAthopiaGenerated: (row.is_athopia_generated as boolean | null) ?? null,
+    };
+    return sanitizeArticleForPublic(mapped);
   } catch {
     return null;
   }
 }
 
-/** Antal forum-inlägg kopplade till artikeln (Athletic-kroken). 0 innan migrationen/utan trådar. */
 async function getDiscussionCount(articleId: string): Promise<number> {
   try {
     const supabase = createServerClient();
@@ -61,17 +78,17 @@ async function getDiscussionCount(articleId: string): Promise<number> {
 async function getRelatedArticles(articleId: string): Promise<Article[]> {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL ?? "https://athopia.se"}/api/related?id=${articleId}`,
-      { next: { revalidate: 3600 } }
+      `${process.env.NEXT_PUBLIC_BASE_URL ?? getSiteUrl()}/api/related?id=${articleId}`,
+      { next: { revalidate: 3600 } },
     );
     if (!res.ok) return [];
-    return res.json();
+    const rows = (await res.json()) as Article[];
+    return rows.map((a) => sanitizeArticleForPublic(a));
   } catch {
     return [];
   }
 }
 
-// ─── Metadata + OG ────────────────────────────────────────────────────────────
 export async function generateMetadata({
   params,
 }: {
@@ -82,15 +99,24 @@ export async function generateMetadata({
 
   if (!article) return { title: "Artikel hittades inte" };
 
+  const rights = article.rightsStatus ?? resolveRightsStatus(article);
+  if (!canPublishBody(rights)) {
+    return {
+      title: article.title,
+      robots: { index: false, follow: true },
+      alternates: { canonical: `${getSiteUrl()}/nyhet/${slug}` },
+    };
+  }
+
   return {
     title: article.title,
     description: article.summary,
-    alternates: { canonical: `https://athopia.se/artikel/${slug}` },
+    alternates: { canonical: `${getSiteUrl()}/artikel/${slug}` },
     openGraph: {
       type: "article",
       title: article.title,
       description: article.summary,
-      url: `https://athopia.se/artikel/${slug}`,
+      url: `${getSiteUrl()}/artikel/${slug}`,
       publishedTime: article.publishedAt,
       images: article.imageUrl
         ? [{ url: article.imageUrl, width: 1200, height: 630 }]
@@ -100,7 +126,6 @@ export async function generateMetadata({
   };
 }
 
-// ─── JSON-LD: NewsArticle ──────────────────────────────────────────────────────
 function ArticleJsonLd({ article }: { article: Article }) {
   const data = {
     "@context": "https://schema.org",
@@ -111,16 +136,15 @@ function ArticleJsonLd({ article }: { article: Article }) {
     ...(article.updatedAt ? { dateModified: article.updatedAt } : {}),
     author: {
       "@type": "Organization",
-      name: article.sourceName,
-      ...(article.sourceUrl ? { url: article.sourceUrl } : {}),
+      name: "Athopia",
     },
     publisher: {
       "@type": "Organization",
-      name: article.sourceName,
-      url: article.sourceUrl,
+      name: "Athopia",
+      url: getSiteUrl(),
     },
     image: article.imageUrl ?? undefined,
-    url: `https://athopia.se/artikel/${article.slug}`,
+    url: `${getSiteUrl()}/artikel/${article.slug}`,
   };
 
   return (
@@ -131,7 +155,6 @@ function ArticleJsonLd({ article }: { article: Article }) {
   );
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
 export default async function ArtikelPage({
   params,
 }: {
@@ -141,13 +164,17 @@ export default async function ArtikelPage({
   const article = await getArticle(slug);
   if (!article) notFound();
 
+  const rights = article.rightsStatus ?? resolveRightsStatus(article);
+  if (!canPublishBody(rights)) {
+    redirect(`/nyhet/${slug}`);
+  }
+
   const [relatedArticles, discussionCount, plan] = await Promise.all([
     getRelatedArticles(article.id),
     getDiscussionCount(article.id),
     getUserPlan(),
   ]);
 
-  // Forum-CTA:t går till artikelns lag-forum; utan lag → forum-index
   const teamEntity = article.entities?.find((e) => e.type === "team" && e.slug);
   const forumHref = teamEntity
     ? `/forum/${teamEntity.slug}?artikel=${article.id}`
@@ -161,7 +188,6 @@ export default async function ArtikelPage({
       <ArticleScrollTracker articleType="match_report" />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
-        {/* Hero-bild */}
         {article.imageUrl && (
           <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden mb-8">
             <Image
@@ -175,21 +201,18 @@ export default async function ArtikelPage({
           </div>
         )}
 
-        {/* Entiteter */}
         {article.entities?.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-4">
-            {article.entities.map((e: any) => (
+            {article.entities.map((e) => (
               <EntityChip key={e.id} entity={e} />
             ))}
           </div>
         )}
 
-        {/* Rubrik */}
         <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-3 leading-tight">
           {article.title}
         </h1>
 
-        {/* Meta */}
         <div className="flex items-center justify-between gap-3 mb-8">
           <p className="text-sm text-muted-foreground">
             <span className="font-medium text-foreground">{article.sourceName}</span>
@@ -202,10 +225,12 @@ export default async function ArtikelPage({
               })}
             </time>
           </p>
-          <ShareButton title={article.title} url={`https://athopia.se/artikel/${article.slug}`} />
+          <ShareButton
+            title={article.title}
+            url={`${getSiteUrl()}/artikel/${article.slug}`}
+          />
         </div>
 
-        {/* AI-Summary — PRO; free får bara teaser i DOM */}
         {article.summary && (
           <BlurPaywall
             feature="aiSummaries"
@@ -246,7 +271,6 @@ export default async function ArtikelPage({
 
         <Separator className="mb-8" />
 
-        {/* Fulltext — PRO only i DOM; free: källlänk (upphovsrättssäkert) */}
         {article.content && unlockedAi ? (
           <div
             className="prose-athopia max-w-none"
@@ -299,7 +323,6 @@ export default async function ArtikelPage({
           </p>
         )}
 
-        {/* Diskussion — Athletic-kroken: artikeln är en social yta */}
         <section className="mt-12">
           <Separator className="mb-8" />
           <div className="flex items-center justify-between gap-4">
@@ -328,7 +351,6 @@ export default async function ArtikelPage({
           )}
         </section>
 
-        {/* Relaterade artiklar */}
         {relatedArticles.length > 0 && (
           <section className="mt-16">
             <Separator className="mb-8" />
@@ -343,7 +365,6 @@ export default async function ArtikelPage({
           </section>
         )}
 
-        {/* Breadcrumb bakåt */}
         <div className="mt-12">
           <Link
             href="/nyheter"

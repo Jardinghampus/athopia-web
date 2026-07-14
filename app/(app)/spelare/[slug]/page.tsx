@@ -20,8 +20,6 @@ const POS_SV: Record<string, string> = {
 };
 
 async function getPlayerBySlug(slug: string) {
-  const { MOCK_PLAYER_SLUG, mockPlayer } = await import("@/lib/team-hub/mock");
-  if (slug === MOCK_PLAYER_SLUG) return mockPlayer();
   if (!isSupabaseConfigured()) return null;
   const db = createServerClient();
   if (/^\d+$/.test(slug)) {
@@ -33,8 +31,6 @@ async function getPlayerBySlug(slug: string) {
 }
 
 async function getSeasonStats(playerId: number) {
-  const { MOCK_PLAYER_SM_ID, mockPlayerSeason } = await import("@/lib/team-hub/mock");
-  if (playerId === MOCK_PLAYER_SM_ID) return mockPlayerSeason();
   if (!isSupabaseConfigured()) return null;
   const db = createServerClient();
   const { data } = await db.from("player_season_stats").select("*").eq("player_id", playerId).eq("season_id", SEASON_2026).maybeSingle();
@@ -42,8 +38,6 @@ async function getSeasonStats(playerId: number) {
 }
 
 async function getMatchHistory(playerId: number) {
-  const { MOCK_PLAYER_SM_ID, mockPlayerMatches } = await import("@/lib/team-hub/mock");
-  if (playerId === MOCK_PLAYER_SM_ID) return mockPlayerMatches();
   if (!isSupabaseConfigured()) return [];
   const db = createServerClient();
   const { data } = await db

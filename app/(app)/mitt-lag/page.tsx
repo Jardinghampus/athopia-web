@@ -1,9 +1,7 @@
 /**
  * app/mitt-lag/page.tsx — Inloggad startsida (brief-ritual)
- * ─────────────────────────────────────────────────────────────────────────────
- * Brief-first hem för inloggade: dagens AI-brief + matchdag + snabblänkar.
- * Full lag-hub finns på /lag/{slug}.
- * ─────────────────────────────────────────────────────────────────────────────
+ * Brief-first hem: dagens AI-brief + matchdag + widgetstack.
+ * Gäst med lokalt lag får ärlig preview (LAUNCH-05).
  */
 
 import type { Metadata } from "next";
@@ -18,6 +16,8 @@ import { TeamHubBriefRitual } from "@/components/team-hub/TeamHubBriefRitual";
 import { MatchdayBanner } from "@/components/team-hub/MatchdayBanner";
 import { FeedMatchHero } from "@/components/feed/FeedMatchHero";
 import { StatNumber } from "@/components/ui/StatNumber";
+import { MittLagWidgets } from "@/components/mitt-lag/MittLagWidgets";
+import { MittLagGuestPreview } from "@/components/mitt-lag/MittLagGuestPreview";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +26,6 @@ export const metadata: Metadata = {
   description: "Din dagliga brief, matchdag och snabbvägar till laget.",
 };
 
-/** Svensk hälsning efter Stockholm-tid + förnamn när det finns. */
 function homeGreeting(firstName: string | null | undefined): string {
   const hour = Number(
     new Intl.DateTimeFormat("sv-SE", {
@@ -64,13 +63,11 @@ export default async function MittLagPage({
   }
 
   if (!primaryTeam?.slug) {
-    // Inloggad som aldrig slutfört onboarding → wizard. Den som aktivt hoppade
-    // över lagval (onboardingDone i Clerk-metadata) eller gäst får pickern.
     const meta = user?.unsafeMetadata as Record<string, unknown> | undefined;
     if (user && !meta?.["favoriteTeam"] && meta?.["onboardingDone"] !== true) {
       redirect("/onboarding");
     }
-    return <EmptyPicker />;
+    return <MittLagGuestPreview />;
   }
 
   const [plan, hub] = await Promise.all([
@@ -79,7 +76,7 @@ export default async function MittLagPage({
   ]);
 
   if (!hub) {
-    return <EmptyPicker />;
+    return <MittLagGuestPreview />;
   }
 
   const greeting = homeGreeting(user?.firstName);
@@ -91,10 +88,7 @@ export default async function MittLagPage({
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Athopia · {hub.team.name}
           </p>
-          <h1
-            className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground mt-1"
-            style={{ fontFamily: "system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif" }}
-          >
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground mt-1">
             {greeting}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
@@ -110,7 +104,6 @@ export default async function MittLagPage({
         </Link>
       </header>
 
-      {/* Hero-stat: tabellposition äger raden (Revolut-hierarkin) — övriga siffror underordnade */}
       {hub.position != null && (
         <Link
           href="/allsvenskan/tabell"
@@ -151,6 +144,10 @@ export default async function MittLagPage({
       </div>
 
       <FeedMatchHero />
+
+      <div className="mt-6">
+        <MittLagWidgets hub={hub} />
+      </div>
 
       <nav className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3" aria-label="Snabbvägar">
         <QuickLink
@@ -204,35 +201,5 @@ function QuickLink({
         <p className="text-xs text-muted-foreground">{desc}</p>
       </div>
     </Link>
-  );
-}
-
-function EmptyPicker() {
-  return (
-    <div className="max-w-md mx-auto px-4 py-16 text-center space-y-5">
-      <div className="w-14 h-14 rounded-2xl bg-pitch/10 border border-pitch/30 flex items-center justify-center mx-auto">
-        <Star className="h-7 w-7 text-pitch" />
-      </div>
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">Mitt lag</h1>
-        <p className="text-muted-foreground text-sm mt-2">
-          Välj favoritlag för att få dagens brief och matchdag här.
-        </p>
-      </div>
-      <div className="flex flex-col gap-2">
-        <Link
-          href="/allsvenskan"
-          className="rounded-lg bg-pitch text-white text-sm font-medium px-4 py-2.5 hover:bg-pitch/90 transition-colors"
-        >
-          Bläddra bland lag
-        </Link>
-        <Link
-          href="/onboarding"
-          className="rounded-lg border border-border text-sm text-muted-foreground px-4 py-2.5 hover:text-foreground transition-colors"
-        >
-          Välj favoritlag
-        </Link>
-      </div>
-    </div>
   );
 }

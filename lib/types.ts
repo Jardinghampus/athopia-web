@@ -40,6 +40,10 @@ export interface Article {
   eventType?: string | null;
   sentimentScore?: number | null; // -1..1
   entities: Entity[];
+  /** LAUNCH-01 provenance */
+  contentOrigin?: "athopia_original" | "third_party_signal" | "licensed" | null;
+  rightsStatus?: "owned" | "link_only" | "licensed" | null;
+  isAthopiaGenerated?: boolean | null;
 }
 
 export interface TeamPushPopup {

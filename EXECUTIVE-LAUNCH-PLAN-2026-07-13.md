@@ -128,29 +128,30 @@ grundens säkerhet och mätbarhet är på plats.
 **Varför:** systemet sparar scrapad tredjepartstext i `articles.content`, medan
 webben kan rendera `article.content` för PRO. Slug är inte bevis på ägarskap.
 
-- [ ] Migration i `athopia-os/supabase/migrations`:
+- [x] Migration i `athopia-os/supabase/migrations`:
   - `articles.content_origin`: `athopia_original | third_party_signal | licensed`;
   - `articles.rights_status`: `owned | link_only | licensed`;
   - `article_sources(article_id, source_name, original_url, domain, is_primary, published_at)`.
-- [ ] Konservativ backfill; okända poster blir `link_only`.
-- [ ] Scrapad fulltext flyttas/avskiljs till service-role research-lager.
-- [ ] Public feed/view exponerar aldrig scrapad body eller RSS-teaser.
-- [ ] `/artikel/[slug]` renderar bara owned/licensed.
-- [ ] Ny `/nyhet/[slug]` för link-only: titel, källa, domän, källänk och tydligt
+- [x] Konservativ backfill; okända poster blir `link_only`.
+- [x] Scrapad fulltext flyttas/avskiljs till service-role research-lager.
+- [x] Public feed/view exponerar aldrig scrapad body eller RSS-teaser.
+- [x] `/artikel/[slug]` renderar bara owned/licensed.
+- [x] Ny `/nyhet/[slug]` för link-only: titel, källa, domän, källänk och tydligt
   Athopia-skriven kontext. `robots: noindex, follow`.
-- [ ] Regressionstest: tredjepartsbody/teaser finns inte i HTML, RSC, metadata,
-  JSON-LD eller klientprops.
+- [x] Regressionstest: tredjepartsbody/teaser finns inte i HTML, RSC, metadata,
+  JSON-LD eller klientprops. (`pnpm test:provenance`)
 - [ ] Legal review: rubriker, bildlicenser, AI-summering, takedown och podcast.
 
 **Definition of done:** varje publik post har explicit provenance; originalet
 nås i ett klick utan auth/fördröjning; inga tredjepartsbrödtexter publiceras.
+*(Tech DoD: grön 2026-07-14. Legal review = founder-blocker.)*
 
 ### W0.2 Production truth — founder + web
 
 - [ ] Clerk production keys, domän/origins och redirects verifierade live.
-- [ ] Stripe live Price IDs matchar `lib/pricing.ts`; 7-dagars trial syns före köp.
+- [x] Stripe checkout byggs från `lib/pricing.ts` via inline `price_data` (inga hardkodade Price IDs) + `TRIAL_DAYS=7`.
 - [ ] Checkout, webhook, portal och downgrade testas med riktiga testpersonas.
-- [ ] `NEXT_PUBLIC_SITE_URL` och canonical host verifieras mot DNS.
+- [x] `getSiteUrl()` / `NEXT_PUBLIC_SITE_URL` SSOT i kod.
 - [ ] Anthropic credits/keys och Vercel env valideras utan att logga värden.
 - [ ] Adminens faktiska skydd verifieras innan Publisher byggs:
   Vercel SSO/shared secret räcker inte för aktörsbaserad editorial audit.
@@ -158,8 +159,7 @@ nås i ett klick utan auth/fördröjning; inga tredjepartsbrödtexter publiceras
 ### W0.3 Data freshness & team coverage — `athopia-os` + admin
 
 - [ ] Verifiera `syncStatic`, fixtures, teams/players freshness och Milo 400-fix i drift.
-- [ ] `team_coverage_dashboard`/view: alla 16 lag, senaste signal/pulse/artikel,
-  källantal och stale-timmar.
+- [x] `team_coverage_dashboard` view live (16 lag, article/pulse/signal + stale-36h).
 - [ ] Slack-alert endast när lag är tyst >36h på relevant match-/nyhetsdag.
 - [ ] Athopia Daily producerar dagens episode eller visar mätbart fel/skipped reason.
 - [ ] Coverage SLO:
@@ -170,11 +170,11 @@ nås i ett klick utan auth/fördröjning; inga tredjepartsbrödtexter publiceras
 
 ### W0.4 AI-budget och route-säkerhet — web + OS
 
-- [ ] En global auktoritativ modell-/pris-/budgetkonfiguration.
-- [ ] Workspace hard cap `$20/mån` vinner tills founder ändrar policyn.
-- [ ] Ta bort route-default `$50/mån` och motstridiga prisberäkningar.
+- [x] En global budget-SSOT i web (`lib/ai/budget.ts`) + OS `budget_monthly_usd_hard=20`.
+- [x] Workspace hard cap `$20/mån` vinner tills founder ändrar policyn.
+- [x] Ta bort route-default `$50/mån`.
 - [ ] Atomisk budgetreservation före anrop; per-request input/output/steps/timeout.
-- [ ] Elite-routes använder `getUserPlan()` + `canAccess()`.
+- [x] Elite-chat använder `getUserPlan()` + shared `checkChatLimits()`.
 - [ ] Matchkontext laddas server-side från `fixtureId`; lita inte på klientscore/lag.
 - [ ] Alla verktygsqueries sportfiltreras och returnerar `missingFields`.
 

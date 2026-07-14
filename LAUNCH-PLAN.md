@@ -29,18 +29,18 @@ Kärnloop: **Mitt lag → Flöde → Forum → (PRO) destillat.**
 
 | ID | Vad | Repo | Klart när |
 |----|-----|------|-----------|
-| **LAUNCH-01** | **Provenance** — `content_origin`, `article_sources`, ingen tredjepartsbody i publik HTML; `/nyhet/[slug]` source-first | os + web | Regression + legal OK |
-| **LAUNCH-02** | **Production E2E** — Clerk prod, Stripe IDs, checkout/webhook/portal, personas free/PRO/Elite | web + founder | Inga dev-badges, pris = checkout |
-| **LAUNCH-03** | **Data freshness** — 16/16 lag coverage dashboard, Daily producerar eller mätbart fel, sync/fixtures OK | os + admin | SLO i planen |
-| **LAUNCH-04** | **AI budget** — en hard cap, atomisk reservation, `getUserPlan()` överallt, server-side matchkontext | os + web | Ingen route-default $50/mån |
+| **LAUNCH-01** | **Provenance** — `content_origin`, `article_sources`, ingen tredjepartsbody i publik HTML; `/nyhet/[slug]` source-first | os + web | ✅ tech 2026-07-14 (legal review kvar) |
+| **LAUNCH-02** | **Production E2E** — Clerk prod, Stripe IDs, checkout/webhook/portal, personas free/PRO/Elite | web + founder | ⏸ founder (checkout = `price_data` från pricing.ts) |
+| **LAUNCH-03** | **Data freshness** — 16/16 lag coverage dashboard, Daily producerar eller mätbart fel, sync/fixtures OK | os + admin | ✅ view live; Daily/Slack kvar |
+| **LAUNCH-04** | **AI budget** — en hard cap, atomisk reservation, `getUserPlan()` överallt, server-side matchkontext | os + web | ✅ $20 hard cap web+OS 2026-07-14 |
 
 ### Wave 1 — Produkt
 
-| ID | Vad | Repo |
-|----|-----|------|
-| **LAUNCH-05** | Mitt lag widgets + guest preview + favoritlag SSOT | web |
-| **LAUNCH-06** | Onboarding 3 steg (lag → värde → notiser) + forum/feed hooks | web |
-| **LAUNCH-07** | Release QA: persona-matris, mobil 390px, cookie, links, e2e | web |
+| ID | Vad | Repo | Status |
+|----|-----|------|--------|
+| **LAUNCH-05** | Mitt lag widgets + guest preview + favoritlag SSOT | web | ✅ 2026-07-14 |
+| **LAUNCH-06** | Onboarding 3 steg (lag → värde → notiser) + forum/feed hooks | web | ✅ 2026-07-14 |
+| **LAUNCH-07** | Release QA: persona-matris, mobil 390px, cookie, links, e2e | web | ✅ nav/smoke e2e uppdaterad; full persona-QA kvar |
 
 **GO Launch 1.0** när LAUNCH-01–07 är gröna + runtime smoke live.
 

@@ -1,5 +1,6 @@
 import type { FeedItem } from "@/lib/types";
 import { mapImportanceTier } from "@/lib/feed/importance";
+import { articlePublicPath } from "@/lib/provenance";
 
 /** Mappar news_feed / news_feed_clustered-rad till FeedItem. */
 export function mapNewsFeedRow(a: {
@@ -16,9 +17,24 @@ export function mapNewsFeedRow(a: {
   push_priority?: string | null;
   slug?: string | null;
   url_hash?: string | null;
+  rights_status?: string | null;
+  is_athopia_generated?: boolean | null;
 }): FeedItem {
-  const href = a.url
-    ?? (a.slug ? `/artikel/${a.slug}` : a.url_hash ? `/artikel/${a.url_hash}` : "#");
+  const internal = articlePublicPath({
+    slug: a.slug ?? a.url_hash,
+    rights_status: a.rights_status,
+    is_athopia_generated: a.is_athopia_generated,
+    url: a.url,
+  });
+  // Prefer Athopia surface when we have a slug; external url remains fallback.
+  const href =
+    internal !== "#"
+      ? internal
+      : a.url ?? "#";
+
+  const rights = a.rights_status ?? (a.is_athopia_generated ? "owned" : "link_only");
+  const subtitle =
+    rights === "owned" || rights === "licensed" ? (a.summary ?? null) : null;
 
   return {
     id: a.id,
@@ -27,7 +43,7 @@ export function mapNewsFeedRow(a: {
     source: a.source_name ?? null,
     time: a.published_at ?? new Date().toISOString(),
     href,
-    subtitle: a.summary ?? null,
+    subtitle,
     newsTag: a.news_tag ?? null,
     sourceCount: a.source_count ?? null,
     storyClusterId: a.story_cluster_id ?? null,

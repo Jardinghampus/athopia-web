@@ -47,15 +47,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     const { data: articles } = await supabase
       .from("articles")
-      .select("slug, published_at")
+      .select("slug, published_at, rights_status, is_athopia_generated")
+      .eq("status", "published")
       .order("published_at", { ascending: false })
       .limit(1000);
-    articleRoutes = (articles ?? []).map((a) => ({
-      url: `${BASE}/artikel/${a.slug}`,
-      lastModified: new Date(a.published_at),
-      changeFrequency: "weekly" as const,
-      priority: 0.7,
-    }));
+    // Sitemap only indexes owned/licensed Athopia pages — link_only is noindex /nyhet.
+    articleRoutes = (articles ?? [])
+      .filter((a) => {
+        const rights = a.rights_status ?? (a.is_athopia_generated ? "owned" : "link_only");
+        return rights === "owned" || rights === "licensed";
+      })
+      .filter((a) => a.slug)
+      .map((a) => ({
+        url: `${BASE}/artikel/${a.slug}`,
+        lastModified: new Date(a.published_at),
+        changeFrequency: "weekly" as const,
+        priority: 0.7,
+      }));
 
     // OBS: teams-tabellen saknar slug-kolumn — laglugs lever i entities (type='team')
     const { data: teams } = await supabase

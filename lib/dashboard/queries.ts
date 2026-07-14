@@ -102,13 +102,24 @@ async function fetchTeamNews(teamSlug: string): Promise<DashArticle[]> {
 
     const { data } = await supabase
       .from('articles')
-      .select('id, title, slug, summary, published_at')
+      .select('id, title, slug, summary, published_at, rights_status, is_athopia_generated')
       .eq('sport', SPORT)
       .eq('status', 'published')
       .contains('entity_ids', [String(team.id)])
       .order('published_at', { ascending: false })
       .limit(5)
-    return ((data ?? []) as any[]).map((r) => ({ ...r, image_url: null })) as DashArticle[]
+    return ((data ?? []) as any[]).map((r) => {
+      const rights = r.rights_status ?? (r.is_athopia_generated ? 'owned' : 'link_only')
+      return {
+        id: r.id,
+        title: r.title,
+        slug: r.slug,
+        summary: rights === 'owned' || rights === 'licensed' ? r.summary : null,
+        published_at: r.published_at,
+        image_url: null,
+        rights_status: rights,
+      }
+    }) as DashArticle[]
   } catch {
     return []
   }

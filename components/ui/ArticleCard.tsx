@@ -13,6 +13,11 @@ import { calculateReadTime, cn, formatDateRelative, truncate } from "@/lib/utils
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OutboundLink } from "@/components/news/OutboundLink";
+import {
+  articlePublicPath,
+  canPublishBody,
+  resolveRightsStatus,
+} from "@/lib/provenance";
 
 interface ArticleCardProps {
   article: Article;
@@ -32,13 +37,17 @@ function SourceBadge({ sourceName }: { sourceName: string }) {
 
 export function ArticleCard({ article, size = "md", priority = false, commentCount }: ArticleCardProps) {
   const externalUrl = article.sourceUrl ?? article.url;
-  const isExternal = !article.slug && !!externalUrl;
   const href = article.slug
-    ? `/artikel/${article.slug}`
+    ? articlePublicPath(article)
     : (externalUrl ?? "#");
+  const isExternal = !href.startsWith("/");
   const hasImage = !!article.imageUrl;
   const relativeDate = formatDateRelative(article.publishedAt);
-  const readTime = calculateReadTime(article.content ?? article.summary);
+  const rights = resolveRightsStatus(article);
+  const publicSummary = canPublishBody(rights) ? article.summary : null;
+  const readTime = calculateReadTime(
+    canPublishBody(rights) ? (article.content ?? article.summary) : article.title,
+  );
 
   const base =
     "group rounded-2xl border border-border bg-card overflow-hidden " +
@@ -140,15 +149,15 @@ export function ArticleCard({ article, size = "md", priority = false, commentCou
           {article.title}
         </h3>
 
-        {/* Summary */}
-        {size !== "featured" && (
+        {/* Summary — never show third-party teaser (LAUNCH-01) */}
+        {size !== "featured" && publicSummary ? (
           <p className={cn("text-sm text-muted-foreground leading-relaxed", summaryLines)}>
-            {article.summary}
+            {publicSummary}
           </p>
-        )}
-        {size === "featured" && article.summary && (
-          <p className="text-base text-muted-foreground leading-relaxed line-clamp-3">{article.summary}</p>
-        )}
+        ) : null}
+        {size === "featured" && publicSummary ? (
+          <p className="text-base text-muted-foreground leading-relaxed line-clamp-3">{publicSummary}</p>
+        ) : null}
       </div>
     </CardLink>
   );

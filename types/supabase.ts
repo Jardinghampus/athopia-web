@@ -333,6 +333,8 @@ export type Database = {
           relevance_reason: string | null
           relevance_status: string | null
           requires_admin_approval: boolean
+          rights_status: string | null
+          content_origin: string | null
           scrape_error: string | null
           scrape_status: string | null
           sentiment: string | null
@@ -356,6 +358,7 @@ export type Database = {
           approval_reason?: string | null
           author?: string | null
           content?: string | null
+          content_origin?: string | null
           created_at?: string
           duplicate_sources?: string[]
           entity_ids?: string[]
@@ -379,6 +382,7 @@ export type Database = {
           relevance_reason?: string | null
           relevance_status?: string | null
           requires_admin_approval?: boolean
+          rights_status?: string | null
           scrape_error?: string | null
           scrape_status?: string | null
           sentiment?: string | null
@@ -402,6 +406,7 @@ export type Database = {
           approval_reason?: string | null
           author?: string | null
           content?: string | null
+          content_origin?: string | null
           created_at?: string
           duplicate_sources?: string[]
           entity_ids?: string[]
@@ -425,6 +430,7 @@ export type Database = {
           relevance_reason?: string | null
           relevance_status?: string | null
           requires_admin_approval?: boolean
+          rights_status?: string | null
           scrape_error?: string | null
           scrape_status?: string | null
           sentiment?: string | null
@@ -464,6 +470,82 @@ export type Database = {
             columns: ["source_id"]
             isOneToOne: false
             referencedRelation: "rss_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      article_research: {
+        Row: {
+          article_id: string
+          full_text: string
+          scraped_at: string
+          scrape_status: string | null
+          source_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          article_id: string
+          full_text: string
+          scraped_at?: string
+          scrape_status?: string | null
+          source_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          article_id?: string
+          full_text?: string
+          scraped_at?: string
+          scrape_status?: string | null
+          source_url?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "article_research_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: true
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      article_sources: {
+        Row: {
+          article_id: string
+          created_at: string
+          domain: string | null
+          id: string
+          is_primary: boolean
+          original_url: string
+          published_at: string | null
+          source_name: string
+        }
+        Insert: {
+          article_id: string
+          created_at?: string
+          domain?: string | null
+          id?: string
+          is_primary?: boolean
+          original_url: string
+          published_at?: string | null
+          source_name: string
+        }
+        Update: {
+          article_id?: string
+          created_at?: string
+          domain?: string | null
+          id?: string
+          is_primary?: boolean
+          original_url?: string
+          published_at?: string | null
+          source_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "article_sources_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
             referencedColumns: ["id"]
           },
         ]

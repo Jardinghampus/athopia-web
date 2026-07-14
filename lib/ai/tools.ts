@@ -27,7 +27,7 @@ export const tools: Record<string, Tool> = {
         since.setDate(since.getDate() - 2) // senaste 48h
         let q = db
           .from('content_queue')
-          .select('title,source_name,source_url,published_at,summary')
+          .select('title,source_name,source_url,published_at')
           .eq('sport', 'football')
           .gte('published_at', since.toISOString())
           .order('published_at', { ascending: false })
@@ -38,7 +38,7 @@ export const tools: Record<string, Tool> = {
           // Fallback: last 7 days
           const { data: fallback } = await db
             .from('content_queue')
-            .select('title,source_name,source_url,published_at,summary')
+            .select('title,source_name,source_url,published_at')
             .eq('sport', 'football')
             .ilike('title', keyword ? `%${keyword}%` : '%')
             .order('published_at', { ascending: false })

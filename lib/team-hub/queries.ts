@@ -437,8 +437,7 @@ export async function getTeamHub(
   slug: string,
   options?: { newsTags?: string[] | null }
 ): Promise<TeamHubPayload | null> {
-  const { MOCK_TEAM_SLUG, mockTeamHub } = await import("./mock");
-  if (slug === MOCK_TEAM_SLUG) return mockTeamHub();
+  // Ingen mock-/demodata på publika ytor (CLAUDE.md / LAUNCH).
   if (!isSupabaseConfigured()) return null;
   const db = createServerClient();
   const { data } = await db.from("entities").select("*").eq("type", "team").eq("slug", slug).maybeSingle();

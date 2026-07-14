@@ -9,10 +9,12 @@ import { MessageSquare } from "lucide-react";
 import type { Article } from "@/lib/types";
 import { formatDateRelative, truncate } from "@/lib/utils";
 import { OutboundLink } from "@/components/news/OutboundLink";
+import { articlePublicPath, canPublishBody, resolveRightsStatus } from "@/lib/provenance";
 
 function articleHref(article: Article): { href: string; external: boolean } {
+  const path = articlePublicPath(article);
+  if (path.startsWith("/")) return { href: path, external: false };
   const externalUrl = article.sourceUrl ?? article.url;
-  if (article.slug) return { href: `/artikel/${article.slug}`, external: false };
   if (externalUrl) return { href: externalUrl, external: true };
   return { href: "#", external: false };
 }
@@ -58,7 +60,7 @@ export function AthleticFeedHero({
       <h2 className="mt-1 font-heading text-2xl sm:text-3xl leading-tight text-foreground group-hover:text-pitch transition-colors">
         {article.title}
       </h2>
-      {article.summary ? (
+      {article.summary && canPublishBody(resolveRightsStatus(article)) ? (
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground line-clamp-3">
           {truncate(article.summary, 220)}
         </p>
