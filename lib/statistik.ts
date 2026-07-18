@@ -42,6 +42,7 @@ export interface StandingRow {
 export interface ScorerRow {
   rank: number;
   player_id: number;
+  team_id: number;
   player_name: string;
   team_name: string;
   team_slug: string | null;
@@ -95,7 +96,7 @@ type PlayerLite = {
   image: string | null;
   position: string | null;
 };
-type LeaderMetric =
+export type LeaderMetric =
   | "goals"
   | "assists"
   | "xg"
@@ -105,6 +106,18 @@ type LeaderMetric =
   | "passes"
   | "tackles"
   | "yellow_cards";
+
+export const LEADER_METRICS: readonly LeaderMetric[] = [
+  "goals",
+  "assists",
+  "xg",
+  "rating",
+  "shots",
+  "key_passes",
+  "passes",
+  "tackles",
+  "yellow_cards",
+] as const;
 
 // Cachead teams-lista (JSON-serialiserbar — Map byggs utanför cachen).
 // Slås upp via getTeamNameMap: entities (kanonisk) + teams (logga), inte bara
@@ -370,6 +383,7 @@ async function getLeaders(
       return {
         rank: i + 1,
         player_id: pid,
+        team_id: Number(r.team_id ?? 0),
         player_name: player?.fullname ?? `Spelare ${pid}`,
         team_name: teamMap.get(Number(r.team_id))?.name ?? "–",
         team_slug: teamSlugMap[Number(r.team_id)] ?? null,
@@ -411,6 +425,15 @@ export const getTopPassersFromDb = (seasonId: string) => getLeaders(seasonId, "p
 export const getTopDefendersFromDb = (seasonId: string) => getLeaders(seasonId, "tackles");
 export const getMostCardsFromDb = (seasonId: string) => getLeaders(seasonId, "yellow_cards");
 
+/** iOS/web shared leaderboard — season year key (`2026` / `2025`) → Sportmonks season id. */
+export function getLeaderboardForMetric(
+  metric: LeaderMetric,
+  seasonYear: string = "2026"
+): Promise<ScorerRow[]> {
+  const seasonId = SEASON_IDS[seasonYear] ?? SEASON_IDS["2026"]!;
+  return getLeaders(seasonId, metric);
+}
+
 export async function getAllPlayerStatsFromDb(seasonId: string): Promise<ScorerRow[]> {
   if (!isSupabaseConfigured()) return [];
   try {
@@ -426,6 +449,7 @@ export async function getAllPlayerStatsFromDb(seasonId: string): Promise<ScorerR
       return {
         rank: i + 1,
         player_id: pid,
+        team_id: Number(r.team_id ?? 0),
         player_name: player?.fullname ?? `Spelare ${pid}`,
         team_name: teamMap.get(Number(r.team_id))?.name ?? "–",
         team_slug: teamSlugMap[Number(r.team_id)] ?? null,

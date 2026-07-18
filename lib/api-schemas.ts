@@ -31,6 +31,24 @@ export const FeedItemSchema = z.object({
   importanceTier: ImportanceTierSchema.nullable().optional(),
 });
 
+export const FeedModuleTypeSchema = z.enum([
+  "podcast",
+  "discussion",
+  "standings_snapshot",
+]);
+
+export const FeedModuleSchema = z.object({
+  id: z.string(),
+  type: FeedModuleTypeSchema,
+  schemaVersion: z.literal(1),
+  tracking: z.object({
+    reason: z.string(),
+    position: z.number().int(),
+  }),
+  /** Opaque per-type payload; clients switch on `type`. */
+  payload: z.record(z.string(), z.unknown()),
+});
+
 export const FeedResponseSchema = z.object({
   items: z.array(FeedItemSchema),
   hasMore: z.boolean(),
@@ -39,6 +57,8 @@ export const FeedResponseSchema = z.object({
   remainingToday: z.number().int().nullable(),
   isPro: z.boolean().optional(),
   isElite: z.boolean().optional(),
+  /** Server-directed Home modules (iOS/web). Optional for backward compatibility. */
+  modules: z.array(FeedModuleSchema).optional(),
 });
 
 export const TeamRefSchema = z.object({
@@ -260,6 +280,119 @@ export const FixtureDetailSchema = z.object({
   away_shots_on_target: z.number().int().nullable(),
 });
 
+/** GET /api/match/{fixtureId}/timeline — events + lineups (B-08). */
+export const MatchEventSchema = z.object({
+  eventId: z.number().int(),
+  fixtureId: z.number().int(),
+  sequence: z.number().int(),
+  minute: z.number().int().nullable(),
+  extraMinute: z.number().int().nullable(),
+  teamId: z.number().int().nullable(),
+  playerId: z.number().int().nullable(),
+  relatedPlayerId: z.number().int().nullable(),
+  playerName: z.string().nullable(),
+  eventType: z.string(),
+  result: z.string().nullable(),
+  revision: z.number().int(),
+  rescinded: z.boolean(),
+  isCorrected: z.boolean(),
+});
+
+export const MatchLineupRowSchema = z.object({
+  playerId: z.number().int(),
+  teamId: z.number().int().nullable(),
+  starter: z.boolean(),
+  jersey: z.number().int().nullable(),
+  position: z.string().nullable(),
+  playerName: z.string().nullable(),
+  image: z.string().nullable(),
+  slug: z.string().nullable(),
+});
+
+export const MatchTimelineResponseSchema = z.object({
+  fixtureId: z.number().int(),
+  snapshotRevision: z.string(),
+  events: z.array(MatchEventSchema),
+  lineups: z.array(MatchLineupRowSchema),
+});
+
+/** GET /api/player/{idOrSlug} — player profile (ungated wrap). */
+export const PlayerProfilePlayerSchema = z.object({
+  sportmonksId: z.number().int(),
+  fullname: z.string(),
+  slug: z.string().nullable(),
+  image: z.string().nullable(),
+  position: z.string().nullable(),
+  birthdate: z.string().nullable(),
+  height: z.number().int().nullable(),
+  weight: z.number().int().nullable(),
+});
+
+export const PlayerProfileSeasonStatsSchema = z.object({
+  seasonId: z.number().int(),
+  playerId: z.number().int(),
+  teamId: z.number().int(),
+  appearances: z.number().int(),
+  minutes: z.number().int(),
+  goals: z.number().int(),
+  assists: z.number().int(),
+  shots: z.number().int(),
+  shotsOnTarget: z.number().int(),
+  keyPasses: z.number().int(),
+  passes: z.number().int(),
+  passAccuracy: z.number().nullable(),
+  tackles: z.number().int(),
+  interceptions: z.number().int(),
+  rating: z.number().nullable(),
+  yellowCards: z.number().int(),
+  redCards: z.number().int(),
+  clearances: z.number().nullable(),
+  dribbles: z.number().nullable(),
+  fouls: z.number().nullable(),
+  xg: z.number().nullable(),
+  xa: z.number().nullable(),
+  xgPer90: z.number().nullable(),
+  xaPer90: z.number().nullable(),
+});
+
+export const PlayerProfileMetricSchema = z.object({
+  key: z.string(),
+  label: z.string(),
+  value: z.number(),
+  average: z.number(),
+  percentile: z.number(),
+  decimals: z.number().int(),
+});
+
+export const PlayerProfileMatchSchema = z.object({
+  fixtureId: z.number().int(),
+  sportsmonksPlayerId: z.number().int(),
+  minutesPlayed: z.number().int(),
+  goals: z.number().int(),
+  assists: z.number().int(),
+  yellowCards: z.number().int(),
+  redCards: z.number().int(),
+  rating: z.number().nullable(),
+  xg: z.number().nullable(),
+  xa: z.number().nullable(),
+  homeTeamName: z.string().nullable(),
+  awayTeamName: z.string().nullable(),
+  homeScore: z.number().int().nullable(),
+  awayScore: z.number().int().nullable(),
+  kickoffAt: z.string().nullable(),
+  status: z.string().nullable(),
+});
+
+export const PlayerProfileResponseSchema = z.object({
+  player: PlayerProfilePlayerSchema.nullable(),
+  teamName: z.string().nullable(),
+  seasonStats: PlayerProfileSeasonStatsSchema.nullable(),
+  qualifyingMinutes: z.number().int(),
+  metrics: z.array(PlayerProfileMetricSchema),
+  matchHistory: z.array(PlayerProfileMatchSchema),
+  snapshotRevision: z.string(),
+});
+
 export const ProjectionRowSchema = z.object({
   teamId: z.number().int(),
   teamName: z.string(),
@@ -308,6 +441,41 @@ export const ClutchRowSchema = z.object({
 
 export const ClutchResponseSchema = z.object({
   rows: z.array(ClutchRowSchema),
+});
+
+/** Spelarstats / skytteliga — shared web↔iOS leaderboard (B-06). */
+export const StatsLeaderboardEntrySchema = z.object({
+  rank: z.number().int(),
+  playerId: z.number().int(),
+  teamId: z.number().int(),
+  playerName: z.string(),
+  teamName: z.string(),
+  teamSlug: z.string().nullable(),
+  slug: z.string().nullable(),
+  image: z.string().nullable(),
+  position: z.string().nullable(),
+  appearances: z.number().int(),
+  minutes: z.number().int(),
+  goals: z.number().int(),
+  assists: z.number().int(),
+  shots: z.number().int(),
+  shotsOnTarget: z.number().int(),
+  keyPasses: z.number().int(),
+  passes: z.number().int(),
+  passAccuracy: z.number().nullable(),
+  tackles: z.number().int(),
+  interceptions: z.number().int(),
+  rating: z.number().nullable(),
+  yellowCards: z.number().int(),
+  redCards: z.number().int(),
+  xg: z.number().nullable(),
+  xa: z.number().nullable(),
+});
+
+export const StatsLeaderboardResponseSchema = z.object({
+  metric: z.string(),
+  seasonId: z.number().int(),
+  entries: z.array(StatsLeaderboardEntrySchema),
 });
 
 export const H2HTeamRefSchema = z.object({
@@ -639,6 +807,14 @@ export const FeedConfigResponseSchema = z.object({
   content_types: z.array(z.string()).nullable().optional(),
 });
 
+/** GET /api/forum/summary — PRO-gated teaser/full summary. */
+export const ForumSummaryResponseSchema = z.object({
+  summary: z.string().nullable(),
+  teaser: z.string().nullable(),
+  unlocked: z.boolean(),
+  requiredPlan: z.enum(["free", "pro", "elite"]).nullable().optional(),
+});
+
 /** Strukturerad 403 — klienterna renderar paywall ur detta, aldrig ur copy. */
 export const PlanRequiredErrorSchema = z.object({
   error: z.string(),
@@ -668,9 +844,12 @@ export const API_CONTRACTS = [
   { method: "get", path: "/api/feed/hero", name: "HeroResponse", schema: HeroResponseSchema },
   { method: "get", path: "/api/standings", name: "StandingsResponse", schema: StandingsResponseSchema },
   { method: "get", path: "/api/match/{fixtureId}", name: "FixtureDetail", schema: FixtureDetailSchema },
+  { method: "get", path: "/api/match/{fixtureId}/timeline", name: "MatchTimelineResponse", schema: MatchTimelineResponseSchema },
+  { method: "get", path: "/api/player/{idOrSlug}", name: "PlayerProfileResponse", schema: PlayerProfileResponseSchema },
   { method: "get", path: "/api/stats/projection", name: "ProjectionResponse", schema: ProjectionResponseSchema },
   { method: "get", path: "/api/stats/schedule-form", name: "ScheduleFormResponse", schema: ScheduleFormResponseSchema },
   { method: "get", path: "/api/stats/clutch", name: "ClutchResponse", schema: ClutchResponseSchema },
+  { method: "get", path: "/api/stats/leaderboard", name: "StatsLeaderboardResponse", schema: StatsLeaderboardResponseSchema },
   { method: "get", path: "/api/stats/h2h", name: "H2HResponse", schema: H2HResponseSchema },
   { method: "get", path: "/api/stats/compare", name: "TeamCompareResponse", schema: TeamCompareResponseSchema },
   { method: "get", path: "/api/scout", name: "ScoutPoolResponse", schema: ScoutPoolResponseSchema },
@@ -687,6 +866,12 @@ export const API_CONTRACTS = [
   { method: "post", path: "/api/storekit/entitlements", name: "StoreEntitlementSyncResponse", schema: StoreEntitlementSyncResponseSchema },
   { method: "post", path: "/api/push/apns-subscribe", name: "APNSSubscriptionResponse", schema: APNSSubscriptionResponseSchema },
   { method: "get", path: "/api/feed/config", name: "FeedConfigResponse", schema: FeedConfigResponseSchema },
+  {
+    method: "get",
+    path: "/api/forum/summary",
+    name: "ForumSummaryResponse",
+    schema: ForumSummaryResponseSchema,
+  },
 ] as const;
 
 /**
@@ -718,9 +903,19 @@ export const SWIFT_MODEL_CONTRACTS = [
   { swiftStruct: "StandingsResponse", schema: StandingsResponseSchema },
   { swiftStruct: "StandingRow", schema: StandingRowSchema },
   { swiftStruct: "FixtureDetail", schema: FixtureDetailSchema },
+  { swiftStruct: "MatchEvent", schema: MatchEventSchema },
+  { swiftStruct: "MatchLineupRow", schema: MatchLineupRowSchema },
+  { swiftStruct: "MatchTimelineResponse", schema: MatchTimelineResponseSchema },
+  { swiftStruct: "PlayerProfileResponse", schema: PlayerProfileResponseSchema },
+  { swiftStruct: "PlayerProfilePlayer", schema: PlayerProfilePlayerSchema },
+  { swiftStruct: "PlayerProfileSeasonStats", schema: PlayerProfileSeasonStatsSchema },
+  { swiftStruct: "PlayerProfileMetric", schema: PlayerProfileMetricSchema },
+  { swiftStruct: "PlayerProfileMatch", schema: PlayerProfileMatchSchema },
   { swiftStruct: "ProjectionRow", schema: ProjectionRowSchema },
   { swiftStruct: "ScheduleFormRow", schema: ScheduleFormRowSchema },
   { swiftStruct: "ClutchRow", schema: ClutchRowSchema },
+  { swiftStruct: "StatsLeaderboardEntry", schema: StatsLeaderboardEntrySchema },
+  { swiftStruct: "StatsLeaderboardResponse", schema: StatsLeaderboardResponseSchema },
   { swiftStruct: "H2HResponse", schema: H2HResponseSchema },
   { swiftStruct: "H2HTeamRef", schema: H2HTeamRefSchema },
   { swiftStruct: "H2HSummary", schema: H2HSummarySchema },
@@ -762,4 +957,5 @@ export const SWIFT_MODEL_CONTRACTS = [
   { swiftStruct: "StoreEntitlementSyncResponse", schema: StoreEntitlementSyncResponseSchema },
   { swiftStruct: "APNSSubscriptionResponse", schema: APNSSubscriptionResponseSchema },
   { swiftStruct: "FeedConfigResponse", schema: FeedConfigResponseSchema },
+  { swiftStruct: "ForumSummaryResponse", schema: ForumSummaryResponseSchema },
 ] as const;

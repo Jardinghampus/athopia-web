@@ -124,6 +124,57 @@
                     },
                     "isElite": {
                       "type": "boolean"
+                    },
+                    "modules": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "podcast",
+                              "discussion",
+                              "standings_snapshot"
+                            ]
+                          },
+                          "schemaVersion": {
+                            "type": "number",
+                            "const": 1
+                          },
+                          "tracking": {
+                            "type": "object",
+                            "properties": {
+                              "reason": {
+                                "type": "string"
+                              },
+                              "position": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "reason",
+                              "position"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "payload": {
+                            "type": "object",
+                            "additionalProperties": {}
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "type",
+                          "schemaVersion",
+                          "tracking",
+                          "payload"
+                        ],
+                        "additionalProperties": false
+                      }
                     }
                   },
                   "required": [
@@ -1987,6 +2038,698 @@
         }
       }
     },
+    "/api/match/{fixtureId}/timeline": {
+      "get": {
+        "operationId": "MatchTimelineResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "fixtureId": {
+                      "type": "integer"
+                    },
+                    "snapshotRevision": {
+                      "type": "string"
+                    },
+                    "events": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "eventId": {
+                            "type": "integer"
+                          },
+                          "fixtureId": {
+                            "type": "integer"
+                          },
+                          "sequence": {
+                            "type": "integer"
+                          },
+                          "minute": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "extraMinute": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "teamId": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "playerId": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "relatedPlayerId": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "playerName": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "eventType": {
+                            "type": "string"
+                          },
+                          "result": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "revision": {
+                            "type": "integer"
+                          },
+                          "rescinded": {
+                            "type": "boolean"
+                          },
+                          "isCorrected": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "eventId",
+                          "fixtureId",
+                          "sequence",
+                          "minute",
+                          "extraMinute",
+                          "teamId",
+                          "playerId",
+                          "relatedPlayerId",
+                          "playerName",
+                          "eventType",
+                          "result",
+                          "revision",
+                          "rescinded",
+                          "isCorrected"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "lineups": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "playerId": {
+                            "type": "integer"
+                          },
+                          "teamId": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "starter": {
+                            "type": "boolean"
+                          },
+                          "jersey": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "position": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "playerName": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "image": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "slug": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "playerId",
+                          "teamId",
+                          "starter",
+                          "jersey",
+                          "position",
+                          "playerName",
+                          "image",
+                          "slug"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "fixtureId",
+                    "snapshotRevision",
+                    "events",
+                    "lineups"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/player/{idOrSlug}": {
+      "get": {
+        "operationId": "PlayerProfileResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "player": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "sportmonksId": {
+                              "type": "integer"
+                            },
+                            "fullname": {
+                              "type": "string"
+                            },
+                            "slug": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "image": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "position": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "birthdate": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "height": {
+                              "anyOf": [
+                                {
+                                  "type": "integer"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "weight": {
+                              "anyOf": [
+                                {
+                                  "type": "integer"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "sportmonksId",
+                            "fullname",
+                            "slug",
+                            "image",
+                            "position",
+                            "birthdate",
+                            "height",
+                            "weight"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "teamName": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "seasonStats": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "seasonId": {
+                              "type": "integer"
+                            },
+                            "playerId": {
+                              "type": "integer"
+                            },
+                            "teamId": {
+                              "type": "integer"
+                            },
+                            "appearances": {
+                              "type": "integer"
+                            },
+                            "minutes": {
+                              "type": "integer"
+                            },
+                            "goals": {
+                              "type": "integer"
+                            },
+                            "assists": {
+                              "type": "integer"
+                            },
+                            "shots": {
+                              "type": "integer"
+                            },
+                            "shotsOnTarget": {
+                              "type": "integer"
+                            },
+                            "keyPasses": {
+                              "type": "integer"
+                            },
+                            "passes": {
+                              "type": "integer"
+                            },
+                            "passAccuracy": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "tackles": {
+                              "type": "integer"
+                            },
+                            "interceptions": {
+                              "type": "integer"
+                            },
+                            "rating": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "yellowCards": {
+                              "type": "integer"
+                            },
+                            "redCards": {
+                              "type": "integer"
+                            },
+                            "clearances": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "dribbles": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "fouls": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "xg": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "xa": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "xgPer90": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "xaPer90": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "seasonId",
+                            "playerId",
+                            "teamId",
+                            "appearances",
+                            "minutes",
+                            "goals",
+                            "assists",
+                            "shots",
+                            "shotsOnTarget",
+                            "keyPasses",
+                            "passes",
+                            "passAccuracy",
+                            "tackles",
+                            "interceptions",
+                            "rating",
+                            "yellowCards",
+                            "redCards",
+                            "clearances",
+                            "dribbles",
+                            "fouls",
+                            "xg",
+                            "xa",
+                            "xgPer90",
+                            "xaPer90"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "qualifyingMinutes": {
+                      "type": "integer"
+                    },
+                    "metrics": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "number"
+                          },
+                          "average": {
+                            "type": "number"
+                          },
+                          "percentile": {
+                            "type": "number"
+                          },
+                          "decimals": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "label",
+                          "value",
+                          "average",
+                          "percentile",
+                          "decimals"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "matchHistory": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "fixtureId": {
+                            "type": "integer"
+                          },
+                          "sportsmonksPlayerId": {
+                            "type": "integer"
+                          },
+                          "minutesPlayed": {
+                            "type": "integer"
+                          },
+                          "goals": {
+                            "type": "integer"
+                          },
+                          "assists": {
+                            "type": "integer"
+                          },
+                          "yellowCards": {
+                            "type": "integer"
+                          },
+                          "redCards": {
+                            "type": "integer"
+                          },
+                          "rating": {
+                            "type": [
+                              "number",
+                              "null"
+                            ]
+                          },
+                          "xg": {
+                            "type": [
+                              "number",
+                              "null"
+                            ]
+                          },
+                          "xa": {
+                            "type": [
+                              "number",
+                              "null"
+                            ]
+                          },
+                          "homeTeamName": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "awayTeamName": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "homeScore": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "awayScore": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "kickoffAt": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "status": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "fixtureId",
+                          "sportsmonksPlayerId",
+                          "minutesPlayed",
+                          "goals",
+                          "assists",
+                          "yellowCards",
+                          "redCards",
+                          "rating",
+                          "xg",
+                          "xa",
+                          "homeTeamName",
+                          "awayTeamName",
+                          "homeScore",
+                          "awayScore",
+                          "kickoffAt",
+                          "status"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "snapshotRevision": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "player",
+                    "teamName",
+                    "seasonStats",
+                    "qualifyingMinutes",
+                    "metrics",
+                    "matchHistory",
+                    "snapshotRevision"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/stats/projection": {
       "get": {
         "operationId": "ProjectionResponse",
@@ -2291,6 +3034,215 @@
                   },
                   "required": [
                     "rows"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stats/leaderboard": {
+      "get": {
+        "operationId": "StatsLeaderboardResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "metric": {
+                      "type": "string"
+                    },
+                    "seasonId": {
+                      "type": "integer"
+                    },
+                    "entries": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "rank": {
+                            "type": "integer"
+                          },
+                          "playerId": {
+                            "type": "integer"
+                          },
+                          "teamId": {
+                            "type": "integer"
+                          },
+                          "playerName": {
+                            "type": "string"
+                          },
+                          "teamName": {
+                            "type": "string"
+                          },
+                          "teamSlug": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "slug": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "image": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "position": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "appearances": {
+                            "type": "integer"
+                          },
+                          "minutes": {
+                            "type": "integer"
+                          },
+                          "goals": {
+                            "type": "integer"
+                          },
+                          "assists": {
+                            "type": "integer"
+                          },
+                          "shots": {
+                            "type": "integer"
+                          },
+                          "shotsOnTarget": {
+                            "type": "integer"
+                          },
+                          "keyPasses": {
+                            "type": "integer"
+                          },
+                          "passes": {
+                            "type": "integer"
+                          },
+                          "passAccuracy": {
+                            "type": [
+                              "number",
+                              "null"
+                            ]
+                          },
+                          "tackles": {
+                            "type": "integer"
+                          },
+                          "interceptions": {
+                            "type": "integer"
+                          },
+                          "rating": {
+                            "type": [
+                              "number",
+                              "null"
+                            ]
+                          },
+                          "yellowCards": {
+                            "type": "integer"
+                          },
+                          "redCards": {
+                            "type": "integer"
+                          },
+                          "xg": {
+                            "type": [
+                              "number",
+                              "null"
+                            ]
+                          },
+                          "xa": {
+                            "type": [
+                              "number",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "rank",
+                          "playerId",
+                          "teamId",
+                          "playerName",
+                          "teamName",
+                          "teamSlug",
+                          "slug",
+                          "image",
+                          "position",
+                          "appearances",
+                          "minutes",
+                          "goals",
+                          "assists",
+                          "shots",
+                          "shotsOnTarget",
+                          "keyPasses",
+                          "passes",
+                          "passAccuracy",
+                          "tackles",
+                          "interceptions",
+                          "rating",
+                          "yellowCards",
+                          "redCards",
+                          "xg",
+                          "xa"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "metric",
+                    "seasonId",
+                    "entries"
                   ],
                   "additionalProperties": false,
                   "$schema": "http://json-schema.org/draft-07/schema#"
@@ -4452,6 +5404,104 @@
                       ]
                     }
                   },
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/forum/summary": {
+      "get": {
+        "operationId": "ForumSummaryResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "summary": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "teaser": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "unlocked": {
+                      "type": "boolean"
+                    },
+                    "requiredPlan": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "free",
+                            "pro",
+                            "elite"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "summary",
+                    "teaser",
+                    "unlocked"
+                  ],
                   "additionalProperties": false,
                   "$schema": "http://json-schema.org/draft-07/schema#"
                 }

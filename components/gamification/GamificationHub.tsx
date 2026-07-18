@@ -13,7 +13,7 @@ import { OnboardingLeaguePicker } from './OnboardingLeaguePicker'
 
 export function GamificationHub() {
   const { user } = useUser()
-  const { iq, currentRoundRing, streak, recentCards, league, badges, isLoading } = useGamification()
+  const { iq, currentRoundRing, streak, recentCards, league, badges, isLoading, loadError } = useGamification()
   const [showPicker, setShowPicker] = useState(false)
 
   if (isLoading) {
@@ -22,6 +22,14 @@ export function GamificationHub() {
         {[1, 2, 3].map(i => (
           <div key={i} className="h-24 rounded-xl bg-white/5" />
         ))}
+      </div>
+    )
+  }
+
+  if (loadError) {
+    return (
+      <div className="rounded-xl border border-white/10 bg-white/5 p-6 text-center space-y-2">
+        <p className="text-white/70 text-sm">{loadError}</p>
       </div>
     )
   }

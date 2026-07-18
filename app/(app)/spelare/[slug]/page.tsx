@@ -3,59 +3,22 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import { buildPlayerProfile } from "@/lib/player/profile";
 import { ListGroup } from "@/components/ui/ListGroup";
 import { ListRow } from "@/components/ui/ListRow";
 import { StatNumber } from "@/components/ui/StatNumber";
-import { PlayerProfileAnalytics, type ProfileMetric } from "./PlayerProfileAnalytics";
+import { PlayerProfileAnalytics } from "./PlayerProfileAnalytics";
 import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
 
 export const revalidate = 60;
 
 const SEASON_2026 = 26806;
 const SPORT = "football";
-const QUALIFYING_MINUTES = 300;
 
 const POS_SV: Record<string, string> = {
   goalkeeper: "Målvakt", defender: "Försvarare",
   midfielder: "Mittfältare", attacker: "Forward",
 };
-
-async function getPlayerBySlug(slug: string) {
-  if (!isSupabaseConfigured()) return null;
-  const db = createServerClient();
-  if (/^\d+$/.test(slug)) {
-    const { data } = await db.from("players").select("*").eq("sportmonks_id", parseInt(slug, 10)).maybeSingle();
-    return data as Record<string, unknown> | null;
-  }
-  const { data } = await db.from("players").select("*").eq("slug", slug).maybeSingle();
-  return data as Record<string, unknown> | null;
-}
-
-async function getSeasonStats(playerId: number) {
-  if (!isSupabaseConfigured()) return null;
-  const db = createServerClient();
-  const { data } = await db.from("player_season_stats").select("*").eq("player_id", playerId).eq("season_id", SEASON_2026).maybeSingle();
-  return data as Record<string, unknown> | null;
-}
-
-async function getMatchHistory(playerId: number) {
-  if (!isSupabaseConfigured()) return [];
-  const db = createServerClient();
-  const { data } = await db
-    .from("player_match_stats")
-    .select("fixture_id,minutes_played,goals,assists,yellow_cards,red_cards,rating")
-    .eq("sportsmonks_player_id", playerId)
-    .order("created_at", { ascending: false })
-    .limit(10);
-  if (!data?.length) return [];
-  const fids = data.map(r => r.fixture_id as number);
-  const { data: fixes } = await db
-    .from("fixtures")
-    .select("sportmonks_id,home_team_name,away_team_name,home_score,away_score,kickoff_at")
-    .in("sportmonks_id", fids);
-  const fixMap = Object.fromEntries((fixes ?? []).map(f => [f.sportmonks_id, f]));
-  return data.map(r => ({ ...r, fixture: fixMap[r.fixture_id as number] ?? null })) as Record<string, unknown>[];
-}
 
 async function getAthopiaRatings(playerId: number) {
   if (!isSupabaseConfigured()) return null;
@@ -116,71 +79,14 @@ async function getPlayerTwins(playerId: number) {
   return data.map(r => ({ ...r, player: byId.get(r.twin_player_id as number) ?? null })) as Record<string, unknown>[];
 }
 
-type SeasonStat = Record<string, unknown>;
-
-function n(row: SeasonStat | null | undefined, key: string): number {
-  return Number(row?.[key] ?? 0) || 0;
-}
-
-function per90(row: SeasonStat, key: string): number {
-  const minutes = n(row, "minutes");
-  return minutes > 0 ? (n(row, key) / minutes) * 90 : 0;
-}
-
-function percentile(values: number[], value: number): number {
-  const clean = values.filter((v) => Number.isFinite(v)).sort((a, b) => a - b);
-  if (!clean.length) return 50;
-  const below = clean.filter((v) => v < value).length;
-  const equal = clean.filter((v) => v === value).length;
-  return Math.round(((below + equal / 2) / clean.length) * 100);
-}
-
-async function getProfileMetrics(playerStats: SeasonStat | null): Promise<ProfileMetric[]> {
-  if (!playerStats || !isSupabaseConfigured()) return [];
-  const db = createServerClient();
-  const { data } = await db
-    .from("player_season_stats")
-    .select("minutes,goals,assists,shots,shots_on_target,passes,tackles,interceptions,rating")
-    .eq("season_id", SEASON_2026)
-    .gte("minutes", QUALIFYING_MINUTES);
-
-  const pool = ((data ?? []) as SeasonStat[]).filter((row) => n(row, "minutes") >= QUALIFYING_MINUTES);
-  if (pool.length < 8) return [];
-
-  const metricDefs = [
-    { key: "goals90", label: "Mål/90", value: per90(playerStats, "goals"), values: pool.map((p) => per90(p, "goals")) },
-    { key: "assists90", label: "Assist/90", value: per90(playerStats, "assists"), values: pool.map((p) => per90(p, "assists")) },
-    { key: "shots90", label: "Skott/90", value: per90(playerStats, "shots"), values: pool.map((p) => per90(p, "shots")) },
-    { key: "sot90", label: "Skott på mål/90", value: per90(playerStats, "shots_on_target"), values: pool.map((p) => per90(p, "shots_on_target")) },
-    { key: "passes90", label: "Pass/90", value: per90(playerStats, "passes"), values: pool.map((p) => per90(p, "passes")) },
-    { key: "tackles90", label: "Tackl/90", value: per90(playerStats, "tackles"), values: pool.map((p) => per90(p, "tackles")) },
-    { key: "interceptions90", label: "Brytningar/90", value: per90(playerStats, "interceptions"), values: pool.map((p) => per90(p, "interceptions")) },
-    { key: "rating", label: "Betyg", value: n(playerStats, "rating"), values: pool.map((p) => n(p, "rating")), decimals: 2 },
-    ...(n(playerStats, "xg") > 0
-      ? [{ key: "xg90", label: "xG/90", value: per90(playerStats, "xg"), values: pool.filter(p => n(p, "xg") > 0).map((p) => per90(p, "xg")), decimals: 2 }]
-      : []),
-  ];
-
-  return metricDefs.map((metric) => {
-    const average = metric.values.reduce((sum, v) => sum + v, 0) / metric.values.length;
-    return {
-      key: metric.key,
-      label: metric.label,
-      value: metric.value,
-      average,
-      percentile: percentile(metric.values, metric.value),
-      decimals: metric.decimals ?? 2,
-    };
-  });
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const player = await getPlayerBySlug(slug);
-  if (!player) return { title: "Spelare | Athopia" };
+  if (!isSupabaseConfigured()) return { title: "Spelare | Athopia" };
+  const profile = await buildPlayerProfile(createServerClient(), slug);
+  if (!profile.player) return { title: "Spelare | Athopia" };
   return {
-    title: `${player.fullname} | Athopia`,
-    description: `Statistik för ${player.fullname} i Allsvenskan på Athopia.`,
+    title: `${profile.player.fullname} | Athopia`,
+    description: `Statistik för ${profile.player.fullname} i Allsvenskan på Athopia.`,
   };
 }
 
@@ -211,22 +117,26 @@ function RatingBar({ label, value, max = 10 }: { label: string; value: number; m
 
 export default async function SpelarePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const player = await getPlayerBySlug(slug);
-  if (!player) notFound();
+  if (!isSupabaseConfigured()) notFound();
+  const db = createServerClient();
+  const profile = await buildPlayerProfile(db, slug);
+  if (!profile.player) notFound();
 
-  const smId = player.sportmonks_id as number;
-  const [stats, matches, athopiaRatings, clutch, finishing, twins] = await Promise.all([
-    getSeasonStats(smId),
-    getMatchHistory(smId),
+  const player = profile.player;
+  const stats = profile.seasonStats;
+  const matches = profile.matchHistory;
+  const profileMetrics = profile.metrics;
+  const smId = player.sportmonksId;
+
+  const [athopiaRatings, clutch, finishing, twins] = await Promise.all([
     getAthopiaRatings(smId),
     getClutch(smId),
     getFinishingIndex(smId),
     getPlayerTwins(smId),
   ]);
-  const profileMetrics = await getProfileMetrics(stats);
 
   const age = player.birthdate
-    ? Math.floor((Date.now() - new Date(player.birthdate as string).getTime()) / 3.156e10)
+    ? Math.floor((Date.now() - new Date(player.birthdate).getTime()) / 3.156e10)
     : null;
 
   return (
@@ -234,28 +144,27 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
       <AppBreadcrumbs
         items={[
           { label: "Statistik", href: "/statistik" },
-          { label: String(player.fullname ?? "Spelare") },
+          { label: player.fullname },
         ]}
       />
-      {/* Header */}
       <div className="flex items-center gap-6">
         {!!player.image && (
           <div className="relative w-20 h-20 rounded-full overflow-hidden bg-card border border-border shrink-0">
-            <Image src={player.image as string} alt={player.fullname as string} fill className="object-cover" sizes="80px" />
+            <Image src={player.image} alt={player.fullname} fill className="object-cover" sizes="80px" />
           </div>
         )}
         <div>
-          <h1 className="font-bold text-5xl text-foreground leading-none mb-1">{player.fullname as string}</h1>
+          <h1 className="font-bold text-5xl text-foreground leading-none mb-1">{player.fullname}</h1>
           <p className="text-muted-foreground text-sm">
-            {POS_SV[player.position as string] ?? player.position ?? "–"}
+            {POS_SV[player.position ?? ""] ?? player.position ?? "–"}
             {age ? ` · ${age} år` : ""}
             {player.height ? ` · ${player.height} cm` : ""}
             {player.weight ? ` · ${player.weight} kg` : ""}
+            {profile.teamName ? ` · ${profile.teamName}` : ""}
           </p>
         </div>
       </div>
 
-      {/* Athopia AI-betyg */}
       {athopiaRatings && (
         <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
           <div className="flex items-baseline justify-between">
@@ -282,56 +191,59 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
         </div>
       )}
 
-      {/* Säsongstatistik 2026 */}
       {stats && (
         <div>
           <h2 className="font-semibold text-xl text-foreground mb-3">ALLSVENSKAN 2026</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
-            <StatBox label="Matcher"    value={(stats.appearances as number) ?? 0} />
-            <StatBox label="Mål"        value={(stats.goals as number) ?? 0} />
-            <StatBox label="Assist"     value={(stats.assists as number) ?? 0} />
-            <StatBox label="Speltid"    value={(stats.minutes as number) ?? 0} suffix="′" />
+            <StatBox label="Matcher"    value={stats.appearances} />
+            <StatBox label="Mål"        value={stats.goals} />
+            <StatBox label="Assist"     value={stats.assists} />
+            <StatBox label="Speltid"    value={stats.minutes} suffix="′" />
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <StatBox label="Skott"      value={(stats.shots as number) ?? 0} />
-            <StatBox label="Sk. på mål" value={(stats.shots_on_target as number) ?? 0} />
-            <StatBox label="Gula kort"  value={(stats.yellow_cards as number) ?? 0} />
-            <StatBox label="Röda kort"  value={(stats.red_cards as number) ?? 0} />
+            <StatBox label="Skott"      value={stats.shots} />
+            <StatBox label="Sk. på mål" value={stats.shotsOnTarget} />
+            <StatBox label="Gula kort"  value={stats.yellowCards} />
+            <StatBox label="Röda kort"  value={stats.redCards} />
           </div>
-          {(stats.xg as number) > 0 && (
+          {stats.xg != null && stats.xg > 0 && (
             <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <StatBox label="xG" value={stats.xg as number} suffix="" sub="Expected goals" />
-              <StatBox label="xG/90" value={stats.minutes as number > 0 ? Math.round(((stats.xg as number) / (stats.minutes as number)) * 90 * 100) / 100 : 0} sub="Per 90 min" />
+              <StatBox label="xG" value={stats.xg} suffix="" sub="Expected goals" />
+              <StatBox
+                label="xG/90"
+                value={stats.xgPer90 ?? (stats.minutes > 0 ? Math.round((stats.xg / stats.minutes) * 90 * 100) / 100 : 0)}
+                sub="Per 90 min"
+              />
             </div>
           )}
-          {(stats.passes as number > 0) && (
+          {stats.passes > 0 && (
             <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <StatBox label="Passningar"     value={(stats.passes as number) ?? 0} />
-              <StatBox label="Nyckelpass"     value={(stats.key_passes as number) ?? 0} />
-              <StatBox label="Tacklingar"     value={(stats.tackles as number) ?? 0} />
-              <StatBox label="Interceptions"  value={(stats.interceptions as number) ?? 0} />
-              <StatBox label="Dribblingar"    value={(stats.dribbles as number) ?? 0} />
-              <StatBox label="Rensningar"     value={(stats.clearances as number) ?? 0} />
-              <StatBox label="Frisparkar mot" value={(stats.fouls as number) ?? 0} />
-              {(stats.pass_accuracy as number) > 0 && (
-                <StatBox label="Passn.-%" value={Math.round(stats.pass_accuracy as number)} suffix="%" />
+              <StatBox label="Passningar"     value={stats.passes} />
+              <StatBox label="Nyckelpass"     value={stats.keyPasses} />
+              <StatBox label="Tacklingar"     value={stats.tackles} />
+              <StatBox label="Interceptions"  value={stats.interceptions} />
+              {stats.dribbles != null && stats.dribbles > 0 && (
+                <StatBox label="Dribblingar" value={stats.dribbles} />
+              )}
+              {stats.clearances != null && stats.clearances > 0 && (
+                <StatBox label="Rensningar" value={stats.clearances} />
+              )}
+              {stats.fouls != null && stats.fouls > 0 && (
+                <StatBox label="Frisparkar mot" value={stats.fouls} />
+              )}
+              {stats.passAccuracy != null && stats.passAccuracy > 0 && (
+                <StatBox label="Passn.-%" value={Math.round(stats.passAccuracy)} suffix="%" />
               )}
             </div>
           )}
-          {(stats.clean_sheets as number) > 0 && (
+          {stats.rating != null && stats.rating > 0 && (
             <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <StatBox label="Nollor" value={(stats.clean_sheets as number) ?? 0} />
-            </div>
-          )}
-          {(stats.rating as number) > 0 && (
-            <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <StatBox label="Snittbetyg" value={Math.round((stats.rating as number) * 100) / 100} sub="Sportsmonks" />
+              <StatBox label="Snittbetyg" value={Math.round(stats.rating * 100) / 100} sub="Sportsmonks" />
             </div>
           )}
         </div>
       )}
 
-      {/* xG Finishing Index */}
       {finishing && Number(finishing.goals ?? 0) > 0 && (
         <div className="bg-card border border-border rounded-2xl p-5">
           <h2 className="font-semibold text-sm text-foreground mb-4">MÅLSKYTTEINDEX</h2>
@@ -365,7 +277,6 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
         </div>
       )}
 
-      {/* Clutch index */}
       {clutch && Number(clutch.goals ?? 0) > 0 && (
         <div className="bg-card border border-border rounded-2xl p-5">
           <div className="flex items-baseline justify-between mb-4">
@@ -391,14 +302,13 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
 
       {stats && (
         <PlayerProfileAnalytics
-          playerName={player.fullname as string}
-          minutes={(stats.minutes as number) ?? 0}
-          qualifyingMinutes={QUALIFYING_MINUTES}
+          playerName={player.fullname}
+          minutes={stats.minutes}
+          qualifyingMinutes={profile.qualifyingMinutes}
           metrics={profileMetrics}
         />
       )}
 
-      {/* Liknande spelare */}
       {twins.length > 0 && (
         <div className="bg-card border border-border rounded-2xl overflow-hidden">
           <div className="px-5 py-4 border-b border-border">
@@ -430,35 +340,34 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
         </div>
       )}
 
-      {/* Match-för-match */}
       {matches.length > 0 && (
         <div>
           <h2 className="font-semibold text-xl text-foreground mb-3">MATCH FÖR MATCH</h2>
           <ListGroup footer="Senaste 10 matcherna. Tryck på en match för detaljer.">
-            {matches.map((m, i) => {
-              const fix = m.fixture as Record<string, unknown> | null;
-              const goals = (m.goals as number) ?? 0;
-              const assists = (m.assists as number) ?? 0;
-              const yellows = (m.yellow_cards as number) ?? 0;
-              const reds = (m.red_cards as number) ?? 0;
+            {matches.map((m) => {
+              const goals = m.goals;
+              const assists = m.assists;
               const parts = [
-                `${(m.minutes_played as number) ?? 0}′`,
-                yellows > 0 ? `${yellows} gult` : null,
-                reds > 0 ? `${reds} rött` : null,
+                `${m.minutesPlayed}′`,
+                m.yellowCards > 0 ? `${m.yellowCards} gult` : null,
+                m.redCards > 0 ? `${m.redCards} rött` : null,
               ].filter(Boolean);
               const contribution = [
                 goals > 0 ? `${goals} mål` : null,
                 assists > 0 ? `${assists} ast` : null,
               ].filter(Boolean).join(" · ");
+              const hasScore = m.homeScore != null && m.awayScore != null;
+              const title =
+                m.homeTeamName && m.awayTeamName
+                  ? hasScore
+                    ? `${m.homeTeamName} ${m.homeScore}–${m.awayScore} ${m.awayTeamName}`
+                    : `${m.homeTeamName} – ${m.awayTeamName}`
+                  : `Match #${m.fixtureId}`;
               return (
                 <ListRow
-                  key={i}
-                  href={fix ? `/match/${m.fixture_id}` : undefined}
-                  title={
-                    fix
-                      ? `${fix.home_team_name as string} ${fix.home_score as number}–${fix.away_score as number} ${fix.away_team_name as string}`
-                      : `Match #${m.fixture_id}`
-                  }
+                  key={m.fixtureId}
+                  href={`/match/${m.fixtureId}`}
+                  title={title}
                   subtitle={parts.join(" · ")}
                   trailing={
                     contribution
@@ -473,7 +382,7 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
       )}
 
       {!stats && matches.length === 0 && (
-        <p className="text-sm text-muted-foreground">Ingen statistik insamlad ännu för {player.fullname as string}.</p>
+        <p className="text-sm text-muted-foreground">Ingen statistik insamlad ännu för {player.fullname}.</p>
       )}
     </div>
   );

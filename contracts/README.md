@@ -23,17 +23,20 @@ Sources of truth remain `lib/nav.ts`, `lib/access-rules.ts`,
 Routes answer through `jsonContract()`, so a response that breaks its own schema
 throws in dev and is logged in production.
 
-Covered: feed, feed/hero, scores, articles/{slug}, team/list, team/{slug}/hub,
-standings, match/{fixtureId}, stats/{projection,schedule-form,clutch,h2h,compare},
-scout, daily, daily/audio, analyses, podcasts, search, forum/posts, profile.
+**Covered (jsonContract + decode gate):** feed (+ modules), feed/hero, feed/config,
+scores, articles/{slug}, team/list, team/{slug}/hub, team/{slug}/transfers,
+standings, match/{fixtureId}, match/{fixtureId}/timeline,
+stats/{projection,schedule-form,clutch,h2h,compare,leaderboard},
+player/{idOrSlug}, scout, daily, daily/audio, analyses, podcasts, search,
+forum/posts, forum/summary, profile, widget, storekit/entitlements,
+push/apns-subscribe.
 
-Still unguarded: StoreKit/APNs endpoints, feed-config, transfer radar, and the
-iOS screens that query Supabase directly (player/team stats) — those decode DB
-rows, not API responses, so they need a different contract.
+**iOS product reads:** leaderboard, match timeline, and player profile go through
+athopia.se APIs (no Supabase-direct StatsRepository queries for those surfaces).
 
-Note: several routes answer with raw DB rows (snake_case) and iOS decodes them
-with `.convertFromSnakeCase`. Those schemas describe the wire format in
-snake_case; the gate applies the same conversion when matching Swift properties.
+Note: several legacy routes may still answer with raw DB rows (snake_case) and
+iOS decodes them with `.convertFromSnakeCase`. Newer gated routes use camelCase
+wire format via Zod schemas; the decode gate matches Swift property names.
 
 Run:
 

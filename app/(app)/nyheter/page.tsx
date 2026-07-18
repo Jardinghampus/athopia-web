@@ -8,6 +8,7 @@ import { FixturesTicker } from "@/components/ui/FixturesTicker";
 import { TeamPushPopups } from "@/components/news/TeamPushPopups";
 import { AthleticFeedHero, AthleticFeedRow } from "@/components/news/AthleticFeed";
 import { FeedSortBar, type FeedSort } from "@/components/news/FeedSortBar";
+import { FeedModulesRail } from "@/components/feed/FeedModulesRail";
 import {
   getFilteredArticles,
   getDiscussionCounts,
@@ -178,6 +179,12 @@ export default async function NyheterPage({
       <Suspense fallback={null}>
         <FeedSortBar sort={sort} visa={visa} />
       </Suspense>
+
+      {page === 1 && !urlHasTeamFilter && !urlHasEventFilter ? (
+        <Suspense fallback={null}>
+          <FeedModulesRail />
+        </Suspense>
+      ) : null}
 
       {articles.length === 0 ? (
         <div className="py-16 text-center text-sm text-muted-foreground">

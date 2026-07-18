@@ -77,6 +77,8 @@ export interface GamificationState {
   recentCards: MatchCard[]
   badges: UserBadge[]
   isLoading: boolean
+  /** Set when /api/gamification/state fails (not the same as “no league yet”). */
+  loadError: string | null
 }
 
 export const IQ_POINTS = {

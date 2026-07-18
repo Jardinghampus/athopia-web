@@ -1,8 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { Sparkles, Zap, BellRing } from "lucide-react";
 import { motion } from "motion/react";
+import { ProductEventTracker } from "@/components/analytics/ProductEventTracker";
+import { TrackedLink } from "@/components/analytics/TrackedLink";
 import { FOUNDER_OFFER, TRIAL_DAYS, proPriceLabel, listMonthlyKr } from "@/lib/pricing";
 
 const PERKS = [
@@ -22,6 +23,12 @@ export function FeedPaywallBanner() {
       transition={{ duration: 0.38, ease: [0.23, 1, 0.32, 1] }}
       className="relative overflow-hidden rounded-2xl border border-pitch/30 bg-gradient-to-br from-pitch/12 via-pitch/6 to-transparent p-5"
     >
+      <ProductEventTracker
+        event="paywall_view"
+        props={{ feature: "unlimitedFeed", surface: "feed_banner" }}
+        once="paywall_view::feed_banner"
+        onceScope="session"
+      />
       <div
         aria-hidden
         className="pointer-events-none absolute -top-8 -right-8 w-40 h-40 rounded-full bg-pitch/20 blur-3xl"
@@ -57,18 +64,22 @@ export function FeedPaywallBanner() {
         </ul>
 
         <div className="flex gap-2">
-          <Link
+          <TrackedLink
             href="/prenumerera"
+            event="paywall_cta_click"
+            props={{ feature: "unlimitedFeed", surface: "feed_banner", cta: "primary" }}
             className="flex-1 h-10 rounded-xl pitch-gradient text-white text-sm font-semibold flex items-center justify-center transition-opacity hover:opacity-90 active:opacity-80 touch-manipulation"
           >
             {founder ? `Bli founder — ${price}` : `Prova ${TRIAL_DAYS} dagar — ${price}`}
-          </Link>
-          <Link
+          </TrackedLink>
+          <TrackedLink
             href="/prenumerera"
+            event="paywall_cta_click"
+            props={{ feature: "unlimitedFeed", surface: "feed_banner", cta: "plans" }}
             className="px-4 h-10 rounded-xl border border-border text-muted-foreground text-sm flex items-center justify-center hover:border-pitch/40 hover:text-foreground transition-colors touch-manipulation"
           >
             Se planer
-          </Link>
+          </TrackedLink>
         </div>
 
         <p className="text-[11px] text-muted-foreground/60 text-center mt-3">

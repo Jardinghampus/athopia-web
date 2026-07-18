@@ -1,6 +1,8 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { jsonContract } from "@/lib/api-contract";
+import { FeedConfigResponseSchema } from "@/lib/api-schemas";
 import { enforceRateLimit } from "@/lib/ratelimit";
 
 function getDb() {
@@ -25,7 +27,14 @@ export async function GET() {
     if (error && error.code !== "PGRST116") {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
-    return NextResponse.json(data ?? null);
+    if (!data) {
+      return NextResponse.json(null);
+    }
+    return jsonContract(FeedConfigResponseSchema, {
+      content_types: Array.isArray(data.content_types)
+        ? (data.content_types as string[])
+        : null,
+    });
   } catch {
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }

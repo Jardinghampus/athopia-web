@@ -2,9 +2,12 @@
 
 import { useUser } from '@clerk/nextjs'
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase'
 import type { GamificationState } from '@/lib/gamification/types'
 
+/**
+ * Loads gamification via authenticated API (service role on server).
+ * Does not open user tables to the browser anon key.
+ */
 export function useGamification(): GamificationState {
   const { user, isLoaded } = useUser()
   const [state, setState] = useState<GamificationState>({
@@ -15,105 +18,71 @@ export function useGamification(): GamificationState {
     recentCards: [],
     badges: [],
     isLoading: true,
+    loadError: null,
   })
 
   useEffect(() => {
     if (!isLoaded || !user) {
-      setState(prev => ({ ...prev, isLoading: false }))
+      setState(prev => ({ ...prev, isLoading: false, loadError: null }))
       return
     }
 
-    const supabase = createClient()
+    let cancelled = false
 
-    async function fetchAll() {
-      const [league, iq, streak, cards, badges] = await Promise.all([
-        supabase
-          .from('user_league_memberships')
-          .select('*, fan_leagues(*)')
-          .eq('clerk_user_id', user!.id)
-          .single(),
-        supabase
-          .from('user_football_iq')
-          .select('*')
-          .eq('clerk_user_id', user!.id)
-          .single(),
-        supabase
-          .from('user_season_streak')
-          .select('*')
-          .eq('clerk_user_id', user!.id)
-          .single(),
-        supabase
-          .from('match_cards')
-          .select('*')
-          .eq('clerk_user_id', user!.id)
-          .order('match_date', { ascending: false })
-          .limit(5),
-        supabase
-          .from('user_badges')
-          .select('*')
-          .eq('clerk_user_id', user!.id)
-          .order('earned_at', { ascending: false }),
-      ])
-
-      const { data: activeRound } = await (supabase as any)
-        .from('match_rounds')
-        .select('*')
-        .eq('is_active', true)
-        .single()
-
-      let currentRoundRing = null
-      if (activeRound) {
-        const { data: ring } = await (supabase as any)
-          .from('round_ring_progress')
-          .select('*')
-          .eq('clerk_user_id', user!.id)
-          .eq('round_id', activeRound.id)
-          .single()
-        currentRoundRing = ring
-          ? { ...(ring as any), round_number: activeRound.round_number }
-          : {
-              round_id: activeRound.id,
-              round_number: activeRound.round_number,
-              read_match_report: false,
-              read_statistics: false,
-              read_preview: false,
-              ring_completed: false,
-              completed_at: null,
-            }
+    async function load() {
+      try {
+        const res = await fetch('/api/gamification/state')
+        if (!res.ok) {
+          if (!cancelled) {
+            setState(prev => ({
+              ...prev,
+              isLoading: false,
+              loadError:
+                res.status === 401
+                  ? 'Logga in igen för att se din liga.'
+                  : 'Kunde inte ladda ligan just nu. Försök igen om en stund.',
+            }))
+          }
+          return
+        }
+        const data = (await res.json()) as {
+          league: GamificationState['league']
+          iq: GamificationState['iq']
+          currentRoundRing: GamificationState['currentRoundRing']
+          streak: GamificationState['streak']
+          recentCards: GamificationState['recentCards']
+          badges: GamificationState['badges']
+        }
+        if (!cancelled) {
+          setState({
+            league: data.league,
+            iq: data.iq,
+            currentRoundRing: data.currentRoundRing,
+            streak: data.streak,
+            recentCards: data.recentCards ?? [],
+            badges: data.badges ?? [],
+            isLoading: false,
+            loadError: null,
+          })
+        }
+      } catch {
+        if (!cancelled) {
+          setState(prev => ({
+            ...prev,
+            isLoading: false,
+            loadError: 'Kunde inte ladda ligan just nu. Försök igen om en stund.',
+          }))
+        }
       }
-
-      setState({
-        league: league.data as any,
-        iq: iq.data as any,
-        currentRoundRing,
-        streak: streak.data as any,
-        recentCards: cards.data ?? [],
-        badges: badges.data ?? [],
-        isLoading: false,
-      })
     }
 
-    fetchAll()
-
-    const channel = supabase
-      .channel('gamification')
-      .on('postgres_changes', {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'user_football_iq',
-        filter: `clerk_user_id=eq.${user.id}`,
-      }, (payload) => {
-        setState(prev => ({ ...prev, iq: payload.new as any }))
-      })
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'match_cards',
-        filter: `clerk_user_id=eq.${user.id}`,
-      }, () => fetchAll())
-      .subscribe()
-
-    return () => { supabase.removeChannel(channel) }
+    void load()
+    // Poll lightly instead of Realtime on user tables (keeps anon out of RLS surface).
+    const interval = window.setInterval(() => void load(), 60_000)
+    return () => {
+      cancelled = true
+      window.clearInterval(interval)
+    }
   }, [user, isLoaded])
 
   return state

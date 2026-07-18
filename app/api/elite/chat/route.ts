@@ -6,6 +6,7 @@ import { tools } from "@/lib/ai/tools";
 import { checkChatLimits, bumpChatUsage } from "@/lib/ai/chat-limits";
 import { canAccess, requiredPlanFor } from "@/lib/access-rules";
 import { parseBody, z } from "@/lib/validation";
+import { enforceRateLimit } from "@/lib/ratelimit";
 
 export const maxDuration = 30;
 
@@ -24,6 +25,9 @@ const ChatSchema = z.object({
 export async function POST(req: Request) {
   const { userId } = await auth();
   if (!userId) return new Response("Unauthorized", { status: 401 });
+
+  const blocked = await enforceRateLimit("ai", req, userId);
+  if (blocked) return blocked;
 
   // Server-side plan only — never trust client-sent plan (LAUNCH-04).
   const plan = await getUserPlan();
