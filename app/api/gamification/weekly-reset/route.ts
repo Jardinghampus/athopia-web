@@ -2,12 +2,13 @@ import { headers } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase'
 import { recalculateLeagueRanks } from '@/lib/gamification/leagues'
+import { secretsEqual } from '@/lib/secrets'
 
 export async function POST() {
   const headersList = await headers()
   const cronSecret = headersList.get('x-cron-secret')
 
-  if (!cronSecret || cronSecret !== process.env.CRON_SECRET) {
+  if (!secretsEqual(cronSecret, process.env.CRON_SECRET)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

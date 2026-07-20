@@ -11,7 +11,7 @@
     "test:links": "ts-node --project tsconfig.json scripts/link-audit.ts",
     "test:provenance": "npx --yes tsx --test lib/provenance.test.ts",
     "test:access": "tsx --test lib/access-rules.test.ts",
-    "test:parity": "tsx --test lib/access-rules.test.ts lib/deep-links.test.ts lib/swift-decode.test.ts lib/plan-sources.test.ts lib/product-contract.test.ts lib/match/events.test.ts lib/feed/rank-feed-modules.test.ts lib/feed/headline-stack.test.ts lib/feed/discussion-counts.test.ts",
+    "test:parity": "tsx --test lib/access-rules.test.ts lib/deep-links.test.ts lib/swift-decode.test.ts lib/plan-sources.test.ts lib/product-contract.test.ts lib/match/events.test.ts lib/feed/rank-feed-modules.test.ts lib/feed/headline-stack.test.ts lib/feed/discussion-counts.test.ts lib/secrets.test.ts",
     "contracts:generate": "tsx scripts/generate-parity-contracts.ts",
     "contracts:check": "tsx scripts/generate-parity-contracts.ts --check",
     "test:e2e": "playwright test",

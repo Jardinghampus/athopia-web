@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { chunk, embedChunks } from '@/lib/ai/embedding'
+import { secretsEqual } from '@/lib/secrets'
 
 function getDb() {
   return createClient(
@@ -10,7 +11,7 @@ function getDb() {
 }
 
 export async function POST(req: Request) {
-  if (req.headers.get('x-admin-secret') !== process.env.ADMIN_SECRET) {
+  if (!secretsEqual(req.headers.get('x-admin-secret'), process.env.ADMIN_SECRET)) {
     return new Response('Forbidden', { status: 403 })
   }
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import { secretsEqual } from "@/lib/secrets";
 
 // Minimal VAPID-avsändning utan web-push-paket (undviker Node.js-kompatibilitetsproblem på Vercel)
 async function sendPushNotification(
@@ -35,7 +36,7 @@ async function sendPushNotification(
 // Intern route — anropas av athopia-os via service-token
 export async function POST(req: NextRequest) {
   const serviceToken = req.headers.get("x-service-token");
-  if (serviceToken !== process.env.INTERNAL_SERVICE_TOKEN) {
+  if (!secretsEqual(serviceToken, process.env.INTERNAL_SERVICE_TOKEN)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
