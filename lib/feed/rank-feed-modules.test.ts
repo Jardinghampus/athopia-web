@@ -66,6 +66,31 @@ describe("rankFeedModules", () => {
     assert.equal(ranked[0]!.tracking.position, 2);
   });
 
+  it("ranks live_match above upcoming_matches", () => {
+    const ranked = rankFeedModules([
+      mod({
+        id: "up",
+        type: "upcoming_matches",
+        payload: {
+          matches: [
+            {
+              fixtureId: 2,
+              homeName: "A",
+              awayName: "B",
+              startingAt: new Date(Date.now() + 3_600_000).toISOString(),
+            },
+          ],
+        },
+      }),
+      mod({
+        id: "live",
+        type: "live_match",
+        payload: { fixtureId: 1, homeName: "A", awayName: "B" },
+      }),
+    ]);
+    assert.equal(ranked[0]!.id, "live");
+  });
+
   it("ranks architecture order: headline_stack above standings, short_post above podcast", () => {
     const ranked = rankFeedModules([
       mod({ id: "standings", type: "standings_snapshot" }),

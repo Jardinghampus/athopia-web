@@ -137,6 +137,7 @@
                             "type": "string",
                             "enum": [
                               "live_match",
+                              "upcoming_matches",
                               "headline_stack",
                               "short_post",
                               "podcast",

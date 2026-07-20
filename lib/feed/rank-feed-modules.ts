@@ -88,6 +88,28 @@ function scoreModule(mod: FeedModule): { score: number; factors: string[] } {
     factors.push("signal_stack=8");
   }
 
+  if (mod.type === "upcoming_matches") {
+    const matches = Array.isArray(mod.payload.matches)
+      ? (mod.payload.matches as Record<string, unknown>[])
+      : [];
+    const soonest = matches
+      .map((m) =>
+        typeof m.startingAt === "string" ? hoursSince(m.startingAt) : null,
+      )
+      .filter((h): h is number => h != null)
+      .sort((a, b) => a - b)[0];
+    if (soonest != null) {
+      let prox = 0;
+      // Cap so upcoming never outranks live_match (100).
+      if (soonest <= 6) prox = 15;
+      else if (soonest <= 24) prox = 12;
+      else if (soonest <= 72) prox = 8;
+      else if (soonest <= 168) prox = 3;
+      score += prox;
+      if (prox > 0) factors.push(`kickoff_proximity=${prox}`);
+    }
+  }
+
   if (mod.type === "discussion") {
     const createdAt =
       typeof mod.payload.createdAt === "string" ? mod.payload.createdAt : null;

@@ -4,6 +4,16 @@ import { ProductEventTracker } from "@/components/analytics/ProductEventTracker"
 import { TrackedLink } from "@/components/analytics/TrackedLink";
 import type { FeedModule } from "@/lib/feed/build-feed-modules";
 
+function formatKickoffShort(iso: string): string | null {
+  const t = Date.parse(iso);
+  if (!Number.isFinite(t)) return null;
+  return new Intl.DateTimeFormat("sv-SE", {
+    weekday: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(t));
+}
+
 function moduleProps(mod: FeedModule) {
   return {
     module_id: mod.id,
@@ -75,6 +85,59 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
                   {away}
                 </p>
               </TrackedLink>
+            </div>
+          );
+        }
+
+        if (mod.type === "upcoming_matches") {
+          const raw = Array.isArray(mod.payload.matches)
+            ? mod.payload.matches
+            : [];
+          const matches = raw.slice(0, 3) as Record<string, unknown>[];
+          if (matches.length === 0) return null;
+          return (
+            <div key={mod.id}>
+              {impression}
+              <div className="rounded-xl border border-border bg-card px-4 py-3">
+                <p className="text-[11px] font-bold tracking-wide text-pitch">
+                  KOMMANDE
+                </p>
+                <ul className="mt-2 divide-y divide-border">
+                  {matches.map((m) => {
+                    const fixtureId = m.fixtureId;
+                    const href =
+                      typeof fixtureId === "number" ||
+                      typeof fixtureId === "string"
+                        ? `/match/${fixtureId}`
+                        : "/match";
+                    const home = String(m.homeName ?? "?");
+                    const away = String(m.awayName ?? "?");
+                    const kickoff =
+                      typeof m.startingAt === "string"
+                        ? formatKickoffShort(m.startingAt)
+                        : null;
+                    return (
+                      <li key={String(fixtureId ?? `${home}-${away}`)}>
+                        <TrackedLink
+                          href={href}
+                          event="home_module_opened"
+                          props={props}
+                          className="flex items-center justify-between gap-2 py-2 hover:bg-muted/40 -mx-1 px-1 rounded-md transition-colors"
+                        >
+                          <p className="font-semibold text-foreground text-sm line-clamp-1">
+                            {home} – {away}
+                          </p>
+                          {kickoff ? (
+                            <p className="shrink-0 text-[11px] tabular-nums text-muted-foreground">
+                              {kickoff}
+                            </p>
+                          ) : null}
+                        </TrackedLink>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
             </div>
           );
         }

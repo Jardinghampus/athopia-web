@@ -10,7 +10,7 @@ import type { z } from "zod";
 import type { FeedModuleSchema } from "@/lib/api-schemas";
 import type { Plan } from "@/lib/access-rules";
 import { canAccess } from "@/lib/access-rules";
-import { fetchStandingsFull, fetchLiveScores, parseFixtureScore } from "@/lib/db/fixtures";
+import { fetchStandingsFull, fetchLiveScores, fetchUpcomingFixtures, parseFixtureScore } from "@/lib/db/fixtures";
 import { listenMetaFromRow } from "@/lib/podcast/spotify";
 import { rankFeedModules } from "@/lib/feed/rank-feed-modules";
 import { mapNewsFeedRow } from "@/lib/feed/map-feed-row";
@@ -37,9 +37,10 @@ export async function buildFeedModules(
   const plan = opts.plan ?? "free";
   const candidates: FeedModule[] = [];
 
-  const [liveFixtures, headlinesRes, shortPostRes, podcastRes, forumRes, standings, daily] =
+  const [liveFixtures, upcomingFixtures, headlinesRes, shortPostRes, podcastRes, forumRes, standings, daily] =
     await Promise.all([
       fetchLiveScores().catch(() => []),
+      fetchUpcomingFixtures(3, 7).catch(() => []),
       db
         .from("news_feed_clustered")
         .select(
@@ -104,6 +105,27 @@ export async function buildFeedModules(
         scoreHome: homeGoals,
         scoreAway: awayGoals,
         startingAt: live.starting_at,
+      },
+    });
+  } else if (upcomingFixtures.length > 0) {
+    // 1b. Upcoming strip when nothing is live (avoid double match density with LIVE)
+    candidates.push({
+      id: "mod_upcoming",
+      type: "upcoming_matches",
+      schemaVersion: 1,
+      tracking: { reason: "upcoming_window", position: 2 },
+      payload: {
+        matches: upcomingFixtures.slice(0, 3).map((fx) => {
+          const { home, away } = parseFixtureScore(fx);
+          return {
+            fixtureId: fx.id,
+            homeName: home?.name ?? "?",
+            awayName: away?.name ?? "?",
+            homeSlug: home?.slug ?? null,
+            awaySlug: away?.slug ?? null,
+            startingAt: fx.starting_at,
+          };
+        }),
       },
     });
   }
