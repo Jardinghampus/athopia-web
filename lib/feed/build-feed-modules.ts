@@ -1,49 +1,89 @@
 /**
  * Server-directed Home feed modules (B-05).
  * Client owns rendering; server owns type/order/content.
+ *
+ * Module priority (architecture): live_match → headline_stack → short_post →
+ * standings_snapshot → audio_briefing → discussion (+ podcast).
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { z } from "zod";
 import type { FeedModuleSchema } from "@/lib/api-schemas";
+import type { Plan } from "@/lib/access-rules";
+import { canAccess } from "@/lib/access-rules";
 import { fetchStandingsFull, fetchLiveScores, parseFixtureScore } from "@/lib/db/fixtures";
 import { listenMetaFromRow } from "@/lib/podcast/spotify";
 import { rankFeedModules } from "@/lib/feed/rank-feed-modules";
+import { mapNewsFeedRow } from "@/lib/feed/map-feed-row";
+import {
+  articlePublicPath,
+  canPublishBody,
+  resolveRightsStatus,
+} from "@/lib/provenance";
+import { getDailyEpisodeForShareCached } from "@/lib/team-hub/queries";
 
 export type FeedModule = z.infer<typeof FeedModuleSchema>;
 
 const SPORT = "football";
 
+export type BuildFeedModulesOptions = {
+  /** Effective plan for access flags (never include signed audio URLs). */
+  plan?: Plan;
+};
+
 export async function buildFeedModules(
   db: SupabaseClient,
+  opts: BuildFeedModulesOptions = {},
 ): Promise<FeedModule[]> {
+  const plan = opts.plan ?? "free";
   const candidates: FeedModule[] = [];
 
-  const [liveFixtures, podcastRes, forumRes, standings] = await Promise.all([
-    fetchLiveScores().catch(() => []),
-    db
-      .from("podcasts")
-      .select(
-        "id, title, show_name, published_at, metadata, audio_url, rss_sources!inner(sport)",
-      )
-      .eq("rss_sources.sport", SPORT)
-      .order("published_at", { ascending: false, nullsFirst: false })
-      .limit(1)
-      .maybeSingle(),
-    db
-      .from("forum_posts")
-      .select(
-        "id, content, author_name, team_slug, like_count, reply_count, created_at, hot_score, depth",
-      )
-      .eq("sport", SPORT)
-      .eq("status", "published")
-      .eq("depth", 0)
-      .order("hot_score", { ascending: false, nullsFirst: false })
-      .limit(1)
-      .maybeSingle(),
-    fetchStandingsFull().catch(() => []),
-  ]);
+  const [liveFixtures, headlinesRes, shortPostRes, podcastRes, forumRes, standings, daily] =
+    await Promise.all([
+      fetchLiveScores().catch(() => []),
+      db
+        .from("news_feed_clustered")
+        .select(
+          "id, title, source_name, url, published_at, summary, importance_score, feed_score, news_tag, source_count, story_cluster_id, push_priority, slug, rights_status, is_athopia_generated",
+        )
+        .eq("sport", SPORT)
+        .order("feed_score", { ascending: false, nullsFirst: false })
+        .limit(4),
+      db
+        .from("articles")
+        .select(
+          "id, slug, title, summary, published_at, news_tag, source_count, rights_status, is_athopia_generated",
+        )
+        .eq("sport", SPORT)
+        .eq("status", "published")
+        .eq("is_athopia_generated", true)
+        .order("published_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      db
+        .from("podcasts")
+        .select(
+          "id, title, show_name, published_at, metadata, audio_url, rss_sources!inner(sport)",
+        )
+        .eq("rss_sources.sport", SPORT)
+        .order("published_at", { ascending: false, nullsFirst: false })
+        .limit(1)
+        .maybeSingle(),
+      db
+        .from("forum_posts")
+        .select(
+          "id, content, author_name, team_slug, like_count, reply_count, created_at, hot_score, depth",
+        )
+        .eq("sport", SPORT)
+        .eq("status", "published")
+        .eq("depth", 0)
+        .order("hot_score", { ascending: false, nullsFirst: false })
+        .limit(1)
+        .maybeSingle(),
+      fetchStandingsFull().catch(() => []),
+      getDailyEpisodeForShareCached().catch(() => null),
+    ]);
 
-  // Prefer a single LIVE hero module (highest ranking weight).
+  // 1. LIVE hero
   const live = liveFixtures[0];
   if (live) {
     const { home, away, homeGoals, awayGoals, liveMinute } =
@@ -66,6 +106,71 @@ export async function buildFeedModules(
         startingAt: live.starting_at,
       },
     });
+  }
+
+  // 2. Headline stack — titles + links only (no third-party body)
+  if (headlinesRes.data && !headlinesRes.error && headlinesRes.data.length > 0) {
+    const headlines = headlinesRes.data.map((row) => {
+      const item = mapNewsFeedRow(
+        row as Parameters<typeof mapNewsFeedRow>[0],
+      );
+      return {
+        id: item.id,
+        title: item.title,
+        href: item.href,
+        source: item.source,
+        publishedAt: item.time,
+        importanceTier: item.importanceTier ?? null,
+        newsTag: item.newsTag ?? null,
+      };
+    });
+    candidates.push({
+      id: "mod_headlines_top",
+      type: "headline_stack",
+      schemaVersion: 1,
+      tracking: { reason: "top_headlines", position: 4 },
+      payload: { headlines },
+    });
+  }
+
+  // 3. Short Athopia-owned editorial (snippet only when body may be published)
+  if (shortPostRes.data && !shortPostRes.error) {
+    const a = shortPostRes.data as {
+      id: string;
+      slug: string | null;
+      title: string;
+      summary: string | null;
+      published_at: string | null;
+      news_tag: string | null;
+      source_count: number | null;
+      rights_status: string | null;
+      is_athopia_generated: boolean | null;
+    };
+    const rights = resolveRightsStatus(a);
+    if (canPublishBody(rights) && a.slug) {
+      const href = articlePublicPath({
+        slug: a.slug,
+        rights_status: a.rights_status,
+        is_athopia_generated: a.is_athopia_generated,
+      });
+      const snippet = (a.summary ?? "").trim().slice(0, 240);
+      candidates.push({
+        id: `mod_short_${a.id}`,
+        type: "short_post",
+        schemaVersion: 1,
+        tracking: { reason: "athopia_editorial", position: 8 },
+        payload: {
+          id: a.id,
+          slug: a.slug,
+          title: a.title,
+          snippet: snippet || null,
+          href,
+          publishedAt: a.published_at,
+          newsTag: a.news_tag,
+          sourceCount: a.source_count,
+        },
+      });
+    }
   }
 
   if (podcastRes.data && !podcastRes.error) {
@@ -145,6 +250,32 @@ export async function buildFeedModules(
           points: r.points,
           goalDifference: r.goals_for - r.goals_against,
         })),
+      },
+    });
+  }
+
+  // 5. Daily audio briefing — metadata + access only (never signed MP3 URL)
+  if (daily) {
+    const unlocked = canAccess("briefAudio", plan);
+    candidates.push({
+      id: `mod_daily_${daily.slug}`,
+      type: "audio_briefing",
+      schemaVersion: 1,
+      tracking: { reason: "daily_brief", position: 12 },
+      payload: {
+        slug: daily.slug,
+        title: daily.title,
+        episodeDate: daily.episode_date,
+        durationSec: daily.duration_sec,
+        episodeType: daily.episode_type,
+        hasAudio: daily.has_audio,
+        href: "/daily",
+        access: {
+          feature: "briefAudio",
+          unlocked,
+          requiredPlan: "pro",
+          upgradePath: "/prenumerera",
+        },
       },
     });
   }

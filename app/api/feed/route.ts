@@ -1,4 +1,4 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import { createClient } from "@supabase/supabase-js";
 import { jsonContract } from "@/lib/api-contract";
 import { FeedResponseSchema } from "@/lib/api-schemas";
@@ -7,6 +7,8 @@ import { interestsToNewsTags } from "@/lib/feed/content-preferences";
 import { mapNewsFeedRow } from "@/lib/feed/map-feed-row";
 import { buildFeedModules } from "@/lib/feed/build-feed-modules";
 import { resolveFeedUserId } from "@/lib/feed/feed-usage";
+import { getUserPlan } from "@/lib/user-plan";
+import type { Plan } from "@/lib/access-rules";
 
 const PAGE_SIZE = 20;
 function getDb() {
@@ -57,12 +59,12 @@ export async function GET(req: Request) {
     });
   }
 
+  let plan: Plan = "free";
   let isPro = false;
   let isElite = false;
   if (userId) {
     try {
-      const user = await currentUser();
-      const plan = (user?.publicMetadata?.plan as string | undefined) ?? "free";
+      plan = await getUserPlan();
       isPro = plan === "pro" || plan === "elite";
       isElite = plan === "elite";
     } catch (err) {
@@ -160,7 +162,7 @@ export async function GET(req: Request) {
   let modules: Awaited<ReturnType<typeof buildFeedModules>> = [];
   if (offset === 0 && !teamSlug && !typeFilter) {
     try {
-      modules = await buildFeedModules(db);
+      modules = await buildFeedModules(db, { plan });
     } catch (err) {
       console.warn("[feed] modules fel:", err);
     }

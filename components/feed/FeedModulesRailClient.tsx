@@ -79,6 +79,132 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
           );
         }
 
+        if (mod.type === "headline_stack") {
+          const raw = Array.isArray(mod.payload.headlines)
+            ? mod.payload.headlines
+            : [];
+          const headlines = raw.slice(0, 4) as Record<string, unknown>[];
+          if (headlines.length === 0) return null;
+          return (
+            <div key={mod.id}>
+              {impression}
+              <div className="rounded-xl border border-border bg-card px-4 py-3">
+                <p className="text-[11px] font-bold tracking-wide text-pitch">
+                  TOPPNYHETER
+                </p>
+                <ul className="mt-2 divide-y divide-border">
+                  {headlines.map((h) => {
+                    const href = String(h.href ?? "/nyheter");
+                    const title = String(h.title ?? "Nyhet");
+                    const source = h.source ? String(h.source) : null;
+                    return (
+                      <li key={String(h.id ?? title)}>
+                        <TrackedLink
+                          href={href}
+                          event="home_module_opened"
+                          props={props}
+                          className="block py-2 hover:bg-muted/40 -mx-1 px-1 rounded-md transition-colors"
+                        >
+                          <p className="font-semibold text-foreground line-clamp-2 text-sm">
+                            {title}
+                          </p>
+                          {source ? (
+                            <p className="mt-0.5 text-[11px] text-muted-foreground">
+                              {source}
+                            </p>
+                          ) : null}
+                        </TrackedLink>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            </div>
+          );
+        }
+
+        if (mod.type === "short_post") {
+          const title = String(mod.payload.title ?? "Athopia");
+          const snippet =
+            typeof mod.payload.snippet === "string"
+              ? mod.payload.snippet
+              : null;
+          const href = String(mod.payload.href ?? "/nyheter");
+          return (
+            <div key={mod.id}>
+              {impression}
+              <TrackedLink
+                href={href}
+                event="home_module_opened"
+                props={props}
+                className="block rounded-xl border border-pitch/30 bg-card px-4 py-3 hover:bg-muted/40 transition-colors"
+              >
+                <p className="text-[11px] font-bold tracking-wide text-pitch">
+                  ATHOPIA
+                </p>
+                <p className="mt-1 font-semibold text-foreground line-clamp-2">
+                  {title}
+                </p>
+                {snippet ? (
+                  <p className="mt-1 text-sm text-muted-foreground line-clamp-3">
+                    {snippet}
+                  </p>
+                ) : null}
+              </TrackedLink>
+            </div>
+          );
+        }
+
+        if (mod.type === "audio_briefing") {
+          const title = String(mod.payload.title ?? "Athopia Daily");
+          const href = String(mod.payload.href ?? "/daily");
+          const access = (mod.payload.access ?? {}) as Record<string, unknown>;
+          const unlocked = Boolean(access.unlocked);
+          const durationSec =
+            typeof mod.payload.durationSec === "number"
+              ? mod.payload.durationSec
+              : null;
+          const mins =
+            durationSec != null && durationSec > 0
+              ? Math.round(durationSec / 60)
+              : null;
+          return (
+            <div key={mod.id}>
+              {impression}
+              <TrackedLink
+                href={unlocked ? href : "/prenumerera"}
+                event="home_module_opened"
+                props={{
+                  ...props,
+                  unlocked: unlocked ? "1" : "0",
+                }}
+                className="block rounded-xl border border-border bg-card px-4 py-3 hover:bg-muted/40 transition-colors"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-[11px] font-bold tracking-wide text-pitch">
+                    DAILY
+                  </p>
+                  {!unlocked ? (
+                    <p className="text-[11px] font-semibold text-pitch">PRO</p>
+                  ) : mins != null ? (
+                    <p className="text-[11px] tabular-nums text-muted-foreground">
+                      ~{mins} min
+                    </p>
+                  ) : null}
+                </div>
+                <p className="mt-1 font-semibold text-foreground line-clamp-2">
+                  {title}
+                </p>
+                <p className="mt-0.5 text-sm text-muted-foreground">
+                  {unlocked
+                    ? "Lyssna på dagens brief"
+                    : "Dagens brief — ingår i PRO"}
+                </p>
+              </TrackedLink>
+            </div>
+          );
+        }
+
         if (mod.type === "podcast") {
           const title = String(mod.payload.title ?? "Podd");
           const show = String(mod.payload.showName ?? "Podcast");

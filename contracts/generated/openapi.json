@@ -137,9 +137,12 @@
                             "type": "string",
                             "enum": [
                               "live_match",
+                              "headline_stack",
+                              "short_post",
                               "podcast",
                               "discussion",
-                              "standings_snapshot"
+                              "standings_snapshot",
+                              "audio_briefing"
                             ]
                           },
                           "schemaVersion": {

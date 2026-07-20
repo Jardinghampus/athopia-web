@@ -13,14 +13,15 @@
 import type { FeedModule } from "@/lib/feed/build-feed-modules";
 
 const TYPE_BASE: Record<string, number> = {
-  // Live-adjacent / urgency first when we add live_match later
   live_match: 100,
   upcoming_matches: 80,
   discussion: 55,
-  podcast: 45,
-  standings_snapshot: 40,
+  audio_briefing: 52,
+  short_post: 50,
   featured_article: 50,
   headline_stack: 48,
+  podcast: 45,
+  standings_snapshot: 40,
 };
 
 const SLOT_PREFERENCE = [2, 4, 8, 12, 16];
@@ -60,7 +61,7 @@ function scoreModule(mod: FeedModule): { score: number; factors: string[] } {
   let score = TYPE_BASE[mod.type] ?? 20;
   factors.push(`type:${mod.type}=${TYPE_BASE[mod.type] ?? 20}`);
 
-  if (mod.type === "podcast") {
+  if (mod.type === "podcast" || mod.type === "short_post") {
     const publishedAt =
       typeof mod.payload.publishedAt === "string"
         ? mod.payload.publishedAt
@@ -69,6 +70,22 @@ function scoreModule(mod: FeedModule): { score: number; factors: string[] } {
     const f = freshnessBoost(h);
     score += f;
     if (f > 0) factors.push(`freshness=${f}`);
+  }
+
+  if (mod.type === "audio_briefing") {
+    const episodeDate =
+      typeof mod.payload.episodeDate === "string"
+        ? mod.payload.episodeDate
+        : null;
+    const h = hoursSince(episodeDate);
+    const f = freshnessBoost(h);
+    score += f;
+    if (f > 0) factors.push(`freshness=${f}`);
+  }
+
+  if (mod.type === "headline_stack") {
+    score += 8;
+    factors.push("signal_stack=8");
   }
 
   if (mod.type === "discussion") {

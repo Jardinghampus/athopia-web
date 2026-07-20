@@ -66,6 +66,34 @@ describe("rankFeedModules", () => {
     assert.equal(ranked[0]!.tracking.position, 2);
   });
 
+  it("ranks architecture order: headline_stack above standings, short_post above podcast", () => {
+    const ranked = rankFeedModules([
+      mod({ id: "standings", type: "standings_snapshot" }),
+      mod({ id: "headlines", type: "headline_stack" }),
+      mod({
+        id: "pod",
+        type: "podcast",
+        payload: { publishedAt: "2020-01-01T00:00:00Z" },
+      }),
+      mod({
+        id: "short",
+        type: "short_post",
+        payload: { publishedAt: new Date().toISOString() },
+      }),
+      mod({
+        id: "daily",
+        type: "audio_briefing",
+        payload: { episodeDate: new Date().toISOString() },
+      }),
+    ]);
+    assert.equal(ranked[0]!.id, "daily");
+    assert.ok(ranked.findIndex((m) => m.id === "short") < ranked.findIndex((m) => m.id === "pod"));
+    assert.ok(
+      ranked.findIndex((m) => m.id === "headlines") <
+        ranked.findIndex((m) => m.id === "standings"),
+    );
+  });
+
   it("dedupes by id and caps limit", () => {
     const ranked = rankFeedModules(
       [
