@@ -41,6 +41,7 @@ export type PlayerProfileSeasonStats = {
   clearances: number | null;
   dribbles: number | null;
   fouls: number | null;
+  cleanSheets: number | null;
   xg: number | null;
   xa: number | null;
   xgPer90: number | null;
@@ -281,7 +282,7 @@ export async function buildPlayerProfile(
       db
         .from("player_season_stats")
         .select(
-          "season_id,player_id,team_id,appearances,minutes,goals,assists,shots,shots_on_target,key_passes,passes,pass_accuracy,tackles,interceptions,rating,yellow_cards,red_cards,clearances,dribbles,fouls,xg,xa,xg_per_90,xa_per_90"
+          "season_id,player_id,team_id,appearances,minutes,goals,assists,shots,shots_on_target,key_passes,passes,pass_accuracy,tackles,interceptions,rating,yellow_cards,red_cards,clearances,dribbles,fouls,clean_sheets,xg,xa,xg_per_90,xa_per_90"
         )
         .eq("player_id", playerId)
         .eq("season_id", seasonId)
@@ -330,6 +331,7 @@ export async function buildPlayerProfile(
       clearances: nNull(seasonRow.clearances),
       dribbles: nNull(seasonRow.dribbles),
       fouls: nNull(seasonRow.fouls),
+      cleanSheets: nNull(seasonRow.clean_sheets),
       xg: nNull(seasonRow.xg),
       xa: nNull(seasonRow.xa),
       xgPer90: nNull(seasonRow.xg_per_90),

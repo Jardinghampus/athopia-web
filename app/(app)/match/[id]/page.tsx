@@ -60,6 +60,31 @@ async function getData(fixtureId: number) {
     }
   }
 
+  // Assisters / sub-ins often only appear as relatedPlayerId — resolve missing names.
+  const missingRelatedIds = [
+    ...new Set(
+      timeline.events
+        .map((e) => e.relatedPlayerId)
+        .filter((id): id is number => typeof id === "number" && id > 0 && !playerMap[id])
+    ),
+  ];
+  if (missingRelatedIds.length > 0) {
+    const { data: relatedPlayers } = await db
+      .from("players")
+      .select("sportmonks_id,fullname,image,position,slug")
+      .eq("sport", "football")
+      .in("sportmonks_id", missingRelatedIds);
+    for (const p of relatedPlayers ?? []) {
+      const id = Number(p.sportmonks_id);
+      playerMap[id] = {
+        fullname: String(p.fullname ?? `Spelare ${id}`),
+        image: (p.image as string | null) ?? null,
+        position: (p.position as string | null) ?? null,
+        slug: (p.slug as string | null) ?? null,
+      };
+    }
+  }
+
   const lupsWithPlayers = timeline.lineups.map((l) => ({
     player_id: l.playerId,
     team_id: l.teamId,

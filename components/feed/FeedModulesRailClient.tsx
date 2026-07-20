@@ -56,7 +56,11 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
         if (mod.type === "discussion") {
           const title = String(mod.payload.title ?? "Diskussion");
           const id = String(mod.payload.id ?? "");
-          const href = id ? `/forum?post=${id}` : "/forum";
+          const teamSlug = String(mod.payload.teamSlug ?? "");
+          const href =
+            id && teamSlug
+              ? `/forum/${encodeURIComponent(teamSlug)}/${encodeURIComponent(id)}`
+              : "/forum";
           return (
             <div key={mod.id}>
               {impression}

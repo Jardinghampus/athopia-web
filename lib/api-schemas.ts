@@ -349,6 +349,7 @@ export const PlayerProfileSeasonStatsSchema = z.object({
   clearances: z.number().nullable(),
   dribbles: z.number().nullable(),
   fouls: z.number().nullable(),
+  cleanSheets: z.number().nullable(),
   xg: z.number().nullable(),
   xa: z.number().nullable(),
   xgPer90: z.number().nullable(),

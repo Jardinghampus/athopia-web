@@ -2460,6 +2460,12 @@
                                 "null"
                               ]
                             },
+                            "cleanSheets": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
                             "xg": {
                               "type": [
                                 "number",
@@ -2506,6 +2512,7 @@
                             "clearances",
                             "dribbles",
                             "fouls",
+                            "cleanSheets",
                             "xg",
                             "xa",
                             "xgPer90",

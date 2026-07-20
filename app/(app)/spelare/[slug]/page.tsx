@@ -241,6 +241,11 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
               <StatBox label="Snittbetyg" value={Math.round(stats.rating * 100) / 100} sub="Sportsmonks" />
             </div>
           )}
+          {stats.cleanSheets != null && stats.cleanSheets > 0 && (
+            <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <StatBox label="Nollor" value={stats.cleanSheets} />
+            </div>
+          )}
         </div>
       )}
 
