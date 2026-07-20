@@ -10,6 +10,12 @@ function moduleProps(mod: FeedModule) {
     module_type: mod.type,
     reason: mod.tracking.reason,
     position: mod.tracking.position,
+    ...(typeof mod.tracking.score === "number"
+      ? { score: mod.tracking.score }
+      : {}),
+    ...(mod.tracking.factors?.length
+      ? { factors: mod.tracking.factors.join("|") }
+      : {}),
   };
 }
 

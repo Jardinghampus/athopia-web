@@ -7,6 +7,7 @@ import type { z } from "zod";
 import type { FeedModuleSchema } from "@/lib/api-schemas";
 import { fetchStandingsFull } from "@/lib/db/fixtures";
 import { listenMetaFromRow } from "@/lib/podcast/spotify";
+import { rankFeedModules } from "@/lib/feed/rank-feed-modules";
 
 export type FeedModule = z.infer<typeof FeedModuleSchema>;
 
@@ -15,7 +16,7 @@ const SPORT = "football";
 export async function buildFeedModules(
   db: SupabaseClient,
 ): Promise<FeedModule[]> {
-  const modules: FeedModule[] = [];
+  const candidates: FeedModule[] = [];
 
   const [podcastRes, forumRes, standings] = await Promise.all([
     db
@@ -56,7 +57,7 @@ export async function buildFeedModules(
       : listen.spotifyShowId
         ? `https://open.spotify.com/show/${listen.spotifyShowId}`
         : listen.listenUrl;
-    modules.push({
+    candidates.push({
       id: `mod_podcast_${p.id}`,
       type: "podcast",
       schemaVersion: 1,
@@ -85,7 +86,7 @@ export async function buildFeedModules(
     const snippet = t.content.trim();
     const title =
       snippet.split("\n")[0]?.slice(0, 120) || "Diskussion";
-    modules.push({
+    candidates.push({
       id: `mod_discussion_${t.id}`,
       type: "discussion",
       schemaVersion: 1,
@@ -104,7 +105,7 @@ export async function buildFeedModules(
   }
 
   if (standings.length > 0) {
-    modules.push({
+    candidates.push({
       id: "mod_standings_top",
       type: "standings_snapshot",
       schemaVersion: 1,
@@ -122,5 +123,6 @@ export async function buildFeedModules(
     });
   }
 
-  return modules;
+  // Ranking v1 — explainable order + slot positions (score/factors for analytics).
+  return rankFeedModules(candidates);
 }

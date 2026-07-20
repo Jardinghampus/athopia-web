@@ -44,6 +44,10 @@ export const FeedModuleSchema = z.object({
   tracking: z.object({
     reason: z.string(),
     position: z.number().int(),
+    /** Ranking v1 explainable score (optional for older clients). */
+    score: z.number().optional(),
+    /** Human-readable score factors, e.g. type:discussion=55. */
+    factors: z.array(z.string()).optional(),
   }),
   /** Opaque per-type payload; clients switch on `type`. */
   payload: z.record(z.string(), z.unknown()),

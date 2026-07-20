@@ -153,6 +153,15 @@
                               },
                               "position": {
                                 "type": "integer"
+                              },
+                              "score": {
+                                "type": "number"
+                              },
+                              "factors": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
                               }
                             },
                             "required": [
