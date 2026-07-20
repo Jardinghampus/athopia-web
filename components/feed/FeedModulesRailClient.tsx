@@ -39,6 +39,46 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
           />
         );
 
+        if (mod.type === "live_match") {
+          const home = String(mod.payload.homeName ?? "?");
+          const away = String(mod.payload.awayName ?? "?");
+          const sh = mod.payload.scoreHome;
+          const sa = mod.payload.scoreAway;
+          const minute = mod.payload.minute;
+          const fixtureId = mod.payload.fixtureId;
+          const score =
+            typeof sh === "number" && typeof sa === "number"
+              ? `${sh}–${sa}`
+              : "–";
+          const href =
+            typeof fixtureId === "number" || typeof fixtureId === "string"
+              ? `/match/${fixtureId}`
+              : "/match";
+          return (
+            <div key={mod.id}>
+              {impression}
+              <TrackedLink
+                href={href}
+                event="home_module_opened"
+                props={props}
+                className="block rounded-xl border border-pitch/40 bg-card px-4 py-3 hover:bg-muted/40 transition-colors"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-[11px] font-bold tracking-wide text-pitch">LIVE</p>
+                  {typeof minute === "number" ? (
+                    <p className="text-[11px] tabular-nums text-muted-foreground">{minute}′</p>
+                  ) : null}
+                </div>
+                <p className="mt-1 font-semibold text-foreground">
+                  {home}{" "}
+                  <span className="tabular-nums text-pitch">{score}</span>{" "}
+                  {away}
+                </p>
+              </TrackedLink>
+            </div>
+          );
+        }
+
         if (mod.type === "podcast") {
           const title = String(mod.payload.title ?? "Podd");
           const show = String(mod.payload.showName ?? "Podcast");

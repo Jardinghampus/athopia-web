@@ -5,7 +5,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { z } from "zod";
 import type { FeedModuleSchema } from "@/lib/api-schemas";
-import { fetchStandingsFull } from "@/lib/db/fixtures";
+import { fetchStandingsFull, fetchLiveScores, parseFixtureScore } from "@/lib/db/fixtures";
 import { listenMetaFromRow } from "@/lib/podcast/spotify";
 import { rankFeedModules } from "@/lib/feed/rank-feed-modules";
 
@@ -18,7 +18,8 @@ export async function buildFeedModules(
 ): Promise<FeedModule[]> {
   const candidates: FeedModule[] = [];
 
-  const [podcastRes, forumRes, standings] = await Promise.all([
+  const [liveFixtures, podcastRes, forumRes, standings] = await Promise.all([
+    fetchLiveScores().catch(() => []),
     db
       .from("podcasts")
       .select(
@@ -41,6 +42,31 @@ export async function buildFeedModules(
       .maybeSingle(),
     fetchStandingsFull().catch(() => []),
   ]);
+
+  // Prefer a single LIVE hero module (highest ranking weight).
+  const live = liveFixtures[0];
+  if (live) {
+    const { home, away, homeGoals, awayGoals, liveMinute } =
+      parseFixtureScore(live);
+    candidates.push({
+      id: `mod_live_${live.id}`,
+      type: "live_match",
+      schemaVersion: 1,
+      tracking: { reason: "live_match", position: 2 },
+      payload: {
+        fixtureId: live.id,
+        status: "LIVE",
+        minute: liveMinute,
+        homeName: home?.name ?? "?",
+        awayName: away?.name ?? "?",
+        homeSlug: home?.slug ?? null,
+        awaySlug: away?.slug ?? null,
+        scoreHome: homeGoals,
+        scoreAway: awayGoals,
+        startingAt: live.starting_at,
+      },
+    });
+  }
 
   if (podcastRes.data && !podcastRes.error) {
     const p = podcastRes.data as {

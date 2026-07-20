@@ -23,7 +23,7 @@ const TYPE_BASE: Record<string, number> = {
   headline_stack: 48,
 };
 
-const SLOT_PREFERENCE = [4, 8, 12, 16, 20];
+const SLOT_PREFERENCE = [2, 4, 8, 12, 16];
 
 function hoursSince(iso: string | null | undefined): number | null {
   if (!iso) return null;

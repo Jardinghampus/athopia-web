@@ -136,6 +136,7 @@
                           "type": {
                             "type": "string",
                             "enum": [
+                              "live_match",
                               "podcast",
                               "discussion",
                               "standings_snapshot"

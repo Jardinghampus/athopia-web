@@ -32,6 +32,7 @@ export const FeedItemSchema = z.object({
 });
 
 export const FeedModuleTypeSchema = z.enum([
+  "live_match",
   "podcast",
   "discussion",
   "standings_snapshot",
