@@ -91,6 +91,9 @@
                                 "type": "null"
                               }
                             ]
+                          },
+                          "discussionCount": {
+                            "type": "integer"
                           }
                         },
                         "required": [
@@ -1525,6 +1528,9 @@
                                   "type": "null"
                                 }
                               ]
+                            },
+                            "discussionCount": {
+                              "type": "integer"
                             }
                           },
                           "required": [
@@ -1610,6 +1616,9 @@
                                 "type": "null"
                               }
                             ]
+                          },
+                          "discussionCount": {
+                            "type": "integer"
                           }
                         },
                         "required": [

@@ -29,6 +29,8 @@ export const FeedItemSchema = z.object({
   sourceCount: z.number().int().nullable().optional(),
   storyClusterId: z.string().nullable().optional(),
   importanceTier: ImportanceTierSchema.nullable().optional(),
+  /** Forum posts linked via forum_posts.article_id — omit when 0. */
+  discussionCount: z.number().int().optional(),
 });
 
 export const FeedModuleTypeSchema = z.enum([

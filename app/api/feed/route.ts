@@ -9,6 +9,7 @@ import { buildFeedModules } from "@/lib/feed/build-feed-modules";
 import { resolveFeedUserId } from "@/lib/feed/feed-usage";
 import { getUserPlan } from "@/lib/user-plan";
 import type { Plan } from "@/lib/access-rules";
+import { withDiscussionCounts } from "@/lib/feed/discussion-counts";
 
 const PAGE_SIZE = 20;
 function getDb() {
@@ -170,6 +171,14 @@ export async function GET(req: Request) {
 
   if (!isPro && items.length > 0) {
     void incrementItemsSeen(db, feedUserId, items.length);
+  }
+
+  if (items.length > 0) {
+    try {
+      items = await withDiscussionCounts(items);
+    } catch (err) {
+      console.warn("[feed] discussion counts fel:", err);
+    }
   }
 
   const hasMore = items.length === effectiveLimit;

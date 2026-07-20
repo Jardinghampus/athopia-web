@@ -276,6 +276,8 @@ export interface FeedItem {
   sourceCount?: number | null;
   storyClusterId?: string | null;
   importanceTier?: "breaking" | "major" | "normal" | "noise" | null;
+  /** Antal forum-inlägg kopplade till artikeln (valfritt). */
+  discussionCount?: number;
 }
 
 /** Publik podd-signal — ingen transkripttext, ingen enclosure-URL. */

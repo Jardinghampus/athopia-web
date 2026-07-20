@@ -5,6 +5,7 @@ import type { FeedItem } from "@/lib/types";
 import { mapNewsFeedRow } from "@/lib/feed/map-feed-row";
 import { jsonContract } from "@/lib/api-contract";
 import { HeroResponseSchema } from "@/lib/api-schemas";
+import { withDiscussionCounts } from "@/lib/feed/discussion-counts";
 
 export const dynamic = "force-dynamic";
 
@@ -85,10 +86,33 @@ export async function GET(req: Request) {
     newsQ,
   ]);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let summary: FeedItem | null =
+    isPro && (sumData as any[])?.[0]
+      ? toItem((sumData as any[])[0], "summary")
+      : null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let topNews: FeedItem[] = ((newsData as any[]) ?? []).map((a) =>
+    toItem(a, "news"),
+  );
+
+  try {
+    const counted = await withDiscussionCounts([
+      ...(summary ? [summary] : []),
+      ...topNews,
+    ]);
+    if (summary) {
+      summary = counted[0] ?? summary;
+      topNews = counted.slice(1);
+    } else {
+      topNews = counted;
+    }
+  } catch {
+    /* counts are additive — never fail hero */
+  }
+
   return jsonContract(HeroResponseSchema, {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    summary: isPro && (sumData as any[])?.[0] ? toItem((sumData as any[])[0], "summary") : null,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    topNews: ((newsData as any[]) ?? []).map((a) => toItem(a, "news")),
+    summary,
+    topNews,
   });
 }
