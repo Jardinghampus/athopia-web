@@ -6,8 +6,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useUser, useSignIn } from "@clerk/nextjs";
 import { createClient } from "@supabase/supabase-js";
 import { AnimatePresence, motion } from "motion/react";
-import { Camera, Check, Loader2, Lock, Mail, ShieldCheck, KeyRound, ArrowRight, Sparkles, PenLine } from "lucide-react";
+import { Camera, Check, Loader2, Lock, Mail, KeyRound, ArrowRight, Sparkles } from "lucide-react";
 import { type PublicProfile } from "@/components/profile/ProfileCard";
+import { BrandBadge, AvatarWriterBadge } from "@/components/brand/BrandBadge";
 import { ListGroup } from "@/components/ui/ListGroup";
 import { ListRow } from "@/components/ui/ListRow";
 import { useFavoriteTeam } from "@/hooks/useFavoriteTeam";
@@ -278,7 +279,7 @@ export function ProfilePageClient({
         <ListGroup>
           <ListRow leading={<Mail />} title="E-post" trailing={<span className="text-foreground text-sm">{email ?? "–"}</span>} />
           <ListRow
-            leading={<ShieldCheck />}
+            leading={<BrandBadge kind="verified" size={18} className="mt-0.5" />}
             title="Verifierad"
             trailing={
               <span className={profile.verified ? "text-[#1D9BF0] text-sm" : "text-muted-foreground text-sm"}>
@@ -331,6 +332,7 @@ function ProfileCardEditable({ profile, onPickFile }: { profile: PublicProfile; 
   const FALLBACK_GRADIENT = "linear-gradient(135deg, #4DA3FF 0%, #0B2A6B 100%)";
   const name = profile.nickname ?? profile.display_name ?? "Anonym";
   const isColumnist = profile.role === "columnist" || profile.role === "admin";
+  const isAdmin = profile.role === "admin";
   function initials(n: string) { return n.split(" ").filter(Boolean).map((w) => w[0]?.toUpperCase() ?? "").join("").slice(0, 2); }
   function teamGradient(angle: number): string | null {
     if (!profile.favourite_team_id) return null;
@@ -365,22 +367,16 @@ function ProfileCardEditable({ profile, onPickFile }: { profile: PublicProfile; 
               </span>
             </button>
           </div>
-          {isColumnist && (
-            <span
-              className="absolute -top-0.5 -right-0.5 flex size-7 items-center justify-center rounded-full bg-pitch ring-[3px] ring-card"
-              aria-label="Krönikör hos Athopia"
-              title="Krönikör hos Athopia"
-            >
-              <PenLine className="size-3.5 text-white" strokeWidth={2.5} />
-            </span>
-          )}
+          {isColumnist && <AvatarWriterBadge className="ring-card" />}
         </div>
 
         <div className="mt-4 flex items-center gap-1.5">
           <h2 className="text-xl font-semibold text-foreground">{name}</h2>
+          {profile.verified && <BrandBadge kind="verified" size="md" />}
+          {isAdmin && <BrandBadge kind="star" size="md" />}
         </div>
         {isColumnist && (
-          <span className="mt-0.5 text-[11px] font-semibold uppercase tracking-wide text-pitch">Krönikör</span>
+          <span className="mt-0.5 text-[11px] font-semibold uppercase tracking-wide text-pitch">Journalist</span>
         )}
         <p className="mt-1 text-xs text-muted-foreground">
           Tryck på bilden för att byta
