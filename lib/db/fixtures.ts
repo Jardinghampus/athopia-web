@@ -219,6 +219,40 @@ export const fetchLiveScores = unstable_cache(
   { revalidate: 30, tags: ["fixtures", "live"] }
 );
 
+/** Kommande matcher (NS) inom horisont — feed-modul. ISR 60s. */
+export const fetchUpcomingFixtures = unstable_cache(
+  async (limit = 3, horizonDays = 7): Promise<SMFixture[]> => {
+    if (!isSupabaseConfigured()) return [];
+    try {
+      const db = createServerClient();
+      const now = new Date().toISOString();
+      const until = new Date(
+        Date.now() + Math.max(1, horizonDays) * 86_400_000,
+      ).toISOString();
+      const [{ data }, slugMap] = await Promise.all([
+        db
+          .from("fixtures")
+          .select(
+            "*, home_team:teams!fixtures_home_team_id_fkey(*), away_team:teams!fixtures_away_team_id_fkey(*), league:leagues(*)",
+          )
+          .eq("sport", "football")
+          .eq("status", "NS")
+          .gte("kickoff", now)
+          .lte("kickoff", until)
+          .order("kickoff", { ascending: true })
+          .limit(Math.min(10, Math.max(1, limit))),
+        getTeamSlugMap(),
+      ]);
+      return (data ?? []).map((row) => fixtureToSMFixture(row, slugMap));
+    } catch (e) {
+      Sentry.captureException(e);
+      return [];
+    }
+  },
+  ["upcoming-fixtures-feed"],
+  { revalidate: 60, tags: ["fixtures"] },
+);
+
 /** Allsvenskan-matcher för aktuell säsong. ISR 60s. */
 export const fetchAllsvenskanFixtures = unstable_cache(
   async (): Promise<SMFixture[]> => {

@@ -1,10 +1,15 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import { createClient } from "@supabase/supabase-js";
+import { jsonContract } from "@/lib/api-contract";
+import { FeedResponseSchema } from "@/lib/api-schemas";
 import type { FeedItem } from "@/lib/types";
 import { interestsToNewsTags } from "@/lib/feed/content-preferences";
 import { mapNewsFeedRow } from "@/lib/feed/map-feed-row";
+import { buildFeedModules } from "@/lib/feed/build-feed-modules";
 import { resolveFeedUserId } from "@/lib/feed/feed-usage";
+import { getUserPlan } from "@/lib/user-plan";
+import type { Plan } from "@/lib/access-rules";
+import { withDiscussionCounts } from "@/lib/feed/discussion-counts";
 
 const PAGE_SIZE = 20;
 function getDb() {
@@ -28,7 +33,6 @@ async function incrementItemsSeen(
     p_delta: count,
   });
   if (rpcErr) {
-    // Fallback: upsert manuellt om RPC saknas ännu
     await db!
       .from("user_feed_usage")
       .upsert(
@@ -42,21 +46,26 @@ export async function GET(req: Request) {
   const { userId } = await auth();
   const { searchParams } = new URL(req.url);
   const teamSlug = searchParams.get("team");
-  const typeFilter = searchParams.get("type"); // "transfer" | "injury" | "match" | null
+  const typeFilter = searchParams.get("type");
   const offset = Math.max(0, parseInt(searchParams.get("offset") ?? "0", 10));
 
   const db = getDb();
   if (!db) {
-    return NextResponse.json({ items: [], hasMore: false, gated: false });
+    return jsonContract(FeedResponseSchema, {
+      items: [],
+      hasMore: false,
+      gated: false,
+      remainingToday: null,
+      modules: [],
+    });
   }
 
-  // Plan-check via Clerk publicMetadata (sätts av Stripe-webhook)
+  let plan: Plan = "free";
   let isPro = false;
   let isElite = false;
   if (userId) {
     try {
-      const user = await currentUser();
-      const plan = (user?.publicMetadata?.plan as string | undefined) ?? "free";
+      plan = await getUserPlan();
       isPro = plan === "pro" || plan === "elite";
       isElite = plan === "elite";
     } catch (err) {
@@ -65,10 +74,6 @@ export async function GET(req: Request) {
   }
 
   const feedUserId = resolveFeedUserId(userId, req);
-
-  // Dagsgränsen borttagen 2026-07-10 (Allsvenskans hemmaplan): grundfeeden är
-  // gratis och obegränsad — vanan byggs gratis, paywallen ligger på det unika
-  // (brief, poddintelligens, signaler). items_seen räknas kvar för analys.
   const effectiveLimit = PAGE_SIZE;
 
   let filterTeamIds: string[] = [];
@@ -82,7 +87,6 @@ export async function GET(req: Request) {
     if (team?.id) filterTeamIds = [String(team.id)];
   }
 
-  // user_feed_config: lag (PRO) + intressen (alla inloggade)
   let contentTypeTags: string[] | null = null;
   if (userId) {
     const { data: feedConfig } = await db
@@ -94,7 +98,6 @@ export async function GET(req: Request) {
     if (isPro && !teamSlug) {
       filterTeamIds = feedConfig?.followed_team_ids ?? [];
     } else if (!teamSlug && (feedConfig?.followed_team_ids?.length ?? 0) > 0) {
-      // Free: basic filter per AGENTS.md — valt lag från onboarding
       filterTeamIds = feedConfig!.followed_team_ids!;
     }
 
@@ -108,7 +111,9 @@ export async function GET(req: Request) {
   try {
     let aq = db
       .from("news_feed_clustered")
-      .select("id, title, source_name, url, published_at, summary, importance_score, feed_score, entity_ids, news_tag, source_count, story_cluster_id, push_priority")
+      .select(
+        "id, title, source_name, url, published_at, summary, importance_score, feed_score, entity_ids, news_tag, source_count, story_cluster_id, push_priority, slug, rights_status, is_athopia_generated",
+      )
       .eq("sport", "football")
       .order(isPro ? "feed_score" : "published_at", { ascending: false, nullsFirst: false })
       .range(offset, offset + effectiveLimit - 1);
@@ -125,18 +130,66 @@ export async function GET(req: Request) {
       aq = aq.in("news_tag", contentTypeTags);
     }
 
-    const { data: articleData } = await aq;
-    items = (articleData ?? []).map((a) => mapNewsFeedRow(a));
+    const { data: articleData, error } = await aq;
+    if (error) {
+      console.warn("[feed] clustered select fallback:", error.message);
+      let fallback = db
+        .from("news_feed_clustered")
+        .select(
+          "id, title, source_name, url, published_at, summary, importance_score, feed_score, entity_ids, news_tag, source_count, story_cluster_id, push_priority",
+        )
+        .eq("sport", "football")
+        .order(isPro ? "feed_score" : "published_at", { ascending: false, nullsFirst: false })
+        .range(offset, offset + effectiveLimit - 1);
+      if (filterTeamIds.length === 1) {
+        fallback = fallback.contains("entity_ids", [filterTeamIds[0]]);
+      } else if (filterTeamIds.length > 1) {
+        fallback = fallback.overlaps("entity_ids", filterTeamIds);
+      }
+      if (typeFilter) {
+        fallback = fallback.eq("news_tag", typeFilter);
+      } else if (contentTypeTags?.length) {
+        fallback = fallback.in("news_tag", contentTypeTags);
+      }
+      const { data: fb } = await fallback;
+      items = (fb ?? []).map((a) => mapNewsFeedRow(a));
+    } else {
+      items = (articleData ?? []).map((a) => mapNewsFeedRow(a));
+    }
   } catch (err) {
     console.error("[feed] DB-fel:", err);
   }
 
-  // Öka daglig räknare för free (inloggad + anon)
+  let modules: Awaited<ReturnType<typeof buildFeedModules>> = [];
+  if (offset === 0 && !teamSlug && !typeFilter) {
+    try {
+      modules = await buildFeedModules(db, { plan });
+    } catch (err) {
+      console.warn("[feed] modules fel:", err);
+    }
+  }
+
   if (!isPro && items.length > 0) {
     void incrementItemsSeen(db, feedUserId, items.length);
   }
 
+  if (items.length > 0) {
+    try {
+      items = await withDiscussionCounts(items);
+    } catch (err) {
+      console.warn("[feed] discussion counts fel:", err);
+    }
+  }
+
   const hasMore = items.length === effectiveLimit;
 
-  return NextResponse.json({ items, hasMore, gated: false, remainingToday: null, isPro, isElite });
+  return jsonContract(FeedResponseSchema, {
+    items,
+    hasMore,
+    gated: false,
+    remainingToday: null,
+    isPro,
+    isElite,
+    modules,
+  });
 }

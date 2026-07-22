@@ -4,8 +4,9 @@ import { streamText, stepCountIs } from "ai";
 import { getUserPlan } from "@/lib/user-plan";
 import { tools } from "@/lib/ai/tools";
 import { checkChatLimits, bumpChatUsage } from "@/lib/ai/chat-limits";
-import { canAccess } from "@/lib/access-rules";
+import { canAccess, requiredPlanFor } from "@/lib/access-rules";
 import { parseBody, z } from "@/lib/validation";
+import { enforceRateLimit } from "@/lib/ratelimit";
 
 export const maxDuration = 30;
 
@@ -25,15 +26,19 @@ export async function POST(req: Request) {
   const { userId } = await auth();
   if (!userId) return new Response("Unauthorized", { status: 401 });
 
+  const blocked = await enforceRateLimit("ai", req, userId);
+  if (blocked) return blocked;
+
   // Server-side plan only — never trust client-sent plan (LAUNCH-04).
   const plan = await getUserPlan();
   if (!canAccess("globalAiChat", plan)) {
+    const requiredPlan = requiredPlanFor("globalAiChat");
     return Response.json(
       {
-        error: "Elite-prenumeration krävs för AI-chatten.",
+        error: `${requiredPlan === "elite" ? "Elite" : "PRO"}-prenumeration krävs för AI-chatten.`,
         code: "plan_required",
         feature: "globalAiChat",
-        requiredPlan: "elite",
+        requiredPlan,
         upgradePath: "/prenumerera",
       },
       { status: 403 },

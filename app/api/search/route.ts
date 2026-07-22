@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import { enforceRateLimit } from "@/lib/ratelimit";
+import { jsonContract } from "@/lib/api-contract";
+import { SearchResponseSchema } from "@/lib/api-schemas";
 
 export async function GET(req: Request) {
   // Sök är dyr + missbruksbar → rate-limit (per IP för anon, per user om inloggad)
@@ -47,7 +49,7 @@ export async function GET(req: Request) {
           .limit(6),
       ]);
 
-    return NextResponse.json({
+    return jsonContract(SearchResponseSchema, {
       articles: articles ?? [],
       teams: teams ?? [],
       players: (players ?? []).map((player) => ({

@@ -8,14 +8,25 @@ import { FixturesTicker } from "@/components/ui/FixturesTicker";
 import { TeamPushPopups } from "@/components/news/TeamPushPopups";
 import { AthleticFeedHero, AthleticFeedRow } from "@/components/news/AthleticFeed";
 import { FeedSortBar, type FeedSort } from "@/components/news/FeedSortBar";
+import { FeedModulesRail } from "@/components/feed/FeedModulesRail";
 import {
   getFilteredArticles,
   getDiscussionCounts,
+  createServerClient,
+  isSupabaseConfigured,
   type ArticleSort,
 } from "@/lib/supabase";
 import { filterStateToParams } from "@/lib/filters";
 import { getUserFeedPreferences } from "@/lib/feed/getUserFeedPreferences";
 import { absoluteUrl } from "@/lib/site-url";
+import { buildFeedModules } from "@/lib/feed/build-feed-modules";
+import {
+  extractHeadlineStackIds,
+  extractHeadlineStackTitles,
+  hasHeadlineStackModule,
+} from "@/lib/feed/headline-stack";
+import { getUserPlan } from "@/lib/user-plan";
+import type { FeedModule } from "@/lib/feed/build-feed-modules";
 
 export const dynamic = "force-dynamic";
 
@@ -122,6 +133,31 @@ export default async function NyheterPage({
 
   const commentCounts = await getDiscussionCounts(articles.map((a) => a.id));
 
+  const showModules = page === 1 && !urlHasTeamFilter && !urlHasEventFilter;
+  let modules: FeedModule[] = [];
+  if (showModules && isSupabaseConfigured()) {
+    try {
+      const plan = await getUserPlan();
+      modules = await buildFeedModules(createServerClient(), { plan });
+    } catch {
+      modules = [];
+    }
+  }
+  const suppressHero = showModules && hasHeadlineStackModule(modules);
+  const headlineIds = suppressHero ? extractHeadlineStackIds(modules) : new Set<string>();
+  const headlineTitles = suppressHero
+    ? extractHeadlineStackTitles(modules)
+    : new Set<string>();
+
+  const feedArticles =
+    headlineIds.size > 0 || headlineTitles.size > 0
+      ? articles.filter(
+          (a) =>
+            !headlineIds.has(a.id) &&
+            !headlineTitles.has(a.title.trim().toLowerCase()),
+        )
+      : articles;
+
   const filterParams = filterStateToParams({
     visa,
     teams: effectiveTeams,
@@ -131,15 +167,15 @@ export default async function NyheterPage({
   if (sort !== "for-you") filterParams.set("sort", sort);
   const urlBase = `/nyheter?${filterParams.toString()}`;
 
-  // Hero: första sidan — föredra bild + summary, annars första med bild, annars topprendrad
+  // Hero: first page only — skip when headline_stack already shows top stories
   let heroIndex = -1;
-  if (page === 1 && articles.length > 0) {
-    heroIndex = articles.findIndex((a) => !!a.imageUrl && !!a.summary);
-    if (heroIndex < 0) heroIndex = articles.findIndex((a) => !!a.imageUrl);
+  if (page === 1 && !suppressHero && feedArticles.length > 0) {
+    heroIndex = feedArticles.findIndex((a) => !!a.imageUrl && !!a.summary);
+    if (heroIndex < 0) heroIndex = feedArticles.findIndex((a) => !!a.imageUrl);
     if (heroIndex < 0) heroIndex = 0;
   }
-  const hero = heroIndex >= 0 ? articles[heroIndex] : null;
-  const list = hero ? articles.filter((_, i) => i !== heroIndex) : articles;
+  const hero = heroIndex >= 0 ? feedArticles[heroIndex] : null;
+  const list = hero ? feedArticles.filter((_, i) => i !== heroIndex) : feedArticles;
 
   return (
     <div className="mx-auto w-full max-w-2xl px-4 sm:px-6 py-6 pb-24 md:pb-10">
@@ -179,12 +215,22 @@ export default async function NyheterPage({
         <FeedSortBar sort={sort} visa={visa} />
       </Suspense>
 
-      {articles.length === 0 ? (
+      {showModules ? (
+        <Suspense fallback={null}>
+          <FeedModulesRail modules={modules} />
+        </Suspense>
+      ) : null}
+
+      {feedArticles.length === 0 && articles.length === 0 ? (
         <div className="py-16 text-center text-sm text-muted-foreground">
           <p>Inga artiklar matchade filtret.</p>
           <Link href="/nyheter" className="mt-2 inline-block text-pitch hover:underline">
             Visa allt
           </Link>
+        </div>
+      ) : feedArticles.length === 0 && !hero ? (
+        <div className="py-8 text-center text-sm text-muted-foreground">
+          <p>Toppnyheter visas ovan — mer i listan snart.</p>
         </div>
       ) : (
         <div>

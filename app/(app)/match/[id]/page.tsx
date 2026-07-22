@@ -14,6 +14,7 @@ import { BlurPaywall } from "@/components/BlurPaywall";
 import { fetchStandingsFull } from "@/lib/db/fixtures";
 import type { SMStandingRow } from "@/lib/db/fixtures";
 import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
+import { buildMatchTimeline } from "@/lib/match/events";
 
 export const revalidate = 60;
 
@@ -22,12 +23,11 @@ interface PageProps { params: Promise<{ id: string }> }
 async function getData(fixtureId: number) {
   if (!isSupabaseConfigured()) return null;
   const db = createServerClient();
-  const [{ data: fix }, { data: tms }, { data: evts }, { data: live }, { data: lups }, { data: cqAnalysis }, { data: pms }] = await Promise.all([
+  const [{ data: fix }, { data: tms }, timeline, { data: live }, { data: cqAnalysis }, { data: pms }] = await Promise.all([
     db.from("fixtures").select("*").eq("sportmonks_id", fixtureId).maybeSingle(),
     db.from("team_match_stats").select("*").eq("fixture_id", fixtureId),
-    db.from("fixture_events").select("*").eq("fixture_id", fixtureId).order("minute"),
-    db.from("live_scores").select("minute,events").eq("fixture_id", fixtureId).maybeSingle(),
-    db.from("fixture_lineups").select("*").eq("fixture_id", fixtureId).order("starter", { ascending: false }),
+    buildMatchTimeline(db, fixtureId),
+    db.from("live_scores").select("minute").eq("fixture_id", fixtureId).maybeSingle(),
     db.from("content_queue")
       .select("content,created_at")
       .eq("status", "approved")
@@ -38,27 +38,62 @@ async function getData(fixtureId: number) {
       .maybeSingle(),
     db.from("player_match_stats").select("player_id,goals,xg").eq("fixture_id", fixtureId),
   ]);
-  // Hämta spelarnamn separat för de player_ids som finns i lineups och händelser.
-  const playerIds = Array.from(new Set([
-    ...(lups ?? []).flatMap((l: Record<string, unknown>) => [l.player_id as number]),
-    ...(evts ?? []).flatMap((e: Record<string, unknown>) => [e.player_id as number, e.related_player_id as number]),
-  ].filter(Boolean)));
-  let playerMap: Record<number, { fullname: string; image: string | null; position: string | null; slug: string | null }> = {};
-  if (playerIds.length > 0) {
-    const { data: players } = await db.from("players").select("sportmonks_id,fullname,image,position,slug").in("sportmonks_id", playerIds);
-    for (const p of players ?? []) {
-      playerMap[(p as Record<string, unknown>).sportmonks_id as number] = {
-        fullname: (p as Record<string, unknown>).fullname as string,
-        image: (p as Record<string, unknown>).image as string | null,
-        position: (p as Record<string, unknown>).position as string | null,
-        slug: (p as Record<string, unknown>).slug as string | null,
+
+  // Lineups already enriched in timeline; build playerMap for ratings/events fallback names.
+  const playerMap: Record<number, { fullname: string; image: string | null; position: string | null; slug: string | null }> = {};
+  for (const l of timeline.lineups) {
+    playerMap[l.playerId] = {
+      fullname: l.playerName ?? `Spelare ${l.playerId}`,
+      image: l.image,
+      position: l.position,
+      slug: l.slug,
+    };
+  }
+  for (const e of timeline.events) {
+    if (e.playerId && e.playerName && !playerMap[e.playerId]) {
+      playerMap[e.playerId] = {
+        fullname: e.playerName,
+        image: null,
+        position: null,
+        slug: null,
       };
     }
   }
-  const lupsWithPlayers = (lups ?? []).map((l: Record<string, unknown>) => ({
-    ...l,
-    players: playerMap[l.player_id as number] ?? null,
+
+  // Assisters / sub-ins often only appear as relatedPlayerId — resolve missing names.
+  const missingRelatedIds = [
+    ...new Set(
+      timeline.events
+        .map((e) => e.relatedPlayerId)
+        .filter((id): id is number => typeof id === "number" && id > 0 && !playerMap[id])
+    ),
+  ];
+  if (missingRelatedIds.length > 0) {
+    const { data: relatedPlayers } = await db
+      .from("players")
+      .select("sportmonks_id,fullname,image,position,slug")
+      .eq("sport", "football")
+      .in("sportmonks_id", missingRelatedIds);
+    for (const p of relatedPlayers ?? []) {
+      const id = Number(p.sportmonks_id);
+      playerMap[id] = {
+        fullname: String(p.fullname ?? `Spelare ${id}`),
+        image: (p.image as string | null) ?? null,
+        position: (p.position as string | null) ?? null,
+        slug: (p.slug as string | null) ?? null,
+      };
+    }
+  }
+
+  const lupsWithPlayers = timeline.lineups.map((l) => ({
+    player_id: l.playerId,
+    team_id: l.teamId,
+    starter: l.starter,
+    jersey: l.jersey,
+    position: l.position,
+    players: playerMap[l.playerId] ?? null,
   }));
+
   const analysisContent = cqAnalysis?.content as Record<string, string> | null;
   const sum = analysisContent
     ? { summary: analysisContent.body ?? null, title: analysisContent.title ?? null }
@@ -93,7 +128,18 @@ async function getData(fixtureId: number) {
     };
   }
 
-  return { fix, tms: tms ?? [], evts: evts ?? [], live: live ?? null, lups: lupsWithPlayers, sum, playerMap, related, playerStatsMap, teamEntityIds };
+  return {
+    fix,
+    tms: tms ?? [],
+    timeline,
+    live: live ?? null,
+    lups: lupsWithPlayers,
+    sum,
+    playerMap,
+    related,
+    playerStatsMap,
+    teamEntityIds,
+  };
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -253,24 +299,7 @@ export default async function MatchPage({ params }: PageProps) {
   const homeStat = tms.find(t => String(t.team_id) === homeTeamId) ?? tms[0];
   const awayStat = tms.find(t => String(t.team_id) === awayTeamId) ?? tms[1];
 
-  let evts  = (d?.evts ?? []) as Record<string, unknown>[];
-  // Under live: fixture_events fylls först efter FT — använd live_scores.events.
-  // Sportmonks inplay-event: {type_id, minute, player_name, related_player_name, participant_id, result}
-  const liveRow = d?.live as { minute: number | null; events: unknown } | null;
-  if (evts.length === 0 && Array.isArray(liveRow?.events)) {
-    const LIVE_TYPE: Record<number, string> = { 14: "GOAL", 15: "OWN_GOAL", 16: "PENALTY", 17: "PENALTY_MISSED", 18: "SUBSTITUTION", 19: "YELLOWCARD", 20: "REDCARD", 21: "YELLOW_RED_CARD" };
-    evts = (liveRow!.events as Record<string, unknown>[])
-      .map((e) => ({
-        minute: e.minute ?? null,
-        event_type: LIVE_TYPE[Number(e.type_id)] ?? String(e.type_id ?? ""),
-        team_id: e.participant_id ?? null,
-        player_id: null,
-        related_player_id: null,
-        live_player_name: (e.player_name as string | null) ?? null,
-        result: e.result ?? null,
-      }))
-      .sort((a, b) => Number(a.minute ?? 0) - Number(b.minute ?? 0));
-  }
+  const timelineEvents = (d?.timeline?.events ?? []).filter((e) => !e.rescinded && !e.isCorrected);
   const lups  = (d?.lups ?? []) as Record<string, unknown>[];
   const starters  = lups.filter(l => l.starter);
   const byJersey = (a: Record<string, unknown>, b: Record<string, unknown>) => Number(a.jersey ?? 999) - Number(b.jersey ?? 999);
@@ -466,22 +495,26 @@ export default async function MatchPage({ params }: PageProps) {
             />
           )}
 
-          {/* Händelsetidslinje */}
-          {evts.length > 0 && (
-            <div className="bg-card border border-border rounded-xl p-4">
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Händelser</h3>
+          {/* Händelsetidslinje — rescinded/VAR-korrigerade döljs (B-08) */}
+          <div className="bg-card border border-border rounded-xl p-4">
+            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Händelser</h3>
+            {timelineEvents.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Inga matchhändelser synkade ännu.
+              </p>
+            ) : (
               <div className="space-y-2">
-                {evts.map((e, i) => {
-                  const isHome = String(e.team_id) === homeTeamId;
-                  const icon = EVENT_ICONS[e.event_type as string] ?? "•";
-                  const type = String(e.event_type ?? "");
-                  const player = (e.live_player_name as string | null) ?? eventPlayerName(playerMap, e.player_id);
-                  const related = eventPlayerName(playerMap, e.related_player_id);
+                {timelineEvents.map((e) => {
+                  const isHome = String(e.teamId) === homeTeamId;
+                  const icon = EVENT_ICONS[e.eventType] ?? "•";
+                  const type = e.eventType;
+                  const player = e.playerName ?? eventPlayerName(playerMap, e.playerId);
+                  const related = eventPlayerName(playerMap, e.relatedPlayerId);
                   const label = type === "SUBSTITUTION"
                     ? `${related ? `${related} in` : "Inbytt"}${player ? `, ${player} ut` : ""}`
                     : `${EVENT_LABELS[type] ?? type}${player ? ` · ${player}` : ""}${related && type === "GOAL" ? ` (${related})` : ""}`;
                   return (
-                    <div key={i} className={`flex items-center gap-2 text-sm ${isHome ? "flex-row" : "flex-row-reverse"}`}>
+                    <div key={e.eventId} className={`flex items-center gap-2 text-sm ${isHome ? "flex-row" : "flex-row-reverse"}`}>
                       <span className="text-xs text-muted-foreground w-8 text-center">{String(e.minute ?? "?")}′</span>
                       <span>{icon}</span>
                       <span className="text-foreground/80 flex-1 truncate">
@@ -491,8 +524,8 @@ export default async function MatchPage({ params }: PageProps) {
                   );
                 })}
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Lineups */}

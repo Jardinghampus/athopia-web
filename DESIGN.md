@@ -36,7 +36,7 @@ inte via tunga skuggor. Restraint > dekor.
 
 | Token | Värde | Bruk |
 |---|---|---|
-| `--color-pitch` | `#1D9E75` | Primär accent — *lugn*, ej betting-neon |
+| `--color-pitch` | `#2D5349` (mörk valör `#5FA98C`) | Primär accent, Racing Green — *lugn*, ej betting-neon. Källa: `docs/brand/tokens.json` |
 | `--color-pitch-dark` | `#158A63` | Hover/pressed |
 | `--color-pitch-light` | `#25C48F` | Aktiv/highlight |
 | `--color-pitch-muted` | `rgba(29,158,117,0.15)` | Bakgrundston |

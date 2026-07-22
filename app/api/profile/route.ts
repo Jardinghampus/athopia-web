@@ -5,6 +5,8 @@ import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import { enforceRateLimit } from "@/lib/ratelimit";
 import { sanitizeInline } from "@/lib/sanitize";
 import { parseBody, z } from "@/lib/validation";
+import { jsonContract } from "@/lib/api-contract";
+import { SessionProfileResponseSchema } from "@/lib/api-schemas";
 
 const DeleteAccountSchema = z.object({
   confirmation: z.literal("RADERA"),
@@ -33,7 +35,7 @@ export async function GET() {
         .maybeSingle()
     : { data: null };
 
-  return NextResponse.json({
+  return jsonContract(SessionProfileResponseSchema, {
     profile: data ?? null,
     favouriteTeamSlug: favouriteTeam?.slug ?? null,
     email: user?.emailAddresses?.[0]?.emailAddress ?? null,

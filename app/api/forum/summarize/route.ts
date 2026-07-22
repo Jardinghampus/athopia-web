@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient, isSupabaseConfigured } from "@/lib/supabase";
+import { secretsEqual } from "@/lib/secrets";
 
 // Called by n8n cron every hour: POST /api/forum/summarize?teamSlug=djurgardens-if&secret=X
 // Reads last 4 hours of posts → Claude Haiku → stores in agent_memory
@@ -21,7 +22,7 @@ Skriv direkt, ingen inledning. Var konkret och engagerande. Inga emojis. Avsluta
 export async function POST(req: NextRequest) {
   // Simple secret check — set FORUM_SUMMARIZE_SECRET in Vercel env
   const secret = req.nextUrl.searchParams.get("secret");
-  if (secret !== process.env.FORUM_SUMMARIZE_SECRET) {
+  if (!secretsEqual(secret, process.env.FORUM_SUMMARIZE_SECRET)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

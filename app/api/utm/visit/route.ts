@@ -6,10 +6,14 @@
  */
 import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
+import { enforceRateLimit } from "@/lib/ratelimit";
 
 const UTM_CAMPAIGN_RE = /^[a-z0-9_-]{3,64}$/;
 
 export async function POST(req: Request) {
+  const blocked = await enforceRateLimit("write", req);
+  if (blocked) return blocked;
+
   let body: { campaign?: unknown; path?: unknown };
   try {
     body = await req.json();

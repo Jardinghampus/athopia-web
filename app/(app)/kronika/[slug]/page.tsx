@@ -10,7 +10,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PenLine } from "lucide-react";
+import { BrandBadge } from "@/components/brand/BrandBadge";
 import { createServerClient } from "@/lib/supabase";
 
 export const revalidate = 300;
@@ -41,13 +41,14 @@ interface AuthorRow {
   display_name: string | null;
   avatar_url: string | null;
   bio: string | null;
+  verified: boolean;
 }
 
 async function getAuthor(clerkUserId: string): Promise<AuthorRow | null> {
   const db = createServerClient();
   const { data } = await db
     .from("profiles")
-    .select("nickname, display_name, avatar_url, bio")
+    .select("nickname, display_name, avatar_url, bio, verified")
     .eq("clerk_user_id", clerkUserId)
     .maybeSingle();
   return (data as AuthorRow | null) ?? null;
@@ -75,7 +76,7 @@ export default async function KronikaPage({ params }: { params: Promise<{ slug: 
   return (
     <article className="mx-auto max-w-2xl px-4 sm:px-6 py-12">
       <p className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-pitch">
-        <PenLine className="h-3.5 w-3.5" /> Krönika
+        <BrandBadge kind="writer" size={14} /> Krönika
       </p>
       <h1 className="text-3xl sm:text-4xl font-bold leading-tight text-foreground">{column.title}</h1>
 
@@ -88,7 +89,11 @@ export default async function KronikaPage({ params }: { params: Promise<{ slug: 
           )}
         </span>
         <div className="text-sm">
-          <span className="font-semibold text-foreground">{authorName}</span>
+          <span className="inline-flex items-center gap-1.5 font-semibold text-foreground">
+            {authorName}
+            <BrandBadge kind="writer" size={16} />
+            {author?.verified && <BrandBadge kind="verified" size={16} />}
+          </span>
           {column.published_at && (
             <span className="ml-2 text-muted-foreground">
               {new Date(column.published_at).toLocaleDateString("sv-SE", { day: "numeric", month: "long", year: "numeric" })}

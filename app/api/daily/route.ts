@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { canAccess, requiredPlanFor } from "@/lib/access-rules";
 import { getDailyEpisodeForShareCached } from "@/lib/team-hub/queries";
 import { getUserPlan } from "@/lib/user-plan";
+import { jsonContract } from "@/lib/api-contract";
+import { DailyResponseSchema } from "@/lib/api-schemas";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +15,7 @@ export async function GET(request: NextRequest) {
   ]);
   const unlocked = canAccess("briefAudio", plan);
 
-  return NextResponse.json({
+  return jsonContract(DailyResponseSchema, {
     episode,
     access: {
       feature: "briefAudio",

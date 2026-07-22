@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { canAccess } from "@/lib/access-rules";
 import { getTransferRadar } from "@/lib/team-hub/transfers";
 import { getUserPlan } from "@/lib/user-plan";
+import { jsonContract } from "@/lib/api-contract";
+import { TransferRadarResponseSchema } from "@/lib/api-schemas";
 
 export const revalidate = 300;
 
@@ -19,7 +21,7 @@ export async function GET(
   const unlocked = canAccess("transferSignals", plan);
   const confirmed = items.filter((item) => item.status === "bekraftad").length;
 
-  return NextResponse.json({
+  return jsonContract(TransferRadarResponseSchema, {
     items: unlocked
       ? items
       : items.map((item) => ({

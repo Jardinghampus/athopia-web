@@ -8,16 +8,17 @@
  *   in-memory-räknare är per-instans → en angripare som träffar olika instanser
  *   kringgår gränsen helt. Upstash är en delad räknare över alla instanser.
  *
- * Graceful degradation:
- *   Om UPSTASH_REDIS_REST_URL/TOKEN saknas (lokalt, preview utan env) blir
- *   rate limiting en no-op som ALLTID släpper igenom. Sajten kraschar aldrig
- *   pga saknad rate-limit-infra — men i produktion MÅSTE env sättas.
+ * Fail policy:
+ *   - `read`: fail-open om Upstash saknas/nere (UX först)
+ *   - `write` | `ai` | `search` | `checkout`: fail-closed i Vercel production
+ *     (eller när RATE_LIMIT_FAIL_CLOSED=true) — annars fail-open lokalt
  *
  * Lazy init (kodregel): klienten skapas i function body, aldrig module-level.
  *
  * Env (Vercel + .env.local):
  *   UPSTASH_REDIS_REST_URL
  *   UPSTASH_REDIS_REST_TOKEN
+ *   RATE_LIMIT_FAIL_CLOSED=true|false  (optional override)
  * ─────────────────────────────────────────────────────────────────────────────
  */
 import { Ratelimit } from "@upstash/ratelimit";
@@ -40,8 +41,10 @@ const limiters = new Map<string, Ratelimit>();
 export const LIMITS = {
   // Skrivningar från inloggade users (forum, predictions, profil)
   write: { tokens: 20, window: "1 m" as const },
-  // Dyra/missbruksbara endpoints (sök, AI-relaterat)
+  // Dyra/missbruksbara endpoints (sök)
   search: { tokens: 10, window: "1 m" as const },
+  // AI-chatt / LLM — lägre tak, fail-closed i prod
+  ai: { tokens: 8, window: "1 m" as const },
   // Checkout/betalning — lågt, skyddar mot abuse
   checkout: { tokens: 5, window: "1 m" as const },
   // Generöst default för läsning/övrigt
@@ -49,6 +52,16 @@ export const LIMITS = {
 } satisfies Record<string, { tokens: number; window: `${number} ${"s" | "m" | "h"}` }>;
 
 export type LimitName = keyof typeof LIMITS;
+
+/** Buckets that must not silently open when Redis/env is missing in production. */
+const FAIL_CLOSED_LIMITS = new Set<LimitName>(["write", "ai", "search", "checkout"]);
+
+function shouldFailClosed(name: LimitName): boolean {
+  if (!FAIL_CLOSED_LIMITS.has(name)) return false;
+  if (process.env.RATE_LIMIT_FAIL_CLOSED === "true") return true;
+  if (process.env.RATE_LIMIT_FAIL_CLOSED === "false") return false;
+  return process.env.VERCEL_ENV === "production";
+}
 
 function getLimiter(name: LimitName): Ratelimit | null {
   if (!isRateLimitConfigured()) return null;
@@ -77,8 +90,6 @@ export interface RateLimitResult {
 /**
  * Kontrollera och konsumera en token för (limitName, identifier).
  * identifier = clerk userId om inloggad, annars en IP-hash (se identifierFrom).
- *
- * No-op (success:true) om Upstash ej konfigurerat.
  */
 export async function rateLimit(
   name: LimitName,
@@ -86,8 +97,15 @@ export async function rateLimit(
 ): Promise<RateLimitResult> {
   const limiter = getLimiter(name);
   const limit = LIMITS[name].tokens;
+  const failClosed = shouldFailClosed(name);
 
   if (!limiter) {
+    if (failClosed) {
+      console.error(
+        `[ratelimit] ${name}: Upstash ej konfigurerat — fail-closed i production`,
+      );
+      return { success: false, limit, remaining: 0, retryAfterSeconds: 60 };
+    }
     return { success: true, limit, remaining: limit, retryAfterSeconds: 0 };
   }
 
@@ -103,7 +121,10 @@ export async function rateLimit(
       retryAfterSeconds,
     };
   } catch (err) {
-    // Fail-open: om Redis tillfälligt nere ska sajten inte sluta fungera.
+    if (failClosed) {
+      console.error(`[ratelimit] Upstash-fel, fail-closed (${name}):`, err);
+      return { success: false, limit, remaining: 0, retryAfterSeconds: 30 };
+    }
     console.error("[ratelimit] Upstash-fel, släpper igenom:", err);
     return { success: true, limit, remaining: limit, retryAfterSeconds: 0 };
   }

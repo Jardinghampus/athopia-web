@@ -9,6 +9,8 @@ import {
 } from "@/lib/articles/public-article";
 import { canPublishBody, resolveRightsStatus } from "@/lib/provenance";
 import { getUserPlan } from "@/lib/user-plan";
+import { jsonContract } from "@/lib/api-contract";
+import { ArticleDetailResponseSchema } from "@/lib/api-schemas";
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +35,7 @@ export async function GET(
   const rights = article.rightsStatus ?? resolveRightsStatus(article);
   const publishable = canPublishBody(rights);
 
-  return NextResponse.json({
+  return jsonContract(ArticleDetailResponseSchema, {
     article: {
       id: article.id,
       slug: article.slug,

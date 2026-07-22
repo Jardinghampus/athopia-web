@@ -1,5 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { chunk, embedChunks } from '@/lib/ai/embedding'
+import { secretsEqual } from '@/lib/secrets'
+import { enforceRateLimit } from '@/lib/ratelimit'
 
 function getDb() {
   return createClient(
@@ -10,9 +12,12 @@ function getDb() {
 }
 
 export async function POST(req: Request) {
-  if (req.headers.get('x-admin-secret') !== process.env.ADMIN_SECRET) {
+  if (!secretsEqual(req.headers.get('x-admin-secret'), process.env.ADMIN_SECRET)) {
     return new Response('Forbidden', { status: 403 })
   }
+
+  const blocked = await enforceRateLimit('ai', req)
+  if (blocked) return blocked
 
   const { article_id } = await req.json()
   if (!article_id) return Response.json({ error: 'article_id krävs' }, { status: 400 })

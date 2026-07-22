@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { BadgeCheck, PenLine } from "lucide-react";
+import { BrandBadge, AvatarWriterBadge } from "@/components/brand/BrandBadge";
 import { getTeamColors } from "@/lib/team-colors";
 
 export interface PublicProfile {
@@ -47,6 +47,7 @@ function teamGradient(slug: string | null | undefined, angle: number): string | 
 export function ProfileCard({ profile }: { profile: PublicProfile }) {
   const name = profile.nickname ?? profile.display_name ?? "Anonym";
   const isColumnist = profile.role === "columnist" || profile.role === "admin";
+  const isAdmin = profile.role === "admin";
   const ringGradient = teamGradient(profile.favourite_team_id, 135);
 
   return (
@@ -77,32 +78,20 @@ export function ProfileCard({ profile }: { profile: PublicProfile }) {
             </div>
           </div>
 
-          {/* Krönikör-badge, X/Meta-stil — uppe till höger på avataren */}
-          {isColumnist && (
-            <span
-              className="absolute -top-0.5 -right-0.5 flex size-7 items-center justify-center rounded-full bg-pitch ring-[3px] ring-card"
-              aria-label="Krönikör hos Athopia"
-              title="Krönikör hos Athopia"
-            >
-              <PenLine className="size-3.5 text-white" strokeWidth={2.5} />
-            </span>
-          )}
+          {/* Writer-badge (journalist/krönikör) — uppe till höger på avataren */}
+          {isColumnist && <AvatarWriterBadge className="ring-card" />}
         </div>
 
-        {/* Nickname + verifierad-badge */}
+        {/* Nickname + verifierad / staff */}
         <div className="mt-4 flex items-center gap-1.5">
           <h2 className="text-xl font-semibold text-foreground">{name}</h2>
-          {profile.verified && (
-            <BadgeCheck
-              className="h-5 w-5 text-[#1D9BF0]"
-              fill="#1D9BF0"
-              stroke="white"
-              aria-label="Verifierad"
-            />
-          )}
+          {profile.verified && <BrandBadge kind="verified" size="md" />}
+          {isAdmin && <BrandBadge kind="star" size="md" />}
         </div>
         {isColumnist && (
-          <span className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-pitch">Krönikör</span>
+          <span className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-pitch">
+            Journalist
+          </span>
         )}
 
         {/* Medlem sedan */}

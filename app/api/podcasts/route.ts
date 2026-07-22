@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { listenMetaFromRow } from "@/lib/podcast/spotify";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import { jsonContract } from "@/lib/api-contract";
+import { PodcastListResponseSchema, PodcastEpisodeResponseSchema } from "@/lib/api-schemas";
 
 const SPORT = "football";
 
@@ -59,7 +61,7 @@ export async function GET(request: NextRequest) {
         { status: 404 },
       );
     }
-    return NextResponse.json({ episode: publicEpisode(data as unknown as PodcastRow) });
+    return jsonContract(PodcastEpisodeResponseSchema, { episode: publicEpisode(data as unknown as PodcastRow) });
   }
 
   const { data, error } = await query
@@ -70,7 +72,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Kunde inte ladda poddar" }, { status: 500 });
   }
 
-  return NextResponse.json({
+  return jsonContract(PodcastListResponseSchema, {
     episodes: (data ?? []).map((row) => publicEpisode(row as unknown as PodcastRow)),
   });
 }

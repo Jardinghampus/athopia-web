@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchH2HFixtures } from "@/lib/db/fixtures";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import { jsonContract } from "@/lib/api-contract";
+import { H2HResponseSchema } from "@/lib/api-schemas";
 
 export const revalidate = 3600;
 
@@ -102,7 +104,7 @@ export async function GET(request: NextRequest) {
     };
   });
 
-  return NextResponse.json(
+  return jsonContract(H2HResponseSchema,
     {
       teamA: { name: teamA.name, slug: teamA.slug },
       teamB: { name: teamB.name, slug: teamB.slug },

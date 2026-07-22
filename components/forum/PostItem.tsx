@@ -3,13 +3,14 @@
 import { useState, useOptimistic } from "react";
 import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
-import { Heart, MessageCircle, Repeat2, Share2, Flag, ChevronDown, MoreHorizontal, PenLine } from "lucide-react";
+import { Heart, MessageCircle, Repeat2, Share2, Flag, ChevronDown, MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import type { ForumPost } from "@/lib/types";
 import QuoteBox from "./QuoteBox";
 import ComposeDrawer from "./ComposeDrawer";
 import { ProfileLink } from "@/components/profile/ProfilePopup";
+import { AvatarWriterBadge } from "@/components/brand/BrandBadge";
 import { getTeamColors, getTeamShort, getTeamAccent } from "@/lib/team-colors";
 
 const PREVIEW_LENGTH = 220;
@@ -209,15 +210,7 @@ export default function PostItem({
                     )}
                   </ProfileLink>
                 </div>
-                {isColumnist && (
-                  <span
-                    className="absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-pitch ring-2 ring-background"
-                    aria-label="Krönikör hos Athopia"
-                    title="Krönikör hos Athopia"
-                  >
-                    <PenLine className="size-2.5 text-white" strokeWidth={3} />
-                  </span>
-                )}
+                {isColumnist && <AvatarWriterBadge size="sm" />}
               </div>
               {showLine && (
                 <div className="w-px flex-1 min-h-[16px] bg-border/40 mt-1.5" />

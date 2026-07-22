@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { canAccess } from "@/lib/access-rules";
+import { jsonContract } from "@/lib/api-contract";
+import { ForumSummaryResponseSchema } from "@/lib/api-schemas";
 import { getForumTeamSummary } from "@/lib/forum/summary";
 import { getUserPlan } from "@/lib/user-plan";
 
@@ -13,14 +15,19 @@ export async function GET(request: NextRequest) {
 
   const summary = await getForumTeamSummary(teamSlug);
   if (!summary) {
-    return NextResponse.json({ summary: null, teaser: null, unlocked: false });
+    return jsonContract(ForumSummaryResponseSchema, {
+      summary: null,
+      teaser: null,
+      unlocked: false,
+      requiredPlan: null,
+    });
   }
 
   const plan = await getUserPlan();
   const unlocked = canAccess("forumSummary", plan);
   const teaser = summary.length > 160 ? `${summary.slice(0, 160).trim()}…` : summary;
 
-  return NextResponse.json({
+  return jsonContract(ForumSummaryResponseSchema, {
     summary: unlocked ? summary : null,
     teaser,
     unlocked,

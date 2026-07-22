@@ -4,6 +4,8 @@ import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import { enforceRateLimit } from "@/lib/ratelimit";
 import { parseBody, z } from "@/lib/validation";
 import { sanitizeText } from "@/lib/sanitize";
+import { jsonContract } from "@/lib/api-contract";
+import { ForumPostsResponseSchema } from "@/lib/api-schemas";
 
 const ForumPostSchema = z.object({
   content: z.string().trim().min(1, "content krävs").max(500, "Max 500 tecken"),
@@ -65,7 +67,7 @@ export async function GET(req: NextRequest) {
 
     const { data, error } = await q.limit(50);
     if (error) throw error;
-    return NextResponse.json({ posts: data ?? [] });
+    return jsonContract(ForumPostsResponseSchema, { posts: data ?? [] });
   } catch (err) {
     console.error("[forum/posts GET]", err);
     return NextResponse.json({ posts: [] }, { status: 500 });

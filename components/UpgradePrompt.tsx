@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { requiredPlanFor, type AccessFeature } from "@/lib/access-rules";
 import { ProductEventTracker } from "@/components/analytics/ProductEventTracker";
+import { TrackedLink } from "@/components/analytics/TrackedLink";
 import { FOUNDER_OFFER, TRIAL_DAYS, proPriceLabel, listMonthlyKr } from "@/lib/pricing";
 
 const FEATURE_LABELS: Record<AccessFeature, string> = {
@@ -37,7 +37,7 @@ export function UpgradePrompt({
     <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 px-5 py-6 text-center">
       <ProductEventTracker
         event="paywall_view"
-        props={{ feature }}
+        props={{ feature, surface: "upgrade_prompt" }}
         once={`paywall_view::${feature}`}
         onceScope="session"
       />
@@ -53,12 +53,14 @@ export function UpgradePrompt({
           ? `Founder ${price} för alltid (ordinarie ${listMonthlyKr("pro")} kr) · ${TRIAL_DAYS} dagar gratis`
           : `${price} · ${TRIAL_DAYS} dagar gratis`}
       </p>
-      <Link
+      <TrackedLink
         href="/prenumerera"
+        event="paywall_cta_click"
+        props={{ feature, surface: "upgrade_prompt", required_plan: requiredPlan }}
         className="mt-3 inline-block rounded-lg bg-pitch px-4 py-2 text-sm font-medium text-white hover:opacity-90 transition-opacity"
       >
         {founder ? `Bli founder — ${price}` : `Prova ${TRIAL_DAYS} dagar`}
-      </Link>
+      </TrackedLink>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import { enforceRateLimit } from "@/lib/ratelimit";
 
 /**
  * Utgående klick-spårning → source_clicks. Anropas via navigator.sendBeacon
@@ -8,6 +9,9 @@ import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
  * Publikt (ingen auth) — loggar bara källnamn + url, ingen persondata.
  */
 export async function POST(req: NextRequest) {
+  const blocked = await enforceRateLimit("write", req);
+  if (blocked) return blocked;
+
   if (!isSupabaseConfigured()) return NextResponse.json({ ok: false }, { status: 503 });
   try {
     const body = await req.json().catch(() => null);

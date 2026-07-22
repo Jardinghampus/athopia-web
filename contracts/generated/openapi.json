@@ -1,0 +1,5587 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Athopia client API",
+    "version": "1.0.0",
+    "description": "Genererad ur athopia-web/lib/api-schemas.ts. Redigera aldrig manuellt."
+  },
+  "servers": [
+    {
+      "url": "https://athopia.se"
+    }
+  ],
+  "paths": {
+    "/api/feed": {
+      "get": {
+        "operationId": "FeedResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "subtitle": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "source": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "time": {
+                            "type": "string"
+                          },
+                          "href": {
+                            "type": "string"
+                          },
+                          "newsTag": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "sourceCount": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "storyClusterId": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "importanceTier": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "enum": [
+                                  "breaking",
+                                  "major",
+                                  "normal",
+                                  "noise"
+                                ]
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "discussionCount": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "type",
+                          "title",
+                          "time",
+                          "href"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "hasMore": {
+                      "type": "boolean"
+                    },
+                    "gated": {
+                      "type": "boolean"
+                    },
+                    "remainingToday": {
+                      "anyOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "isPro": {
+                      "type": "boolean"
+                    },
+                    "isElite": {
+                      "type": "boolean"
+                    },
+                    "modules": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "live_match",
+                              "upcoming_matches",
+                              "headline_stack",
+                              "short_post",
+                              "podcast",
+                              "discussion",
+                              "standings_snapshot",
+                              "audio_briefing"
+                            ]
+                          },
+                          "schemaVersion": {
+                            "type": "number",
+                            "const": 1
+                          },
+                          "tracking": {
+                            "type": "object",
+                            "properties": {
+                              "reason": {
+                                "type": "string"
+                              },
+                              "position": {
+                                "type": "integer"
+                              },
+                              "score": {
+                                "type": "number"
+                              },
+                              "factors": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "required": [
+                              "reason",
+                              "position"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "payload": {
+                            "type": "object",
+                            "additionalProperties": {}
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "type",
+                          "schemaVersion",
+                          "tracking",
+                          "payload"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "hasMore",
+                    "gated",
+                    "remainingToday"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/scores": {
+      "get": {
+        "operationId": "ScoresResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "startingAt": {
+                        "type": "string"
+                      },
+                      "status": {
+                        "type": "string"
+                      },
+                      "minute": {
+                        "anyOf": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "home": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "slug": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "logoUrl": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "slug",
+                          "logoUrl"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "away": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "slug": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "logoUrl": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "slug",
+                          "logoUrl"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "scoreHome": {
+                        "anyOf": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "scoreAway": {
+                        "anyOf": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "startingAt",
+                      "status",
+                      "minute",
+                      "home",
+                      "away",
+                      "scoreHome",
+                      "scoreAway"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/articles/{slug}": {
+      "get": {
+        "operationId": "ArticleDetailResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "article": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "slug": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "sourceName": {
+                          "type": "string"
+                        },
+                        "sourceUrl": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "publishedAt": {
+                          "type": "string"
+                        },
+                        "updatedAt": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "imageUrl": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "athopia",
+                            "external"
+                          ]
+                        },
+                        "summary": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "summaryPreview": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "content": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "hasProtectedContent": {
+                          "type": "boolean"
+                        },
+                        "discussionCount": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "slug",
+                        "title",
+                        "sourceName",
+                        "sourceUrl",
+                        "publishedAt",
+                        "updatedAt",
+                        "imageUrl",
+                        "kind",
+                        "summary",
+                        "summaryPreview",
+                        "content",
+                        "hasProtectedContent",
+                        "discussionCount"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "access": {
+                      "type": "object",
+                      "properties": {
+                        "feature": {
+                          "type": "string"
+                        },
+                        "unlocked": {
+                          "type": "boolean"
+                        },
+                        "requiredPlan": {
+                          "type": "string",
+                          "enum": [
+                            "free",
+                            "pro",
+                            "elite"
+                          ]
+                        },
+                        "upgradePath": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "feature",
+                        "unlocked",
+                        "requiredPlan",
+                        "upgradePath"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "article",
+                    "access"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/team/{slug}/hub": {
+      "get": {
+        "operationId": "TeamHubPayload",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "team": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "slug": {
+                          "type": "string"
+                        },
+                        "logoUrl": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "sportsmonksId": {
+                          "anyOf": [
+                            {
+                              "type": "integer"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "slug",
+                        "logoUrl",
+                        "sportsmonksId"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "position": {
+                      "anyOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "stats": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "teamId": {
+                              "anyOf": [
+                                {
+                                  "type": "integer"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "played": {
+                              "type": "integer"
+                            },
+                            "wins": {
+                              "type": "integer"
+                            },
+                            "draws": {
+                              "type": "integer"
+                            },
+                            "losses": {
+                              "type": "integer"
+                            },
+                            "goalsFor": {
+                              "type": "integer"
+                            },
+                            "goalsAgainst": {
+                              "type": "integer"
+                            },
+                            "goalDiff": {
+                              "type": "integer"
+                            },
+                            "points": {
+                              "type": "integer"
+                            },
+                            "position": {
+                              "anyOf": [
+                                {
+                                  "type": "integer"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "possession": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "xgFor": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "xgAgainst": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "xg": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "xga": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "teamId",
+                            "played",
+                            "wins",
+                            "draws",
+                            "losses",
+                            "goalsFor",
+                            "goalsAgainst",
+                            "goalDiff",
+                            "points",
+                            "position",
+                            "possession",
+                            "xgFor",
+                            "xgAgainst"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "form": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "radar": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "metric": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "number"
+                          },
+                          "raw": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "metric",
+                          "value",
+                          "raw"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "topScorers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "playerId": {
+                            "type": "integer"
+                          },
+                          "fullname": {
+                            "type": "string"
+                          },
+                          "slug": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "image": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "position": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "goals": {
+                            "type": "integer"
+                          },
+                          "assists": {
+                            "type": "integer"
+                          },
+                          "appearances": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "playerId",
+                          "fullname",
+                          "slug",
+                          "image",
+                          "position",
+                          "goals",
+                          "assists",
+                          "appearances"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "topAssists": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "playerId": {
+                            "type": "integer"
+                          },
+                          "fullname": {
+                            "type": "string"
+                          },
+                          "slug": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "image": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "position": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "goals": {
+                            "type": "integer"
+                          },
+                          "assists": {
+                            "type": "integer"
+                          },
+                          "appearances": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "playerId",
+                          "fullname",
+                          "slug",
+                          "image",
+                          "position",
+                          "goals",
+                          "assists",
+                          "appearances"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "squad": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "playerId": {
+                            "type": "integer"
+                          },
+                          "fullname": {
+                            "type": "string"
+                          },
+                          "slug": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "image": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "position": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "goals": {
+                            "type": "integer"
+                          },
+                          "assists": {
+                            "type": "integer"
+                          },
+                          "appearances": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "playerId",
+                          "fullname",
+                          "slug",
+                          "image",
+                          "position",
+                          "goals",
+                          "assists",
+                          "appearances"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "recent": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "sportsmonksId": {
+                            "type": "integer"
+                          },
+                          "homeTeamId": {
+                            "type": "integer"
+                          },
+                          "awayTeamId": {
+                            "type": "integer"
+                          },
+                          "homeTeamName": {
+                            "type": "string"
+                          },
+                          "awayTeamName": {
+                            "type": "string"
+                          },
+                          "homeScore": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "awayScore": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "kickoffAt": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "sportsmonksId",
+                          "homeTeamId",
+                          "awayTeamId",
+                          "homeTeamName",
+                          "awayTeamName",
+                          "homeScore",
+                          "awayScore",
+                          "kickoffAt",
+                          "status"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "upcoming": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "sportsmonksId": {
+                            "type": "integer"
+                          },
+                          "homeTeamId": {
+                            "type": "integer"
+                          },
+                          "awayTeamId": {
+                            "type": "integer"
+                          },
+                          "homeTeamName": {
+                            "type": "string"
+                          },
+                          "awayTeamName": {
+                            "type": "string"
+                          },
+                          "homeScore": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "awayScore": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "kickoffAt": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "sportsmonksId",
+                          "homeTeamId",
+                          "awayTeamId",
+                          "homeTeamName",
+                          "awayTeamName",
+                          "homeScore",
+                          "awayScore",
+                          "kickoffAt",
+                          "status"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "news": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "slug": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "href": {
+                            "type": "string"
+                          },
+                          "publishedAt": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "sourceName": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "slug",
+                          "title",
+                          "href",
+                          "publishedAt",
+                          "sourceName"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "threads": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "replyCount": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "href": {
+                            "type": "string"
+                          },
+                          "createdAt": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "replyCount",
+                          "href",
+                          "createdAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "points": {
+                      "anyOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "played": {
+                      "anyOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "nextMatch": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "integer"
+                            },
+                            "home": {
+                              "type": "string"
+                            },
+                            "away": {
+                              "type": "string"
+                            },
+                            "kickoffAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "status": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "home",
+                            "away",
+                            "kickoffAt",
+                            "status"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "lastMatch": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "integer"
+                            },
+                            "home": {
+                              "type": "string"
+                            },
+                            "away": {
+                              "type": "string"
+                            },
+                            "homeScore": {
+                              "anyOf": [
+                                {
+                                  "type": "integer"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "awayScore": {
+                              "anyOf": [
+                                {
+                                  "type": "integer"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "kickoffAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "home",
+                            "away",
+                            "homeScore",
+                            "awayScore",
+                            "kickoffAt"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "guest": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "team",
+                    "position",
+                    "stats",
+                    "form",
+                    "radar",
+                    "topScorers",
+                    "topAssists",
+                    "squad",
+                    "recent",
+                    "upcoming",
+                    "news",
+                    "threads",
+                    "points",
+                    "played",
+                    "nextMatch",
+                    "lastMatch",
+                    "guest"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/team/list": {
+      "get": {
+        "operationId": "TeamListResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "teams": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "slug": {
+                            "type": "string"
+                          },
+                          "logo_url": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "slug",
+                          "logo_url"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "teams"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/feed/hero": {
+      "get": {
+        "operationId": "HeroResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "summary": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "title": {
+                              "type": "string"
+                            },
+                            "subtitle": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "source": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "time": {
+                              "type": "string"
+                            },
+                            "href": {
+                              "type": "string"
+                            },
+                            "newsTag": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "sourceCount": {
+                              "anyOf": [
+                                {
+                                  "type": "integer"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "storyClusterId": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "importanceTier": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "breaking",
+                                    "major",
+                                    "normal",
+                                    "noise"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "discussionCount": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "type",
+                            "title",
+                            "time",
+                            "href"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "topNews": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "subtitle": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "source": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "time": {
+                            "type": "string"
+                          },
+                          "href": {
+                            "type": "string"
+                          },
+                          "newsTag": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "sourceCount": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "storyClusterId": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "importanceTier": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "enum": [
+                                  "breaking",
+                                  "major",
+                                  "normal",
+                                  "noise"
+                                ]
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "discussionCount": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "type",
+                          "title",
+                          "time",
+                          "href"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "summary",
+                    "topNews"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/standings": {
+      "get": {
+        "operationId": "StandingsResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "standings": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "position": {
+                            "type": "integer"
+                          },
+                          "teamId": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "teamName": {
+                            "type": "string"
+                          },
+                          "teamSlug": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "played": {
+                            "type": "integer"
+                          },
+                          "won": {
+                            "type": "integer"
+                          },
+                          "drawn": {
+                            "type": "integer"
+                          },
+                          "lost": {
+                            "type": "integer"
+                          },
+                          "goalsFor": {
+                            "type": "integer"
+                          },
+                          "goalsAgainst": {
+                            "type": "integer"
+                          },
+                          "points": {
+                            "type": "integer"
+                          },
+                          "form": {
+                            "anyOf": [
+                              {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "trend": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "position",
+                          "teamId",
+                          "teamName",
+                          "teamSlug",
+                          "played",
+                          "won",
+                          "drawn",
+                          "lost",
+                          "goalsFor",
+                          "goalsAgainst",
+                          "points",
+                          "form",
+                          "trend"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "standings"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/match/{fixtureId}": {
+      "get": {
+        "operationId": "FixtureDetail",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "home_team_id": {
+                      "type": "integer"
+                    },
+                    "away_team_id": {
+                      "type": "integer"
+                    },
+                    "home_team_name": {
+                      "type": "string"
+                    },
+                    "away_team_name": {
+                      "type": "string"
+                    },
+                    "home_score": {
+                      "anyOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "away_score": {
+                      "anyOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "kickoff_at": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "home_xg": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "away_xg": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "home_pressure": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "away_pressure": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "home_ppda": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "away_ppda": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "home_possession": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "away_possession": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "home_shots": {
+                      "anyOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "away_shots": {
+                      "anyOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "home_shots_on_target": {
+                      "anyOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "away_shots_on_target": {
+                      "anyOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "home_team_id",
+                    "away_team_id",
+                    "home_team_name",
+                    "away_team_name",
+                    "home_score",
+                    "away_score",
+                    "kickoff_at",
+                    "status",
+                    "home_xg",
+                    "away_xg",
+                    "home_pressure",
+                    "away_pressure",
+                    "home_ppda",
+                    "away_ppda",
+                    "home_possession",
+                    "away_possession",
+                    "home_shots",
+                    "away_shots",
+                    "home_shots_on_target",
+                    "away_shots_on_target"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/match/{fixtureId}/timeline": {
+      "get": {
+        "operationId": "MatchTimelineResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "fixtureId": {
+                      "type": "integer"
+                    },
+                    "snapshotRevision": {
+                      "type": "string"
+                    },
+                    "events": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "eventId": {
+                            "type": "integer"
+                          },
+                          "fixtureId": {
+                            "type": "integer"
+                          },
+                          "sequence": {
+                            "type": "integer"
+                          },
+                          "minute": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "extraMinute": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "teamId": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "playerId": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "relatedPlayerId": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "playerName": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "eventType": {
+                            "type": "string"
+                          },
+                          "result": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "revision": {
+                            "type": "integer"
+                          },
+                          "rescinded": {
+                            "type": "boolean"
+                          },
+                          "isCorrected": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "eventId",
+                          "fixtureId",
+                          "sequence",
+                          "minute",
+                          "extraMinute",
+                          "teamId",
+                          "playerId",
+                          "relatedPlayerId",
+                          "playerName",
+                          "eventType",
+                          "result",
+                          "revision",
+                          "rescinded",
+                          "isCorrected"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "lineups": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "playerId": {
+                            "type": "integer"
+                          },
+                          "teamId": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "starter": {
+                            "type": "boolean"
+                          },
+                          "jersey": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "position": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "playerName": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "image": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "slug": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "playerId",
+                          "teamId",
+                          "starter",
+                          "jersey",
+                          "position",
+                          "playerName",
+                          "image",
+                          "slug"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "fixtureId",
+                    "snapshotRevision",
+                    "events",
+                    "lineups"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/player/{idOrSlug}": {
+      "get": {
+        "operationId": "PlayerProfileResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "player": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "sportmonksId": {
+                              "type": "integer"
+                            },
+                            "fullname": {
+                              "type": "string"
+                            },
+                            "slug": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "image": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "position": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "birthdate": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "height": {
+                              "anyOf": [
+                                {
+                                  "type": "integer"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "weight": {
+                              "anyOf": [
+                                {
+                                  "type": "integer"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "sportmonksId",
+                            "fullname",
+                            "slug",
+                            "image",
+                            "position",
+                            "birthdate",
+                            "height",
+                            "weight"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "teamName": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "seasonStats": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "seasonId": {
+                              "type": "integer"
+                            },
+                            "playerId": {
+                              "type": "integer"
+                            },
+                            "teamId": {
+                              "type": "integer"
+                            },
+                            "appearances": {
+                              "type": "integer"
+                            },
+                            "minutes": {
+                              "type": "integer"
+                            },
+                            "goals": {
+                              "type": "integer"
+                            },
+                            "assists": {
+                              "type": "integer"
+                            },
+                            "shots": {
+                              "type": "integer"
+                            },
+                            "shotsOnTarget": {
+                              "type": "integer"
+                            },
+                            "keyPasses": {
+                              "type": "integer"
+                            },
+                            "passes": {
+                              "type": "integer"
+                            },
+                            "passAccuracy": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "tackles": {
+                              "type": "integer"
+                            },
+                            "interceptions": {
+                              "type": "integer"
+                            },
+                            "rating": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "yellowCards": {
+                              "type": "integer"
+                            },
+                            "redCards": {
+                              "type": "integer"
+                            },
+                            "clearances": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "dribbles": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "fouls": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "cleanSheets": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "xg": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "xa": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "xgPer90": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "xaPer90": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "seasonId",
+                            "playerId",
+                            "teamId",
+                            "appearances",
+                            "minutes",
+                            "goals",
+                            "assists",
+                            "shots",
+                            "shotsOnTarget",
+                            "keyPasses",
+                            "passes",
+                            "passAccuracy",
+                            "tackles",
+                            "interceptions",
+                            "rating",
+                            "yellowCards",
+                            "redCards",
+                            "clearances",
+                            "dribbles",
+                            "fouls",
+                            "cleanSheets",
+                            "xg",
+                            "xa",
+                            "xgPer90",
+                            "xaPer90"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "qualifyingMinutes": {
+                      "type": "integer"
+                    },
+                    "metrics": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "number"
+                          },
+                          "average": {
+                            "type": "number"
+                          },
+                          "percentile": {
+                            "type": "number"
+                          },
+                          "decimals": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "label",
+                          "value",
+                          "average",
+                          "percentile",
+                          "decimals"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "matchHistory": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "fixtureId": {
+                            "type": "integer"
+                          },
+                          "sportsmonksPlayerId": {
+                            "type": "integer"
+                          },
+                          "minutesPlayed": {
+                            "type": "integer"
+                          },
+                          "goals": {
+                            "type": "integer"
+                          },
+                          "assists": {
+                            "type": "integer"
+                          },
+                          "yellowCards": {
+                            "type": "integer"
+                          },
+                          "redCards": {
+                            "type": "integer"
+                          },
+                          "rating": {
+                            "type": [
+                              "number",
+                              "null"
+                            ]
+                          },
+                          "xg": {
+                            "type": [
+                              "number",
+                              "null"
+                            ]
+                          },
+                          "xa": {
+                            "type": [
+                              "number",
+                              "null"
+                            ]
+                          },
+                          "homeTeamName": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "awayTeamName": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "homeScore": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "awayScore": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "kickoffAt": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "status": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "fixtureId",
+                          "sportsmonksPlayerId",
+                          "minutesPlayed",
+                          "goals",
+                          "assists",
+                          "yellowCards",
+                          "redCards",
+                          "rating",
+                          "xg",
+                          "xa",
+                          "homeTeamName",
+                          "awayTeamName",
+                          "homeScore",
+                          "awayScore",
+                          "kickoffAt",
+                          "status"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "snapshotRevision": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "player",
+                    "teamName",
+                    "seasonStats",
+                    "qualifyingMinutes",
+                    "metrics",
+                    "matchHistory",
+                    "snapshotRevision"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stats/projection": {
+      "get": {
+        "operationId": "ProjectionResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "teamId": {
+                            "type": "integer"
+                          },
+                          "teamName": {
+                            "type": "string"
+                          },
+                          "logoUrl": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "points": {
+                            "type": "integer"
+                          },
+                          "elo": {
+                            "type": "number"
+                          },
+                          "pChampion": {
+                            "type": "number"
+                          },
+                          "pTop3": {
+                            "type": "number"
+                          },
+                          "pRelegation": {
+                            "type": "number"
+                          },
+                          "pPlayoff": {
+                            "type": "number"
+                          },
+                          "nSims": {
+                            "type": "integer"
+                          },
+                          "computedAt": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "teamId",
+                          "teamName",
+                          "logoUrl",
+                          "points",
+                          "elo",
+                          "pChampion",
+                          "pTop3",
+                          "pRelegation",
+                          "pPlayoff",
+                          "nSims",
+                          "computedAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "rows"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stats/schedule-form": {
+      "get": {
+        "operationId": "ScheduleFormResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "teamId": {
+                            "type": "integer"
+                          },
+                          "teamName": {
+                            "type": "string"
+                          },
+                          "logoUrl": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "actualPoints": {
+                            "type": "integer"
+                          },
+                          "xpts": {
+                            "type": "number"
+                          },
+                          "luck": {
+                            "type": "number"
+                          },
+                          "sos": {
+                            "type": "number"
+                          },
+                          "computedAt": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "teamId",
+                          "teamName",
+                          "logoUrl",
+                          "actualPoints",
+                          "xpts",
+                          "luck",
+                          "sos",
+                          "computedAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "rows"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stats/clutch": {
+      "get": {
+        "operationId": "ClutchResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "rank": {
+                            "type": "integer"
+                          },
+                          "playerId": {
+                            "type": "integer"
+                          },
+                          "playerName": {
+                            "type": "string"
+                          },
+                          "teamName": {
+                            "type": "string"
+                          },
+                          "image": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "goals": {
+                            "type": "integer"
+                          },
+                          "clutchScore": {
+                            "type": "number"
+                          },
+                          "trailingGoals": {
+                            "type": "integer"
+                          },
+                          "levelGoals": {
+                            "type": "integer"
+                          },
+                          "leadingGoals": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "rank",
+                          "playerId",
+                          "playerName",
+                          "teamName",
+                          "image",
+                          "goals",
+                          "clutchScore",
+                          "trailingGoals",
+                          "levelGoals",
+                          "leadingGoals"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "rows"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stats/leaderboard": {
+      "get": {
+        "operationId": "StatsLeaderboardResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "metric": {
+                      "type": "string"
+                    },
+                    "seasonId": {
+                      "type": "integer"
+                    },
+                    "entries": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "rank": {
+                            "type": "integer"
+                          },
+                          "playerId": {
+                            "type": "integer"
+                          },
+                          "teamId": {
+                            "type": "integer"
+                          },
+                          "playerName": {
+                            "type": "string"
+                          },
+                          "teamName": {
+                            "type": "string"
+                          },
+                          "teamSlug": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "slug": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "image": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "position": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "appearances": {
+                            "type": "integer"
+                          },
+                          "minutes": {
+                            "type": "integer"
+                          },
+                          "goals": {
+                            "type": "integer"
+                          },
+                          "assists": {
+                            "type": "integer"
+                          },
+                          "shots": {
+                            "type": "integer"
+                          },
+                          "shotsOnTarget": {
+                            "type": "integer"
+                          },
+                          "keyPasses": {
+                            "type": "integer"
+                          },
+                          "passes": {
+                            "type": "integer"
+                          },
+                          "passAccuracy": {
+                            "type": [
+                              "number",
+                              "null"
+                            ]
+                          },
+                          "tackles": {
+                            "type": "integer"
+                          },
+                          "interceptions": {
+                            "type": "integer"
+                          },
+                          "rating": {
+                            "type": [
+                              "number",
+                              "null"
+                            ]
+                          },
+                          "yellowCards": {
+                            "type": "integer"
+                          },
+                          "redCards": {
+                            "type": "integer"
+                          },
+                          "xg": {
+                            "type": [
+                              "number",
+                              "null"
+                            ]
+                          },
+                          "xa": {
+                            "type": [
+                              "number",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "rank",
+                          "playerId",
+                          "teamId",
+                          "playerName",
+                          "teamName",
+                          "teamSlug",
+                          "slug",
+                          "image",
+                          "position",
+                          "appearances",
+                          "minutes",
+                          "goals",
+                          "assists",
+                          "shots",
+                          "shotsOnTarget",
+                          "keyPasses",
+                          "passes",
+                          "passAccuracy",
+                          "tackles",
+                          "interceptions",
+                          "rating",
+                          "yellowCards",
+                          "redCards",
+                          "xg",
+                          "xa"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "metric",
+                    "seasonId",
+                    "entries"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stats/h2h": {
+      "get": {
+        "operationId": "H2HResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "teamA": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "slug": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "slug"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "teamB": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "slug": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "slug"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "summary": {
+                      "type": "object",
+                      "properties": {
+                        "teamAWins": {
+                          "type": "integer"
+                        },
+                        "teamBWins": {
+                          "type": "integer"
+                        },
+                        "draws": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "teamAWins",
+                        "teamBWins",
+                        "draws"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "fixtures": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "kickoff": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "homeTeam": {
+                            "type": "string"
+                          },
+                          "awayTeam": {
+                            "type": "string"
+                          },
+                          "homeScore": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "awayScore": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "kickoff",
+                          "status",
+                          "homeTeam",
+                          "awayTeam",
+                          "homeScore",
+                          "awayScore"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "teamA",
+                    "teamB",
+                    "summary",
+                    "fixtures"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stats/compare": {
+      "get": {
+        "operationId": "TeamCompareResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "teamA": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "slug": {
+                          "type": "string"
+                        },
+                        "position": {
+                          "type": "integer"
+                        },
+                        "points": {
+                          "type": "integer"
+                        },
+                        "played": {
+                          "type": "integer"
+                        },
+                        "won": {
+                          "type": "integer"
+                        },
+                        "drawn": {
+                          "type": "integer"
+                        },
+                        "lost": {
+                          "type": "integer"
+                        },
+                        "goalsFor": {
+                          "type": "integer"
+                        },
+                        "goalsAgainst": {
+                          "type": "integer"
+                        },
+                        "goalDiff": {
+                          "type": "integer"
+                        },
+                        "form": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "slug",
+                        "position",
+                        "points",
+                        "played",
+                        "won",
+                        "drawn",
+                        "lost",
+                        "goalsFor",
+                        "goalsAgainst",
+                        "goalDiff",
+                        "form"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "teamB": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "slug": {
+                          "type": "string"
+                        },
+                        "position": {
+                          "type": "integer"
+                        },
+                        "points": {
+                          "type": "integer"
+                        },
+                        "played": {
+                          "type": "integer"
+                        },
+                        "won": {
+                          "type": "integer"
+                        },
+                        "drawn": {
+                          "type": "integer"
+                        },
+                        "lost": {
+                          "type": "integer"
+                        },
+                        "goalsFor": {
+                          "type": "integer"
+                        },
+                        "goalsAgainst": {
+                          "type": "integer"
+                        },
+                        "goalDiff": {
+                          "type": "integer"
+                        },
+                        "form": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "slug",
+                        "position",
+                        "points",
+                        "played",
+                        "won",
+                        "drawn",
+                        "lost",
+                        "goalsFor",
+                        "goalsAgainst",
+                        "goalDiff",
+                        "form"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "analysis": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "teamA",
+                    "teamB",
+                    "analysis"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/scout": {
+      "get": {
+        "operationId": "ScoutPoolResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "pool": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "player_id": {
+                            "type": "integer"
+                          },
+                          "fullname": {
+                            "type": "string"
+                          },
+                          "slug": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "position": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "team_id": {
+                            "type": "integer"
+                          },
+                          "team_name": {
+                            "type": "string"
+                          },
+                          "appearances": {
+                            "type": "integer"
+                          },
+                          "minutes": {
+                            "type": "integer"
+                          },
+                          "goals": {
+                            "type": "integer"
+                          },
+                          "assists": {
+                            "type": "integer"
+                          },
+                          "shots": {
+                            "type": "integer"
+                          },
+                          "shots_on_target": {
+                            "type": "integer"
+                          },
+                          "key_passes": {
+                            "type": "integer"
+                          },
+                          "passes": {
+                            "type": "integer"
+                          },
+                          "pass_accuracy": {
+                            "type": "number"
+                          },
+                          "tackles": {
+                            "type": "integer"
+                          },
+                          "interceptions": {
+                            "type": "integer"
+                          },
+                          "rating": {
+                            "type": "number"
+                          },
+                          "xg": {
+                            "type": "number"
+                          },
+                          "xa": {
+                            "type": "number"
+                          },
+                          "yellow_cards": {
+                            "type": "integer"
+                          },
+                          "red_cards": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "player_id",
+                          "fullname",
+                          "slug",
+                          "position",
+                          "team_id",
+                          "team_name",
+                          "appearances",
+                          "minutes",
+                          "goals",
+                          "assists",
+                          "shots",
+                          "shots_on_target",
+                          "key_passes",
+                          "passes",
+                          "pass_accuracy",
+                          "tackles",
+                          "interceptions",
+                          "rating",
+                          "xg",
+                          "xa",
+                          "yellow_cards",
+                          "red_cards"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "pool"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/daily": {
+      "get": {
+        "operationId": "DailyResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "episode": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "slug": {
+                              "type": "string"
+                            },
+                            "title": {
+                              "type": "string"
+                            },
+                            "has_audio": {
+                              "type": "boolean"
+                            },
+                            "duration_sec": {
+                              "anyOf": [
+                                {
+                                  "type": "integer"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "episode_date": {
+                              "type": "string"
+                            },
+                            "episode_type": {
+                              "type": "string",
+                              "enum": [
+                                "league_daily",
+                                "club_daily"
+                              ]
+                            },
+                            "chapter_markers": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "label": {
+                                    "type": "string"
+                                  },
+                                  "start_sec": {
+                                    "type": "integer"
+                                  }
+                                },
+                                "required": [
+                                  "label",
+                                  "start_sec"
+                                ],
+                                "additionalProperties": false
+                              }
+                            }
+                          },
+                          "required": [
+                            "slug",
+                            "title",
+                            "has_audio",
+                            "duration_sec",
+                            "episode_date",
+                            "episode_type",
+                            "chapter_markers"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "access": {
+                      "type": "object",
+                      "properties": {
+                        "feature": {
+                          "type": "string"
+                        },
+                        "unlocked": {
+                          "type": "boolean"
+                        },
+                        "requiredPlan": {
+                          "type": "string",
+                          "enum": [
+                            "free",
+                            "pro",
+                            "elite"
+                          ]
+                        },
+                        "upgradePath": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "feature",
+                        "unlocked",
+                        "requiredPlan",
+                        "upgradePath"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "episode",
+                    "access"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/daily/audio": {
+      "get": {
+        "operationId": "DailyAudioResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string"
+                    },
+                    "expiresIn": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "url",
+                    "expiresIn"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analyses": {
+      "get": {
+        "operationId": "AnalysisListResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "analyses": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "summary": {
+                            "type": "string"
+                          },
+                          "publishedAt": {
+                            "type": "string"
+                          },
+                          "fixtureId": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "matchName": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "playedAt": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "summary",
+                          "publishedAt",
+                          "fixtureId",
+                          "matchName",
+                          "playedAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "analyses"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/podcasts": {
+      "get": {
+        "operationId": "PodcastListResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "episodes": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "showName": {
+                            "type": "string"
+                          },
+                          "publishedAt": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "durationSeconds": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "mentionedTeams": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "listenUrl": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "showName",
+                          "publishedAt",
+                          "durationSeconds",
+                          "mentionedTeams",
+                          "listenUrl"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "episodes"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/search": {
+      "get": {
+        "operationId": "SearchResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "articles": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "slug": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "slug",
+                          "title"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "teams": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "slug": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "slug",
+                          "name"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "players": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "slug": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "name": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "slug",
+                          "name"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "podcasts": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "articles",
+                    "teams",
+                    "players",
+                    "podcasts"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/forum/posts": {
+      "get": {
+        "operationId": "ForumPostsResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "posts": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "content": {
+                            "type": "string"
+                          },
+                          "parent_id": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "root_id": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "quoted_post_id": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "depth": {
+                            "type": "integer"
+                          },
+                          "author_id": {
+                            "type": "string"
+                          },
+                          "author_name": {
+                            "type": "string"
+                          },
+                          "author_avatar": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "sport": {
+                            "type": "string"
+                          },
+                          "team_slug": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "article_id": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "like_count": {
+                            "type": "integer"
+                          },
+                          "reply_count": {
+                            "type": "integer"
+                          },
+                          "pinned": {
+                            "type": "boolean"
+                          },
+                          "hot_score": {
+                            "type": "number"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "created_at": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "content",
+                          "parent_id",
+                          "root_id",
+                          "quoted_post_id",
+                          "depth",
+                          "author_id",
+                          "author_name",
+                          "author_avatar",
+                          "sport",
+                          "team_slug",
+                          "article_id",
+                          "like_count",
+                          "reply_count",
+                          "pinned",
+                          "hot_score",
+                          "status",
+                          "created_at"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "posts"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/profile": {
+      "get": {
+        "operationId": "SessionProfileResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "profile": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "favourite_team_id": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "display_name": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "nickname": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "bio": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "favouriteTeamSlug": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "email": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "firstName": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "lastName": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "imageUrl": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "plan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "profile",
+                    "favouriteTeamSlug",
+                    "email",
+                    "firstName",
+                    "lastName",
+                    "imageUrl",
+                    "plan"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/widget": {
+      "get": {
+        "operationId": "WidgetSnapshot",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "teamName": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "teamSlug": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "match": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "integer"
+                            },
+                            "isLive": {
+                              "type": "boolean"
+                            },
+                            "minute": {
+                              "anyOf": [
+                                {
+                                  "type": "integer"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "kickoffAt": {
+                              "type": "string"
+                            },
+                            "status": {
+                              "type": "string"
+                            },
+                            "homeName": {
+                              "type": "string"
+                            },
+                            "awayName": {
+                              "type": "string"
+                            },
+                            "homeScore": {
+                              "anyOf": [
+                                {
+                                  "type": "integer"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "awayScore": {
+                              "anyOf": [
+                                {
+                                  "type": "integer"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "isLive",
+                            "minute",
+                            "kickoffAt",
+                            "status",
+                            "homeName",
+                            "awayName",
+                            "homeScore",
+                            "awayScore"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "news": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "href": {
+                            "type": "string"
+                          },
+                          "source": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "publishedAt": {
+                            "type": "string"
+                          },
+                          "importanceTier": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "enum": [
+                                  "breaking",
+                                  "major",
+                                  "normal",
+                                  "noise"
+                                ]
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "href",
+                          "source",
+                          "publishedAt",
+                          "importanceTier"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "generatedAt": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "teamName",
+                    "teamSlug",
+                    "match",
+                    "news",
+                    "generatedAt"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/team/{slug}/transfers": {
+      "get": {
+        "operationId": "TransferRadarResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "publishedAt": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "slug": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "sourceName": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "status": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "label": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "sourceCount": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "publishedAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "unlocked": {
+                      "type": "boolean"
+                    },
+                    "requiredPlan": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "free",
+                            "pro",
+                            "elite"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "tease": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "unlocked",
+                    "requiredPlan",
+                    "tease"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/storekit/entitlements": {
+      "get": {
+        "operationId": "StoreAccountTokenResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "appAccountToken": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": [
+                    "appAccountToken"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "StoreEntitlementSyncResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "plan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "storekitPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "expiresAt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "plan",
+                    "storekitPlan",
+                    "expiresAt"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/push/apns-subscribe": {
+      "post": {
+        "operationId": "APNSSubscriptionResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/feed/config": {
+      "get": {
+        "operationId": "FeedConfigResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "content_types": {
+                      "anyOf": [
+                        {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/forum/summary": {
+      "get": {
+        "operationId": "ForumSummaryResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "summary": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "teaser": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "unlocked": {
+                      "type": "boolean"
+                    },
+                    "requiredPlan": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "free",
+                            "pro",
+                            "elite"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "summary",
+                    "teaser",
+                    "unlocked"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

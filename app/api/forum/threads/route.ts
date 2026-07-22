@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import { enforceRateLimit } from "@/lib/ratelimit";
 
 export async function POST(req: NextRequest) {
   try {
@@ -8,6 +9,9 @@ export async function POST(req: NextRequest) {
     if (!user) {
       return NextResponse.json({ message: "Ej inloggad" }, { status: 401 });
     }
+
+    const blocked = await enforceRateLimit("write", req, user.id);
+    if (blocked) return blocked;
 
     if (!isSupabaseConfigured()) {
       return NextResponse.json({ message: "DB ej konfigurerad" }, { status: 503 });

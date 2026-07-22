@@ -116,7 +116,7 @@ export default function EliteChatPage() {
         {error && (
           <div className="text-sm text-red-400 text-center py-2">
             {error.message?.includes('429') ? 'Du har nått dagens gräns. Försök igen imorgon.' :
-             error.message?.includes('403') ? 'Elite-prenumeration krävs.' : 'Något gick fel. Försök igen.'}
+             error.message?.includes('403') ? 'PRO-prenumeration krävs.' : 'Något gick fel. Försök igen.'}
           </div>
         )}
         <div ref={bottomRef} />

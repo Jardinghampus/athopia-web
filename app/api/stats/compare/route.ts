@@ -3,6 +3,8 @@ import {
   getTeamCompareAnalysis,
   getTeamCompareStats,
 } from "@/lib/statistik/team-compare";
+import { jsonContract } from "@/lib/api-contract";
+import { TeamCompareResponseSchema } from "@/lib/api-schemas";
 
 export const revalidate = 3600;
 
@@ -30,7 +32,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Lag hittades inte." }, { status: 404 });
   }
 
-  return NextResponse.json(
+  return jsonContract(TeamCompareResponseSchema,
     { teamA, teamB, analysis },
     { headers: { "Cache-Control": "public, max-age=3600, stale-while-revalidate=7200" } },
   );

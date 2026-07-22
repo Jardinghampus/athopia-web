@@ -5,8 +5,8 @@ export type Plan = "free" | "pro" | "elite";
  *
  * Gratis = FotMob-paritet (hänga med): flöde, push, live/tabell, forum läsa/skriva.
  * PRO = destillatet (låta smart utan att scrolla): AI-texter, matchanalys, forum-4h,
- *        transfer-radar, brief, poddklipp, match-chat, filter.
- * Elite = edge ovanpå PRO: clustering-UI och global AI-chat.
+ *        transfer-radar, brief, poddklipp, match-chat, global AI-chat, filter.
+ * Elite = edge ovanpå PRO: clustering-UI.
  *
  * Denna deklarativa map exporteras till iOS via `pnpm contracts:generate`.
  */
@@ -26,8 +26,8 @@ export const ACCESS = {
   unlimitedFeed:      "free",
   /** Matchkontext-chatten. */
   aiChat:             "pro",
-  /** Global Athopia AI med verktyg över hela Allsvenskan. */
-  globalAiChat:       "elite",
+  /** Global Athopia AI med verktyg över hela Allsvenskan. Founderbeslut D2 2026-07-14: PRO. */
+  globalAiChat:       "pro",
   podcastClips:       "pro",
   briefAudio:         "pro",
   /** Forum AI-sammanfattning senaste ~4h */

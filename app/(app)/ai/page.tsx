@@ -7,15 +7,15 @@ import Link from 'next/link'
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
-const UPGRADE_RESPONSE = `**AI-assistenten är tillgänglig för Elite-medlemmar.**
+const UPGRADE_RESPONSE = `**AI-assistenten ingår i PRO.**
 
-Som Elite-medlem får du:
+Som PRO-medlem får du:
 - Obegränsade frågor om Allsvenskan-statistik
 - Realtidsdata: tabell, matcher & spelarstatistik
 - Nyhetsanalys från 1 000+ artiklar
 - Svar inom sekunder, dygnet runt
 
-**Uppgradera till Elite** och få tillgång direkt.`
+**Uppgradera till PRO** och få tillgång direkt.`
 
 const SUGGESTIONS = [
   { label: 'Tabellläge',  q: 'Hur ser tabellen ut just nu?' },
@@ -106,7 +106,8 @@ export default function AiChatPage() {
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
-        const errText = (data.error as string | undefined)?.includes('Elite')
+        // Serverns 403 är auktoritativ — matcha aldrig på plannamn i copyn.
+        const errText = res.status === 403
           ? UPGRADE_RESPONSE
           : 'Ett fel uppstod. Försök igen om en stund.'
         setMessages(prev => [...prev, { role: 'assistant', text: errText }])
@@ -161,7 +162,7 @@ export default function AiChatPage() {
         <p className="text-sm font-semibold text-foreground">Athopia AI</p>
         <span className="ml-auto flex shrink-0 items-center gap-1.5 rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-amber-500">
           <Sparkles size={9} aria-hidden />
-          Elite
+          PRO
         </span>
       </header>
 
@@ -249,7 +250,7 @@ export default function AiChatPage() {
           <p className="mt-2.5 text-center text-xs text-muted-foreground">
             Kräver{' '}
             <Link href="/prenumerera" className="text-pitch hover:underline">
-              Elite-prenumeration
+              PRO-prenumeration
             </Link>
             {' '}· Enter för att skicka
           </p>
@@ -402,7 +403,7 @@ function AssistantMessage({ text, isStreaming }: { text: string; isStreaming: bo
       })}
 
       {/* Show upgrade CTA only for paywall messages */}
-      {!isStreaming && text.includes('Elite-prenumeration krävs') && (
+      {!isStreaming && text === UPGRADE_RESPONSE && (
         <motion.div
           initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
@@ -413,7 +414,7 @@ function AssistantMessage({ text, isStreaming }: { text: string; isStreaming: bo
             className="mt-3 flex items-center justify-center gap-2 w-full rounded-xl bg-pitch py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 touch-manipulation"
           >
             <Sparkles size={14} aria-hidden />
-            Uppgradera till Elite
+            Uppgradera till PRO
           </Link>
         </motion.div>
       )}

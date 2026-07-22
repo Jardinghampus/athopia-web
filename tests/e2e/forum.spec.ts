@@ -7,7 +7,7 @@ test.describe('Forum-index', () => {
   })
 })
 
-test.describe('Team-forum (DIF — mock-data)', () => {
+test.describe('Team-forum (DIF)', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/forum/djurgardens-if', { timeout: 30000 })
   })

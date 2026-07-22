@@ -1,6 +1,6 @@
 import type { FeedItem } from "@/lib/types";
 import { mapImportanceTier } from "@/lib/feed/importance";
-import { articlePublicPath } from "@/lib/provenance";
+import { articlePublicPath, resolveRightsStatus } from "@/lib/provenance";
 
 /** Mappar news_feed / news_feed_clustered-rad till FeedItem. */
 export function mapNewsFeedRow(a: {
@@ -26,13 +26,15 @@ export function mapNewsFeedRow(a: {
     is_athopia_generated: a.is_athopia_generated,
     url: a.url,
   });
-  // Prefer Athopia surface when we have a slug; external url remains fallback.
   const href =
     internal !== "#"
       ? internal
       : a.url ?? "#";
 
-  const rights = a.rights_status ?? (a.is_athopia_generated ? "owned" : "link_only");
+  const rights = resolveRightsStatus({
+    rights_status: a.rights_status,
+    is_athopia_generated: a.is_athopia_generated,
+  });
   const subtitle =
     rights === "owned" || rights === "licensed" ? (a.summary ?? null) : null;
 

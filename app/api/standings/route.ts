@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { fetchStandingsFull } from "@/lib/db/fixtures";
+import { jsonContract } from "@/lib/api-contract";
+import { StandingsResponseSchema } from "@/lib/api-schemas";
 
 export const revalidate = 300;
 
@@ -22,7 +24,7 @@ export async function GET() {
     trend: r.trend,
   }));
 
-  return NextResponse.json(
+  return jsonContract(StandingsResponseSchema,
     { standings },
     { headers: { "Cache-Control": "public, max-age=300, stale-while-revalidate=600" } }
   );

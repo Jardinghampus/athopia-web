@@ -5,6 +5,10 @@
 > Uppdaterad 2026-07-10. Detta är den enda regel-filen för athopia-web.
 > Läs den innan du ändrar produktbeteende. AGENTS.md kompletterar med data-regler.
 
+**Athopia Sync v2:** säg `Athopia Sync` (warm) / `Athopia Sync cold`. Brain:
+`../.athopia-sync/` (cache, LEARNINGS, FINDINGS, IMPROVEMENTS). Kontrakt:
+`contracts/` + `pnpm test:parity`.
+
 ## 1. Vad detta repo är
 
 Publik produkt på **athopia.se** — premium svensk fotbollsplattform (nyhetsfeed,

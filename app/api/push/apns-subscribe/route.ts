@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { enforceRateLimit } from "@/lib/ratelimit";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import { parseBody, z } from "@/lib/validation";
+import { jsonContract } from "@/lib/api-contract";
+import { APNSSubscriptionResponseSchema } from "@/lib/api-schemas";
 
 const SPORT = "football";
 
@@ -49,7 +51,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Kunde inte registrera enheten" }, { status: 500 });
   }
 
-  return NextResponse.json({ ok: true });
+  return jsonContract(APNSSubscriptionResponseSchema, { ok: true });
 }
 
 export async function DELETE(req: Request) {
