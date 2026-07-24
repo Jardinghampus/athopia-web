@@ -3,14 +3,8 @@ import { createClient } from "@supabase/supabase-js";
 import { auth } from "@clerk/nextjs/server";
 import { createHash } from "crypto";
 import { enforceRateLimit } from "@/lib/ratelimit";
-import { parseBody, z } from "@/lib/validation";
-
-const ConsentSchema = z.object({
-  analytics: z.boolean(),
-  marketing: z.boolean(),
-  version: z.string().max(20).optional().nullable(),
-  savedAt: z.string().datetime().optional().nullable(),
-});
+import { parseBody } from "@/lib/validation";
+import { CookieConsentRequestSchema } from "@/lib/cookie-consent-schema";
 
 function supabase() {
   return createClient(
@@ -23,7 +17,7 @@ export async function POST(req: NextRequest) {
   const blocked = await enforceRateLimit("write", req);
   if (blocked) return blocked;
 
-  const parsed = await parseBody(req, ConsentSchema);
+  const parsed = await parseBody(req, CookieConsentRequestSchema);
   if (!parsed.ok) return parsed.response;
   const { analytics, marketing, version, savedAt } = parsed.data;
 

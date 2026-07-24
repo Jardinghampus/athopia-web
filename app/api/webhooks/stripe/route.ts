@@ -19,6 +19,7 @@ import { NextResponse } from "next/server";
 import { clerkClient } from "@clerk/nextjs/server";
 import { logFunnelEvent } from "@/lib/funnel";
 import { updatePlanSource } from "@/lib/entitlements";
+import { recordAttributedEvent } from "@/lib/social-attribution";
 
 // Lazy — initieras i POST() för att undvika build-time env-fel;
 
@@ -126,6 +127,27 @@ export async function POST(req: Request) {
             },
           },
         });
+        const previousStatus =
+          event.type === "customer.subscription.updated"
+            ? (
+                event.data.previous_attributes as
+                  | Partial<Stripe.Subscription>
+                  | undefined
+              )?.status
+            : undefined;
+        const enteredTrial =
+          subscription.status === "trialing" &&
+          (event.type === "customer.subscription.created" ||
+            (previousStatus !== undefined && previousStatus !== "trialing"));
+        if (enteredTrial) {
+          await logFunnelEvent("trial_start", clerkUserId, { plan });
+          await recordAttributedEvent({
+            event: "trial_start",
+            clerkUserId,
+            path: "/api/webhooks/stripe",
+            properties: { plan, subscription_id: subscription.id },
+          });
+        }
       }
       console.log(`[stripe-webhook] subscription.${event.type.split(".").pop()} för ${clerkUserId}`);
       break;

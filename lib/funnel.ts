@@ -9,6 +9,7 @@ export const FUNNEL_EVENTS = [
   "signup_complete",
   "onboarding_team_selected",
   "onboarding_complete",
+  "first_useful_session",
   "feed_first_view",
   "home_module_impression",
   "home_module_opened",
@@ -16,6 +17,7 @@ export const FUNNEL_EVENTS = [
   "paywall_cta_click",
   "checkout_start",
   "checkout_success",
+  "trial_start",
   "push_opt_in",
 ] as const;
 
