@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/assert-production-env.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -12,12 +13,14 @@
     "test:provenance": "npx --yes tsx --test lib/provenance.test.ts",
     "test:access": "tsx --test lib/access-rules.test.ts",
     "test:parity": "tsx --test lib/access-rules.test.ts lib/deep-links.test.ts lib/swift-decode.test.ts lib/plan-sources.test.ts lib/product-contract.test.ts lib/match/events.test.ts lib/feed/rank-feed-modules.test.ts lib/feed/headline-stack.test.ts lib/feed/discussion-counts.test.ts lib/secrets.test.ts",
+    "test:cookie-consent": "tsx --test lib/cookie-consent-schema.test.ts",
+    "test:release-env": "node --test scripts/assert-production-env.test.mjs",
     "contracts:generate": "tsx scripts/generate-parity-contracts.ts",
     "contracts:check": "tsx scripts/generate-parity-contracts.ts --check",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
-    "test:all": "pnpm typecheck && pnpm test:e2e",
+    "test:all": "pnpm typecheck && pnpm test:cookie-consent && pnpm test:release-env && pnpm test:e2e",
     "embed:articles": "tsx scripts/embed-articles.ts"
   },
   "dependencies": {

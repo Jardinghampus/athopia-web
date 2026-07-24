@@ -13,13 +13,13 @@ export function LandingFooter() {
           <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-white/35">
             <a
               href="mailto:hej@athopia.se"
-              className="transition-colors hover:text-white/70"
+              className="inline-flex min-h-11 min-w-11 items-center justify-center transition-colors hover:text-white/70"
             >
               Kontakt
             </a>
             <Link
               href="/integritetspolicy"
-              className="transition-colors hover:text-white/70"
+              className="inline-flex min-h-11 items-center transition-colors hover:text-white/70"
             >
               Integritet & Användarvillkor
             </Link>

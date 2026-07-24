@@ -28,13 +28,37 @@ export function CookieBanner() {
   const [marketing, setMarketing] = useState(false);
 
   useEffect(() => {
-    if (!getStoredConsent()) setVisible(true);
+    const stored = getStoredConsent();
+    if (!stored) {
+      setVisible(true);
+      return;
+    }
+    document.cookie = [
+      `athopia_analytics_consent=${stored.analytics ? "granted" : "denied"}`,
+      "Max-Age=31536000",
+      "Path=/",
+      "SameSite=Lax",
+      window.location.protocol === "https:" ? "Secure" : "",
+    ]
+      .filter(Boolean)
+      .join("; ");
+    window.dispatchEvent(new CustomEvent("athopia:consent-updated"));
   }, []);
 
   function save(opts: { analytics: boolean; marketing: boolean }) {
     const consent = storeConsent({ necessary: true, ...opts });
     applyConsent(consent);
+    document.cookie = [
+      `athopia_analytics_consent=${opts.analytics ? "granted" : "denied"}`,
+      "Max-Age=31536000",
+      "Path=/",
+      "SameSite=Lax",
+      window.location.protocol === "https:" ? "Secure" : "",
+    ]
+      .filter(Boolean)
+      .join("; ");
     persistToServer(consent);
+    window.dispatchEvent(new CustomEvent("athopia:consent-updated"));
     setVisible(false);
   }
 
@@ -104,19 +128,19 @@ export function CookieBanner() {
           <div className="mt-4 flex flex-wrap gap-2">
             <button
               onClick={() => save({ analytics: true, marketing: true })}
-              className="flex-1 rounded-xl bg-pitch px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#18876A] active:scale-[0.97]"
+              className="min-h-11 flex-1 rounded-xl bg-pitch px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#18876A] active:scale-[0.97]"
             >
               Godkänn alla
             </button>
             <button
               onClick={() => save({ analytics, marketing })}
-              className="flex-1 rounded-xl border border-zinc-700 px-4 py-2.5 text-sm font-semibold text-zinc-300 transition-colors hover:border-zinc-500 hover:text-white active:scale-[0.97]"
+              className="min-h-11 flex-1 rounded-xl border border-zinc-700 px-4 py-2.5 text-sm font-semibold text-zinc-300 transition-colors hover:border-zinc-500 hover:text-white active:scale-[0.97]"
             >
               {showDetails ? "Spara val" : "Avvisa"}
             </button>
             <button
               onClick={() => setShowDetails((v) => !v)}
-              className="w-full rounded-xl px-4 py-2 text-xs text-zinc-500 hover:text-zinc-300"
+              className="min-h-11 w-full rounded-xl px-4 py-2 text-xs text-zinc-500 hover:text-zinc-300"
             >
               {showDetails ? "Dölj inställningar ↑" : "Anpassa inställningar ↓"}
             </button>
@@ -155,17 +179,23 @@ function Toggle({
         disabled={disabled}
         onClick={() => onChange(!checked)}
         className={[
-          "mt-0.5 h-5 w-9 flex-shrink-0 rounded-full transition-colors duration-200",
-          checked ? "bg-pitch" : "bg-zinc-700",
+          "flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl transition-colors duration-200",
           disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer",
         ].join(" ")}
       >
         <span
           className={[
-            "block h-3.5 w-3.5 translate-x-0.5 rounded-full bg-white shadow transition-transform duration-200",
-            checked ? "translate-x-[18px]" : "",
+            "relative block h-5 w-9 rounded-full transition-colors duration-200",
+            checked ? "bg-pitch" : "bg-zinc-700",
           ].join(" ")}
-        />
+        >
+          <span
+            className={[
+              "absolute left-0.5 top-0.5 block h-4 w-4 rounded-full bg-white shadow transition-transform duration-200",
+              checked ? "translate-x-4" : "",
+            ].join(" ")}
+          />
+        </span>
       </button>
     </div>
   );
