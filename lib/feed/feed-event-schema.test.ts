@@ -63,6 +63,34 @@ describe("FeedEventsRequestSchema", () => {
   });
 });
 
+describe("feedback event types (Slice 2)", () => {
+  it("accepts the 4 new feedback eventTypes", () => {
+    for (const eventType of [
+      "more_like_this",
+      "less_like_this",
+      "content_saved",
+      "content_hidden",
+    ] as const) {
+      assert.equal(
+        FeedEventsRequestSchema.safeParse({
+          events: [{ ...validEvent, eventType }],
+        }).success,
+        true,
+        `expected ${eventType} to be accepted`,
+      );
+    }
+  });
+
+  it("still rejects an unknown eventType", () => {
+    assert.equal(
+      FeedEventsRequestSchema.safeParse({
+        events: [{ ...validEvent, eventType: "not_a_real_event" }],
+      }).success,
+      false,
+    );
+  });
+});
+
 describe("feed event time bounds", () => {
   it("rejects stale and future events", () => {
     const now = Date.parse("2026-07-26T08:01:00.000Z");

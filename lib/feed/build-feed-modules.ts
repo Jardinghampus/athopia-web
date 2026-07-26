@@ -307,6 +307,17 @@ export async function buildFeedModules(
     });
   }
 
+  // ponytail: deferred closed loop for content_hidden/less_like_this (Slice 2).
+  // To wire it: fetch `feed_interactions` rows for this user where
+  // event_type IN ('content_hidden','less_like_this') filtered on module_key/
+  // story_id (see app/api/feed/events/route.ts for the row shape), pass the
+  // hidden ids in as part of BuildFeedModulesOptions, then (a) drop candidates
+  // whose id/storyId is in the hidden set before ranking, and (b) in
+  // lib/feed/rank-feed-modules.ts add a per-module penalty in scoreModule()
+  // (or a new term in personalizationTerms()) for ids/types with recent
+  // less_like_this events. Deferred: needs a query + cache strategy (this is
+  // called on every feed request) that wasn't in scope for the UI slice.
+
   // Ranking v1 (v2 personalization behind FEED_RANKER_V2) — explainable order +
   // slot positions (score/factors for analytics).
   return rankFeedModules(candidates, 5, opts.rankCtx);
