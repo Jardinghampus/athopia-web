@@ -5,6 +5,7 @@ import { interestsToNewsTags } from "@/lib/feed/content-preferences";
 
 export interface UserFeedPreferences {
   contentTypes: string[];
+  personalizationEnabled: boolean;
   newsTags: string[] | null;
   favoriteTeamSlug: string | null;
   favoriteTeamName: string | null;
@@ -12,6 +13,7 @@ export interface UserFeedPreferences {
 
 const EMPTY: UserFeedPreferences = {
   contentTypes: [],
+  personalizationEnabled: false,
   newsTags: null,
   favoriteTeamSlug: null,
   favoriteTeamName: null,
@@ -26,7 +28,7 @@ export async function getUserFeedPreferences(): Promise<UserFeedPreferences> {
     getPrimaryTeam(),
     createServerClient()
       .from("user_feed_config")
-      .select("content_types")
+      .select("content_types, personalization_enabled")
       .eq("clerk_user_id", userId)
       .eq("sport", "football")
       .maybeSingle(),
@@ -36,6 +38,7 @@ export async function getUserFeedPreferences(): Promise<UserFeedPreferences> {
 
   return {
     contentTypes,
+    personalizationEnabled: configResult.data?.personalization_enabled === true,
     newsTags: interestsToNewsTags(contentTypes),
     favoriteTeamSlug: primaryTeam?.slug ?? null,
     favoriteTeamName: primaryTeam?.name ?? null,

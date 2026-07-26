@@ -1,8 +1,10 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { ProductEventTracker } from "@/components/analytics/ProductEventTracker";
 import { TrackedLink } from "@/components/analytics/TrackedLink";
 import type { FeedModule } from "@/lib/feed/build-feed-modules";
+import { queueFeedEvent } from "@/lib/feed/feed-event-client";
 
 function formatKickoffShort(iso: string): string | null {
   const t = Date.parse(iso);
@@ -29,14 +31,69 @@ function moduleProps(mod: FeedModule) {
   };
 }
 
+function trackingFactors(factors: string[] | undefined) {
+  return (factors ?? []).slice(0, 12).map((raw) => {
+    const [rawKey, rawValue] = raw.split("=", 2);
+    const key = (rawKey ?? "ranker_factor")
+      .toLowerCase()
+      .replace(/[^a-z0-9_:-]/g, "_")
+      .slice(0, 64) || "ranker_factor";
+    const value = Number(rawValue);
+    return { key, value: Number.isFinite(value) ? Math.max(-100, Math.min(100, value)) : 1 };
+  });
+}
+
+function normalizedScore(score: number | undefined): number | undefined {
+  if (typeof score !== "number" || !Number.isFinite(score)) return undefined;
+  return Math.max(0, Math.min(1, score / 100));
+}
+
 /**
  * Client rail for Flöde modules — impressions + opens → agent_logs (B-12).
  */
 export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
+  const impressed = useRef(new Set<string>());
+
+  useEffect(() => {
+    for (const mod of modules) {
+      if (impressed.current.has(mod.id)) continue;
+      impressed.current.add(mod.id);
+      void queueFeedEvent({
+        eventType: "module_impression",
+        surface: "club_home",
+        moduleKey: mod.id,
+        position: mod.tracking.position,
+        score: normalizedScore(mod.tracking.score),
+        rankerVersion: "v1",
+        factors: trackingFactors(mod.tracking.factors),
+        metadata: {},
+      });
+    }
+  }, [modules]);
+
   if (modules.length === 0) return null;
 
+  const onModuleOpen = (event: React.MouseEvent<HTMLElement>) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const wrapper = target.closest<HTMLElement>("[data-feed-module-key]");
+    const moduleKey = wrapper?.dataset.feedModuleKey;
+    const mod = modules.find((candidate) => candidate.id === moduleKey);
+    if (!mod) return;
+    void queueFeedEvent({
+      eventType: "module_open",
+      surface: "club_home",
+      moduleKey: mod.id,
+      position: mod.tracking.position,
+      score: normalizedScore(mod.tracking.score),
+      rankerVersion: "v1",
+      factors: trackingFactors(mod.tracking.factors),
+      metadata: {},
+    });
+  };
+
   return (
-    <section className="mb-6 space-y-3" aria-label="Flödesmoduler">
+    <section className="mb-6 space-y-3" aria-label="Flödesmoduler" onClickCapture={onModuleOpen}>
       {modules.map((mod) => {
         const props = moduleProps(mod);
         const impression = (
@@ -65,7 +122,7 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
               ? `/match/${fixtureId}`
               : "/match";
           return (
-            <div key={mod.id}>
+            <div key={mod.id} data-feed-module-key={mod.id}>
               {impression}
               <TrackedLink
                 href={href}
@@ -96,7 +153,7 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
           const matches = raw.slice(0, 3) as Record<string, unknown>[];
           if (matches.length === 0) return null;
           return (
-            <div key={mod.id}>
+            <div key={mod.id} data-feed-module-key={mod.id}>
               {impression}
               <div className="rounded-xl border border-border bg-card px-4 py-3">
                 <p className="text-[11px] font-bold tracking-wide text-pitch">
@@ -149,7 +206,7 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
           const headlines = raw.slice(0, 4) as Record<string, unknown>[];
           if (headlines.length === 0) return null;
           return (
-            <div key={mod.id}>
+            <div key={mod.id} data-feed-module-key={mod.id}>
               {impression}
               <div className="rounded-xl border border-border bg-card px-4 py-3">
                 <p className="text-[11px] font-bold tracking-wide text-pitch">
@@ -194,7 +251,7 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
               : null;
           const href = String(mod.payload.href ?? "/nyheter");
           return (
-            <div key={mod.id}>
+            <div key={mod.id} data-feed-module-key={mod.id}>
               {impression}
               <TrackedLink
                 href={href}
@@ -232,7 +289,7 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
               ? Math.round(durationSec / 60)
               : null;
           return (
-            <div key={mod.id}>
+            <div key={mod.id} data-feed-module-key={mod.id}>
               {impression}
               <TrackedLink
                 href={unlocked ? href : "/prenumerera"}
@@ -272,7 +329,7 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
           const title = String(mod.payload.title ?? "Podd");
           const show = String(mod.payload.showName ?? "Podcast");
           return (
-            <div key={mod.id}>
+            <div key={mod.id} data-feed-module-key={mod.id}>
               {impression}
               <TrackedLink
                 href="/podcast"
@@ -297,7 +354,7 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
               ? `/forum/${encodeURIComponent(teamSlug)}/${encodeURIComponent(id)}`
               : "/forum";
           return (
-            <div key={mod.id}>
+            <div key={mod.id} data-feed-module-key={mod.id}>
               {impression}
               <TrackedLink
                 href={href}
@@ -315,7 +372,7 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
         if (mod.type === "standings_snapshot") {
           const rows = Array.isArray(mod.payload.rows) ? mod.payload.rows : [];
           return (
-            <div key={mod.id}>
+            <div key={mod.id} data-feed-module-key={mod.id}>
               {impression}
               <TrackedLink
                 href="/allsvenskan"

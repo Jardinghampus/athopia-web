@@ -18,6 +18,9 @@ import { FeedPaywallBanner } from "@/components/FeedPaywallBanner";
 import { ProductEventTracker } from "@/components/analytics/ProductEventTracker";
 import { PullToRefresh } from "@/components/ui/PullToRefresh";
 import { FeedSourceBadge } from "@/components/feed/FeedSourceBadge";
+import { FeedModulesRailClient } from "@/components/feed/FeedModulesRailClient";
+import { queueFeedEvent } from "@/lib/feed/feed-event-client";
+import type { FeedModule } from "@/lib/feed/build-feed-modules";
 import type { FeedItem, FeedItemType } from "@/lib/types";
 
 // ─── Meta ────────────────────────────────────────────────────────────────────
@@ -53,10 +56,11 @@ function timeAgo(iso: string): string {
 
 // ─── AI Summary Card ─────────────────────────────────────────────────────────
 
-function AISummaryCard({ item }: { item: FeedItem }) {
+function AISummaryCard({ item, onOpen }: { item: FeedItem; onOpen: (item: FeedItem) => void }) {
   return (
     <Link
       href={item.href}
+      onClick={() => onOpen(item)}
       className="group block rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/8 to-amber-600/4 p-4 transition-colors hover:bg-amber-500/12 active:bg-amber-500/16 touch-manipulation"
     >
       <div className="flex items-center gap-2 mb-3">
@@ -88,14 +92,17 @@ function CarouselCard({
   item,
   index,
   showCluster,
+  onOpen,
 }: {
   item: FeedItem;
   index: number;
   showCluster?: boolean;
+  onOpen: (item: FeedItem) => void;
 }) {
   return (
     <Link
       href={item.href}
+      onClick={() => onOpen(item)}
       className="group shrink-0 w-[78vw] max-w-[300px] snap-start rounded-2xl border border-border bg-card p-4 flex flex-col justify-between min-h-[120px] touch-manipulation active:bg-muted transition-colors"
     >
       <div>
@@ -125,7 +132,7 @@ function CarouselCard({
   );
 }
 
-function TopNewsCarousel({ items, showCluster }: { items: FeedItem[]; showCluster?: boolean }) {
+function TopNewsCarousel({ items, showCluster, onOpen }: { items: FeedItem[]; showCluster?: boolean; onOpen: (item: FeedItem) => void }) {
   if (items.length === 0) return null;
   return (
     <div className="-mx-4 sm:-mx-6">
@@ -140,7 +147,7 @@ function TopNewsCarousel({ items, showCluster }: { items: FeedItem[]; showCluste
         style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" } as React.CSSProperties}
       >
         {items.map((item, i) => (
-          <CarouselCard key={item.id} item={item} index={i} showCluster={showCluster} />
+          <CarouselCard key={item.id} item={item} index={i} showCluster={showCluster} onOpen={onOpen} />
         ))}
         {/* Trailing spacer so last card isn't flush to edge */}
         <div className="shrink-0 w-4" aria-hidden />
@@ -185,13 +192,14 @@ function FilterTabs({
 
 // ─── Feed Item Card ───────────────────────────────────────────────────────────
 
-function FeedItemCard({ item, showCluster }: { item: FeedItem; showCluster?: boolean }) {
+function FeedItemCard({ item, showCluster, onOpen }: { item: FeedItem; showCluster?: boolean; onOpen: (item: FeedItem) => void }) {
   const meta = TYPE_META[item.type];
   const Icon = meta.icon;
 
   return (
     <Link
       href={item.href}
+      onClick={() => onOpen(item)}
       className="group flex items-start gap-3 bg-card hover:bg-card/80 active:bg-muted border border-border rounded-xl p-4 transition-colors touch-manipulation"
     >
       <div
@@ -239,11 +247,13 @@ function FeedList({
   items,
   showUpsell,
   showCluster,
+  onOpen,
 }: {
   items: FeedItem[];
   /** Free-användare: mjuk PRO-upsell mitt i flödet — blockerar inget (gaten togs bort 2026-07-10). */
   showUpsell: boolean;
   showCluster?: boolean;
+  onOpen: (item: FeedItem) => void;
 }) {
   const splitAt = showUpsell && items.length > SOFT_PAYWALL_AFTER ? SOFT_PAYWALL_AFTER : -1;
 
@@ -252,7 +262,7 @@ function FeedList({
       {items.map((item, i) => (
         <div key={item.id} className="contents">
           {i === splitAt && <FeedPaywallBanner />}
-          <FeedItemCard item={item} showCluster={showCluster} />
+          <FeedItemCard item={item} showCluster={showCluster} onOpen={onOpen} />
         </div>
       ))}
     </div>
@@ -270,11 +280,13 @@ interface HeroData {
 
 interface FeedResponse {
   items: FeedItem[];
+  modules?: FeedModule[];
   hasMore: boolean;
   gated: boolean;
   remainingToday?: number | null;
   isPro?: boolean;
   isElite?: boolean;
+  error?: boolean;
 }
 
 async function fetchHero(teamSlug: string | null): Promise<HeroData> {
@@ -288,9 +300,13 @@ async function fetchHero(teamSlug: string | null): Promise<HeroData> {
 async function fetchFeedPage(teamSlug: string | null, offset: number): Promise<FeedResponse> {
   const qs = new URLSearchParams({ offset: String(offset) });
   if (teamSlug) qs.set("team", teamSlug);
-  const res = await fetch(`/api/feed?${qs.toString()}`, { cache: "no-store" });
-  if (!res.ok) return { items: [], hasMore: false, gated: false };
-  return (await res.json()) as FeedResponse;
+  try {
+    const res = await fetch(`/api/feed?${qs.toString()}`, { cache: "no-store" });
+    if (!res.ok) return { items: [], hasMore: false, gated: false, error: true };
+    return (await res.json()) as FeedResponse;
+  } catch {
+    return { items: [], hasMore: false, gated: false, error: true };
+  }
 }
 
 // ─── Main Component ───────────────────────────────────────────────────────────
@@ -305,6 +321,7 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
 
   // Main feed
   const [items, setItems] = useState<FeedItem[]>([]);
+  const [modules, setModules] = useState<FeedModule[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [offset, setOffset] = useState(0);
@@ -313,6 +330,7 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
   const [isPro, setIsPro] = useState(true); // optimistiskt — upsell blinkar inte in för betalande
   const [isElite, setIsElite] = useState(false);
   const [filter, setFilter] = useState<FilterType>("all");
+  const [feedError, setFeedError] = useState(false);
 
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -342,6 +360,7 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
             const cached = JSON.parse(raw) as { slug: string; data: FeedResponse; ts: number };
             if (cached.slug === slug && Date.now() - cached.ts < 30_000) {
               setItems(cached.data.items ?? []);
+              setModules(cached.data.modules ?? []);
               setOffset((cached.data.items ?? []).length);
               setHasMore(cached.data.hasMore ?? false);
               setIsPro(cached.data.isPro ?? false);
@@ -354,11 +373,27 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
         } catch {}
       }
 
-      const { items: newItems, hasMore: more, isPro: pro, isElite: elite } =
-        await fetchFeedPage(slug, currentOffset);
+      const {
+        items: newItems,
+        modules: newModules,
+        hasMore: more,
+        isPro: pro,
+        isElite: elite,
+        error,
+      } = await fetchFeedPage(slug, currentOffset);
+
+      if (error) {
+        setFeedError(true);
+        setLoading(false);
+        setLoadingMore(false);
+        return;
+      }
+
+      setFeedError(false);
 
       if (reset) {
         setItems(newItems);
+        setModules(newModules ?? []);
         setOffset(newItems.length);
         setNewCount(0);
       } else {
@@ -425,6 +460,41 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
   const visibleItems =
     filter === "all" ? items : items.filter((i) => i.type === filter);
 
+  const trackItemOpen = useCallback((item: FeedItem) => {
+    void queueFeedEvent({
+      eventType: "item_open",
+      surface: "club_home",
+      itemId: item.id,
+      metadata: {},
+      factors: [],
+    });
+  }, []);
+
+  const changeFilter = useCallback((next: FilterType) => {
+    if (next === filter) return;
+    setFilter(next);
+    void queueFeedEvent({
+      eventType: "filter_change",
+      surface: "club_home",
+      metadata: {
+        filterKey: "content",
+        filterValue: next === "summary" ? "ai" : "all",
+        variant: next,
+      },
+      factors: [],
+    });
+  }, [filter]);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    void queueFeedEvent({
+      eventType: "feed_open",
+      surface: "club_home",
+      metadata: {},
+      factors: [],
+    });
+  }, [isLoaded, slug]);
+
   return (
     <PullToRefresh onRefresh={async () => { await load(true); void fetchHero(slug).then(setHero); }}>
       <ProductEventTracker event="feed_open" props={{ team: slug ?? "all" }} />
@@ -462,7 +532,7 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
         {heroLoading ? (
           <div className="h-[130px] rounded-2xl bg-card border border-border skeleton-wave" />
         ) : hero?.summary ? (
-          <AISummaryCard item={hero.summary} />
+          <AISummaryCard item={hero.summary} onOpen={trackItemOpen} />
         ) : null}
 
         {/* Top News Carousel */}
@@ -475,11 +545,13 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
             </div>
           </div>
         ) : (hero?.topNews ?? []).length > 0 ? (
-          <TopNewsCarousel items={hero!.topNews} showCluster={isElite} />
+          <TopNewsCarousel items={hero!.topNews} showCluster={isElite} onOpen={trackItemOpen} />
         ) : null}
 
+        <FeedModulesRailClient modules={modules} />
+
         {/* Filter tabs */}
-        <FilterTabs active={filter} onChange={(f) => setFilter(f)} />
+        <FilterTabs active={filter} onChange={changeFilter} />
 
         {/* Main feed */}
         {loading ? (
@@ -488,13 +560,28 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
               <div key={i} className="h-20 rounded-xl bg-card border border-border skeleton-wave" />
             ))}
           </div>
+        ) : feedError && items.length === 0 ? (
+          <div className="text-center py-16 text-muted-foreground">
+            <p className="text-sm">Flödet kunde inte laddas.</p>
+            <button
+              type="button"
+              onClick={() => void load(true)}
+              className="mt-3 text-sm font-medium text-pitch hover:underline"
+            >
+              Försök igen
+            </button>
+          </div>
         ) : visibleItems.length === 0 ? (
           <div className="text-center py-16 text-muted-foreground">
             <p className="text-sm">Inga{filter !== "all" ? ` ${FILTERS.find((f) => f.key === filter)?.label.toLowerCase()}-` : " "}items ännu.</p>
           </div>
         ) : (
-          <FeedList items={visibleItems} showUpsell={!isPro} showCluster={isElite} />
+          <FeedList items={visibleItems} showUpsell={!isPro} showCluster={isElite} onOpen={trackItemOpen} />
         )}
+
+        {feedError && items.length > 0 ? (
+          <p className="text-center text-xs text-muted-foreground">Kunde inte hämta fler artiklar just nu.</p>
+        ) : null}
 
         <div ref={bottomRef} className="h-4" />
 
