@@ -12,7 +12,7 @@
     "test:links": "ts-node --project tsconfig.json scripts/link-audit.ts",
     "test:provenance": "npx --yes tsx --test lib/provenance.test.ts",
     "test:access": "tsx --test lib/access-rules.test.ts",
-    "test:parity": "tsx --test lib/access-rules.test.ts lib/deep-links.test.ts lib/swift-decode.test.ts lib/plan-sources.test.ts lib/product-contract.test.ts lib/match/events.test.ts lib/feed/rank-feed-modules.test.ts lib/feed/headline-stack.test.ts lib/feed/discussion-counts.test.ts lib/feed/whats-changed.test.ts lib/secrets.test.ts lib/rumor/rumor-radar.test.ts lib/matchday/matchdayPhase.test.ts",
+    "test:parity": "tsx --test lib/access-rules.test.ts lib/deep-links.test.ts lib/swift-decode.test.ts lib/plan-sources.test.ts lib/product-contract.test.ts lib/match/events.test.ts lib/feed/rank-feed-modules.test.ts lib/feed/headline-stack.test.ts lib/feed/discussion-counts.test.ts lib/feed/whats-changed.test.ts lib/secrets.test.ts lib/rumor/rumor-radar.test.ts lib/matchday/matchdayPhase.test.ts lib/daily/personal-daily.test.ts",
     "test:cookie-consent": "tsx --test lib/cookie-consent-schema.test.ts",
     "test:feed-events": "tsx --test lib/feed/feed-event-schema.test.ts lib/feed/feed-config-schema.test.ts",
     "test:release-env": "node --test scripts/assert-production-env.test.mjs",
