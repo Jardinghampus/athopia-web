@@ -89,6 +89,8 @@ export async function GET(req: Request) {
   }
 
   let contentTypeTags: string[] | null = null;
+  let rankFollowedTeamIds: string[] | undefined;
+  let rankInterests: string[] | undefined;
   if (userId) {
     const { data: feedConfig } = await db
       .from("user_feed_config")
@@ -106,6 +108,9 @@ export async function GET(req: Request) {
     if (!typeFilter) {
       contentTypeTags = interestsToNewsTags(feedConfig?.content_types ?? null);
     }
+
+    rankFollowedTeamIds = feedConfig?.followed_team_ids ?? undefined;
+    rankInterests = feedConfig?.content_types ?? undefined;
   }
 
   let items: FeedItem[] = [];
@@ -165,7 +170,10 @@ export async function GET(req: Request) {
   let modules: Awaited<ReturnType<typeof buildFeedModules>> = [];
   if (offset === 0 && !teamSlug && !typeFilter) {
     try {
-      modules = await buildFeedModules(db, { plan });
+      modules = await buildFeedModules(db, {
+        plan,
+        rankCtx: { followedTeamIds: rankFollowedTeamIds, interests: rankInterests },
+      });
     } catch (err) {
       console.warn("[feed] modules fel:", err);
     }

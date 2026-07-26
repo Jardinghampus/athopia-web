@@ -12,7 +12,10 @@ import type { Plan } from "@/lib/access-rules";
 import { canAccess } from "@/lib/access-rules";
 import { fetchStandingsFull, fetchLiveScores, fetchUpcomingFixtures, parseFixtureScore } from "@/lib/db/fixtures";
 import { listenMetaFromRow } from "@/lib/podcast/spotify";
-import { rankFeedModules } from "@/lib/feed/rank-feed-modules";
+import {
+  rankFeedModules,
+  type RankFeedModulesContext,
+} from "@/lib/feed/rank-feed-modules";
 import { mapNewsFeedRow } from "@/lib/feed/map-feed-row";
 import {
   articlePublicPath,
@@ -28,6 +31,8 @@ const SPORT = "football";
 export type BuildFeedModulesOptions = {
   /** Effective plan for access flags (never include signed audio URLs). */
   plan?: Plan;
+  /** Slice 2 personalization — only applied when FEED_RANKER_V2=true. */
+  rankCtx?: RankFeedModulesContext;
 };
 
 export async function buildFeedModules(
@@ -302,6 +307,7 @@ export async function buildFeedModules(
     });
   }
 
-  // Ranking v1 — explainable order + slot positions (score/factors for analytics).
-  return rankFeedModules(candidates);
+  // Ranking v1 (v2 personalization behind FEED_RANKER_V2) — explainable order +
+  // slot positions (score/factors for analytics).
+  return rankFeedModules(candidates, 5, opts.rankCtx);
 }

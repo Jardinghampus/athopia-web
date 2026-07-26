@@ -131,3 +131,61 @@ describe("rankFeedModules", () => {
     assert.equal(ranked.length, 1);
   });
 });
+
+describe("rankFeedModules — Slice 2 personalization (FEED_RANKER_V2)", () => {
+  const candidates: FeedModule[] = [
+    mod({
+      id: "headline_a",
+      type: "headline_stack",
+      payload: { newsTag: null },
+    }),
+    mod({
+      id: "headline_b",
+      type: "headline_stack",
+      payload: { newsTag: null },
+    }),
+    mod({
+      id: "discussion_followed",
+      type: "discussion",
+      payload: { teamSlug: "team-1" },
+    }),
+    mod({
+      id: "discussion_other",
+      type: "discussion",
+      payload: { teamSlug: "team-2" },
+    }),
+  ];
+
+  it("flag OFF ⇒ identical output to v1 for the same fixture set (ctx ignored)", () => {
+    delete process.env.FEED_RANKER_V2;
+    const withoutCtx = rankFeedModules(candidates, 10);
+    const withCtxButFlagOff = rankFeedModules(candidates, 10, {
+      followedTeamIds: ["team-1"],
+    });
+    assert.deepEqual(withCtxButFlagOff, withoutCtx);
+  });
+
+  it("flag ON ⇒ a followed-team module outranks an equal non-followed one, with explainable factors", () => {
+    process.env.FEED_RANKER_V2 = "true";
+    try {
+      const ranked = rankFeedModules(candidates, 10, {
+        followedTeamIds: ["team-1"],
+      });
+      const followedIdx = ranked.findIndex((m) => m.id === "discussion_followed");
+      const otherIdx = ranked.findIndex((m) => m.id === "discussion_other");
+      assert.ok(followedIdx < otherIdx);
+      assert.ok(
+        ranked[followedIdx]!.tracking.factors.some((f) =>
+          f.startsWith("team_affinity="),
+        ),
+      );
+      // Second headline_stack module should show the type-fatigue penalty factor.
+      const headlineB = ranked.find((m) => m.id === "headline_b")!;
+      assert.ok(
+        headlineB.tracking.factors.some((f) => f.startsWith("type_fatigue=")),
+      );
+    } finally {
+      delete process.env.FEED_RANKER_V2;
+    }
+  });
+});
