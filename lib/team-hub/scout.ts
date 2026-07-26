@@ -28,8 +28,9 @@ export interface ScoutPlayer {
   tackles: number;
   interceptions: number;
   rating: number;
-  xg: number;
-  xa: number;
+  // ponytail: nullable — unsynced xG/xA must render as "–", never a fake 0.00 (CLAUDE.md §4)
+  xg: number | null;
+  xa: number | null;
   yellow_cards: number;
   red_cards: number;
 }
@@ -97,8 +98,8 @@ export async function getScoutPool(): Promise<ScoutPlayer[]> {
         minutes: Number(r.minutes ?? 0),
         goals: Number(r.goals ?? 0),
         assists: Number(r.assists ?? 0),
-        xg: Number(r.xg ?? 0),
-        xa: Number(r.xa ?? 0),
+        xg: r.xg == null ? null : Number(r.xg),
+        xa: r.xa == null ? null : Number(r.xa),
         shots: Number(r.shots ?? 0),
         shots_on_target: Number(r.shots_on_target ?? 0),
         key_passes: Number(r.key_passes ?? 0),
