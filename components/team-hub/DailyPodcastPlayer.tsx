@@ -182,6 +182,10 @@ export function DailyPodcastPlayer({ episode, plan, className }: DailyPodcastPla
               </div>
             </div>
 
+            <p className="mt-2 text-[11px] text-muted-foreground">
+              AI-genererad röst och manus
+            </p>
+
             {episode.chapter_markers.length > 0 && (
               <div className="mt-3 flex flex-wrap gap-2">
                 {episode.chapter_markers.map((chapter) => (
