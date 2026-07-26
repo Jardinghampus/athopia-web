@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { jsonContract } from "@/lib/api-contract";
 import { FeedConfigResponseSchema } from "@/lib/api-schemas";
+import { FeedConfigPatchSchema } from "@/lib/feed/feed-config-schema";
 import { enforceRateLimit } from "@/lib/ratelimit";
 
 function getDb() {
@@ -22,6 +23,7 @@ export async function GET() {
       .from("user_feed_config")
       .select("*")
       .eq("clerk_user_id", userId)
+      .eq("sport", "football")
       .single();
 
     if (error && error.code !== "PGRST116") {
@@ -34,6 +36,7 @@ export async function GET() {
       content_types: Array.isArray(data.content_types)
         ? (data.content_types as string[])
         : null,
+      personalization_enabled: data.personalization_enabled === true,
     });
   } catch {
     return NextResponse.json({ error: "Server error" }, { status: 500 });
@@ -47,19 +50,20 @@ export async function PATCH(req: Request) {
   const blocked = await enforceRateLimit("write", req, userId);
   if (blocked) return blocked;
 
-  let body: Record<string, unknown>;
+  let body: unknown;
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  // Server-side allowlist — aldrig lita på klienten för premium-fält
-  const allowed = ["followed_team_ids", "followed_leagues", "content_types", "sport"] as const;
-  const update: Record<string, unknown> = { clerk_user_id: userId };
-  for (const k of allowed) {
-    if (k in body) update[k] = body[k];
+  const parsed = FeedConfigPatchSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Invalid feed preferences" }, { status: 400 });
   }
+
+  // Sport is server-controlled so a client can never write a cross-sport config.
+  const update = { ...parsed.data, clerk_user_id: userId, sport: "football" };
 
   try {
     const db = getDb();

@@ -83,6 +83,7 @@ export async function GET(req: Request) {
       .select("id")
       .eq("type", "team")
       .eq("slug", teamSlug)
+      .eq("sport", "football")
       .maybeSingle();
     if (team?.id) filterTeamIds = [String(team.id)];
   }
@@ -93,6 +94,7 @@ export async function GET(req: Request) {
       .from("user_feed_config")
       .select("followed_team_ids, content_types")
       .eq("clerk_user_id", userId)
+      .eq("sport", "football")
       .maybeSingle();
 
     if (isPro && !teamSlug) {

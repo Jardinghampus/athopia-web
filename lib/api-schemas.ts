@@ -817,6 +817,16 @@ export const APNSSubscriptionResponseSchema = z.object({
 /** GET /api/feed/config svarar med den råa raden ELLER null. */
 export const FeedConfigResponseSchema = z.object({
   content_types: z.array(z.string()).nullable().optional(),
+  personalization_enabled: z.boolean().optional(),
+});
+
+export const FeedEventsResponseSchema = z.object({
+  ok: z.literal(true),
+  accepted: z.number().int().nonnegative(),
+  duplicates: z.number().int().nonnegative(),
+  skipped: z
+    .enum(["authentication_required", "personalization_disabled"])
+    .optional(),
 });
 
 /** GET /api/forum/summary — PRO-gated teaser/full summary. */
@@ -878,6 +888,7 @@ export const API_CONTRACTS = [
   { method: "post", path: "/api/storekit/entitlements", name: "StoreEntitlementSyncResponse", schema: StoreEntitlementSyncResponseSchema },
   { method: "post", path: "/api/push/apns-subscribe", name: "APNSSubscriptionResponse", schema: APNSSubscriptionResponseSchema },
   { method: "get", path: "/api/feed/config", name: "FeedConfigResponse", schema: FeedConfigResponseSchema },
+  { method: "post", path: "/api/feed/events", name: "FeedEventsResponse", schema: FeedEventsResponseSchema },
   {
     method: "get",
     path: "/api/forum/summary",
