@@ -46,3 +46,7 @@ next-env.d.ts
 .gstack/
 .codex/
 .github/hooks/
+
+# e2e artifacts
+test-results/
+tests/e2e/report/
