@@ -1549,6 +1549,66 @@ export type Database = {
           },
         ]
       }
+      feed_interactions: {
+        Row: {
+          clerk_user_id: string
+          event_key: string
+          event_type: string
+          factors: Json
+          id: string
+          item_id: string | null
+          metadata: Json
+          module_key: string | null
+          occurred_at: string
+          position: number | null
+          ranker_version: string | null
+          received_at: string
+          schema_version: string
+          score: number | null
+          sport: string
+          story_id: string | null
+          surface: string
+        }
+        Insert: {
+          clerk_user_id: string
+          event_key: string
+          event_type: string
+          factors?: Json
+          id?: string
+          item_id?: string | null
+          metadata?: Json
+          module_key?: string | null
+          occurred_at?: string
+          position?: number | null
+          ranker_version?: string | null
+          received_at?: string
+          schema_version?: string
+          score?: number | null
+          sport?: string
+          story_id?: string | null
+          surface: string
+        }
+        Update: {
+          clerk_user_id?: string
+          event_key?: string
+          event_type?: string
+          factors?: Json
+          id?: string
+          item_id?: string | null
+          metadata?: Json
+          module_key?: string | null
+          occurred_at?: string
+          position?: number | null
+          ranker_version?: string | null
+          received_at?: string
+          schema_version?: string
+          score?: number | null
+          sport?: string
+          story_id?: string | null
+          surface?: string
+        }
+        Relationships: []
+      }
       forum_likes: {
         Row: {
           created_at: string | null
@@ -4396,6 +4456,7 @@ export type Database = {
           id: string
           importance_tier_min: string | null
           injury_severity_filter: string[] | null
+          personalization_enabled: boolean
           sport: string
           transfer_confidence_min: number | null
           updated_at: string | null
@@ -4410,6 +4471,7 @@ export type Database = {
           id?: string
           importance_tier_min?: string | null
           injury_severity_filter?: string[] | null
+          personalization_enabled?: boolean
           sport?: string
           transfer_confidence_min?: number | null
           updated_at?: string | null
@@ -4424,6 +4486,7 @@ export type Database = {
           id?: string
           importance_tier_min?: string | null
           injury_severity_filter?: string[] | null
+          personalization_enabled?: boolean
           sport?: string
           transfer_confidence_min?: number | null
           updated_at?: string | null
