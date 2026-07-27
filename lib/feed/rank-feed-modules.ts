@@ -11,6 +11,7 @@
  * tracking.position. Reasons stay human-readable for agent_logs.
  */
 import type { FeedModule } from "@/lib/feed/build-feed-modules";
+import { lessLikedPenalty } from "@/lib/feed/negative-signals";
 
 const TYPE_BASE: Record<string, number> = {
   live_match: 100,
@@ -30,6 +31,11 @@ const SLOT_PREFERENCE = [2, 4, 8, 12, 16];
 export type RankFeedModulesContext = {
   followedTeamIds?: string[];
   interests?: string[];
+  /** Recent less_like_this counts keyed by module_key (id) — down-ranks matching modules. */
+  lessLiked?: Map<string, number>;
+  /** Module/item ids to filter out before ranking (content_hidden). Not used by the scorer itself. */
+  hiddenItemIds?: Set<string>;
+  hiddenModuleKeys?: Set<string>;
 };
 
 /** Feature flag: OFF by default so prod behavior is byte-for-byte unchanged. */
@@ -87,6 +93,15 @@ function personalizationTerms(
     if (newsTag && ctx.interests.includes(newsTag)) {
       score += INTEREST_AFFINITY_BOOST;
       factors.push(`interest_affinity=+${INTEREST_AFFINITY_BOOST}`);
+    }
+  }
+
+  if (ctx.lessLiked?.size) {
+    const count = ctx.lessLiked.get(mod.id) ?? 0;
+    if (count > 0) {
+      const penalty = lessLikedPenalty(count);
+      score -= penalty;
+      factors.push(`less_like_this=-${penalty}`);
     }
   }
 

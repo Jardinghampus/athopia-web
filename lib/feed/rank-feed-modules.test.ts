@@ -1,7 +1,10 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { rankFeedModules } from "@/lib/feed/rank-feed-modules";
-import type { FeedModule } from "@/lib/feed/build-feed-modules";
+import {
+  filterHiddenCandidates,
+  type FeedModule,
+} from "@/lib/feed/build-feed-modules";
 
 function mod(
   partial: Partial<FeedModule> & Pick<FeedModule, "id" | "type">,
@@ -187,5 +190,69 @@ describe("rankFeedModules — Slice 2 personalization (FEED_RANKER_V2)", () => {
     } finally {
       delete process.env.FEED_RANKER_V2;
     }
+  });
+});
+
+describe("filterHiddenCandidates — Slice 2 content_hidden", () => {
+  const candidates: FeedModule[] = [
+    mod({ id: "mod_a", type: "headline_stack" }),
+    mod({ id: "mod_b", type: "podcast" }),
+    mod({ id: "mod_c", type: "discussion" }),
+  ];
+
+  it("drops candidates matching hiddenModuleKeys or hiddenItemIds", () => {
+    const filtered = filterHiddenCandidates(
+      candidates,
+      new Set(["mod_c"]),
+      new Set(["mod_a"]),
+    );
+    assert.deepEqual(
+      filtered.map((m) => m.id),
+      ["mod_b"],
+    );
+  });
+
+  it("is a no-op when hidden sets are empty/undefined", () => {
+    assert.deepEqual(filterHiddenCandidates(candidates), candidates);
+    assert.deepEqual(
+      filterHiddenCandidates(candidates, new Set(), new Set()),
+      candidates,
+    );
+  });
+});
+
+describe("rankFeedModules — Slice 2 less_like_this down-rank", () => {
+  const pair: FeedModule[] = [
+    mod({ id: "podcast_penalized", type: "podcast" }),
+    mod({ id: "podcast_clean", type: "podcast" }),
+  ];
+
+  it("flag ON + lessLiked ⇒ penalized module scores lower with an explainable factor", () => {
+    process.env.FEED_RANKER_V2 = "true";
+    try {
+      const ranked = rankFeedModules(pair, 10, {
+        lessLiked: new Map([["podcast_penalized", 2]]),
+      });
+      const penalized = ranked.find((m) => m.id === "podcast_penalized")!;
+      const clean = ranked.find((m) => m.id === "podcast_clean")!;
+      assert.ok(penalized.tracking.score < clean.tracking.score);
+      assert.ok(
+        penalized.tracking.factors.some((f) => f.startsWith("less_like_this=-")),
+      );
+      assert.ok(
+        !clean.tracking.factors.some((f) => f.startsWith("less_like_this=")),
+      );
+    } finally {
+      delete process.env.FEED_RANKER_V2;
+    }
+  });
+
+  it("flag OFF ⇒ lessLiked ctx has no effect (output identical to no ctx)", () => {
+    delete process.env.FEED_RANKER_V2;
+    const withLessLiked = rankFeedModules(pair, 10, {
+      lessLiked: new Map([["podcast_penalized", 5]]),
+    });
+    const withoutCtx = rankFeedModules(pair, 10);
+    assert.deepEqual(withLessLiked, withoutCtx);
   });
 });

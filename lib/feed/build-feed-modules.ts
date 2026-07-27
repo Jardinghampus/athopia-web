@@ -26,6 +26,18 @@ import { getDailyEpisodeForShareCached } from "@/lib/team-hub/queries";
 
 export type FeedModule = z.infer<typeof FeedModuleSchema>;
 
+/** Slice 2 closed loop — drops modules hidden via content_hidden. Pure/testable. */
+export function filterHiddenCandidates(
+  candidates: FeedModule[],
+  hiddenItemIds?: Set<string>,
+  hiddenModuleKeys?: Set<string>,
+): FeedModule[] {
+  if (!hiddenItemIds?.size && !hiddenModuleKeys?.size) return candidates;
+  return candidates.filter(
+    (m) => !hiddenModuleKeys?.has(m.id) && !hiddenItemIds?.has(m.id),
+  );
+}
+
 const SPORT = "football";
 
 export type BuildFeedModulesOptions = {
@@ -307,18 +319,19 @@ export async function buildFeedModules(
     });
   }
 
-  // ponytail: deferred closed loop for content_hidden/less_like_this (Slice 2).
-  // To wire it: fetch `feed_interactions` rows for this user where
-  // event_type IN ('content_hidden','less_like_this') filtered on module_key/
-  // story_id (see app/api/feed/events/route.ts for the row shape), pass the
-  // hidden ids in as part of BuildFeedModulesOptions, then (a) drop candidates
-  // whose id/storyId is in the hidden set before ranking, and (b) in
-  // lib/feed/rank-feed-modules.ts add a per-module penalty in scoreModule()
-  // (or a new term in personalizationTerms()) for ids/types with recent
-  // less_like_this events. Deferred: needs a query + cache strategy (this is
-  // called on every feed request) that wasn't in scope for the UI slice.
+  // Slice 2 closed loop: drop content_hidden candidates before ranking.
+  // hiddenItemIds/hiddenModuleKeys are only ever populated when
+  // FEED_RANKER_V2 is on AND the user opted in (see getNegativeSignals) —
+  // both sets are empty/undefined otherwise, so this is a no-op by default.
+  const { hiddenItemIds, hiddenModuleKeys } = opts.rankCtx ?? {};
+  const visibleCandidates = filterHiddenCandidates(
+    candidates,
+    hiddenItemIds,
+    hiddenModuleKeys,
+  );
 
   // Ranking v1 (v2 personalization behind FEED_RANKER_V2) — explainable order +
-  // slot positions (score/factors for analytics).
-  return rankFeedModules(candidates, 5, opts.rankCtx);
+  // slot positions (score/factors for analytics). less_like_this down-ranking
+  // happens inside rankFeedModules via ctx.lessLiked.
+  return rankFeedModules(visibleCandidates, 5, opts.rankCtx);
 }
