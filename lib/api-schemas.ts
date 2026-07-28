@@ -336,6 +336,30 @@ export const MatchTimelineResponseSchema = z.object({
   keyMoments: z.array(KeyMomentSchema).optional(),
 });
 
+/** GET /api/daily/personal — Slice 5.2 personal brief incl. pundit intro (iOS-consumable). */
+export const PersonalDailyItemSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  href: z.string(),
+  sourceName: z.string().nullable(),
+  publishedAt: z.string(),
+});
+
+export const PersonalDailySectionSchema = z.object({
+  key: z.enum(["mitt-lag", "dagens-match", "allsvenskan", "vart-att-veta"]),
+  title: z.string(),
+  items: z.array(PersonalDailyItemSchema),
+});
+
+export const PersonalDailyResponseSchema = z.object({
+  minutes: z.number().int(),
+  generatedAt: z.string(),
+  sections: z.array(PersonalDailySectionSchema),
+  isEmpty: z.boolean(),
+  /** Slice 5.2 — only present when AI_PUNDIT is on. */
+  punditIntro: z.string().optional(),
+});
+
 /** GET /api/player/{idOrSlug} — player profile (ungated wrap). */
 export const PlayerProfilePlayerSchema = z.object({
   sportmonksId: z.number().int(),
@@ -886,6 +910,7 @@ export const API_CONTRACTS = [
   { method: "get", path: "/api/scout", name: "ScoutPoolResponse", schema: ScoutPoolResponseSchema },
   { method: "get", path: "/api/daily", name: "DailyResponse", schema: DailyResponseSchema },
   { method: "get", path: "/api/daily/audio", name: "DailyAudioResponse", schema: DailyAudioResponseSchema },
+  { method: "get", path: "/api/daily/personal", name: "PersonalDailyResponse", schema: PersonalDailyResponseSchema },
   { method: "get", path: "/api/analyses", name: "AnalysisListResponse", schema: AnalysisListResponseSchema },
   { method: "get", path: "/api/podcasts", name: "PodcastListResponse", schema: PodcastListResponseSchema },
   { method: "get", path: "/api/search", name: "SearchResponse", schema: SearchResponseSchema },
