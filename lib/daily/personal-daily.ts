@@ -10,6 +10,7 @@
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import { articlePublicPath } from "@/lib/provenance";
 import { getFavoriteTeamMatchToday } from "@/lib/matchday/getFavoriteTeamMatchToday";
+import { isAiPunditEnabled, buildPunditIntro } from "@/lib/persona/pundit";
 
 export type PersonalDailyItem = {
   id: string;
@@ -30,6 +31,8 @@ export type PersonalDaily = {
   generatedAt: string;
   sections: PersonalDailySection[];
   isEmpty: boolean;
+  /** Slice 5.2 AI-pundit intro line — only set when AI_PUNDIT flag is on. */
+  punditIntro?: string;
 };
 
 /**
@@ -265,8 +268,16 @@ export async function getPersonalDaily(
     accessor.getTopImportanceItems(sinceIso),
   ]);
 
-  return buildPersonalDaily(
+  const daily = buildPersonalDaily(
     { followedTeamNews, todayMatch, leagueItems, topImportance },
     minutes,
   );
+
+  // Slice 5.2 AI-pundit — additive intro line, flag-gated. teamName omitted for
+  // now (falls back to "ditt lag") to avoid an extra query in this cheap v1.
+  if (isAiPunditEnabled()) {
+    daily.punditIntro = buildPunditIntro(daily);
+  }
+
+  return daily;
 }
