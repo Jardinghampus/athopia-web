@@ -18,6 +18,8 @@ import { FeedMatchHero } from "@/components/feed/FeedMatchHero";
 import { StatNumber } from "@/components/ui/StatNumber";
 import { MittLagWidgets } from "@/components/mitt-lag/MittLagWidgets";
 import { MittLagGuestPreview } from "@/components/mitt-lag/MittLagGuestPreview";
+import { getHighlights } from "@/lib/highlights/queries";
+import { HighlightRail } from "@/components/highlights/HighlightRail";
 
 export const dynamic = "force-dynamic";
 
@@ -70,10 +72,20 @@ export default async function MittLagPage({
     return <MittLagGuestPreview />;
   }
 
-  const [plan, hub] = await Promise.all([
+  const [plan, hub, teamHighlights] = await Promise.all([
     getUserPlan(),
     getTeamHub(primaryTeam.slug),
+    getHighlights({ teamEntityId: primaryTeam.id, limit: 8 }),
   ]);
+
+  // Hub-ytan står aldrig tom när det finns klipp: saknar favoritlaget höjdpunkter
+  // faller vi tillbaka till senaste Allsvenskan-klippen.
+  const highlights = teamHighlights.length
+    ? teamHighlights
+    : await getHighlights({ limit: 8 });
+  const highlightsTitle = teamHighlights.length
+    ? `Höjdpunkter · ${hub.team.name}`
+    : "Höjdpunkter · Allsvenskan";
 
   if (!hub) {
     return <MittLagGuestPreview />;
@@ -148,6 +160,12 @@ export default async function MittLagPage({
       <div className="mt-6">
         <MittLagWidgets hub={hub} />
       </div>
+
+      {highlights.length > 0 && (
+        <div className="mt-6">
+          <HighlightRail highlights={highlights} title={highlightsTitle} />
+        </div>
+      )}
 
       <nav className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3" aria-label="Snabbvägar">
         <QuickLink
