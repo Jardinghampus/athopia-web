@@ -68,6 +68,13 @@ export default async function MinDagPage({
         </div>
       </header>
 
+      {brief?.punditIntro && (
+        <div className="rounded-xl border border-pitch/30 bg-pitch/5 p-4">
+          <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-pitch">Athopia</p>
+          <p className="text-sm text-foreground">{brief.punditIntro}</p>
+        </div>
+      )}
+
       {!brief || brief.isEmpty ? (
         <div className="rounded-xl border border-border bg-card p-6 text-center">
           <p className="text-sm text-muted-foreground">

@@ -15,6 +15,7 @@ import { fetchStandingsFull } from "@/lib/db/fixtures";
 import type { SMStandingRow } from "@/lib/db/fixtures";
 import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
 import { buildMatchTimeline } from "@/lib/match/events";
+import { isMatchAnalysisEnabled, buildKeyMoments } from "@/lib/match/keyMoments";
 
 export const revalidate = 60;
 
@@ -312,6 +313,13 @@ export default async function MatchPage({ params }: PageProps) {
   const homeXg = hasXg ? Number(homeStat?.xg) : null;
   const awayXg = hasXg ? Number(awayStat?.xg) : null;
 
+  // Slice 5.1 AI-matchanalys billig-v1 — deterministiska avgörande ögonblick.
+  // ponytail: Elite-gate inline (plan === "elite") — flag-gated experimentyta; när
+  // den graduerar, promota till en ACCESS-nyckel + iOS-kontrakt (parity) istället.
+  const keyMoments = isMatchAnalysisEnabled()
+    ? buildKeyMoments(d?.timeline?.events ?? [])
+    : [];
+
   const matchJsonLd = {
     "@context": "https://schema.org",
     "@type": "SportsEvent",
@@ -493,6 +501,25 @@ export default async function MatchPage({ params }: PageProps) {
               homeXg={homeXg!}
               awayXg={awayXg!}
             />
+          )}
+
+          {/* Avgörande ögonblick (5.1) — Elite, dolt när inga finns (aldrig påhittat) */}
+          {keyMoments.length > 0 && plan === "elite" && (
+            <div className="rounded-xl border border-pitch/30 bg-pitch/5 p-4">
+              <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-pitch">
+                Avgörande ögonblick
+              </h3>
+              <ol className="space-y-2">
+                {keyMoments.map((m, i) => (
+                  <li key={i} className="flex items-baseline gap-3 text-sm">
+                    <span className="w-8 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
+                      {m.minute != null ? `${m.minute}′` : "—"}
+                    </span>
+                    <span className="text-foreground">{m.text}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
           )}
 
           {/* Händelsetidslinje — rescinded/VAR-korrigerade döljs (B-08) */}
