@@ -78,6 +78,10 @@ export default async function MittLagPage({
     getHighlights({ teamEntityId: primaryTeam.id, limit: 8 }),
   ]);
 
+  if (!hub) {
+    return <MittLagGuestPreview />;
+  }
+
   // Hub-ytan står aldrig tom när det finns klipp: saknar favoritlaget höjdpunkter
   // faller vi tillbaka till senaste Allsvenskan-klippen.
   const highlights = teamHighlights.length
@@ -86,10 +90,6 @@ export default async function MittLagPage({
   const highlightsTitle = teamHighlights.length
     ? `Höjdpunkter · ${hub.team.name}`
     : "Höjdpunkter · Allsvenskan";
-
-  if (!hub) {
-    return <MittLagGuestPreview />;
-  }
 
   const greeting = homeGreeting(user?.firstName);
 
