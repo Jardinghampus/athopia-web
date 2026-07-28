@@ -320,11 +320,20 @@ export const MatchLineupRowSchema = z.object({
   slug: z.string().nullable(),
 });
 
+/** Slice 5.1 — one decisive match moment. Only present when MATCH_ANALYSIS_V1 is on. */
+export const KeyMomentSchema = z.object({
+  minute: z.number().int().nullable(),
+  kind: z.enum(["goal", "red_card", "penalty_missed"]),
+  text: z.string(),
+});
+
 export const MatchTimelineResponseSchema = z.object({
   fixtureId: z.number().int(),
   snapshotRevision: z.string(),
   events: z.array(MatchEventSchema),
   lineups: z.array(MatchLineupRowSchema),
+  /** Slice 5.1 key moments — optional so prod is unchanged when the flag is off. */
+  keyMoments: z.array(KeyMomentSchema).optional(),
 });
 
 /** GET /api/player/{idOrSlug} — player profile (ungated wrap). */

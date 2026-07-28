@@ -2254,6 +2254,41 @@
                         ],
                         "additionalProperties": false
                       }
+                    },
+                    "keyMoments": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "minute": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "goal",
+                              "red_card",
+                              "penalty_missed"
+                            ]
+                          },
+                          "text": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "minute",
+                          "kind",
+                          "text"
+                        ],
+                        "additionalProperties": false
+                      }
                     }
                   },
                   "required": [
