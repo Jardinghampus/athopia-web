@@ -857,7 +857,7 @@ export const getNewsStream = unstable_cache(
 
       q = orderBy === "signal_score"
         ? q.order("feed_score", { ascending: false, nullsFirst: false })
-        : q.order("published_at", { ascending: false });
+        : q.order("published_at", { ascending: false, nullsFirst: false });
 
       const { data } = await q;
       const rows = dedupeByStoryCluster(
