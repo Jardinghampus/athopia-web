@@ -101,6 +101,13 @@ function ArticleJsonLd({ article }: { article: Article }) {
     },
     image: article.imageUrl ?? undefined,
     url: `${getSiteUrl()}/artikel/${article.slug}`,
+    ...(article.isAthopiaGenerated
+      ? {
+          additionalProperty: [
+            { "@type": "PropertyValue", name: "aiGenerated", value: true },
+          ],
+        }
+      : {}),
   };
 
   return (
@@ -180,7 +187,7 @@ export default async function ArtikelPage({
           {article.title}
         </h1>
 
-        <div className="flex items-center justify-between gap-3 mb-8">
+        <div className="flex items-center justify-between gap-3 mb-4">
           <p className="text-sm text-muted-foreground">
             <span className="font-medium text-foreground">{article.sourceName}</span>
             {" · "}
@@ -197,6 +204,13 @@ export default async function ArtikelPage({
             url={`${getSiteUrl()}/artikel/${article.slug}`}
           />
         </div>
+
+        {article.isAthopiaGenerated && (
+          <div className="mb-8 inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground">
+            <Sparkles className="h-3.5 w-3.5 text-pitch" aria-hidden />
+            AI-genererad av Athopia
+          </div>
+        )}
 
         {article.summary && (
           <BlurPaywall
@@ -239,10 +253,18 @@ export default async function ArtikelPage({
         <Separator className="mb-8" />
 
         {article.content && unlockedAi ? (
-          <div
-            className="prose-athopia max-w-none"
-            dangerouslySetInnerHTML={{ __html: article.content }}
-          />
+          <>
+            {article.isAthopiaGenerated && (
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground">
+                <Sparkles className="h-3.5 w-3.5 text-pitch" aria-hidden />
+                AI-genererad av Athopia
+              </div>
+            )}
+            <div
+              className="prose-athopia max-w-none"
+              dangerouslySetInnerHTML={{ __html: article.content }}
+            />
+          </>
         ) : article.content && !unlockedAi ? (
           <BlurPaywall
             feature="aiSummaries"

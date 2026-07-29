@@ -9,6 +9,7 @@ import { TeamPushPopups } from "@/components/news/TeamPushPopups";
 import { AthleticFeedHero, AthleticFeedRow } from "@/components/news/AthleticFeed";
 import { FeedSortBar, type FeedSort } from "@/components/news/FeedSortBar";
 import { FeedModulesRail } from "@/components/feed/FeedModulesRail";
+import { WhatsChanged } from "@/components/feed/WhatsChanged";
 import {
   getFilteredArticles,
   getDiscussionCounts,
@@ -214,6 +215,12 @@ export default async function NyheterPage({
       <Suspense fallback={null}>
         <FeedSortBar sort={sort} visa={visa} />
       </Suspense>
+
+      {showModules ? (
+        <Suspense fallback={null}>
+          <WhatsChanged />
+        </Suspense>
+      ) : null}
 
       {showModules ? (
         <Suspense fallback={null}>

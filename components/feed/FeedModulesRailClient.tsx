@@ -1,8 +1,143 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { ProductEventTracker } from "@/components/analytics/ProductEventTracker";
 import { TrackedLink } from "@/components/analytics/TrackedLink";
 import type { FeedModule } from "@/lib/feed/build-feed-modules";
+import { queueFeedEvent } from "@/lib/feed/feed-event-client";
+
+/** Human-readable Swedish label for a ranker factor key, e.g. "team_affinity=+12". */
+function factorLabel(raw: string): string {
+  const [key, value] = raw.split("=", 2);
+  const n = Number(value);
+  const sign = Number.isFinite(n) && n > 0 ? "+" : "";
+  switch (key) {
+    case "team_affinity":
+      return `Du följer laget (${sign}${value})`;
+    case "interest_affinity":
+      return `Matchar dina intressen (${sign}${value})`;
+    case "type_fatigue":
+      return `Nedviktad — samma modultyp visades nyss (${value})`;
+    case "freshness":
+      return `Färsk (${sign}${value})`;
+    case "engagement":
+      return `Mycket diskussion (${sign}${value})`;
+    case "kickoff_proximity":
+      return `Match snart (${sign}${value})`;
+    case "league_pulse":
+      return `Tabellstatus (${sign}${value})`;
+    case "signal_stack":
+      return `Toppnyheter just nu (${sign}${value})`;
+    default:
+      if (key?.startsWith("type:")) return `Modultyp: ${key.slice(5)} (${value})`;
+      return raw;
+  }
+}
+
+/** Small overflow with feedback actions — only rendered when personalization is on + opted in. */
+function ModuleFeedbackMenu({
+  mod,
+  onAction,
+}: {
+  mod: FeedModule;
+  onAction: (eventType: "more_like_this" | "less_like_this" | "content_saved" | "content_hidden") => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [showWhy, setShowWhy] = useState(false);
+  const [sentFeedback, setSentFeedback] = useState<string | null>(null);
+
+  const factors = mod.tracking.factors ?? [];
+
+  const act = (eventType: "more_like_this" | "less_like_this" | "content_saved" | "content_hidden", label: string) => {
+    onAction(eventType);
+    setSentFeedback(label);
+    setOpen(false);
+  };
+
+  return (
+    <div className="relative shrink-0" onClick={(e) => e.stopPropagation()}>
+      <button
+        type="button"
+        aria-label="Fler alternativ"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+        className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-muted-foreground hover:bg-muted/60 hover:text-foreground transition-colors motion-reduce:transition-none"
+      >
+        <span aria-hidden="true" className="text-lg leading-none">⋯</span>
+      </button>
+
+      {open ? (
+        <div
+          role="menu"
+          className="absolute right-0 top-full z-10 mt-1 w-56 rounded-xl border border-border bg-card p-1 shadow-lg"
+        >
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => act("more_like_this", "Tack — visar mer sånt här")}
+            className="flex min-h-[44px] w-full items-center rounded-lg px-3 text-left text-sm hover:bg-muted/60"
+          >
+            Mer av detta
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => act("less_like_this", "Tack — visar mindre sånt här")}
+            className="flex min-h-[44px] w-full items-center rounded-lg px-3 text-left text-sm hover:bg-muted/60"
+          >
+            Mindre av detta
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => act("content_saved", "Sparat")}
+            className="flex min-h-[44px] w-full items-center rounded-lg px-3 text-left text-sm hover:bg-muted/60"
+          >
+            Spara
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => act("content_hidden", "Dold")}
+            className="flex min-h-[44px] w-full items-center rounded-lg px-3 text-left text-sm hover:bg-muted/60"
+          >
+            Dölj
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              setShowWhy((v) => !v);
+              setOpen(true);
+            }}
+            className="flex min-h-[44px] w-full items-center rounded-lg px-3 text-left text-sm hover:bg-muted/60"
+          >
+            Varför ser jag detta?
+          </button>
+          {showWhy ? (
+            <div className="border-t border-border px-3 py-2 text-xs text-muted-foreground">
+              {factors.length > 0 ? (
+                <ul className="space-y-1">
+                  {factors.slice(0, 6).map((f) => (
+                    <li key={f}>{factorLabel(f)}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p>Ingen förklaring tillgänglig för denna modul.</p>
+              )}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
+      {sentFeedback ? (
+        <span aria-live="polite" className="sr-only">
+          {sentFeedback}
+        </span>
+      ) : null}
+    </div>
+  );
+}
 
 function formatKickoffShort(iso: string): string | null {
   const t = Date.parse(iso);
@@ -29,14 +164,90 @@ function moduleProps(mod: FeedModule) {
   };
 }
 
+function trackingFactors(factors: string[] | undefined) {
+  return (factors ?? []).slice(0, 12).map((raw) => {
+    const [rawKey, rawValue] = raw.split("=", 2);
+    const key = (rawKey ?? "ranker_factor")
+      .toLowerCase()
+      .replace(/[^a-z0-9_:-]/g, "_")
+      .slice(0, 64) || "ranker_factor";
+    const value = Number(rawValue);
+    return { key, value: Number.isFinite(value) ? Math.max(-100, Math.min(100, value)) : 1 };
+  });
+}
+
+function normalizedScore(score: number | undefined): number | undefined {
+  if (typeof score !== "number" || !Number.isFinite(score)) return undefined;
+  return Math.max(0, Math.min(1, score / 100));
+}
+
 /**
  * Client rail for Flöde modules — impressions + opens → agent_logs (B-12).
  */
-export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
+export function FeedModulesRailClient({
+  modules,
+  feedbackEnabled = false,
+}: {
+  modules: FeedModule[];
+  /** Only true when FEED_RANKER_V2 is on AND the user opted into personalization. */
+  feedbackEnabled?: boolean;
+}) {
+  const impressed = useRef(new Set<string>());
+
+  useEffect(() => {
+    for (const mod of modules) {
+      if (impressed.current.has(mod.id)) continue;
+      impressed.current.add(mod.id);
+      void queueFeedEvent({
+        eventType: "module_impression",
+        surface: "club_home",
+        moduleKey: mod.id,
+        position: mod.tracking.position,
+        score: normalizedScore(mod.tracking.score),
+        rankerVersion: "v1",
+        factors: trackingFactors(mod.tracking.factors),
+        metadata: {},
+      });
+    }
+  }, [modules]);
+
   if (modules.length === 0) return null;
 
+  const onModuleOpen = (event: React.MouseEvent<HTMLElement>) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const wrapper = target.closest<HTMLElement>("[data-feed-module-key]");
+    const moduleKey = wrapper?.dataset.feedModuleKey;
+    const mod = modules.find((candidate) => candidate.id === moduleKey);
+    if (!mod) return;
+    void queueFeedEvent({
+      eventType: "module_open",
+      surface: "club_home",
+      moduleKey: mod.id,
+      position: mod.tracking.position,
+      score: normalizedScore(mod.tracking.score),
+      rankerVersion: "v1",
+      factors: trackingFactors(mod.tracking.factors),
+      metadata: {},
+    });
+  };
+
+  const feedbackFor = (mod: FeedModule) =>
+    (eventType: "more_like_this" | "less_like_this" | "content_saved" | "content_hidden") => {
+      void queueFeedEvent({
+        eventType,
+        surface: "club_home",
+        moduleKey: mod.id,
+        position: mod.tracking.position,
+        score: normalizedScore(mod.tracking.score),
+        rankerVersion: "v1",
+        factors: trackingFactors(mod.tracking.factors),
+        metadata: {},
+      });
+    };
+
   return (
-    <section className="mb-6 space-y-3" aria-label="Flödesmoduler">
+    <section className="mb-6 space-y-3" aria-label="Flödesmoduler" onClickCapture={onModuleOpen}>
       {modules.map((mod) => {
         const props = moduleProps(mod);
         const impression = (
@@ -48,6 +259,11 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
             onceScope="session"
           />
         );
+        const feedbackMenu = feedbackEnabled ? (
+          <div className="absolute right-2 top-2 z-[1]">
+            <ModuleFeedbackMenu mod={mod} onAction={feedbackFor(mod)} />
+          </div>
+        ) : null;
 
         if (mod.type === "live_match") {
           const home = String(mod.payload.homeName ?? "?");
@@ -65,8 +281,9 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
               ? `/match/${fixtureId}`
               : "/match";
           return (
-            <div key={mod.id}>
+            <div key={mod.id} data-feed-module-key={mod.id} className="relative">
               {impression}
+              {feedbackMenu}
               <TrackedLink
                 href={href}
                 event="home_module_opened"
@@ -96,8 +313,9 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
           const matches = raw.slice(0, 3) as Record<string, unknown>[];
           if (matches.length === 0) return null;
           return (
-            <div key={mod.id}>
+            <div key={mod.id} data-feed-module-key={mod.id} className="relative">
               {impression}
+              {feedbackMenu}
               <div className="rounded-xl border border-border bg-card px-4 py-3">
                 <p className="text-[11px] font-bold tracking-wide text-pitch">
                   KOMMANDE
@@ -149,8 +367,9 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
           const headlines = raw.slice(0, 4) as Record<string, unknown>[];
           if (headlines.length === 0) return null;
           return (
-            <div key={mod.id}>
+            <div key={mod.id} data-feed-module-key={mod.id} className="relative">
               {impression}
+              {feedbackMenu}
               <div className="rounded-xl border border-border bg-card px-4 py-3">
                 <p className="text-[11px] font-bold tracking-wide text-pitch">
                   TOPPNYHETER
@@ -194,8 +413,9 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
               : null;
           const href = String(mod.payload.href ?? "/nyheter");
           return (
-            <div key={mod.id}>
+            <div key={mod.id} data-feed-module-key={mod.id} className="relative">
               {impression}
+              {feedbackMenu}
               <TrackedLink
                 href={href}
                 event="home_module_opened"
@@ -232,8 +452,9 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
               ? Math.round(durationSec / 60)
               : null;
           return (
-            <div key={mod.id}>
+            <div key={mod.id} data-feed-module-key={mod.id} className="relative">
               {impression}
+              {feedbackMenu}
               <TrackedLink
                 href={unlocked ? href : "/prenumerera"}
                 event="home_module_opened"
@@ -272,8 +493,9 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
           const title = String(mod.payload.title ?? "Podd");
           const show = String(mod.payload.showName ?? "Podcast");
           return (
-            <div key={mod.id}>
+            <div key={mod.id} data-feed-module-key={mod.id} className="relative">
               {impression}
+              {feedbackMenu}
               <TrackedLink
                 href="/podcast"
                 event="home_module_opened"
@@ -297,8 +519,9 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
               ? `/forum/${encodeURIComponent(teamSlug)}/${encodeURIComponent(id)}`
               : "/forum";
           return (
-            <div key={mod.id}>
+            <div key={mod.id} data-feed-module-key={mod.id} className="relative">
               {impression}
+              {feedbackMenu}
               <TrackedLink
                 href={href}
                 event="home_module_opened"
@@ -315,8 +538,9 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
         if (mod.type === "standings_snapshot") {
           const rows = Array.isArray(mod.payload.rows) ? mod.payload.rows : [];
           return (
-            <div key={mod.id}>
+            <div key={mod.id} data-feed-module-key={mod.id} className="relative">
               {impression}
+              {feedbackMenu}
               <TrackedLink
                 href="/allsvenskan"
                 event="home_module_opened"

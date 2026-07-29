@@ -22,7 +22,10 @@ export default async function IntressenPage() {
         Styr vilka typer av nyheter som filtreras i ditt flöde och på /nyheter.
         Statistik och tabeller påverkar inte nyhetsfiltret — de finns under Statistik.
       </p>
-      <InterestSettingsClient initialSelected={prefs.contentTypes} />
+      <InterestSettingsClient
+        initialSelected={prefs.contentTypes}
+        initialPersonalizationEnabled={prefs.personalizationEnabled}
+      />
     </div>
   );
 }

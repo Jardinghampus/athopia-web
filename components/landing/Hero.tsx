@@ -57,7 +57,7 @@ function PulseStrip({ pulse }: { pulse: HeroPulse }) {
       {hasMatch && (
         <Link
           href={pulse.matchId ? `/match/${pulse.matchId}` : "/match"}
-          className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-4 py-2 text-white/85 transition-colors hover:border-pitch/50"
+          className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-4 py-2 text-white/85 transition-colors hover:border-pitch/50"
         >
           {pulse.live ? (
             <span className="relative flex h-2 w-2">
@@ -74,7 +74,7 @@ function PulseStrip({ pulse }: { pulse: HeroPulse }) {
         </Link>
       )}
       {hasLeader && (
-        <Link href="/allsvenskan/tabell" className="text-white/45 transition-colors hover:text-white/75">
+        <Link href="/allsvenskan/tabell" className="inline-flex min-h-11 items-center text-white/45 transition-colors hover:text-white/75">
           Serieledare: <span className="text-white/80">{pulse.leaderName}</span> · {pulse.leaderPoints} p
         </Link>
       )}

@@ -20,6 +20,8 @@ import {
 import { getFollowedTeams } from "@/lib/dashboard/queries";
 import { getUserFeedPreferences } from "@/lib/feed/getUserFeedPreferences";
 import { getTeamHub } from "@/lib/team-hub/queries";
+import { getHighlights } from "@/lib/highlights/queries";
+import { HighlightRail } from "@/components/highlights/HighlightRail";
 import { getUserPlan } from "@/lib/user-plan";
 import { TeamContextTracker } from "@/components/team-hub/TeamContextTracker";
 import { getTeamColors, getTeamAccent } from "@/lib/team-colors";
@@ -131,14 +133,16 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
     );
   }
 
-  const [teams, followedSlugs, plan, insights, following, podcastClips] = await Promise.all([
-    getTeams(),
-    getFollowedSlugs(),
-    getUserPlan(),
-    getTeamEntityInsights(hub.team.id, 2),
-    isFollowing(hub.team.id),
-    getPodcastSignalsForEntities([hub.team.id], { limit: 2, teamNames: [hub.team.name] }),
-  ]);
+  const [teams, followedSlugs, plan, insights, following, podcastClips, highlights] =
+    await Promise.all([
+      getTeams(),
+      getFollowedSlugs(),
+      getUserPlan(),
+      getTeamEntityInsights(hub.team.id, 2),
+      isFollowing(hub.team.id),
+      getPodcastSignalsForEntities([hub.team.id], { limit: 2, teamNames: [hub.team.name] }),
+      getHighlights({ teamEntityId: hub.team.id, limit: 10 }),
+    ]);
 
   const teamJsonLd = {
     "@context": "https://schema.org",
@@ -211,6 +215,12 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
       <PositionTrend teamSlug={hub.team.slug} />
 
       <TransferRadar teamSlug={hub.team.slug} plan={plan} teamName={hub.team.name} />
+
+      {highlights.length > 0 && (
+        <div className="mt-6">
+          <HighlightRail highlights={highlights} title={`Höjdpunkter · ${hub.team.name}`} />
+        </div>
+      )}
 
       <TeamHubTabs hub={hub} plan={plan} insights={insights} />
     </div>

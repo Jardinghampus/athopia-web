@@ -1,8 +1,30 @@
+import { auth } from "@clerk/nextjs/server";
 import { FeedModulesRailClient } from "@/components/feed/FeedModulesRailClient";
 import type { FeedModule } from "@/lib/feed/build-feed-modules";
 import { buildFeedModules } from "@/lib/feed/build-feed-modules";
+import { isFeedRankerV2Enabled } from "@/lib/feed/rank-feed-modules";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import { getUserPlan } from "@/lib/user-plan";
+
+/** Server-side check: feedback UI only renders when the flag is on AND the user opted in. */
+async function getFeedbackUiEnabled(): Promise<boolean> {
+  if (!isFeedRankerV2Enabled()) return false;
+  if (!isSupabaseConfigured()) return false;
+  try {
+    const { userId } = await auth();
+    if (!userId) return false;
+    const db = createServerClient();
+    const { data } = await db
+      .from("user_feed_config")
+      .select("personalization_enabled")
+      .eq("clerk_user_id", userId)
+      .eq("sport", "football")
+      .maybeSingle();
+    return data?.personalization_enabled === true;
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Server-directed Flöde modules — web parity with iOS Home.
@@ -26,5 +48,9 @@ export async function FeedModulesRail({
   }
   if (modules.length === 0) return null;
 
-  return <FeedModulesRailClient modules={modules} />;
+  const feedbackEnabled = await getFeedbackUiEnabled();
+
+  return (
+    <FeedModulesRailClient modules={modules} feedbackEnabled={feedbackEnabled} />
+  );
 }

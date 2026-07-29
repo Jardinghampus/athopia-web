@@ -320,11 +320,44 @@ export const MatchLineupRowSchema = z.object({
   slug: z.string().nullable(),
 });
 
+/** Slice 5.1 — one decisive match moment. Only present when MATCH_ANALYSIS_V1 is on. */
+export const KeyMomentSchema = z.object({
+  minute: z.number().int().nullable(),
+  kind: z.enum(["goal", "red_card", "penalty_missed"]),
+  text: z.string(),
+});
+
 export const MatchTimelineResponseSchema = z.object({
   fixtureId: z.number().int(),
   snapshotRevision: z.string(),
   events: z.array(MatchEventSchema),
   lineups: z.array(MatchLineupRowSchema),
+  /** Slice 5.1 key moments — optional so prod is unchanged when the flag is off. */
+  keyMoments: z.array(KeyMomentSchema).optional(),
+});
+
+/** GET /api/daily/personal — Slice 5.2 personal brief incl. pundit intro (iOS-consumable). */
+export const PersonalDailyItemSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  href: z.string(),
+  sourceName: z.string().nullable(),
+  publishedAt: z.string(),
+});
+
+export const PersonalDailySectionSchema = z.object({
+  key: z.enum(["mitt-lag", "dagens-match", "allsvenskan", "vart-att-veta"]),
+  title: z.string(),
+  items: z.array(PersonalDailyItemSchema),
+});
+
+export const PersonalDailyResponseSchema = z.object({
+  minutes: z.number().int(),
+  generatedAt: z.string(),
+  sections: z.array(PersonalDailySectionSchema),
+  isEmpty: z.boolean(),
+  /** Slice 5.2 — only present when AI_PUNDIT is on. */
+  punditIntro: z.string().optional(),
 });
 
 /** GET /api/player/{idOrSlug} — player profile (ungated wrap). */
@@ -817,6 +850,16 @@ export const APNSSubscriptionResponseSchema = z.object({
 /** GET /api/feed/config svarar med den råa raden ELLER null. */
 export const FeedConfigResponseSchema = z.object({
   content_types: z.array(z.string()).nullable().optional(),
+  personalization_enabled: z.boolean().optional(),
+});
+
+export const FeedEventsResponseSchema = z.object({
+  ok: z.literal(true),
+  accepted: z.number().int().nonnegative(),
+  duplicates: z.number().int().nonnegative(),
+  skipped: z
+    .enum(["authentication_required", "personalization_disabled"])
+    .optional(),
 });
 
 /** GET /api/forum/summary — PRO-gated teaser/full summary. */
@@ -867,6 +910,7 @@ export const API_CONTRACTS = [
   { method: "get", path: "/api/scout", name: "ScoutPoolResponse", schema: ScoutPoolResponseSchema },
   { method: "get", path: "/api/daily", name: "DailyResponse", schema: DailyResponseSchema },
   { method: "get", path: "/api/daily/audio", name: "DailyAudioResponse", schema: DailyAudioResponseSchema },
+  { method: "get", path: "/api/daily/personal", name: "PersonalDailyResponse", schema: PersonalDailyResponseSchema },
   { method: "get", path: "/api/analyses", name: "AnalysisListResponse", schema: AnalysisListResponseSchema },
   { method: "get", path: "/api/podcasts", name: "PodcastListResponse", schema: PodcastListResponseSchema },
   { method: "get", path: "/api/search", name: "SearchResponse", schema: SearchResponseSchema },
@@ -878,6 +922,7 @@ export const API_CONTRACTS = [
   { method: "post", path: "/api/storekit/entitlements", name: "StoreEntitlementSyncResponse", schema: StoreEntitlementSyncResponseSchema },
   { method: "post", path: "/api/push/apns-subscribe", name: "APNSSubscriptionResponse", schema: APNSSubscriptionResponseSchema },
   { method: "get", path: "/api/feed/config", name: "FeedConfigResponse", schema: FeedConfigResponseSchema },
+  { method: "post", path: "/api/feed/events", name: "FeedEventsResponse", schema: FeedEventsResponseSchema },
   {
     method: "get",
     path: "/api/forum/summary",

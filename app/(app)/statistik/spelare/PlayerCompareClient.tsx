@@ -162,7 +162,8 @@ export function PlayerCompareClient({ pool }: { pool: ScoutPlayer[] }) {
   const cols = useMemo(() => {
     const out = {} as Record<ScoutMetricKey, number[]>;
     const active = filteredPool.filter((p) => p.minutes > 0);
-    for (const m of SCOUT_METRICS) out[m.key] = active.map((p) => p[m.key]);
+    // ponytail: xG/xA are nullable but excluded from RADAR_METRICS below, so 0-coercion never surfaces a fake xG
+    for (const m of SCOUT_METRICS) out[m.key] = active.map((p) => p[m.key] ?? 0);
     return out;
   }, [filteredPool]);
 
@@ -174,7 +175,7 @@ export function PlayerCompareClient({ pool }: { pool: ScoutPlayer[] }) {
       name, color,
       values: RADAR_METRICS.map((key) => {
         const label = SCOUT_METRICS.find((m) => m.key === key)?.label ?? key;
-        return { metric: label, value: percentile(cols[key], p[key]), raw: p[key] };
+        return { metric: label, value: percentile(cols[key], p[key] ?? 0), raw: p[key] ?? 0 };
       }),
     };
   }

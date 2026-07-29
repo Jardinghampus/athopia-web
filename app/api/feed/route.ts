@@ -6,6 +6,8 @@ import type { FeedItem } from "@/lib/types";
 import { interestsToNewsTags } from "@/lib/feed/content-preferences";
 import { mapNewsFeedRow } from "@/lib/feed/map-feed-row";
 import { buildFeedModules } from "@/lib/feed/build-feed-modules";
+import { isFeedRankerV2Enabled } from "@/lib/feed/rank-feed-modules";
+import { getNegativeSignals } from "@/lib/feed/negative-signals";
 import { resolveFeedUserId } from "@/lib/feed/feed-usage";
 import { getUserPlan } from "@/lib/user-plan";
 import type { Plan } from "@/lib/access-rules";
@@ -83,16 +85,23 @@ export async function GET(req: Request) {
       .select("id")
       .eq("type", "team")
       .eq("slug", teamSlug)
+      .eq("sport", "football")
       .maybeSingle();
     if (team?.id) filterTeamIds = [String(team.id)];
   }
 
   let contentTypeTags: string[] | null = null;
+  let rankFollowedTeamIds: string[] | undefined;
+  let rankInterests: string[] | undefined;
+  let rankHiddenItemIds: Set<string> | undefined;
+  let rankHiddenModuleKeys: Set<string> | undefined;
+  let rankLessLiked: Map<string, number> | undefined;
   if (userId) {
     const { data: feedConfig } = await db
       .from("user_feed_config")
-      .select("followed_team_ids, content_types")
+      .select("followed_team_ids, content_types, personalization_enabled")
       .eq("clerk_user_id", userId)
+      .eq("sport", "football")
       .maybeSingle();
 
     if (isPro && !teamSlug) {
@@ -103,6 +112,17 @@ export async function GET(req: Request) {
 
     if (!typeFilter) {
       contentTypeTags = interestsToNewsTags(feedConfig?.content_types ?? null);
+    }
+
+    rankFollowedTeamIds = feedConfig?.followed_team_ids ?? undefined;
+    rankInterests = feedConfig?.content_types ?? undefined;
+
+    // Slice 2 closed loop — only fetched when flag on AND opted in.
+    if (isFeedRankerV2Enabled() && feedConfig?.personalization_enabled === true) {
+      const negativeSignals = await getNegativeSignals(userId, db);
+      rankHiddenItemIds = negativeSignals.hiddenItemIds;
+      rankHiddenModuleKeys = negativeSignals.hiddenModuleKeys;
+      rankLessLiked = negativeSignals.lessLiked;
     }
   }
 
@@ -163,7 +183,16 @@ export async function GET(req: Request) {
   let modules: Awaited<ReturnType<typeof buildFeedModules>> = [];
   if (offset === 0 && !teamSlug && !typeFilter) {
     try {
-      modules = await buildFeedModules(db, { plan });
+      modules = await buildFeedModules(db, {
+        plan,
+        rankCtx: {
+          followedTeamIds: rankFollowedTeamIds,
+          interests: rankInterests,
+          hiddenItemIds: rankHiddenItemIds,
+          hiddenModuleKeys: rankHiddenModuleKeys,
+          lessLiked: rankLessLiked,
+        },
+      });
     } catch (err) {
       console.warn("[feed] modules fel:", err);
     }

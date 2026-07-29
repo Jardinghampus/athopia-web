@@ -69,7 +69,10 @@ Ny kod läggs i befintlig feature-mapp. Skapa inte parallella mönster —
   `0.00 xG`, aldrig påhittad xA — dölj fältet i stället.
 - **Publicera aldrig tredjeparts brödtext/teaser ordagrant.** Endast titel +
   källnamn + länk + egenskriven text (upphovsrätt).
-- **ISR:** `revalidate: 30` nyhetsflöde, `60` matcher/standings/artiklar, `3600` statisk spelardata.
+- **ISR:** baslinje `revalidate: 30` nyhetsflöde, `60` matcher/artiklar, `3600` statisk spelardata.
+  Kodifierade undantag (medveten per-content-tuning, godkänd 2026-07-26): rot-feed `120`,
+  standings/skytteliga `300`, spelschema `1800`, krönika/podcast `300`. Avvik bara med
+  ett tydligt skäl (data som ändras långsammare) — inte ad hoc.
 - Server components som default; `"use client"` bara när det behövs.
 - `generateMetadata()` på alla sidor; alla bilder via `next/image`.
 - Ingen auth-läsning i render-vägen som tvingar routes dynamic i onödan

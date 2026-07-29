@@ -98,6 +98,10 @@ export function ScoutClient({ pool }: { pool: ScoutPlayer[] }) {
   const set = (patch: Partial<Filters>) => setFilters((f) => ({ ...f, ...patch }));
   const { position, metrics, aboveMedian, minMinutes } = filters;
 
+  // ponytail: null xG/xA counts as 0 for ranking (unsynced players sink to the bottom),
+  // but is rendered as "–" — never a fake 0.00. Keeps the sort/median engine on plain numbers.
+  const val = (p: ScoutPlayer, m: ScoutMetricKey): number => p[m] ?? 0;
+
   // Jämförelsegrupp = ligan, eller positionen om vald → positionsmedian.
   const cohort = useMemo(
     () => pool.filter((p) => position === "all" || p.position === position),
@@ -106,7 +110,7 @@ export function ScoutClient({ pool }: { pool: ScoutPlayer[] }) {
 
   const medians = useMemo(() => {
     const out = {} as Record<ScoutMetricKey, number>;
-    for (const m of SCOUT_METRICS) out[m.key] = median(cohort.map((p) => p[m.key]));
+    for (const m of SCOUT_METRICS) out[m.key] = median(cohort.map((p) => val(p, m.key)));
     return out;
   }, [cohort]);
 
@@ -117,14 +121,14 @@ export function ScoutClient({ pool }: { pool: ScoutPlayer[] }) {
       .filter((p) => (query ? p.fullname.toLowerCase().includes(query.toLowerCase()) : true))
       .filter((p) =>
         activeMetrics.every((metric) =>
-          aboveMedian ? p[metric] >= medians[metric] : p[metric] <= medians[metric],
+          aboveMedian ? val(p, metric) >= medians[metric] : val(p, metric) <= medians[metric],
         ),
       )
       .sort((a, b) => {
         const score = (p: ScoutPlayer) =>
           activeMetrics.reduce((sum, metric) => {
             const ref = medians[metric] || 1;
-            const delta = (p[metric] - medians[metric]) / Math.max(1, Math.abs(ref));
+            const delta = (val(p, metric) - medians[metric]) / Math.max(1, Math.abs(ref));
             return sum + delta;
           }, 0);
         return aboveMedian ? score(b) - score(a) : score(a) - score(b);
@@ -134,7 +138,10 @@ export function ScoutClient({ pool }: { pool: ScoutPlayer[] }) {
   const metricLabels = metrics
     .map((metric) => SCOUT_METRICS.find((m) => m.key === metric)?.label ?? metric)
     .join(", ");
-  const fmtMetric = (metric: ScoutMetricKey, v: number) => (metric === "rating" || metric === "xg" || metric === "xa" ? v.toFixed(2) : v);
+  const fmtMetric = (metric: ScoutMetricKey, v: number | null) => {
+    if (v == null) return "–";
+    return metric === "rating" || metric === "xg" || metric === "xa" ? v.toFixed(2) : v;
+  };
   const filterActive = position !== "all" || metrics.length !== 1 || metrics[0] !== "shots" || !aboveMedian || minMinutes > 0;
 
   const summary = (
@@ -210,7 +217,8 @@ export function ScoutClient({ pool }: { pool: ScoutPlayer[] }) {
         >
           {results.slice(0, 60).map((p, i) => {
             const primaryMetric: ScoutMetricKey = metrics[0] ?? "shots";
-            const delta = p[primaryMetric] - medians[primaryMetric];
+            const raw = p[primaryMetric];
+            const delta = raw == null ? null : raw - medians[primaryMetric];
             return (
               <ListRow
                 key={`${p.player_id}-${i}`}
@@ -220,10 +228,12 @@ export function ScoutClient({ pool }: { pool: ScoutPlayer[] }) {
                 subtitle={`${p.team_name} · ${p.position?.slice(0, 3) ?? "–"} · ${p.minutes}′`}
                 trailing={
                   <span className="tabular-nums">
-                    <span className="font-bold text-foreground">{fmtMetric(primaryMetric, p[primaryMetric])}</span>
-                    <span className={`ml-1.5 text-[11px] ${delta >= 0 ? "text-success" : "text-red-400"}`}>
-                      {delta >= 0 ? "+" : ""}{fmtMetric(primaryMetric, delta)}
-                    </span>
+                    <span className="font-bold text-foreground">{fmtMetric(primaryMetric, raw)}</span>
+                    {delta != null && (
+                      <span className={`ml-1.5 text-[11px] ${delta >= 0 ? "text-success" : "text-red-400"}`}>
+                        {delta >= 0 ? "+" : ""}{fmtMetric(primaryMetric, delta)}
+                      </span>
+                    )}
                   </span>
                 }
               />

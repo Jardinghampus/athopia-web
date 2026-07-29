@@ -11,6 +11,7 @@
  * tracking.position. Reasons stay human-readable for agent_logs.
  */
 import type { FeedModule } from "@/lib/feed/build-feed-modules";
+import { lessLikedPenalty } from "@/lib/feed/negative-signals";
 
 const TYPE_BASE: Record<string, number> = {
   live_match: 100,
@@ -25,6 +26,87 @@ const TYPE_BASE: Record<string, number> = {
 };
 
 const SLOT_PREFERENCE = [2, 4, 8, 12, 16];
+
+/** Slice 2 personalization context — optional, only used when the flag is on. */
+export type RankFeedModulesContext = {
+  followedTeamIds?: string[];
+  interests?: string[];
+  /** Recent less_like_this counts keyed by module_key (id) — down-ranks matching modules. */
+  lessLiked?: Map<string, number>;
+  /** Module/item ids to filter out before ranking (content_hidden). Not used by the scorer itself. */
+  hiddenItemIds?: Set<string>;
+  hiddenModuleKeys?: Set<string>;
+};
+
+/** Feature flag: OFF by default so prod behavior is byte-for-byte unchanged. */
+export function isFeedRankerV2Enabled(): boolean {
+  return process.env.FEED_RANKER_V2 === "true";
+}
+
+const TEAM_AFFINITY_BOOST = 12;
+const INTEREST_AFFINITY_BOOST = 8;
+// ponytail: fatigue penalty is a flat per-repeat cost, not a decaying curve —
+// good enough to stop one type monopolizing the slice without new state.
+const TYPE_FATIGUE_PENALTY = 10;
+
+/** Best-effort team slugs/ids referenced by a module's payload (shape varies by type). */
+function moduleTeamRefs(payload: Record<string, unknown>): string[] {
+  const refs: string[] = [];
+  const pushIf = (v: unknown) => {
+    if (typeof v === "string" && v) refs.push(v);
+  };
+  pushIf(payload.homeSlug);
+  pushIf(payload.awaySlug);
+  pushIf(payload.teamSlug);
+  const rows = Array.isArray(payload.rows) ? payload.rows : [];
+  for (const r of rows as Record<string, unknown>[]) pushIf(r.teamSlug);
+  const matches = Array.isArray(payload.matches) ? payload.matches : [];
+  for (const m of matches as Record<string, unknown>[]) {
+    pushIf(m.homeSlug);
+    pushIf(m.awaySlug);
+  }
+  return refs;
+}
+
+function personalizationTerms(
+  mod: FeedModule,
+  ctx: RankFeedModulesContext,
+): { score: number; factors: string[] } {
+  let score = 0;
+  const factors: string[] = [];
+
+  if (ctx.followedTeamIds?.length) {
+    const refs = moduleTeamRefs(mod.payload);
+    if (refs.some((r) => ctx.followedTeamIds!.includes(r))) {
+      score += TEAM_AFFINITY_BOOST;
+      factors.push(`team_affinity=+${TEAM_AFFINITY_BOOST}`);
+    }
+  }
+
+  // ponytail: compares raw content_types interests directly against payload
+  // newsTag (both are strings like "transfer"/"match"); "analysis" maps to
+  // news_tag "news" upstream in content-preferences.ts and won't match here —
+  // acceptable miss for v2's first cut, not a correctness bug.
+  if (ctx.interests?.length) {
+    const newsTag =
+      typeof mod.payload.newsTag === "string" ? mod.payload.newsTag : null;
+    if (newsTag && ctx.interests.includes(newsTag)) {
+      score += INTEREST_AFFINITY_BOOST;
+      factors.push(`interest_affinity=+${INTEREST_AFFINITY_BOOST}`);
+    }
+  }
+
+  if (ctx.lessLiked?.size) {
+    const count = ctx.lessLiked.get(mod.id) ?? 0;
+    if (count > 0) {
+      const penalty = lessLikedPenalty(count);
+      score -= penalty;
+      factors.push(`less_like_this=-${penalty}`);
+    }
+  }
+
+  return { score, factors };
+}
 
 function hoursSince(iso: string | null | undefined): number | null {
   if (!iso) return null;
@@ -137,8 +219,11 @@ function scoreModule(mod: FeedModule): { score: number; factors: string[] } {
 export function rankFeedModules(
   modules: FeedModule[],
   limit = 5,
+  ctx?: RankFeedModulesContext,
 ): RankedFeedModule[] {
+  const personalize = isFeedRankerV2Enabled() && !!ctx;
   const seen = new Set<string>();
+  const typeCounts = new Map<string, number>();
   const scored = modules
     .filter((m) => {
       if (seen.has(m.id)) return false;
@@ -147,7 +232,22 @@ export function rankFeedModules(
     })
     .map((m) => {
       const { score, factors } = scoreModule(m);
-      return { mod: m, score, factors };
+      let total = score;
+      const allFactors = factors;
+      if (personalize) {
+        const p = personalizationTerms(m, ctx!);
+        total += p.score;
+        allFactors.push(...p.factors);
+
+        const seenOfType = typeCounts.get(m.type) ?? 0;
+        typeCounts.set(m.type, seenOfType + 1);
+        if (seenOfType > 0) {
+          const penalty = TYPE_FATIGUE_PENALTY * seenOfType;
+          total -= penalty;
+          allFactors.push(`type_fatigue=-${penalty}`);
+        }
+      }
+      return { mod: m, score: total, factors: allFactors };
     })
     .sort((a, b) => b.score - a.score || a.mod.id.localeCompare(b.mod.id))
     .slice(0, limit);

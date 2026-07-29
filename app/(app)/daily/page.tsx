@@ -85,6 +85,9 @@ function DailyEpisodeJsonLd({
       name: "Athopia Daily",
       url: `${SITE}/daily`,
     },
+    additionalProperty: [
+      { "@type": "PropertyValue", name: "aiGenerated", value: true },
+    ],
     ...(episode.has_audio
       ? {
           associatedMedia: {

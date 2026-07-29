@@ -77,6 +77,7 @@ export function OnboardingClient() {
   const [previewLoading, setPreviewLoading] = useState(false);
   const [notifStatus, setNotifStatus] = useState<"idle" | "granted" | "denied" | "unsupported">("idle");
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const activationSentRef = useRef(false);
 
   useEffect(() => {
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
@@ -116,17 +117,49 @@ export function OnboardingClient() {
     setStep(next);
   };
 
+  function trackProductEvent(event: string, props?: Record<string, string | number | boolean | null>) {
+    void fetch("/api/analytics/event", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ event, props }),
+      keepalive: true,
+    }).catch(() => {});
+  }
+
+  function trackAttribution(
+    event: "team_selected" | "activated",
+    properties?: Record<string, string | number | boolean | null>,
+  ) {
+    void fetch("/api/utm/event", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ event, path: "/onboarding", properties }),
+      keepalive: true,
+    }).catch(() => {});
+  }
+
   async function chooseTeam(slug: string, team: Team) {
     setSelectedTeam(slug);
     setSaving(true);
     try {
       await setFavoriteTeam(slug, team.id);
+      trackProductEvent("onboarding_team_selected", { team_slug: slug });
+      trackAttribution("team_selected", { team_slug: slug });
       setPreviewLoading(true);
       goTo(1);
       const res = await fetch(`/api/team/${encodeURIComponent(slug)}/hub`);
       if (res.ok) {
         const data = (await res.json()) as Preview;
         setPreview(data);
+        const hasUsefulPreview =
+          data.position != null ||
+          data.nextMatch != null ||
+          data.news.length > 0;
+        if (hasUsefulPreview && !activationSentRef.current) {
+          activationSentRef.current = true;
+          trackProductEvent("first_useful_session", { team_slug: slug, surface: "onboarding_preview" });
+          trackAttribution("activated", { team_slug: slug, surface: "onboarding_preview" });
+        }
       }
     } finally {
       setSaving(false);
@@ -159,6 +192,10 @@ export function OnboardingClient() {
     setSaving(true);
     try {
       if (!selectedTeam) markOnboardingDone();
+      trackProductEvent("onboarding_complete", {
+        team_slug: selectedTeam,
+        notifications: notifStatus,
+      });
       router.push("/mitt-lag");
     } finally {
       setSaving(false);

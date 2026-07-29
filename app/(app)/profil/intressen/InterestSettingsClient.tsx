@@ -4,29 +4,52 @@ import { useState } from "react";
 import Link from "next/link";
 import { Check, Loader2 } from "lucide-react";
 import { INTEREST_OPTIONS } from "@/lib/feed/interest-options";
+import { setFeedPersonalizationConsent } from "@/lib/feed/feed-event-client";
 
-export function InterestSettingsClient({ initialSelected }: { initialSelected: string[] }) {
+export function InterestSettingsClient({
+  initialSelected,
+  initialPersonalizationEnabled,
+}: {
+  initialSelected: string[];
+  initialPersonalizationEnabled: boolean;
+}) {
   const [selected, setSelected] = useState<string[]>(initialSelected);
+  const [personalizationEnabled, setPersonalizationEnabled] = useState(
+    initialPersonalizationEnabled,
+  );
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState(false);
 
   function toggle(id: string) {
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
     setSaved(false);
+    setError(false);
   }
 
   async function save() {
     setSaving(true);
     setSaved(false);
+    setError(false);
     try {
       const res = await fetch("/api/feed/config", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content_types: selected }),
+        body: JSON.stringify({
+          content_types: selected,
+          personalization_enabled: personalizationEnabled,
+        }),
       });
-      if (res.ok) setSaved(true);
+      if (res.ok) {
+        setFeedPersonalizationConsent(personalizationEnabled);
+        setSaved(true);
+      } else {
+        setError(true);
+      }
+    } catch {
+      setError(true);
     } finally {
       setSaving(false);
     }
@@ -55,6 +78,43 @@ export function InterestSettingsClient({ initialSelected }: { initialSelected: s
         })}
       </div>
 
+      <section className="rounded-2xl border border-border bg-card p-4">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-sm font-semibold text-foreground">
+              Personligt Club Home
+            </h2>
+            <p id="personalization-description" className="mt-1 text-sm text-muted-foreground">
+              Låt Athopia lära sig av vilka moduler, filter och artiklar du använder.
+              Stänger du av funktionen raderas den sparade interaktionshistoriken.
+            </p>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={personalizationEnabled}
+            aria-describedby="personalization-description"
+            onClick={() => {
+              setPersonalizationEnabled((enabled) => !enabled);
+              setSaved(false);
+              setError(false);
+            }}
+            className={`relative mt-0.5 h-7 w-12 shrink-0 rounded-full transition-colors ${
+              personalizationEnabled ? "bg-pitch" : "bg-muted"
+            }`}
+          >
+            <span
+              className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
+                personalizationEnabled ? "translate-x-6" : "translate-x-1"
+              }`}
+            />
+            <span className="sr-only">
+              {personalizationEnabled ? "Stäng av personalisering" : "Slå på personalisering"}
+            </span>
+          </button>
+        </div>
+      </section>
+
       <div className="flex flex-wrap items-center gap-3">
         <button
           type="button"
@@ -67,10 +127,15 @@ export function InterestSettingsClient({ initialSelected }: { initialSelected: s
               <Loader2 className="h-4 w-4 animate-spin" /> Sparar…
             </span>
           ) : (
-            "Spara intressen"
+            "Spara inställningar"
           )}
         </button>
         {saved && <span className="text-sm text-pitch">Sparat ✓</span>}
+        {error && (
+          <span role="alert" className="text-sm text-destructive">
+            Kunde inte spara. Försök igen.
+          </span>
+        )}
         <Link href="/profil" className="text-sm text-muted-foreground hover:text-foreground">
           Tillbaka till profil
         </Link>

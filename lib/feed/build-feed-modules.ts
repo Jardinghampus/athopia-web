@@ -12,7 +12,10 @@ import type { Plan } from "@/lib/access-rules";
 import { canAccess } from "@/lib/access-rules";
 import { fetchStandingsFull, fetchLiveScores, fetchUpcomingFixtures, parseFixtureScore } from "@/lib/db/fixtures";
 import { listenMetaFromRow } from "@/lib/podcast/spotify";
-import { rankFeedModules } from "@/lib/feed/rank-feed-modules";
+import {
+  rankFeedModules,
+  type RankFeedModulesContext,
+} from "@/lib/feed/rank-feed-modules";
 import { mapNewsFeedRow } from "@/lib/feed/map-feed-row";
 import {
   articlePublicPath,
@@ -23,11 +26,25 @@ import { getDailyEpisodeForShareCached } from "@/lib/team-hub/queries";
 
 export type FeedModule = z.infer<typeof FeedModuleSchema>;
 
+/** Slice 2 closed loop — drops modules hidden via content_hidden. Pure/testable. */
+export function filterHiddenCandidates(
+  candidates: FeedModule[],
+  hiddenItemIds?: Set<string>,
+  hiddenModuleKeys?: Set<string>,
+): FeedModule[] {
+  if (!hiddenItemIds?.size && !hiddenModuleKeys?.size) return candidates;
+  return candidates.filter(
+    (m) => !hiddenModuleKeys?.has(m.id) && !hiddenItemIds?.has(m.id),
+  );
+}
+
 const SPORT = "football";
 
 export type BuildFeedModulesOptions = {
   /** Effective plan for access flags (never include signed audio URLs). */
   plan?: Plan;
+  /** Slice 2 personalization — only applied when FEED_RANKER_V2=true. */
+  rankCtx?: RankFeedModulesContext;
 };
 
 export async function buildFeedModules(
@@ -302,6 +319,19 @@ export async function buildFeedModules(
     });
   }
 
-  // Ranking v1 — explainable order + slot positions (score/factors for analytics).
-  return rankFeedModules(candidates);
+  // Slice 2 closed loop: drop content_hidden candidates before ranking.
+  // hiddenItemIds/hiddenModuleKeys are only ever populated when
+  // FEED_RANKER_V2 is on AND the user opted in (see getNegativeSignals) —
+  // both sets are empty/undefined otherwise, so this is a no-op by default.
+  const { hiddenItemIds, hiddenModuleKeys } = opts.rankCtx ?? {};
+  const visibleCandidates = filterHiddenCandidates(
+    candidates,
+    hiddenItemIds,
+    hiddenModuleKeys,
+  );
+
+  // Ranking v1 (v2 personalization behind FEED_RANKER_V2) — explainable order +
+  // slot positions (score/factors for analytics). less_like_this down-ranking
+  // happens inside rankFeedModules via ctx.lessLiked.
+  return rankFeedModules(visibleCandidates, 5, opts.rankCtx);
 }

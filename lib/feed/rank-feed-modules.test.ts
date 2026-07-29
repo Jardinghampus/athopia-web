@@ -1,7 +1,10 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { rankFeedModules } from "@/lib/feed/rank-feed-modules";
-import type { FeedModule } from "@/lib/feed/build-feed-modules";
+import {
+  filterHiddenCandidates,
+  type FeedModule,
+} from "@/lib/feed/build-feed-modules";
 
 function mod(
   partial: Partial<FeedModule> & Pick<FeedModule, "id" | "type">,
@@ -129,5 +132,127 @@ describe("rankFeedModules", () => {
       1,
     );
     assert.equal(ranked.length, 1);
+  });
+});
+
+describe("rankFeedModules — Slice 2 personalization (FEED_RANKER_V2)", () => {
+  const candidates: FeedModule[] = [
+    mod({
+      id: "headline_a",
+      type: "headline_stack",
+      payload: { newsTag: null },
+    }),
+    mod({
+      id: "headline_b",
+      type: "headline_stack",
+      payload: { newsTag: null },
+    }),
+    mod({
+      id: "discussion_followed",
+      type: "discussion",
+      payload: { teamSlug: "team-1" },
+    }),
+    mod({
+      id: "discussion_other",
+      type: "discussion",
+      payload: { teamSlug: "team-2" },
+    }),
+  ];
+
+  it("flag OFF ⇒ identical output to v1 for the same fixture set (ctx ignored)", () => {
+    delete process.env.FEED_RANKER_V2;
+    const withoutCtx = rankFeedModules(candidates, 10);
+    const withCtxButFlagOff = rankFeedModules(candidates, 10, {
+      followedTeamIds: ["team-1"],
+    });
+    assert.deepEqual(withCtxButFlagOff, withoutCtx);
+  });
+
+  it("flag ON ⇒ a followed-team module outranks an equal non-followed one, with explainable factors", () => {
+    process.env.FEED_RANKER_V2 = "true";
+    try {
+      const ranked = rankFeedModules(candidates, 10, {
+        followedTeamIds: ["team-1"],
+      });
+      const followedIdx = ranked.findIndex((m) => m.id === "discussion_followed");
+      const otherIdx = ranked.findIndex((m) => m.id === "discussion_other");
+      assert.ok(followedIdx < otherIdx);
+      assert.ok(
+        ranked[followedIdx]!.tracking.factors.some((f) =>
+          f.startsWith("team_affinity="),
+        ),
+      );
+      // Second headline_stack module should show the type-fatigue penalty factor.
+      const headlineB = ranked.find((m) => m.id === "headline_b")!;
+      assert.ok(
+        headlineB.tracking.factors.some((f) => f.startsWith("type_fatigue=")),
+      );
+    } finally {
+      delete process.env.FEED_RANKER_V2;
+    }
+  });
+});
+
+describe("filterHiddenCandidates — Slice 2 content_hidden", () => {
+  const candidates: FeedModule[] = [
+    mod({ id: "mod_a", type: "headline_stack" }),
+    mod({ id: "mod_b", type: "podcast" }),
+    mod({ id: "mod_c", type: "discussion" }),
+  ];
+
+  it("drops candidates matching hiddenModuleKeys or hiddenItemIds", () => {
+    const filtered = filterHiddenCandidates(
+      candidates,
+      new Set(["mod_c"]),
+      new Set(["mod_a"]),
+    );
+    assert.deepEqual(
+      filtered.map((m) => m.id),
+      ["mod_b"],
+    );
+  });
+
+  it("is a no-op when hidden sets are empty/undefined", () => {
+    assert.deepEqual(filterHiddenCandidates(candidates), candidates);
+    assert.deepEqual(
+      filterHiddenCandidates(candidates, new Set(), new Set()),
+      candidates,
+    );
+  });
+});
+
+describe("rankFeedModules — Slice 2 less_like_this down-rank", () => {
+  const pair: FeedModule[] = [
+    mod({ id: "podcast_penalized", type: "podcast" }),
+    mod({ id: "podcast_clean", type: "podcast" }),
+  ];
+
+  it("flag ON + lessLiked ⇒ penalized module scores lower with an explainable factor", () => {
+    process.env.FEED_RANKER_V2 = "true";
+    try {
+      const ranked = rankFeedModules(pair, 10, {
+        lessLiked: new Map([["podcast_penalized", 2]]),
+      });
+      const penalized = ranked.find((m) => m.id === "podcast_penalized")!;
+      const clean = ranked.find((m) => m.id === "podcast_clean")!;
+      assert.ok(penalized.tracking.score < clean.tracking.score);
+      assert.ok(
+        penalized.tracking.factors.some((f) => f.startsWith("less_like_this=-")),
+      );
+      assert.ok(
+        !clean.tracking.factors.some((f) => f.startsWith("less_like_this=")),
+      );
+    } finally {
+      delete process.env.FEED_RANKER_V2;
+    }
+  });
+
+  it("flag OFF ⇒ lessLiked ctx has no effect (output identical to no ctx)", () => {
+    delete process.env.FEED_RANKER_V2;
+    const withLessLiked = rankFeedModules(pair, 10, {
+      lessLiked: new Map([["podcast_penalized", 5]]),
+    });
+    const withoutCtx = rankFeedModules(pair, 10);
+    assert.deepEqual(withLessLiked, withoutCtx);
   });
 });
