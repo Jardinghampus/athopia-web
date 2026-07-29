@@ -23,6 +23,12 @@ export function LandingFooter() {
             >
               Integritet & Användarvillkor
             </Link>
+            <Link
+              href="/ai-transparens"
+              className="transition-colors hover:text-white/70"
+            >
+              AI-transparens
+            </Link>
             <span className="text-white/15">© 2026 Athopia</span>
           </nav>
         </div>

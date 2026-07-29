@@ -74,6 +74,11 @@ export function Footer() {
                 Integritet
               </Link>
             </li>
+            <li>
+              <Link href="/ai-transparens" className="hover:text-foreground transition-colors">
+                AI-transparens
+              </Link>
+            </li>
           </ul>
         </div>
       </div>
