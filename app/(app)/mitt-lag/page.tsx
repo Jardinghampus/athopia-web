@@ -6,6 +6,7 @@
 
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { currentUser } from "@clerk/nextjs/server";
 import { Star, ArrowRight, Newspaper, BarChart3 } from "lucide-react";
@@ -18,6 +19,7 @@ import { FeedMatchHero } from "@/components/feed/FeedMatchHero";
 import { StatNumber } from "@/components/ui/StatNumber";
 import { MittLagWidgets } from "@/components/mitt-lag/MittLagWidgets";
 import { MittLagGuestPreview } from "@/components/mitt-lag/MittLagGuestPreview";
+import { UtmActivationTracker } from "@/components/growth/UtmActivationTracker";
 import { getHighlights } from "@/lib/highlights/queries";
 import { HighlightRail } from "@/components/highlights/HighlightRail";
 
@@ -95,6 +97,11 @@ export default async function MittLagPage({
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 pb-10 pt-4">
+      {user ? (
+        <Suspense fallback={null}>
+          <UtmActivationTracker enabled />
+        </Suspense>
+      ) : null}
       <header className="mb-6 flex items-start justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">

@@ -34,6 +34,20 @@ async function syncFollowedTeam(teamId: string): Promise<void> {
   }
 }
 
+/** Growth attribution: team_selected once per attributed campaign. */
+async function recordTeamSelectedMilestone(): Promise<void> {
+  try {
+    await fetch("/api/utm/milestone", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ event: "team_selected", path: "/onboarding" }),
+      keepalive: true,
+    });
+  } catch {
+    // Icke-kritiskt — funnel fortsätter utan milstolpe
+  }
+}
+
 const clerkEnabled =
   !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.match(/^pk_(test|live)_[A-Za-z0-9+/=]+$/);
 
@@ -137,6 +151,7 @@ function useClerkFavoriteTeam(): FavoriteTeamState {
           // Clerk-fel är icke-kritiskt — localStorage räcker
         }
         if (teamId) await syncFollowedTeam(teamId);
+        await recordTeamSelectedMilestone();
         // Spegla till profiles.favourite_team_id — enda källan den publika
         // profilsidan (och /api/profile/[id]) kan läsa utan Clerk-backend-anrop.
         try {

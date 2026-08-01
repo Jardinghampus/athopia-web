@@ -13,6 +13,7 @@ import { ArrowRight, Headphones, Sparkles } from "lucide-react";
 import { DailyPodcastPlayer } from "@/components/team-hub/DailyPodcastPlayer";
 import { ProductEventTracker } from "@/components/analytics/ProductEventTracker";
 import { TrackedLink } from "@/components/analytics/TrackedLink";
+import { UtmActivationTracker } from "@/components/growth/UtmActivationTracker";
 import { getDailyEpisodeForShareCached } from "@/lib/team-hub/queries";
 import { getUserPlan } from "@/lib/user-plan";
 import { buttonVariants } from "@/components/ui/button";
@@ -120,6 +121,11 @@ async function DailyAuthArea({
   return (
     <>
       <ProductEventTracker event="daily_view" props={{ lag: lag ?? "all", plan }} />
+      {userId ? (
+        <Suspense fallback={null}>
+          <UtmActivationTracker enabled />
+        </Suspense>
+      ) : null}
 
       {episode ? (
         <DailyPodcastPlayer episode={episode} plan={plan} />

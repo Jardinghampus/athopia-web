@@ -19,6 +19,7 @@ import { NextResponse } from "next/server";
 import { clerkClient } from "@clerk/nextjs/server";
 import { logFunnelEvent } from "@/lib/funnel";
 import { updatePlanSource } from "@/lib/entitlements";
+import { recordUtmMilestone } from "@/lib/utm-attribution";
 
 // Lazy — initieras i POST() för att undvika build-time env-fel;
 
@@ -76,6 +77,8 @@ export async function POST(req: Request) {
       });
 
       await logFunnelEvent("checkout_success", clerkUserId, { plan });
+      // trial_start skrivs från subscription.* när status === "trialing"
+      // (inte här — checkout kan vara direktbetalning utan trial).
 
       console.log(`[stripe-webhook] ${plan.toUpperCase()} aktiverat för ${clerkUserId}`);
       break;
@@ -126,6 +129,19 @@ export async function POST(req: Request) {
             },
           },
         });
+        if (subscription.status === "trialing") {
+          await recordUtmMilestone({
+            event: "trial_start",
+            clerkUserId,
+            path: "/prenumerera",
+            properties: {
+              plan,
+              source: `subscription.${event.type.split(".").pop()}`,
+              subscriptionId: subscription.id,
+            },
+            skipCookie: true,
+          });
+        }
       }
       console.log(`[stripe-webhook] subscription.${event.type.split(".").pop()} för ${clerkUserId}`);
       break;
