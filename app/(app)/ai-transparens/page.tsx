@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { resolveEditorialResponsibility } from "@/lib/editorial-responsibility";
 
 export const metadata: Metadata = {
   title: "AI-transparens | Athopia",
@@ -7,6 +8,8 @@ export const metadata: Metadata = {
 };
 
 export default function AiTransparensPage() {
+  const editorial = resolveEditorialResponsibility();
+
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
       <h1 className="font-bold text-4xl text-foreground mb-6">AI-transparens</h1>
@@ -67,7 +70,10 @@ export default function AiTransparensPage() {
           </p>
           <p>
             <strong>Ansvarig utgivare:</strong>{" "}
-            <span data-todo="legal-signoff">[namn ska fastställas]</span>. Kontakt:{" "}
+            <span data-legal-signoff={editorial.isNamedPerson ? "named" : "entity"}>
+              {editorial.label}
+            </span>
+            . Kontakt:{" "}
             <a href="mailto:hej@athopia.se" className="text-pitch hover:underline">
               hej@athopia.se
             </a>
