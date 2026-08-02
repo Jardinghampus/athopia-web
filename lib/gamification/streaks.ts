@@ -40,7 +40,10 @@ export async function updateStreakOnRingComplete(
     .eq('clerk_user_id', clerkUserId)
 }
 
-export async function useFreeze(clerkUserId: string, roundNumber: number) {
+// Namngiven consumeFreeze, inte useFreeze: use-prefixet fick React-lintern att
+// läsa serverfunktionen som en hook ("called conditionally", "in an async
+// function") och namnet antydde en hook för läsaren också.
+export async function consumeFreeze(clerkUserId: string, roundNumber: number) {
   const supabase = createServerClient()
 
   const { data: streak } = await supabase

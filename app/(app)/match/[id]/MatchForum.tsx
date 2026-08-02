@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { MessageSquare, Send } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
 
@@ -90,7 +91,7 @@ export function MatchForum({ fixtureId, homeName, awayName }: {
         </form>
       ) : (
         <p className="text-xs text-muted-foreground text-center py-2">
-          <a href="/sign-in" className="text-pitch hover:underline">Logga in</a> för att delta i diskussionen
+          <Link href="/sign-in" className="text-pitch hover:underline">Logga in</Link> för att delta i diskussionen
         </p>
       )}
 

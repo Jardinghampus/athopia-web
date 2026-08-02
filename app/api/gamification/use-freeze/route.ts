@@ -1,6 +1,6 @@
 import { auth } from '@clerk/nextjs/server'
 import { NextRequest, NextResponse } from 'next/server'
-import { useFreeze } from '@/lib/gamification/streaks'
+import { consumeFreeze } from '@/lib/gamification/streaks'
 import { enforceRateLimit } from '@/lib/ratelimit'
 
 export async function POST(req: NextRequest) {
@@ -16,6 +16,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid roundNumber' }, { status: 400 })
   }
 
-  const result = await useFreeze(userId, roundNumber)
+  const result = await consumeFreeze(userId, roundNumber)
   return NextResponse.json(result)
 }

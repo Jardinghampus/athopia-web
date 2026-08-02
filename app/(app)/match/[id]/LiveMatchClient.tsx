@@ -146,9 +146,16 @@ export function LiveMatchClient({ fixtureId, initialStats, isLive, teamIds }: Li
     );
   }
 
+  // En statistikrad visas bara när BÅDA lagens värden finns — annars skulle den
+  // saknade sidan renderas som "0", vilket är en påhittad siffra (§4).
   const hasXg = match.home_xg != null && match.away_xg != null;
   const homeXg = match.home_xg ?? 0;
   const awayXg = match.away_xg ?? 0;
+  const hasPossession = match.home_possession != null && match.away_possession != null;
+  const hasShots = match.home_shots != null && match.away_shots != null;
+  const hasShotsOnTarget =
+    match.home_shots_on_target != null && match.away_shots_on_target != null;
+  const hasAnyStats = hasXg || hasPossession || hasShots || hasShotsOnTarget;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -182,7 +189,7 @@ export function LiveMatchClient({ fixtureId, initialStats, isLive, teamIds }: Li
         </div>
 
         {/* Statistik */}
-        {(hasXg || (match.home_possession ?? 0) > 0) && (
+        {hasAnyStats && (
           <div className="bg-card border border-border rounded-xl p-4">
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-4">
               Matchstatistik
@@ -190,14 +197,14 @@ export function LiveMatchClient({ fixtureId, initialStats, isLive, teamIds }: Li
             {hasXg && (
               <StatBar label="xG" home={homeXg} away={awayXg} format={(v) => v.toFixed(2)} />
             )}
-            {match.home_possession != null && (
-              <StatBar label="Bollinnehav %" home={match.home_possession} away={match.away_possession ?? 0} />
+            {hasPossession && (
+              <StatBar label="Bollinnehav %" home={match.home_possession!} away={match.away_possession!} />
             )}
-            {match.home_shots != null && (
-              <StatBar label="Skott" home={match.home_shots} away={match.away_shots ?? 0} />
+            {hasShots && (
+              <StatBar label="Skott" home={match.home_shots!} away={match.away_shots!} />
             )}
-            {match.home_shots_on_target != null && (
-              <StatBar label="Skott på mål" home={match.home_shots_on_target} away={match.away_shots_on_target ?? 0} />
+            {hasShotsOnTarget && (
+              <StatBar label="Skott på mål" home={match.home_shots_on_target!} away={match.away_shots_on_target!} />
             )}
           </div>
         )}

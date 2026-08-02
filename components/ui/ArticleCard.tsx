@@ -27,6 +27,40 @@ interface ArticleCardProps {
   commentCount?: number;
 }
 
+/**
+ * Extern länk → spåra utgående klick (trafik-per-källa); intern → vanlig Link.
+ *
+ * Ligger på modulnivå med flit. Definierad inuti ArticleCard fick den ny
+ * komponentidentitet vid varje render, vilket får React att montera om hela
+ * kortet — state nollställs och DOM:en byggs om i onödan.
+ */
+function CardLink({
+  isExternal,
+  href,
+  sourceName,
+  className,
+  children,
+}: {
+  isExternal: boolean;
+  href: string;
+  sourceName: string;
+  className: string;
+  children: React.ReactNode;
+}) {
+  if (isExternal) {
+    return (
+      <OutboundLink href={href} source={sourceName} className={className}>
+        {children}
+      </OutboundLink>
+    );
+  }
+  return (
+    <Link href={href} className={className}>
+      {children}
+    </Link>
+  );
+}
+
 function SourceBadge({ sourceName }: { sourceName: string }) {
   return (
     <Badge variant="secondary" className="text-[11px] px-2 py-0.5 bg-foreground/5 text-foreground/70 border border-border">
@@ -69,17 +103,14 @@ export function ArticleCard({ article, size = "md", priority = false, commentCou
   // md fick line-clamp-1 → taglinen var i praktiken osynlig; 2 rader ger kortet en riktig undertext
   const summaryLines = size === "lg" ? "line-clamp-2" : size === "md" ? "line-clamp-2" : "hidden";
 
-  // Extern länk → spåra utgående klick (trafik-per-källa); intern → vanlig Link
-  const CardLink = ({ className, children }: { className: string; children: React.ReactNode }) =>
-    isExternal ? (
-      <OutboundLink href={href} source={article.sourceName} className={className}>{children}</OutboundLink>
-    ) : (
-      <Link href={href} className={className}>{children}</Link>
-    );
-
   if (size === "sm") {
     return (
-      <CardLink className={cn(base, "p-4")}>
+      <CardLink
+        isExternal={isExternal}
+        href={href}
+        sourceName={article.sourceName}
+        className={cn(base, "p-4")}
+      >
         <div className="flex items-start justify-between gap-3">
           <h3 className={cn("font-heading leading-tight text-foreground group-hover:text-pitch-light transition-colors", titleClass)}>
             {truncate(article.title, 90)}
@@ -95,7 +126,12 @@ export function ArticleCard({ article, size = "md", priority = false, commentCou
   }
 
   return (
-    <CardLink className={cn(base, "flex flex-col")}>
+    <CardLink
+      isExternal={isExternal}
+      href={href}
+      sourceName={article.sourceName}
+      className={cn(base, "flex flex-col")}
+    >
       {/* Bild */}
       {hasImage ? (
         <div className={cn("relative w-full overflow-hidden bg-muted", imageAspect)}>
