@@ -8,7 +8,7 @@ import { mapNewsFeedRow } from "@/lib/feed/map-feed-row";
 import { buildFeedModules } from "@/lib/feed/build-feed-modules";
 import { resolveFeedUserId } from "@/lib/feed/feed-usage";
 import { getUserPlan } from "@/lib/user-plan";
-import type { Plan } from "@/lib/access-rules";
+import { canAccess, type Plan } from "@/lib/access-rules";
 import { withDiscussionCounts } from "@/lib/feed/discussion-counts";
 
 const PAGE_SIZE = 20;
@@ -61,17 +61,23 @@ export async function GET(req: Request) {
   }
 
   let plan: Plan = "free";
-  let isPro = false;
-  let isElite = false;
   if (userId) {
     try {
       plan = await getUserPlan();
-      isPro = plan === "pro" || plan === "elite";
-      isElite = plan === "elite";
     } catch (err) {
       console.warn("[feed] Kunde inte hämta plan från Clerk:", err);
     }
   }
+
+  // Grinden härleds ur ACCESS-mappen, inte ur en handskriven planjämförelse.
+  // ACCESS är den deklarativa SoT som exporteras till iOS via
+  // `pnpm contracts:generate` — skrivs grinden om för hand här driver web och
+  // iOS isär utan att något test märker det (Sync I-72).
+  //
+  // Beteendet är oförändrat: smartRanking är "pro", så canAccess ger exakt
+  // samma utfall som `plan === "pro" || plan === "elite"` gjorde.
+  const isPro = canAccess("smartRanking", plan);
+  const isElite = plan === "elite"; // ren plandeskriptor i svaret, ingen grind
 
   const feedUserId = resolveFeedUserId(userId, req);
   const effectiveLimit = PAGE_SIZE;
