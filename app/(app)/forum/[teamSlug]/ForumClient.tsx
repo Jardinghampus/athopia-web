@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
 import { toast } from "sonner";
 import PostItem from "@/components/forum/PostItem";
@@ -131,12 +132,12 @@ export default function ForumClient({ teamSlug, sport, initialPosts, articlePref
               Var den som startar diskussionen — skriv det första inlägget nedan.
             </p>
           ) : (
-            <a
+            <Link
               href="/sign-up"
               className="inline-flex h-10 items-center gap-2 rounded-xl bg-pitch px-5 text-sm font-bold text-black hover:bg-pitch/90 transition-colors"
             >
               Skapa konto för att skriva
-            </a>
+            </Link>
           )}
         </div>
       ) : (
