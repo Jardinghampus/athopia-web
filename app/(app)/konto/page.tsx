@@ -1,4 +1,4 @@
-﻿/**
+/**
  * app/konto/page.tsx — Kontosida (PRO-gate i middleware)
  * ─────────────────────────────────────────────────────────────────────────────
  * - Visar plan-status (PRO / Free)
@@ -82,7 +82,7 @@ export default async function KontoPage({
           användaren här innan checkout.session.completed hunnit sätta plan. */}
       {checkout === "success" && isPaid && (
         <div className="mb-8 p-5 rounded-xl border border-pitch/40 bg-pitch/10">
-          <p className="flex items-center gap-2 text-pitch text-sm font-medium">
+          <p className="flex items-center gap-2 text-pitch-ink text-sm font-medium">
             <Check className="w-4 h-4" />
             Välkommen! Din {planLabel}-prenumeration är aktiv.
           </p>
@@ -168,7 +168,7 @@ export default async function KontoPage({
             trailing={
               isPaid ? (
                 <span className="flex items-center gap-2">
-                  <span className="font-semibold text-pitch">{planLabel}</span>
+                  <span className="font-semibold text-pitch-ink">{planLabel}</span>
                   <span className="text-xs px-2 py-0.5 rounded-full pitch-gradient text-white">Aktiv</span>
                 </span>
               ) : (
@@ -206,7 +206,7 @@ export default async function KontoPage({
                     ? `Founder ${proPriceLabel()} för alltid (ordinarie ${listMonthlyKr("pro")} kr) · ${TRIAL_DAYS} dagar gratis`
                     : `${proPriceLabel()} · ${TRIAL_DAYS} dagar gratis · 25 % rabatt årsvis`
               }
-              trailing={<Check className="w-4 h-4 text-pitch" />}
+              trailing={<Check className="w-4 h-4 text-pitch-ink" />}
             />
           )}
         </ListGroup>

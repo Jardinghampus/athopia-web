@@ -52,7 +52,7 @@ export default function AthopiaLanding({
   return (
     <div className="min-h-screen overflow-x-clip bg-black font-sans text-white">
       <LandingNav />
-      <main>
+      <main id="main" tabIndex={-1} className="focus:outline-none">
         <Hero pulse={pulse} clubs={clubs} copy={heroCopy} />
         {sportSlot}
         <DemoVignettes />

@@ -183,7 +183,7 @@ function AIBriefCard({ news }: { news: DashArticle[] }) {
   return (
     <Card className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-pitch">AI Brief</span>
+        <span className="text-xs font-semibold text-pitch-ink">AI Brief</span>
         <span className="text-xs text-muted-foreground tabular-nums">{now}</span>
       </div>
 
@@ -194,7 +194,7 @@ function AIBriefCard({ news }: { news: DashArticle[] }) {
               key={i}
               className="flex gap-3 py-2.5 first:pt-0 last:pb-0 text-sm text-foreground/80 leading-snug"
             >
-              <span className="text-pitch shrink-0 mt-0.5 font-medium select-none">
+              <span className="text-pitch-ink shrink-0 mt-0.5 font-medium select-none">
                 {i + 1}
               </span>
               <span>{b}</span>
@@ -208,7 +208,7 @@ function AIBriefCard({ news }: { news: DashArticle[] }) {
       {ai && (
         <Link
           href={`/artikel/${ai.slug ?? ai.id}`}
-          className="inline-flex items-center gap-1 text-xs text-pitch hover:text-pitch-light transition-colors duration-150 mt-auto"
+          className="inline-flex items-center gap-1 text-xs text-pitch-ink hover:text-pitch-ink transition-colors duration-150 mt-auto"
         >
           Läs djupare analys <ArrowRight className="w-3 h-3" />
         </Link>

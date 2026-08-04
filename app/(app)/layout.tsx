@@ -20,7 +20,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <Suspense fallback={null}>
           <AppSidebar />
         </Suspense>
-        <main className="flex-1 min-w-0 pb-20">{children}</main>
+        {/* tabIndex=-1 så skip-linken faktiskt flyttar fokus, inte bara scrollar. */}
+        <main id="main" tabIndex={-1} className="flex-1 min-w-0 pb-20 focus:outline-none">
+          {children}
+        </main>
       </div>
       <Footer />
       <GlassNav clerkEnabled={clerkEnabled} />

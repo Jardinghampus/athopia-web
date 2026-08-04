@@ -50,6 +50,13 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "cdn.sportmonks.com",
       },
+      // Clerk-avatarer (user.imageUrl → forum-inlägg, profilkort). Saknades och
+      // gav hård 500 på varje /forum/[teamSlug] med ett inlägg som hade avatar —
+      // samma klass av bugg som cdn.sportmonks.com ovan. Hittad 2026-08-03.
+      {
+        protocol: "https",
+        hostname: "img.clerk.com",
+      },
     ],
   },
 };

@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Users } from "lucide-react";
 import { getScoutPool } from "@/lib/team-hub/scout";

@@ -79,7 +79,7 @@ function StatRow({
 function FormRow({ label, a, b }: { label: string; a: string[]; b: string[] }) {
   const Badge = ({ r }: { r: string }) => {
     const color =
-      r === "W" ? "bg-success text-white" : r === "D" ? "bg-muted text-muted-foreground" : "bg-red-500/20 text-red-400";
+      r === "W" ? "bg-success text-success-foreground" : r === "D" ? "bg-muted text-muted-foreground" : "bg-red-500/20 text-red-400";
     return (
       <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold ${color}`}>
         {r}
@@ -153,7 +153,7 @@ export default async function JamforPage({ searchParams }: PageProps) {
           {/* Lagrubriker */}
           <div className="grid grid-cols-3 text-center">
             <div>
-              <p className="text-2xl font-bold text-pitch" style={{ fontFamily: "var(--font-display)" }}>
+              <p className="text-2xl font-bold text-pitch-ink" style={{ fontFamily: "var(--font-display)" }}>
                 {statsA.name}
               </p>
               {statsA.position > 0 && (
@@ -192,7 +192,7 @@ export default async function JamforPage({ searchParams }: PageProps) {
           {/* AI-analys */}
           {aiAnalysis ? (
             <div className="bg-card border border-pitch/30 rounded-xl p-4">
-              <p className="text-xs text-pitch font-semibold uppercase tracking-wide mb-2">
+              <p className="text-xs text-pitch-ink font-semibold uppercase tracking-wide mb-2">
                 Vår AI-analys
               </p>
               <p className="text-sm text-foreground leading-relaxed">{aiAnalysis}</p>
