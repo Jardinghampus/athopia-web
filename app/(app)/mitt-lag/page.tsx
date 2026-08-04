@@ -220,9 +220,9 @@ function QuickLink({
       href={href}
       className="group flex items-start gap-3 rounded-xl border border-border bg-card px-4 py-3 hover:border-pitch/40 transition-colors"
     >
-      <Icon className="h-5 w-5 text-pitch mt-0.5 shrink-0" aria-hidden />
+      <Icon className="h-5 w-5 text-pitch-ink mt-0.5 shrink-0" aria-hidden />
       <div>
-        <p className="text-sm font-semibold text-foreground group-hover:text-pitch">{title}</p>
+        <p className="text-sm font-semibold text-foreground group-hover:text-pitch-ink">{title}</p>
         <p className="text-xs text-muted-foreground">{desc}</p>
       </div>
     </Link>

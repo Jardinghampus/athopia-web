@@ -36,7 +36,7 @@ proxy.ts                  — route-skydd (Next 16-konvention, INTE middleware.t
 app/page.tsx              — landing (copy från landing_copy-tabellen med statisk fallback)
 app/(app)/                — produktytor: feed, nyheter, lag, spelare, match, statistik,
                             mitt-lag, daily, analys, forum, podcast, elite, prenumerera,
-                            konto/profil, mer (nav-flik 4)
+                            konto/profil, mer (overflow, ej egen flik)
 app/(onboarding)/         — onboarding-wizard efter signup
 app/api/                  — route handlers: feed, team, match, stats, standings, scores,
                             forum, daily, elite, push, webhooks (clerk/stripe), create-checkout
@@ -45,7 +45,8 @@ lib/supabase.ts           — createServerClient (service role, server-only) +
                             createBrowserClient (anon key); typer i types/supabase
 lib/access-rules.ts       — Plan + ACCESS-map (single source för feature-gating)
 lib/user-plan.ts          — getUserPlan() — ALLTID server-side
-lib/nav.ts                — EN nav-config för alla 4 flikar (Hem/Mitt lag/Statistik/Mer)
+lib/nav.ts                — EN nav-config för de 5 flikarna (Mitt lag/Flöde/Allsvenskan/
+                            Matcher/AI); se WEB-IA-STRUKTUR.md
 components/               — feature-mappar (feed, match, team-hub, news, landing, ui …)
                             PaywallGate.tsx + UpgradePrompt.tsx för gating-UI
 ```
@@ -101,7 +102,7 @@ Ny kod läggs i befintlig feature-mapp. Skapa inte parallella mönster —
   95 % av UI:t neutralt; accent bara för handling (CTA, aktiv tab, aktiv chart-serie).
 - Light `#FAFAF8` (papper) · dark true black `#000000` med ytor `#151516`–`#222224`.
 - Native-feel-initiativet gäller: iOS-grade känsla, se `NATIVE-FEEL-PLAN.md` och
-  `WEB-IA-STRUKTUR.md` (4-fliks-IA). Följ befintliga komponentmönster i `components/ui`.
+  `WEB-IA-STRUKTUR.md` (5-fliks-IA). Följ befintliga komponentmönster i `components/ui`.
 - Loading/empty/error-states är obligatoriska på nya datavyer.
 
 ## 6. AI-agent-arbetsflöde

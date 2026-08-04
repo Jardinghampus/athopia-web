@@ -133,7 +133,7 @@ export default async function NyhetPage({
           ]}
         />
       </div>
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-pitch">
+      <p className="text-[11px] font-semibold uppercase tracking-wide text-pitch-ink">
         Extern källa
       </p>
       <h1 className="mt-2 font-heading text-3xl sm:text-4xl leading-tight text-foreground">

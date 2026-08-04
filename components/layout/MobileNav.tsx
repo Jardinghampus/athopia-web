@@ -75,7 +75,7 @@ export function MobileNav() {
                     href={href}
                     className={`flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] transition-colors ${
                       active
-                        ? "text-pitch bg-pitch/10 font-medium"
+                        ? "text-pitch-ink bg-pitch/10 font-medium"
                         : "text-muted-foreground hover:text-foreground hover:bg-card"
                     }`}
                   >
@@ -98,7 +98,7 @@ export function MobileNav() {
                     href={href}
                     className={`flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] transition-colors ${
                       active
-                        ? "text-pitch bg-pitch/10 font-medium"
+                        ? "text-pitch-ink bg-pitch/10 font-medium"
                         : "text-muted-foreground hover:text-foreground hover:bg-card"
                     }`}
                   >

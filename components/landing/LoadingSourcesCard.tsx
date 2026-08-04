@@ -66,7 +66,7 @@ export function LoadingSourcesCard() {
               <div className="flex h-full flex-col justify-center gap-10 p-6 md:h-[320px] md:flex-row md:items-center">
                 {/* Animationsyta: AI-pekaren besöker källorna */}
                 <div className="relative mx-auto h-[270px] w-[300px] shrink-0" ref={scope}>
-                  <Sparkles className="absolute left-1/2 top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 text-pitch" />
+                  <Sparkles className="absolute left-1/2 top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 text-pitch-ink" />
                   {SOURCES.map(({ id, label, className }) => (
                     <div
                       key={id}

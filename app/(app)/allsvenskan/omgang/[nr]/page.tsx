@@ -106,10 +106,10 @@ export default async function OmgangPage({
 
       <div className="mt-6 flex justify-between text-sm">
         {round > 1 ? (
-          <Link href={`/allsvenskan/omgang/${round - 1}`} className="text-pitch hover:underline">← Omgång {round - 1}</Link>
+          <Link href={`/allsvenskan/omgang/${round - 1}`} className="text-pitch-ink hover:underline">← Omgång {round - 1}</Link>
         ) : <span />}
         {round < TOTAL_ROUNDS ? (
-          <Link href={`/allsvenskan/omgang/${round + 1}`} className="text-pitch hover:underline">Omgång {round + 1} →</Link>
+          <Link href={`/allsvenskan/omgang/${round + 1}`} className="text-pitch-ink hover:underline">Omgång {round + 1} →</Link>
         ) : <span />}
       </div>
     </div>

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
@@ -100,7 +100,7 @@ function CarouselCard({
     >
       <div>
         <div className="flex items-center gap-1.5 mb-2 flex-wrap">
-          <span className="text-[10px] font-bold text-pitch uppercase tracking-wide">
+          <span className="text-[10px] font-bold text-pitch-ink uppercase tracking-wide">
             #{index + 1}
           </span>
           {(item.sourceCount ?? 0) > 1 || item.importanceTier === "breaking" || item.importanceTier === "major" ? (
@@ -116,7 +116,7 @@ function CarouselCard({
             </>
           ) : null}
         </div>
-        <p className="text-sm font-semibold text-foreground line-clamp-3 leading-snug group-hover:text-pitch transition-colors">
+        <p className="text-sm font-semibold text-foreground line-clamp-3 leading-snug group-hover:text-pitch-ink transition-colors">
           {item.title}
         </p>
       </div>
@@ -222,7 +222,7 @@ function FeedItemCard({ item, showCluster }: { item: FeedItem; showCluster?: boo
             />
           </div>
         ) : null}
-        <p className="text-sm font-medium text-foreground group-hover:text-pitch transition-colors line-clamp-2">
+        <p className="text-sm font-medium text-foreground group-hover:text-pitch-ink transition-colors line-clamp-2">
           {item.title}
         </p>
         {item.subtitle && (
@@ -451,7 +451,7 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
         {newCount > 0 && (
           <button
             onClick={() => { void load(true); void fetchHero(slug).then(setHero); }}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-pitch/10 border border-pitch/30 text-sm text-pitch hover:bg-pitch/20 transition-colors"
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-pitch/10 border border-pitch/30 text-sm text-pitch-ink hover:bg-pitch/20 transition-colors"
           >
             <RefreshCw className="w-4 h-4" />
             {newCount} ny{newCount > 1 ? "a" : ""} artikel{newCount > 1 ? "ar" : ""}

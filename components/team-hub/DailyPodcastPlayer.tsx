@@ -93,10 +93,10 @@ export function DailyPodcastPlayer({ episode, plan, className }: DailyPodcastPla
       <div className="px-4 sm:px-5 py-4 sm:py-5">
         <div className="mb-3 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            <Headphones className="h-3.5 w-3.5 text-pitch" aria-hidden />
+            <Headphones className="h-3.5 w-3.5 text-pitch-ink" aria-hidden />
             Athopia Daily
             {episode.episode_type === "club_daily" && (
-              <span className="rounded-full bg-pitch/15 px-2 py-0.5 text-[10px] text-pitch">Ditt lag</span>
+              <span className="rounded-full bg-pitch/15 px-2 py-0.5 text-[10px] text-pitch-ink">Ditt lag</span>
             )}
           </div>
           <span className="text-xs text-muted-foreground">{dateLabel(episode.episode_date)}</span>
@@ -123,7 +123,7 @@ export function DailyPodcastPlayer({ episode, plan, className }: DailyPodcastPla
                 href={DAILY_UPGRADE_URL}
                 event="daily_checkout_click"
                 props={{ placement: "daily_player", slug: episode.slug }}
-                className="font-medium text-pitch hover:underline"
+                className="font-medium text-pitch-ink hover:underline"
               >
                 Uppgradera
               </TrackedLink>

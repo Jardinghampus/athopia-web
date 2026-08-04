@@ -209,8 +209,8 @@ export default async function ArtikelPage({
             preview={
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-pitch" />
-                  <span className="text-sm font-medium uppercase tracking-wider text-pitch">
+                  <Sparkles className="h-4 w-4 text-pitch-ink" />
+                  <span className="text-sm font-medium uppercase tracking-wider text-pitch-ink">
                     AI-sammanfattning
                   </span>
                 </div>
@@ -226,8 +226,8 @@ export default async function ArtikelPage({
               style={{ backgroundColor: "rgba(45, 83, 73, 0.10)" }}
             >
               <div className="mb-3 flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-pitch" />
-                <span className="text-sm font-medium uppercase tracking-wider text-pitch">
+                <Sparkles className="h-4 w-4 text-pitch-ink" />
+                <span className="text-sm font-medium uppercase tracking-wider text-pitch-ink">
                   AI-sammanfattning
                 </span>
               </div>
@@ -283,7 +283,7 @@ export default async function ArtikelPage({
               href={article.sourceUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-pitch hover:underline"
+              className="text-pitch-ink hover:underline"
             >
               {article.sourceName}
             </a>
@@ -294,7 +294,7 @@ export default async function ArtikelPage({
           <Separator className="mb-8" />
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <MessageSquare className="w-5 h-5 text-pitch" />
+              <MessageSquare className="w-5 h-5 text-pitch-ink" />
               <h2 className="font-bold text-xl text-foreground">
                 Diskussion
                 {discussionCount > 0 && (

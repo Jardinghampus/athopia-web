@@ -29,7 +29,7 @@ function SectionHeading({ title, href, linkLabel }: { title: string; href: strin
   return (
     <div className="flex items-baseline justify-between mb-4">
       <h2 className="font-display text-2xl sm:text-3xl uppercase tracking-wide text-white">{title}</h2>
-      <Link href={href} className="text-sm text-pitch hover:underline shrink-0">
+      <Link href={href} className="text-sm text-pitch-ink hover:underline shrink-0">
         {linkLabel} →
       </Link>
     </div>
@@ -140,7 +140,7 @@ export async function SportFront({ articles }: { articles: LandingArticle[] }) {
                 href={`/artikel/${a.slug}`}
                 className="group rounded-2xl border border-white/10 bg-white/[0.03] p-4 hover:border-pitch/50 transition-colors"
               >
-                <p className="text-[15px] font-medium text-white leading-snug line-clamp-3 group-hover:text-pitch transition-colors">
+                <p className="text-[15px] font-medium text-white leading-snug line-clamp-3 group-hover:text-pitch-ink transition-colors">
                   {a.title}
                 </p>
                 <p className="mt-3 text-xs text-zinc-500">

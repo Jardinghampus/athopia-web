@@ -131,7 +131,7 @@ export default async function NarrativePage({
             {sources.map((s) => (
               <li key={s.id} className="rounded-xl border border-border bg-card px-4 py-3 hover:bg-muted/20 transition-colors">
                 {s.slug ? (
-                  <Link href={`/artikel/${s.slug}`} className="font-medium text-foreground hover:text-pitch transition-colors">
+                  <Link href={`/artikel/${s.slug}`} className="font-medium text-foreground hover:text-pitch-ink transition-colors">
                     {s.title}
                   </Link>
                 ) : (

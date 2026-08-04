@@ -61,7 +61,7 @@ export default async function PodcastIndexPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
       <header className="mb-6">
-        <div className="flex items-center gap-2 text-pitch mb-2">
+        <div className="flex items-center gap-2 text-pitch-ink mb-2">
           <Headphones className="w-5 h-5" />
           <span className="text-xs font-semibold uppercase tracking-wide">Poddintelligens</span>
         </div>

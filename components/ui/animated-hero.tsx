@@ -45,7 +45,7 @@ export function AnimatedHero({
               href={badge.href}
               className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-4 py-2 text-sm text-white/70 hover:text-white hover:border-white/30 transition-all duration-200"
             >
-              <Sparkles className="w-3.5 h-3.5 text-pitch" />
+              <Sparkles className="w-3.5 h-3.5 text-pitch-ink" />
               {badge.label} <MoveRight className="w-4 h-4" />
             </Link>
           </div>
@@ -61,7 +61,7 @@ export function AnimatedHero({
                 {titleList.map((title, index) => (
                   <motion.span
                     key={index}
-                    className="absolute italic text-pitch whitespace-nowrap px-1"
+                    className="absolute italic text-pitch-ink whitespace-nowrap px-1"
                     initial={{ opacity: 0, y: reducedMotion ? 0 : -100 }}
                     transition={{ type: "spring", stiffness: 50 }}
                     animate={
@@ -90,7 +90,7 @@ export function AnimatedHero({
             </Link>
             <Link
               href={primary.href}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-pitch px-8 py-3.5 text-base font-sans font-bold text-black hover:scale-[1.02] active:scale-[0.98] transition-transform duration-200"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-pitch px-8 py-3.5 text-base font-sans font-bold text-white hover:scale-[1.02] active:scale-[0.98] transition-transform duration-200"
             >
               {primary.label} <MoveRight className="w-4 h-4" />
             </Link>

@@ -34,7 +34,7 @@ export function FeedSourceBadge({
       )}
       {count > 1 && (
         <span
-          className="rounded-full bg-pitch/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-pitch"
+          className="rounded-full bg-pitch/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-pitch-ink"
           title="Flera oberoende källor rapporterar samma story"
         >
           {count} källor

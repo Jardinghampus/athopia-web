@@ -158,7 +158,7 @@ export default function AiChatPage() {
     >
       {/* Header */}
       <header className="flex w-full max-w-2xl shrink-0 items-center gap-2.5 px-5 py-4">
-        <Sparkles size={16} className="text-pitch" aria-hidden />
+        <Sparkles size={16} className="text-pitch-ink" aria-hidden />
         <p className="text-sm font-semibold text-foreground">Athopia AI</p>
         <span className="ml-auto flex shrink-0 items-center gap-1.5 rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-amber-500">
           <Sparkles size={9} aria-hidden />
@@ -249,7 +249,7 @@ export default function AiChatPage() {
           </form>
           <p className="mt-2.5 text-center text-xs text-muted-foreground">
             Kräver{' '}
-            <Link href="/prenumerera" className="text-pitch hover:underline">
+            <Link href="/prenumerera" className="text-pitch-ink hover:underline">
               PRO-prenumeration
             </Link>
             {' '}· Enter för att skicka
@@ -279,7 +279,7 @@ function EmptyState({ onAsk }: { onAsk: (q: string) => void }) {
         className="flex h-16 w-16 items-center justify-center rounded-2xl bg-pitch/10"
         aria-hidden
       >
-        <Sparkles size={28} className="text-pitch" />
+        <Sparkles size={28} className="text-pitch-ink" />
       </motion.div>
 
       <div className="text-center">

@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import { getProjectionRows, getScheduleFormRows, getClutchRows } from "@/lib/stats/advanced";
 import { Suspense } from "react";
 import Image from "next/image";
@@ -95,7 +95,7 @@ function EmptyState({ message = "Data ej tillgänglig." }: { message?: string })
 
 function FormBadge({ result }: { result: string }) {
   const colorMap: Record<string, string> = {
-    W: "bg-success text-white",
+    W: "bg-success text-success-foreground",
     D: "bg-muted text-muted-foreground",
     L: "bg-red-500/20 text-red-400",
   };
@@ -156,7 +156,7 @@ function PlayerCell({ row }: { row: ScorerRow }) {
   );
 
   return href ? (
-    <Link href={href} className="hover:text-pitch">
+    <Link href={href} className="hover:text-pitch-ink">
       {content}
     </Link>
   ) : content;
@@ -257,7 +257,7 @@ async function TabelTab({ seasonId }: { seasonId: string }) {
               <td className="py-3 px-3">
                 <span
                   className={`text-xs font-semibold ${
-                    i < 3 ? "text-pitch" : "text-muted-foreground"
+                    i < 3 ? "text-pitch-ink" : "text-muted-foreground"
                   }`}
                 >
                   {row.position}
@@ -571,7 +571,7 @@ async function ClutchTab() {
                   <span className="ml-2 text-xs text-muted-foreground">{r.teamName}</span>
                 </td>
                 <td className="py-3 px-3 text-center tabular-nums">{r.goals}</td>
-                <td className="py-3 px-3 text-center tabular-nums text-pitch">{r.trailingGoals}</td>
+                <td className="py-3 px-3 text-center tabular-nums text-pitch-ink">{r.trailingGoals}</td>
                 <td className="py-3 px-3 text-center tabular-nums">{r.levelGoals}</td>
                 <td className="py-3 px-3 text-center text-lg font-bold tabular-nums text-foreground">{r.clutchScore}</td>
               </tr>
@@ -634,7 +634,7 @@ export default async function StatistikPage({
           <div className="flex items-center gap-2">
             <Link
               href="/statistik/scout"
-              className="px-4 py-2 rounded-lg border border-pitch text-pitch text-sm font-medium hover:bg-pitch/10 transition-colors"
+              className="px-4 py-2 rounded-lg border border-pitch text-pitch-ink text-sm font-medium hover:bg-pitch/10 transition-colors"
             >
               Scout Mode →
             </Link>

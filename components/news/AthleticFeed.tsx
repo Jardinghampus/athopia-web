@@ -54,10 +54,10 @@ export function AthleticFeedHero({
           />
         </div>
       ) : null}
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-pitch">
+      <p className="text-[11px] font-semibold uppercase tracking-wide text-pitch-ink">
         Högst signal
       </p>
-      <h2 className="mt-1 font-heading text-2xl sm:text-3xl leading-tight text-foreground group-hover:text-pitch transition-colors">
+      <h2 className="mt-1 font-heading text-2xl sm:text-3xl leading-tight text-foreground group-hover:text-pitch-ink transition-colors">
         {article.title}
       </h2>
       {article.summary && canPublishBody(resolveRightsStatus(article)) ? (
@@ -98,7 +98,7 @@ export function AthleticFeedRow({
   const body = (
     <div className="flex items-start gap-3 py-4">
       <div className="min-w-0 flex-1">
-        <h3 className="font-heading text-[17px] leading-snug text-foreground group-hover:text-pitch transition-colors line-clamp-3">
+        <h3 className="font-heading text-[17px] leading-snug text-foreground group-hover:text-pitch-ink transition-colors line-clamp-3">
           {article.title}
         </h3>
         <div className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-muted-foreground">

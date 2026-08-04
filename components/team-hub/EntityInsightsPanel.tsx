@@ -15,7 +15,7 @@ function confidenceLabel(value: number) {
 }
 
 function severityClass(severity: EntityInsight["severity"]) {
-  if (severity === "strong") return "text-pitch border-pitch/30 bg-pitch/10";
+  if (severity === "strong") return "text-pitch-ink border-pitch/30 bg-pitch/10";
   if (severity === "watch") return "text-amber-500 border-amber-500/30 bg-amber-500/10";
   return "text-muted-foreground border-border bg-muted/30";
 }
@@ -26,7 +26,7 @@ export function EntityInsightsPanel({ insights }: { insights: EntityInsight[] })
   return (
     <Card className="overflow-hidden">
       <CardHeader className="flex-row items-center gap-2 space-y-0 pb-3">
-        <Brain className="h-4 w-4 text-pitch" />
+        <Brain className="h-4 w-4 text-pitch-ink" />
         <div>
           <CardTitle className="text-base">Athopia Brain</CardTitle>
           <p className="text-xs text-muted-foreground">Precomputad fusion av statistik och nyhetsläge</p>

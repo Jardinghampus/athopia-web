@@ -126,7 +126,7 @@ export function Pricing() {
                     <li key={f} className="flex items-start gap-2.5 text-sm text-white/70">
                       <Check
                         className={`mt-0.5 h-4 w-4 shrink-0 ${
-                          highlighted ? "text-pitch" : "text-white/30"
+                          highlighted ? "text-pitch-ink" : "text-white/30"
                         }`}
                         strokeWidth={3}
                       />

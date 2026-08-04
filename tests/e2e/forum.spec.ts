@@ -18,9 +18,20 @@ test.describe('Team-forum (DIF)', () => {
       // Clerk skyddar sidan — acceptabelt, testa att sign-in renderar
       await expect(page.locator('.cl-rootBox, [data-localization-key]').first()).toBeVisible({ timeout: 8000 })
     } else {
-      // Publikt — mock-posts ska synas efter hydration
-      await expect(page.getByText(/Isaks header/i).first()).toBeVisible({ timeout: 20000 })
+      // Publikt. Mock-inläggen togs bort i 003efb4 — forumet kan därför vara
+      // legitimt tomt. Kravet är att sidan renderar sin rubrik och antingen
+      // trådar eller ett tomt läge, aldrig en blank yta.
+      await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 20000 })
+      const bodyText = await page.locator('main, body').first().innerText()
+      expect(bodyText.trim().length, 'forumet ska rendera innehåll eller tomt läge').toBeGreaterThan(40)
     }
+  })
+
+  test('Avatarer renderar utan 500 (img.clerk.com allowlistad)', async ({ page }) => {
+    // Regression: Clerk-avatarer via next/image saknade remotePattern och gav
+    // hård 500 på hela tråden. Se next.config.ts images.remotePatterns.
+    const res = await page.goto('/forum/djurgardens-if')
+    expect(res?.status(), 'forum-tråden ska inte krascha på avatar-host').toBeLessThan(500)
   })
 
   test('Sidan laddar utan 500', async ({ page }) => {
@@ -38,8 +49,12 @@ test.describe('Team-forum (DIF)', () => {
 
   test('Layout är responsiv på mobil', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
-    // Posts ska laddas
-    await expect(page.getByText(/Isaks header/i).first()).toBeVisible({ timeout: 20000 })
+    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 20000 })
+    // Ingen horisontell scroll på mobil
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth > window.innerWidth + 1,
+    )
+    expect(overflow, 'forumet ska inte scrolla horisontellt på 390px').toBe(false)
     // Höger sidebar (lg:block) ska vara dold
     const rightSidebar = page.locator('aside').last()
     const box = await rightSidebar.boundingBox()

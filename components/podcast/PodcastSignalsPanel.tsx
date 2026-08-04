@@ -58,7 +58,7 @@ function EpisodeListenBlock({
         href={signal.listenUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm text-pitch hover:border-pitch/40 transition-colors"
+        className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm text-pitch-ink hover:border-pitch/40 transition-colors"
       >
         Lyssna hos {signal.showName}
         <ExternalLink className="h-3.5 w-3.5" />
@@ -69,7 +69,7 @@ function EpisodeListenBlock({
   return (
     <Link
       href={`/podcast/${signal.id}`}
-      className="text-sm text-pitch hover:underline"
+      className="text-sm text-pitch-ink hover:underline"
     >
       Se avsnitt →
     </Link>
@@ -130,7 +130,7 @@ export function PodcastSignalsPanel({
       {!hasAccess ? (
         <p className="text-sm text-muted-foreground">
           PRO visar poddavsnitt relevanta för ditt lag — med officiell Spotify-spelare.{' '}
-          <Link href="/prenumerera" className="text-pitch hover:underline">
+          <Link href="/prenumerera" className="text-pitch-ink hover:underline">
             Uppgradera
           </Link>
         </p>

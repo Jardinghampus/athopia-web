@@ -240,7 +240,7 @@ export default function PostItem({
                     {timeAgo(post.created_at)}
                   </span>
                   {post.pinned && (
-                    <span className="text-[11px] font-medium text-pitch bg-pitch/10 px-1.5 py-0.5 rounded-full">
+                    <span className="text-[11px] font-medium text-pitch-ink bg-pitch/10 px-1.5 py-0.5 rounded-full">
                       📌 Fäst
                     </span>
                   )}

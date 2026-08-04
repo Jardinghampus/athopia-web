@@ -28,10 +28,10 @@ export default function ForumDailySummary({ teamName, summary, topics, postCount
         className="w-full flex items-center gap-3 px-4 py-3 text-left"
       >
         <div className="w-7 h-7 rounded-lg bg-pitch/15 flex items-center justify-center shrink-0">
-          <Sparkles className="w-3.5 h-3.5 text-pitch" />
+          <Sparkles className="w-3.5 h-3.5 text-pitch-ink" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-xs font-semibold text-pitch uppercase tracking-wider">
+          <p className="text-xs font-semibold text-pitch-ink uppercase tracking-wider">
             Senaste 24h · {teamName}
           </p>
           <p className="text-xs text-muted-foreground mt-0.5 truncate">
@@ -39,9 +39,9 @@ export default function ForumDailySummary({ teamName, summary, topics, postCount
           </p>
         </div>
         {open ? (
-          <ChevronUp className="w-4 h-4 text-pitch shrink-0" />
+          <ChevronUp className="w-4 h-4 text-pitch-ink shrink-0" />
         ) : (
-          <ChevronDown className="w-4 h-4 text-pitch shrink-0" />
+          <ChevronDown className="w-4 h-4 text-pitch-ink shrink-0" />
         )}
       </button>
 

@@ -35,7 +35,7 @@ export async function NewsStream({
       {!isPro && (
         <div className="py-3 text-center text-xs text-zinc-600">
           Flödet är gratis ·{" "}
-          <a href="/prenumerera" className="text-pitch hover:opacity-80">
+          <a href="/prenumerera" className="text-pitch-ink hover:opacity-80">
             PRO ger dig brief, podd &amp; transfer-signaler
           </a>
         </div>

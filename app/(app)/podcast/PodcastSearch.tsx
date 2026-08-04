@@ -80,7 +80,7 @@ export function PodcastSearch() {
 
       {clips.length > 0 && (
         <div className="mt-3">
-          <p className="flex items-center gap-1.5 text-xs font-semibold text-pitch uppercase tracking-wide mb-2">
+          <p className="flex items-center gap-1.5 text-xs font-semibold text-pitch-ink uppercase tracking-wide mb-2">
             <Quote className="w-3.5 h-3.5" /> Sagt i poddarna
           </p>
           <div className="rounded-xl border border-pitch/30 bg-card divide-y divide-border/60">
@@ -99,7 +99,7 @@ export function PodcastSearch() {
               </Link>
             ))}
             {clipsGated && (
-              <Link href="/prenumerera" className="flex items-center gap-2 px-4 py-3 text-sm text-pitch hover:bg-muted/40 transition-colors">
+              <Link href="/prenumerera" className="flex items-center gap-2 px-4 py-3 text-sm text-pitch-ink hover:bg-muted/40 transition-colors">
                 <Lock className="w-3.5 h-3.5" />
                 Fler klipp ur transkripten kräver PRO — sök i allt som sägs om ditt lag
               </Link>

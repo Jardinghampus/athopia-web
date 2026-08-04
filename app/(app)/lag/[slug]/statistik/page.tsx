@@ -258,7 +258,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="rounded-xl border border-border bg-card p-4 flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Poäng</span>
-              <span className="font-semibold text-2xl text-pitch">{standings.points as number ?? 0}</span>
+              <span className="font-semibold text-2xl text-pitch-ink">{standings.points as number ?? 0}</span>
             </div>
             <div className="rounded-xl border border-border bg-card p-4 flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Målskillnad</span>
@@ -390,7 +390,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
                     <span className="block text-xs text-muted-foreground">{row.position}</span>
                   )}
                 </span>
-                <span className="font-bold text-lg text-pitch tabular-nums">{row.athopia_rating.toFixed(1)}</span>
+                <span className="font-bold text-lg text-pitch-ink tabular-nums">{row.athopia_rating.toFixed(1)}</span>
               </Link>
             ))}
           </div>
@@ -421,7 +421,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
                           <Image src={pl.image as string} alt="" fill className="object-cover" sizes="28px" />
                         </div>
                       )}
-                      <Link href={`/spelare/${playerSlug}`} className="flex-1 text-sm text-foreground hover:text-pitch truncate">
+                      <Link href={`/spelare/${playerSlug}`} className="flex-1 text-sm text-foreground hover:text-pitch-ink truncate">
                         {(pl?.fullname as string) ?? `Spelare ${row.player_id}`}
                       </Link>
                       <span className="text-sm font-bold text-foreground">{String(row[key] ?? 0)}</span>

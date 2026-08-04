@@ -89,7 +89,7 @@ export function ProfileCard({ profile }: { profile: PublicProfile }) {
           {isAdmin && <BrandBadge kind="star" size="md" />}
         </div>
         {isColumnist && (
-          <span className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-pitch">
+          <span className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-pitch-ink">
             Journalist
           </span>
         )}

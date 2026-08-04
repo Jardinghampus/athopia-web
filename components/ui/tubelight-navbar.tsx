@@ -39,7 +39,7 @@ export function NavBar({ items, className }: NavBarProps) {
               className={cn(
                 "relative cursor-pointer text-sm font-sans font-semibold px-5 py-2.5 rounded-full transition-colors",
                 "text-white/70 hover:text-white",
-                isActive && "text-pitch"
+                isActive && "text-pitch-ink"
               )}
             >
               <span className="hidden lg:inline">{item.name}</span>

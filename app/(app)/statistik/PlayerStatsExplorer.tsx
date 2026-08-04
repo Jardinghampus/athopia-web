@@ -84,10 +84,10 @@ export function PlayerStatsExplorer({ players }: { players: ScorerRow[] }) {
               <tr key={row.player_id} className="border-b border-border/40 last:border-0">
                 <td className="px-3 py-2 text-muted-foreground">{index + 1}</td>
                 <td className="px-3 py-2 font-medium">
-                  <Link href={`/spelare/${row.slug ?? row.player_id}`} className="hover:text-pitch">{row.player_name}</Link>
+                  <Link href={`/spelare/${row.slug ?? row.player_id}`} className="hover:text-pitch-ink">{row.player_name}</Link>
                 </td>
                 <td className="px-3 py-2 text-muted-foreground">
-                  <Link href={`/lag/${row.team_name.toLowerCase().replace(/\s+/g, "-").replace(/[åä]/g, "a").replace(/ö/g, "o")}`} className="hover:text-pitch transition-colors">{row.team_name}</Link>
+                  <Link href={`/lag/${row.team_name.toLowerCase().replace(/\s+/g, "-").replace(/[åä]/g, "a").replace(/ö/g, "o")}`} className="hover:text-pitch-ink transition-colors">{row.team_name}</Link>
                 </td>
                 <td className="px-3 py-2 text-center text-muted-foreground">{row.position?.slice(0, 3) ?? "-"}</td>
                 <td className="px-3 py-2 text-center text-muted-foreground tabular-nums">{row.minutes}</td>

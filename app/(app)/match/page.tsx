@@ -88,7 +88,7 @@ export default async function MatcherPage() {
           title="Spelade"
           defaultOpen
           trailing={
-            <Link href="/allsvenskan/resultat" className="text-sm text-pitch hover:underline shrink-0">
+            <Link href="/allsvenskan/resultat" className="text-sm text-pitch-ink hover:underline shrink-0">
               Alla resultat →
             </Link>
           }

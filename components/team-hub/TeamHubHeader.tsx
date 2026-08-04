@@ -116,7 +116,7 @@ export function TeamHubHeader({
 }
 
 function FormDots({ form }: { form: ("W" | "D" | "L")[] }) {
-  const map = { W: "bg-success text-white", D: "bg-muted text-foreground", L: "bg-red-500/20 text-red-400" };
+  const map = { W: "bg-success text-success-foreground", D: "bg-muted text-foreground", L: "bg-red-500/20 text-red-400" };
   if (form.length === 0) return null;
   return <div className="flex gap-1">{form.map((r, i) => <span key={i} className={`w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center ${map[r]}`}>{r}</span>)}</div>;
 }
@@ -125,12 +125,12 @@ function KeyStat({ label, value, accent, signed }: { label: string; value: numbe
   return (
     <TactileCard className="rounded-xl p-2.5 text-center">
       {value == null ? (
-        <p className={`text-xl font-bold ${accent ? "text-pitch" : "text-foreground"}`}>–</p>
+        <p className={`text-xl font-bold ${accent ? "text-pitch-ink" : "text-foreground"}`}>–</p>
       ) : (
         <StatNumber
           value={value}
           format={signed ? { signDisplay: "exceptZero" as const } : undefined}
-          className={`text-xl ${accent ? "text-pitch" : "text-foreground"}`}
+          className={`text-xl ${accent ? "text-pitch-ink" : "text-foreground"}`}
         />
       )}
       <p className="text-[10px] text-muted-foreground mt-0.5">{label}</p>

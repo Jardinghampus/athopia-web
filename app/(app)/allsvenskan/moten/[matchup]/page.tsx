@@ -108,7 +108,7 @@ export default async function MotenPage({
         <div className="rounded-2xl border border-border bg-card py-4">
           <div className="text-3xl font-bold text-foreground">{winsA}</div>
           <div className="text-xs text-muted-foreground mt-1">
-            <Link href={`/lag/${a.slug}`} className="hover:text-pitch">{a.name}</Link>
+            <Link href={`/lag/${a.slug}`} className="hover:text-pitch-ink">{a.name}</Link>
           </div>
         </div>
         <div className="rounded-2xl border border-border bg-card py-4">
@@ -118,7 +118,7 @@ export default async function MotenPage({
         <div className="rounded-2xl border border-border bg-card py-4">
           <div className="text-3xl font-bold text-foreground">{winsB}</div>
           <div className="text-xs text-muted-foreground mt-1">
-            <Link href={`/lag/${b.slug}`} className="hover:text-pitch">{b.name}</Link>
+            <Link href={`/lag/${b.slug}`} className="hover:text-pitch-ink">{b.name}</Link>
           </div>
         </div>
       </div>

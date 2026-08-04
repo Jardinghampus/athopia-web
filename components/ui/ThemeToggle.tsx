@@ -23,7 +23,9 @@ export function ThemeToggle() {
       aria-checked={isDark}
       aria-label={isDark ? "Byt till ljust läge" : "Byt till mörkt läge"}
       onClick={() => setTheme(isDark ? "light" : "dark")}
+      // Pillen är 24px hög visuellt; after-pseudot sträcker träffytan till 44px (HIG).
       className="group relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full
+        after:absolute after:-inset-y-[10px] after:inset-x-0 after:content-['']
         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch focus-visible:ring-offset-2 focus-visible:ring-offset-background
         bg-black/10 dark:bg-white/10
         hover:bg-black/15 dark:hover:bg-white/15
