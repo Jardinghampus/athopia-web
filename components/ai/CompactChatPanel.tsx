@@ -58,12 +58,12 @@ export function CompactChatPanel({
     return (
       <section className="rounded-xl border border-border bg-card p-4">
         <div className="flex items-center gap-2 mb-2">
-          <Bot className="h-4 w-4 text-pitch" />
+          <Bot className="h-4 w-4 text-pitch-ink" />
           <h3 className="text-sm font-semibold text-foreground">{title}</h3>
         </div>
         <p className="text-sm text-muted-foreground">
           {subtitle ?? 'Ställ frågor om matchen med AI — kräver PRO.'}{' '}
-          <Link href="/prenumerera" className="text-pitch hover:underline">
+          <Link href="/prenumerera" className="text-pitch-ink hover:underline">
             Uppgradera
           </Link>
         </p>

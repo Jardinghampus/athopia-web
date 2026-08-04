@@ -127,7 +127,7 @@ export function TeamPlayerStatsTable({ players }: { players: TeamPlayerStat[] })
             {rows.map((row) => (
               <tr key={row.player_id} className="border-b border-border/40 last:border-0 hover:bg-muted/20 transition-colors">
                 <td className="px-4 py-2">
-                  <Link href={`/spelare/${row.slug}`} className="text-foreground hover:text-pitch">
+                  <Link href={`/spelare/${row.slug}`} className="text-foreground hover:text-pitch-ink">
                     {row.fullname}
                   </Link>
                 </td>

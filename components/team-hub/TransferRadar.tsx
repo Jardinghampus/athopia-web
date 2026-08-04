@@ -96,7 +96,7 @@ export async function TransferRadar({
         >
           <RadarList items={items} />
           <div className="border-t border-border/50 px-4 py-2.5">
-            <Link href="/nyheter/transferer" className="text-xs text-pitch hover:underline">
+            <Link href="/nyheter/transferer" className="text-xs text-pitch-ink hover:underline">
               Alla transfers →
             </Link>
           </div>

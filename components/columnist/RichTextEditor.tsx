@@ -135,7 +135,7 @@ function ToolbarButton({
       onClick={onClick}
       className={cn(
         "flex h-8 min-w-8 items-center justify-center rounded-lg px-2 text-xs font-semibold transition-colors",
-        active ? "bg-pitch/20 text-pitch" : "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
+        active ? "bg-pitch/20 text-pitch-ink" : "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
       )}
     >
       {children}

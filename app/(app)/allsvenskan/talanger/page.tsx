@@ -135,13 +135,13 @@ export default async function TalangerPage() {
                   <td className="py-3 px-4 text-muted-foreground">{i + 1}</td>
                   <td className="py-3 px-4">
                     {t.slug ? (
-                      <Link href={`/spelare/${t.slug}`} className="font-medium hover:text-pitch transition-colors">{t.name}</Link>
+                      <Link href={`/spelare/${t.slug}`} className="font-medium hover:text-pitch-ink transition-colors">{t.name}</Link>
                     ) : (
                       <span className="font-medium">{t.name}</span>
                     )}
                     {t.teamName && (
                       <span className="block text-xs text-muted-foreground">
-                        {t.teamSlug ? <Link href={`/lag/${t.teamSlug}`} className="hover:text-pitch">{t.teamName}</Link> : t.teamName}
+                        {t.teamSlug ? <Link href={`/lag/${t.teamSlug}`} className="hover:text-pitch-ink">{t.teamName}</Link> : t.teamName}
                       </span>
                     )}
                   </td>
@@ -157,8 +157,8 @@ export default async function TalangerPage() {
       )}
 
       <div className="mt-6 flex gap-4 text-sm">
-        <Link href="/allsvenskan/skytteliga" className="text-pitch hover:underline">Skytteligan →</Link>
-        <Link href="/allsvenskan/xp-tabell" className="text-pitch hover:underline">xP-tabellen →</Link>
+        <Link href="/allsvenskan/skytteliga" className="text-pitch-ink hover:underline">Skytteligan →</Link>
+        <Link href="/allsvenskan/xp-tabell" className="text-pitch-ink hover:underline">xP-tabellen →</Link>
       </div>
     </div>
   );

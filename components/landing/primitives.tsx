@@ -72,7 +72,7 @@ export function Section({
 
 export function Label({ children }: { children: ReactNode }) {
   return (
-    <span className="font-sans text-[11px] font-bold uppercase tracking-[0.18em] text-pitch">
+    <span className="font-sans text-[11px] font-bold uppercase tracking-[0.18em] text-pitch-ink">
       {children}
     </span>
   );

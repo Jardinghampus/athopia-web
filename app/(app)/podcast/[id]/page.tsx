@@ -116,8 +116,8 @@ export default async function PodcastEpisodePage({
           />
         </div>
         <div className="flex items-center gap-2 mb-3">
-          <Mic className="w-4 h-4 text-pitch" />
-          <span className="text-sm text-pitch font-medium">{episode.show_name ?? "Podcast"}</span>
+          <Mic className="w-4 h-4 text-pitch-ink" />
+          <span className="text-sm text-pitch-ink font-medium">{episode.show_name ?? "Podcast"}</span>
         </div>
 
         <h1 className="font-bold text-3xl sm:text-4xl text-foreground mb-4 leading-tight">
@@ -167,7 +167,7 @@ export default async function PodcastEpisodePage({
               href={listen.listenUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-xl border border-pitch/30 bg-pitch/10 px-5 py-3 text-sm font-medium text-pitch hover:bg-pitch/15 transition-colors"
+              className="inline-flex items-center gap-2 rounded-xl border border-pitch/30 bg-pitch/10 px-5 py-3 text-sm font-medium text-pitch-ink hover:bg-pitch/15 transition-colors"
             >
               Lyssna hos {episode.show_name ?? "källan"}
               <ExternalLink className="h-4 w-4" />
@@ -182,7 +182,7 @@ export default async function PodcastEpisodePage({
         <p className="text-xs text-muted-foreground/80 border-t border-border pt-6">
           Athopia länkar till originalkällan och använder Spotifys officiella spelare när det finns.
           Vi publicerar inte transkript eller strömmar ljudfiler direkt. Se{" "}
-          <Link href="/podcast" className="text-pitch hover:underline">
+          <Link href="/podcast" className="text-pitch-ink hover:underline">
             alla avsnitt
           </Link>
           .

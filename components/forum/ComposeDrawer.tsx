@@ -47,7 +47,7 @@ export default function ComposeDrawer({
           {replyTo && (
             <p className="px-4 pt-2 pb-1 text-xs text-muted-foreground">
               Svarar{" "}
-              <span className="text-pitch font-semibold">
+              <span className="text-pitch-ink font-semibold">
                 @{replyTo.toLowerCase().replace(/\s+/g, "")}
               </span>
             </p>

@@ -95,7 +95,7 @@ function StatBox({ label, value, suffix, sub }: { label: string; value: number; 
     <div className="bg-card border border-border rounded-2xl p-4 text-center">
       <StatNumber value={value} suffix={suffix} className="text-3xl text-foreground" />
       <p className="text-xs text-muted-foreground mt-1">{label}</p>
-      {sub && <p className="text-xs text-pitch mt-0.5">{sub}</p>}
+      {sub && <p className="text-xs text-pitch-ink mt-0.5">{sub}</p>}
     </div>
   );
 }
@@ -170,7 +170,7 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
           <div className="flex items-baseline justify-between">
             <h2 className="font-semibold text-sm text-foreground">ATHOPIA AI-BETYG</h2>
             {athopiaRatings.athopia_rating != null && (
-              <span className="font-bold text-2xl text-pitch">{Number(athopiaRatings.athopia_rating).toFixed(1)}</span>
+              <span className="font-bold text-2xl text-pitch-ink">{Number(athopiaRatings.athopia_rating).toFixed(1)}</span>
             )}
           </div>
           {(athopiaRatings.attacking_rating != null) && (
@@ -298,7 +298,7 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
               <p className="text-xs text-muted-foreground mt-1">Mål lika läge</p>
             </div>
             <div>
-              <p className="font-bold text-2xl text-pitch">{clutch.leading_goals as number}</p>
+              <p className="font-bold text-2xl text-pitch-ink">{clutch.leading_goals as number}</p>
               <p className="text-xs text-muted-foreground mt-1">Mål när framåt</p>
             </div>
           </div>

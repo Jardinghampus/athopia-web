@@ -68,7 +68,7 @@ export function MittLagGuestPreview() {
     return (
       <div className="max-w-md mx-auto px-4 py-16 text-center space-y-5">
         <div className="w-14 h-14 rounded-2xl bg-pitch/10 border border-pitch/30 flex items-center justify-center mx-auto">
-          <Star className="h-7 w-7 text-pitch" />
+          <Star className="h-7 w-7 text-pitch-ink" />
         </div>
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Mitt lag</h1>
@@ -98,7 +98,7 @@ export function MittLagGuestPreview() {
     return (
       <div className="max-w-md mx-auto px-4 py-16 text-center space-y-3">
         <p className="text-sm text-muted-foreground">Kunde inte ladda laget just nu.</p>
-        <Link href="/onboarding" className="text-sm text-pitch hover:underline">
+        <Link href="/onboarding" className="text-sm text-pitch-ink hover:underline">
           Byt lag
         </Link>
       </div>
@@ -188,7 +188,7 @@ export function MittLagGuestPreview() {
               <li key={n.id}>
                 <Link
                   href={n.href}
-                  className="block py-2.5 text-sm font-medium hover:text-pitch line-clamp-2"
+                  className="block py-2.5 text-sm font-medium hover:text-pitch-ink line-clamp-2"
                 >
                   {n.title}
                 </Link>
@@ -210,7 +210,7 @@ export function MittLagGuestPreview() {
               <li key={t.id}>
                 <Link
                   href={t.href}
-                  className="flex justify-between gap-3 py-2.5 text-sm font-medium hover:text-pitch"
+                  className="flex justify-between gap-3 py-2.5 text-sm font-medium hover:text-pitch-ink"
                 >
                   <span className="line-clamp-2">{t.title}</span>
                   <span className="text-xs text-muted-foreground tabular-nums">{t.replyCount}</span>

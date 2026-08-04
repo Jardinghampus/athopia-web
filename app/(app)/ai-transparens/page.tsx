@@ -74,7 +74,7 @@ export default function AiTransparensPage() {
               {editorial.label}
             </span>
             . Kontakt:{" "}
-            <a href="mailto:hej@athopia.se" className="text-pitch hover:underline">
+            <a href="mailto:hej@athopia.se" className="text-pitch-ink hover:underline">
               hej@athopia.se
             </a>
             .

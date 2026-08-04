@@ -162,7 +162,7 @@ export default async function ForumTeamPage({
                     tease="Vad snackas det om just nu — senaste timmarna."
                     preview={
                       <div className="space-y-1">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-pitch">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-pitch-ink">
                           Forum-läget
                         </p>
                         <p className="text-sm text-muted-foreground line-clamp-2">{forumTeaser}</p>

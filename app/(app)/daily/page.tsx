@@ -131,7 +131,7 @@ async function DailyAuthArea({
         <DailyPodcastPlayer episode={episode} plan={plan} />
       ) : (
         <section className="rounded-xl border border-border bg-card px-5 py-8 text-center">
-          <Sparkles className="mx-auto h-8 w-8 text-pitch mb-3" aria-hidden />
+          <Sparkles className="mx-auto h-8 w-8 text-pitch-ink mb-3" aria-hidden />
           <h2 className="text-lg font-semibold text-foreground">Första avsnittet kommer snart</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Athopia Daily publiceras varje morgon efter granskning. Skapa konto så får du briefen direkt i appen.
@@ -202,7 +202,7 @@ export default async function DailyPage({
       {episode && <DailyEpisodeJsonLd episode={episode} pageUrl={pageUrl} />}
 
       <header className="mb-8 text-center">
-        <p className="inline-flex items-center gap-2 rounded-full border border-pitch/30 bg-pitch/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-pitch">
+        <p className="inline-flex items-center gap-2 rounded-full border border-pitch/30 bg-pitch/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-pitch-ink">
           <Headphones className="h-3.5 w-3.5" aria-hidden />
           Athopia Daily
         </p>
@@ -236,14 +236,14 @@ export default async function DailyPage({
 
       <p className="mt-6 text-center text-xs text-muted-foreground">
         Dela länken:{" "}
-        <Link href="/daily" className="text-pitch hover:underline">
+        <Link href="/daily" className="text-pitch-ink hover:underline">
           {SITE.replace(/^https?:\/\//, "")}/daily
         </Link>
         {lag ? (
           <>
             {" "}
             ·{" "}
-            <Link href={`/daily?lag=${encodeURIComponent(lag)}`} className="text-pitch hover:underline">
+            <Link href={`/daily?lag=${encodeURIComponent(lag)}`} className="text-pitch-ink hover:underline">
               lagvariant
             </Link>
           </>

@@ -177,8 +177,8 @@ function TeamCard({
       <div
         className={`w-11 h-11 rounded-xl flex items-center justify-center text-sm font-bold shrink-0 transition-colors ${
           isFavorite
-            ? "bg-pitch/20 text-pitch border border-pitch/30"
-            : "bg-muted/50 text-muted-foreground border border-border/30 group-hover:bg-pitch/10 group-hover:text-pitch group-hover:border-pitch/20"
+            ? "bg-pitch/20 text-pitch-ink border border-pitch/30"
+            : "bg-muted/50 text-muted-foreground border border-border/30 group-hover:bg-pitch/10 group-hover:text-pitch-ink group-hover:border-pitch/20"
         }`}
       >
         {team.abbr}
@@ -186,7 +186,7 @@ function TeamCard({
 
       {/* Info */}
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-foreground truncate group-hover:text-pitch transition-colors">
+        <p className="text-sm font-semibold text-foreground truncate group-hover:text-pitch-ink transition-colors">
           {team.name}
         </p>
         <p className="text-xs text-muted-foreground mt-0.5">

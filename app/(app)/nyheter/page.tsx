@@ -60,7 +60,7 @@ function Pagination({ page, total, urlBase }: { page: number; total: number; url
   return (
     <div className="mt-8 flex items-center justify-between text-sm">
       {prev ? (
-        <Link href={prev} className="text-pitch hover:underline">
+        <Link href={prev} className="text-pitch-ink hover:underline">
           Föregående
         </Link>
       ) : (
@@ -70,7 +70,7 @@ function Pagination({ page, total, urlBase }: { page: number; total: number; url
         {page} / {totalPages}
       </span>
       {next ? (
-        <Link href={next} className="text-pitch hover:underline">
+        <Link href={next} className="text-pitch-ink hover:underline">
           Nästa
         </Link>
       ) : (
@@ -224,7 +224,7 @@ export default async function NyheterPage({
       {feedArticles.length === 0 && articles.length === 0 ? (
         <div className="py-16 text-center text-sm text-muted-foreground">
           <p>Inga artiklar matchade filtret.</p>
-          <Link href="/nyheter" className="mt-2 inline-block text-pitch hover:underline">
+          <Link href="/nyheter" className="mt-2 inline-block text-pitch-ink hover:underline">
             Visa allt
           </Link>
         </div>

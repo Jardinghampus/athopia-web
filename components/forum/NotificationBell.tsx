@@ -90,7 +90,7 @@ export default function NotificationBell({ teamSlug }: { teamSlug: string }) {
                 {unread > 0 && (
                   <button
                     onClick={markAllRead}
-                    className="text-xs text-pitch hover:underline"
+                    className="text-xs text-pitch-ink hover:underline"
                   >
                     Markera alla lästa
                   </button>

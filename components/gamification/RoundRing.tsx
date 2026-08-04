@@ -98,7 +98,7 @@ export function RoundRing({
         <motion.span
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="text-xs text-pitch font-semibold tracking-wider uppercase"
+          className="text-xs text-pitch-ink font-semibold tracking-wider uppercase"
         >
           Ring stängd ✓
         </motion.span>

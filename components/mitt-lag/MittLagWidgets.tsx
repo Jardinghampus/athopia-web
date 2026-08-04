@@ -80,7 +80,7 @@ export function MittLagWidgets({
           </p>
           <Link
             href={`/nyheter?lag=${encodeURIComponent(hub.team.name)}`}
-            className="text-xs text-pitch hover:underline"
+            className="text-xs text-pitch-ink hover:underline"
           >
             Alla
           </Link>
@@ -96,7 +96,7 @@ export function MittLagWidgets({
                     slug: n.slug,
                     rights_status: n.rights_status,
                   })}
-                  className="block py-2.5 text-sm font-medium text-foreground hover:text-pitch transition-colors line-clamp-2"
+                  className="block py-2.5 text-sm font-medium text-foreground hover:text-pitch-ink transition-colors line-clamp-2"
                 >
                   {n.title}
                 </Link>
@@ -112,7 +112,7 @@ export function MittLagWidgets({
             <MessageSquare className="h-3.5 w-3.5" aria-hidden />
             Trådar
           </p>
-          <Link href={`/forum/${hub.team.slug}`} className="text-xs text-pitch hover:underline">
+          <Link href={`/forum/${hub.team.slug}`} className="text-xs text-pitch-ink hover:underline">
             Forum
           </Link>
         </div>
@@ -126,7 +126,7 @@ export function MittLagWidgets({
                   href={`/forum/${hub.team.slug}/${t.id}`}
                   className="flex items-baseline justify-between gap-3 py-2.5"
                 >
-                  <span className="text-sm font-medium text-foreground hover:text-pitch line-clamp-2">
+                  <span className="text-sm font-medium text-foreground hover:text-pitch-ink line-clamp-2">
                     {t.title}
                   </span>
                   <span className="text-xs text-muted-foreground tabular-nums shrink-0">
@@ -142,7 +142,7 @@ export function MittLagWidgets({
       {guest ? (
         <p className="text-center text-xs text-muted-foreground">
           Förhandsvisning ·{" "}
-          <Link href="/sign-up" className="text-pitch hover:underline">
+          <Link href="/sign-up" className="text-pitch-ink hover:underline">
             Skapa konto
           </Link>{" "}
           för brief, notiser och sparat lag.

@@ -41,7 +41,7 @@ function CardHead({
   return (
     <div>
       <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl border border-pitch/15 bg-pitch/10">
-        <Icon className="h-5 w-5 text-pitch" />
+        <Icon className="h-5 w-5 text-pitch-ink" />
       </div>
       <h3 className="font-sans text-[17px] font-bold text-white">{title}</h3>
       <p className="mt-1.5 text-sm leading-relaxed text-white/50">{text}</p>
@@ -88,7 +88,7 @@ export function BentoFeatures() {
                     >
                       <div className="flex items-center justify-between text-[10px] font-bold">
                         <span className="text-white/70">{score}</span>
-                        <span className="text-pitch">{tier}</span>
+                        <span className="text-pitch-ink">{tier}</span>
                       </div>
                       <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-white/[0.06]">
                         <div className="h-full rounded-full bg-pitch" style={{ width: w }} />
@@ -112,7 +112,7 @@ export function BentoFeatures() {
                 <div className="h-2 w-[85%] rounded bg-white/[0.1]" />
                 <div className="mt-2 h-2 w-[65%] rounded bg-white/[0.07]" />
                 <div className="mt-2 h-2 w-[75%] rounded bg-white/[0.05]" />
-                <span className="mt-3 inline-block rounded-full bg-pitch/15 px-2.5 py-1 text-[10px] font-bold text-pitch">
+                <span className="mt-3 inline-block rounded-full bg-pitch/15 px-2.5 py-1 text-[10px] font-bold text-pitch-ink">
                   Sammanfatta omgång 15
                 </span>
               </div>
@@ -201,7 +201,7 @@ export function BentoFeatures() {
                     <span className="font-heading text-xl tracking-wider text-white">1340</span>
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-pitch">+12 denna omgång</p>
+                    <p className="text-sm font-bold text-pitch-ink">+12 denna omgång</p>
                     <p className="mt-0.5 text-xs text-white/40">Plats 3 av 87 i AIK-ligan</p>
                   </div>
                 </div>

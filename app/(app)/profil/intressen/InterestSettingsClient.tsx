@@ -70,7 +70,7 @@ export function InterestSettingsClient({ initialSelected }: { initialSelected: s
             "Spara intressen"
           )}
         </button>
-        {saved && <span className="text-sm text-pitch">Sparat ✓</span>}
+        {saved && <span className="text-sm text-pitch-ink">Sparat ✓</span>}
         <Link href="/profil" className="text-sm text-muted-foreground hover:text-foreground">
           Tillbaka till profil
         </Link>

@@ -37,7 +37,7 @@ export function LandingNav() {
           <nav className="flex h-16 items-center justify-between">
             <Link
               href="/"
-              className="flex h-12 items-center font-heading text-2xl tracking-widest text-white transition-colors duration-200 hover:text-pitch"
+              className="flex h-12 items-center font-heading text-2xl tracking-widest text-white transition-colors duration-200 hover:text-pitch-ink"
             >
               ATHOPIA
             </Link>
@@ -88,7 +88,7 @@ export function LandingNav() {
               key={href}
               href={href}
               onClick={() => setMenuOpen(false)}
-              className="flex min-h-14 items-center justify-between border-b border-white/[0.06] text-[17px] font-medium text-white/85 active:text-pitch"
+              className="flex min-h-14 items-center justify-between border-b border-white/[0.06] text-[17px] font-medium text-white/85 active:text-pitch-ink"
             >
               {label}
               <ArrowRight className="h-4 w-4 text-white/30" />

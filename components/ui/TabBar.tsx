@@ -48,7 +48,7 @@ export function TabBar({ items, className }: TabBarProps) {
               aria-current={active ? "page" : undefined}
               className={cn(
                 "relative flex flex-1 flex-col items-center gap-0.5 px-2 pb-1 pt-2 select-none touch-manipulation transition-colors duration-200 active:opacity-70",
-                active ? "text-pitch" : "text-muted-foreground"
+                active ? "text-pitch-ink" : "text-muted-foreground"
               )}
             >
               {active && (

@@ -60,7 +60,7 @@ export function ColumnistDashboardClient({ columns }: { columns: ColumnListItem[
               subtitle={STATUS_LABEL[c.status]}
               trailing={
                 c.status === "published" ? (
-                  <span className="text-xs font-semibold text-pitch">Live</span>
+                  <span className="text-xs font-semibold text-pitch-ink">Live</span>
                 ) : undefined
               }
             />

@@ -91,7 +91,7 @@ export function MatchForum({ fixtureId, homeName, awayName }: {
         </form>
       ) : (
         <p className="text-xs text-muted-foreground text-center py-2">
-          <Link href="/sign-in" className="text-pitch hover:underline">Logga in</Link> för att delta i diskussionen
+          <Link href="/sign-in" className="text-pitch-ink hover:underline">Logga in</Link> för att delta i diskussionen
         </p>
       )}
 

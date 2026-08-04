@@ -62,10 +62,10 @@ export function FanLeagueCard({ membership, currentUserId }: Props) {
                   isMe ? 'bg-pitch/10 border border-pitch/20' : ''
                 }`}
               >
-                <span className={`text-xs ${isMe ? 'text-pitch font-semibold' : 'text-white/40'}`}>
+                <span className={`text-xs ${isMe ? 'text-pitch-ink font-semibold' : 'text-white/40'}`}>
                   #{entry.league_rank ?? i + 1} {isMe ? 'Du' : '···'}
                 </span>
-                <span className={`text-sm font-bold tabular-nums ${isMe ? 'text-pitch' : 'text-white/60'}`}>
+                <span className={`text-sm font-bold tabular-nums ${isMe ? 'text-pitch-ink' : 'text-white/60'}`}>
                   {entry.weekly_iq}
                 </span>
               </div>

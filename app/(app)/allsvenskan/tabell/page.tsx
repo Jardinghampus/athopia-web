@@ -82,7 +82,7 @@ export default async function AllsvenskanTabellPage() {
           <Link
             key={l.href}
             href={l.href}
-            className="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-border bg-card text-sm font-medium text-foreground hover:border-pitch/60 hover:text-pitch transition-colors"
+            className="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-border bg-card text-sm font-medium text-foreground hover:border-pitch/60 hover:text-pitch-ink transition-colors"
           >
             <span aria-hidden>{l.emoji}</span>
             {l.label}
@@ -140,7 +140,7 @@ export default async function AllsvenskanTabellPage() {
                   </span>
                 </td>
                 <td className="py-3 px-4">
-                  <Link href={`/lag/${row.team.slug ?? row.team.name.toLowerCase().replace(/\s+/g, "-").replace(/[åä]/g, "a").replace(/ö/g, "o")}`} className="font-medium hover:text-pitch transition-colors">
+                  <Link href={`/lag/${row.team.slug ?? row.team.name.toLowerCase().replace(/\s+/g, "-").replace(/[åä]/g, "a").replace(/ö/g, "o")}`} className="font-medium hover:text-pitch-ink transition-colors">
                     {row.team.name}
                   </Link>
                 </td>

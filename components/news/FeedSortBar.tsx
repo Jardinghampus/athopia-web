@@ -69,7 +69,7 @@ export function FeedSortBar({
         })}
         <Link
           href="/nyheter"
-          className="shrink-0 ml-auto text-xs text-pitch hover:underline"
+          className="shrink-0 ml-auto text-xs text-pitch-ink hover:underline"
         >
           Rensa
         </Link>

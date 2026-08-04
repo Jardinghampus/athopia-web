@@ -27,7 +27,7 @@ export function ShareButton({ title, url }: { title: string; url: string }) {
       className="inline-flex items-center gap-1.5 rounded-full border border-border/60 px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:border-pitch/50 transition-colors"
       aria-label="Dela"
     >
-      {copied ? <Check className="w-3.5 h-3.5 text-pitch" /> : <Share2 className="w-3.5 h-3.5" />}
+      {copied ? <Check className="w-3.5 h-3.5 text-pitch-ink" /> : <Share2 className="w-3.5 h-3.5" />}
       {copied ? "Länk kopierad" : "Dela"}
     </button>
   );

@@ -45,7 +45,7 @@ export function AppBreadcrumbs({
               ) : (
                 <BreadcrumbLink
                   render={<Link href={item.href} />}
-                  className="text-muted-foreground hover:text-pitch"
+                  className="text-muted-foreground hover:text-pitch-ink"
                 >
                   {label}
                 </BreadcrumbLink>

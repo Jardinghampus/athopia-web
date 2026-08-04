@@ -83,7 +83,7 @@ export function ColumnEditorClient({ column, teams }: { column: ColumnData; team
       <div className="mb-6 flex items-center justify-between gap-3">
         <SaveIndicator state={saveState} />
         {status === "published" && slug ? (
-          <a href={`/kronika/${slug}`} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-xs text-pitch hover:underline">
+          <a href={`/kronika/${slug}`} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-xs text-pitch-ink hover:underline">
             Se publicerad <ExternalLink className="h-3 w-3" />
           </a>
         ) : (
@@ -143,5 +143,5 @@ function SaveIndicator({ state }: { state: SaveState }) {
   if (state === "idle") return <span />;
   if (state === "saving") return <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><Loader2 className="h-3 w-3 animate-spin" />Sparar…</span>;
   if (state === "error") return <span className="text-xs text-red-400">Kunde inte spara — försök igen</span>;
-  return <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><Check className="h-3 w-3 text-pitch" />Sparat</span>;
+  return <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><Check className="h-3 w-3 text-pitch-ink" />Sparat</span>;
 }

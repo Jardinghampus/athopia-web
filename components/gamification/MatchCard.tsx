@@ -58,7 +58,7 @@ export function MatchCard({ card, onReveal }: Props) {
           >
             <div className="text-center">
               <p className="text-4xl mb-2">🔮</p>
-              <p className="text-pitch font-bold text-lg">Synskarp!</p>
+              <p className="text-pitch-ink font-bold text-lg">Synskarp!</p>
               <p className="text-white/60 text-sm">+{card.iq_points_earned} IQ-poäng</p>
             </div>
           </motion.div>
@@ -89,7 +89,7 @@ export function MatchCard({ card, onReveal }: Props) {
               : '▶ Tryck för reveal'}
           </span>
           {card.is_revealed && card.iq_points_earned > 0 && (
-            <span className="text-xs text-pitch font-semibold">
+            <span className="text-xs text-pitch-ink font-semibold">
               +{card.iq_points_earned} IQ
             </span>
           )}
@@ -123,7 +123,7 @@ export function MatchCard({ card, onReveal }: Props) {
               {card.outcome_correct ? '✓ Rätt vinnare' : '✗ Fel vinnare'}
             </span>
             {card.score_correct && (
-              <span className="text-xs text-pitch font-semibold">• Exakt rätt 🔮</span>
+              <span className="text-xs text-pitch-ink font-semibold">• Exakt rätt 🔮</span>
             )}
           </div>
         )}
