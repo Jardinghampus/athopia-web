@@ -130,7 +130,7 @@ export function Hero({
             <h1 className="mb-6 mt-4 font-heading text-[clamp(3.75rem,11vw,8.5rem)] leading-[0.92] tracking-wide">
               Din klubb.
               <br />
-              <span className="text-pitch">{headlineAccent}</span>
+              <span className="text-pitch-ink">{headlineAccent}</span>
             </h1>
 
             <p className="mb-8 max-w-[480px] text-[17px] leading-[1.65] text-white/65 md:mb-10 md:text-xl">

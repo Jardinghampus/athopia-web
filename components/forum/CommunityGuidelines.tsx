@@ -46,7 +46,7 @@ export default function CommunityGuidelines() {
             <ul className="px-4 pb-4 pt-1 space-y-2 border-t border-border/30">
               {RULES.map((rule, i) => (
                 <li key={i} className="flex gap-2 text-xs text-muted-foreground leading-relaxed">
-                  <span className="text-pitch mt-0.5 shrink-0">·</span>
+                  <span className="text-pitch-ink mt-0.5 shrink-0">·</span>
                   {rule}
                 </li>
               ))}

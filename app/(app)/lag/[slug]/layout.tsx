@@ -46,7 +46,7 @@ export default function LagLayout({
                   className={clsx(
                     "whitespace-nowrap px-4 py-3 text-sm font-medium border-b-2 transition-colors",
                     isActive
-                      ? "border-pitch text-pitch"
+                      ? "border-pitch text-pitch-ink"
                       : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
                   )}
                 >

@@ -141,8 +141,8 @@ export default async function LagSammanfattningPage({
               {/* Senaste AI-sammanfattning — prominently */}
               <div className="rounded-2xl border border-pitch/30 bg-pitch/5 p-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <Sparkles className="w-4 h-4 text-pitch" />
-                  <span className="text-xs font-semibold text-pitch uppercase tracking-widest">
+                  <Sparkles className="w-4 h-4 text-pitch-ink" />
+                  <span className="text-xs font-semibold text-pitch-ink uppercase tracking-widest">
                     Athopia AI
                   </span>
                   <span className="text-xs text-muted-foreground ml-auto">
@@ -169,7 +169,7 @@ export default async function LagSammanfattningPage({
                   className="rounded-2xl border border-border bg-card p-5"
                 >
                   <div className="flex items-center gap-2 mb-2">
-                    <Sparkles className="w-3 h-3 text-pitch" />
+                    <Sparkles className="w-3 h-3 text-pitch-ink" />
                     <span className="text-xs text-muted-foreground">
                       {new Date(article.publishedAt ?? "").toLocaleDateString("sv-SE", {
                         day: "numeric",
@@ -189,7 +189,7 @@ export default async function LagSammanfattningPage({
           ) : (
             <div className="rounded-2xl border border-border bg-card p-10 flex flex-col items-center gap-4 text-center">
               <div className="w-14 h-14 rounded-full bg-pitch/10 flex items-center justify-center">
-                <Sparkles className="w-7 h-7 text-pitch" />
+                <Sparkles className="w-7 h-7 text-pitch-ink" />
               </div>
               <div>
                 <p className="font-semibold text-xl text-foreground mb-2">

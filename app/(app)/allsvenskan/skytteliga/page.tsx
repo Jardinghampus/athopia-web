@@ -56,7 +56,7 @@ export default async function AllsvenskanSkytteligaPage() {
               <tr key={s.player_id ?? i} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
                 <td className="py-3 px-4 text-muted-foreground">{i + 1}</td>
                 <td className="py-3 px-4">
-                  <Link href={`/spelare/${s.slug ?? s.player_id}`} className="flex items-center gap-3 hover:text-pitch transition-colors">
+                  <Link href={`/spelare/${s.slug ?? s.player_id}`} className="flex items-center gap-3 hover:text-pitch-ink transition-colors">
                     {s.image && (
                       <div className="relative w-8 h-8 rounded-full overflow-hidden bg-muted shrink-0">
                         <Image src={s.image} alt={s.player_name ?? ""} fill className="object-cover" sizes="32px" />
@@ -66,7 +66,7 @@ export default async function AllsvenskanSkytteligaPage() {
                   </Link>
                 </td>
                 <td className="py-3 px-4 text-muted-foreground hidden sm:table-cell">
-                  <Link href={`/lag/${s.team_slug ?? s.team_name.toLowerCase().replace(/\s+/g, "-").replace(/[åä]/g, "a").replace(/ö/g, "o")}`} className="hover:text-pitch transition-colors">
+                  <Link href={`/lag/${s.team_slug ?? s.team_name.toLowerCase().replace(/\s+/g, "-").replace(/[åä]/g, "a").replace(/ö/g, "o")}`} className="hover:text-pitch-ink transition-colors">
                     {s.team_name}
                   </Link>
                 </td>
@@ -78,8 +78,8 @@ export default async function AllsvenskanSkytteligaPage() {
       </div>
 
       <div className="mt-6 flex gap-4 text-sm">
-        <Link href="/allsvenskan/tabell" className="text-pitch hover:underline">Tabell →</Link>
-        <Link href="/statistik" className="text-pitch hover:underline">All statistik →</Link>
+        <Link href="/allsvenskan/tabell" className="text-pitch-ink hover:underline">Tabell →</Link>
+        <Link href="/statistik" className="text-pitch-ink hover:underline">All statistik →</Link>
       </div>
     </div>
   );

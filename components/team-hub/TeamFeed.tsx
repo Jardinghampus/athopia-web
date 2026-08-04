@@ -63,8 +63,8 @@ function FeedRow({ item, teamSlug, teamName, plan }: { item: TeamFeedItem; teamS
       return (
         <TactileCard className="px-4 py-3.5 space-y-2">
           <div className="flex items-center gap-2">
-            <Star className="h-3.5 w-3.5 text-pitch" />
-            <span className="text-[10px] font-semibold uppercase tracking-wide text-pitch">Athopia AI · {ctx}</span>
+            <Star className="h-3.5 w-3.5 text-pitch-ink" />
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-pitch-ink">Athopia AI · {ctx}</span>
           </div>
           <h3 className="text-base font-bold leading-snug text-foreground">{p.headline}</h3>
           {unlocked ? (
@@ -84,7 +84,7 @@ function FeedRow({ item, teamSlug, teamName, plan }: { item: TeamFeedItem; teamS
         <Link href={`/artikel/${item.article.slug}`} className={rowClass}>
           <span className="flex items-center gap-2 min-w-0">
             <Newspaper className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-            <span className="text-sm text-foreground group-hover:text-pitch line-clamp-2">{item.article.title}</span>
+            <span className="text-sm text-foreground group-hover:text-pitch-ink line-clamp-2">{item.article.title}</span>
           </span>
           <span className="text-[11px] text-muted-foreground whitespace-nowrap shrink-0">{timeAgo(item.article.published_at)}</span>
         </Link>
@@ -95,7 +95,7 @@ function FeedRow({ item, teamSlug, teamName, plan }: { item: TeamFeedItem; teamS
         <Link href={`/forum/${teamSlug}/${item.thread.id}`} className={rowClass}>
           <span className="flex items-center gap-2 min-w-0">
             <MessageSquare className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-            <span className="text-sm text-foreground group-hover:text-pitch line-clamp-2">{item.thread.title}</span>
+            <span className="text-sm text-foreground group-hover:text-pitch-ink line-clamp-2">{item.thread.title}</span>
           </span>
           <span className="flex items-center gap-1 text-[11px] text-muted-foreground shrink-0">
             {item.thread.reply_count > 0 && `${item.thread.reply_count} svar · `}{timeAgo(item.thread.created_at)}
@@ -112,7 +112,7 @@ function FeedRow({ item, teamSlug, teamName, plan }: { item: TeamFeedItem; teamS
           <span className="flex items-center gap-2 min-w-0">
             <Podcast className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
             <span className="min-w-0">
-              <span className="block text-sm text-foreground group-hover:text-pitch line-clamp-1">{item.podcast.title}</span>
+              <span className="block text-sm text-foreground group-hover:text-pitch-ink line-clamp-1">{item.podcast.title}</span>
               <span className="block text-[11px] text-muted-foreground">{item.podcast.showName}</span>
             </span>
           </span>
@@ -127,7 +127,7 @@ function FeedRow({ item, teamSlug, teamName, plan }: { item: TeamFeedItem; teamS
 function FixtureRowCard({ fixture: f }: { fixture: FixtureRow }) {
   return (
     <Link href={`/match/${f.sportmonks_id}`} className={rowClass}>
-      <span className="text-sm text-foreground group-hover:text-pitch">
+      <span className="text-sm text-foreground group-hover:text-pitch-ink">
         {f.home_team_name} <span className="font-semibold tabular-nums">{f.home_score}–{f.away_score}</span> {f.away_team_name}
       </span>
       <span className="text-[11px] text-muted-foreground whitespace-nowrap shrink-0">

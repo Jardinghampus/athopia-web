@@ -246,7 +246,7 @@ export function PlayerCompareClient({ pool }: { pool: ScoutPlayer[] }) {
             <div className="grid grid-cols-3 items-center pt-3 text-xs">
               <Link
                 href={playerA ? `/spelare/${playerA.slug ?? playerA.player_id}` : "#"}
-                className="text-right pr-4 text-muted-foreground hover:text-pitch"
+                className="text-right pr-4 text-muted-foreground hover:text-pitch-ink"
               >{playerA ? "Profil →" : ""}</Link>
               <span />
               <Link

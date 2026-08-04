@@ -62,13 +62,13 @@ export default function TeamDropdown({ teams, currentSlug }: Props) {
                   onClick={() => setOpen(false)}
                   className={`flex items-center justify-between px-4 py-2.5 text-sm transition-colors ${
                     team.slug === currentSlug
-                      ? "text-pitch font-medium bg-pitch/5"
+                      ? "text-pitch-ink font-medium bg-pitch/5"
                       : "text-foreground hover:bg-muted/50"
                   }`}
                 >
                   {team.name}
                   {team.slug === currentSlug && (
-                    <Check className="w-3.5 h-3.5 text-pitch shrink-0" />
+                    <Check className="w-3.5 h-3.5 text-pitch-ink shrink-0" />
                   )}
                 </Link>
               ))}

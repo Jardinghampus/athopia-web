@@ -198,7 +198,7 @@ function Oversikt({ hub, plan, insights, onFixture }: { hub: TeamHubPayload; pla
           <div className="flex flex-col gap-2">
             {hub.news.slice(0, 4).map((a) => (
               <Link key={a.id} href={`/artikel/${a.slug}`} className="group flex items-start justify-between gap-3 rounded-lg border border-border/60 px-3 py-2.5 hover:border-pitch/50 transition-colors active:bg-muted touch-manipulation">
-                <span className="text-sm text-foreground group-hover:text-pitch line-clamp-2">{a.title}</span>
+                <span className="text-sm text-foreground group-hover:text-pitch-ink line-clamp-2">{a.title}</span>
                 <span className="text-[11px] text-muted-foreground whitespace-nowrap shrink-0">{a.published_at ? new Date(a.published_at).toLocaleDateString("sv-SE", { day: "numeric", month: "short" }) : ""}</span>
               </Link>
             ))}
@@ -279,7 +279,7 @@ function Trupp({ squad }: { squad: LeaderRow[] }) {
             {squad.map((p) => (
               <tr key={p.player_id} className="border-b border-border/40 last:border-0 hover:bg-muted/20">
                 <td className="py-2">
-                  <Link href={`/spelare/${p.slug ?? p.player_id}`} className="flex items-center gap-2 text-foreground hover:text-pitch">
+                  <Link href={`/spelare/${p.slug ?? p.player_id}`} className="flex items-center gap-2 text-foreground hover:text-pitch-ink">
                     {p.image && <span className="relative w-6 h-6 rounded-full overflow-hidden bg-muted shrink-0"><Image src={p.image} alt="" fill className="object-cover" sizes="24px" /></span>}
                     <span className="truncate">{p.fullname}</span>
                   </Link>
@@ -326,7 +326,7 @@ function Forum({ hub }: { hub: TeamHubPayload }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           {hub.threads.slice(0, 8).map((t) => (
             <Link key={t.id} href={`/lag/${hub.team.slug}/forum/${t.id}`} className="group flex items-center justify-between gap-3 rounded-lg border border-border/60 px-3 py-2.5 hover:border-pitch/50 transition-colors active:bg-muted touch-manipulation">
-              <span className="text-sm text-foreground group-hover:text-pitch line-clamp-1">{t.title}</span>
+              <span className="text-sm text-foreground group-hover:text-pitch-ink line-clamp-1">{t.title}</span>
               <span className="flex items-center gap-1 text-[11px] text-muted-foreground shrink-0"><MessageSquare className="h-3 w-3" /> {t.reply_count ?? 0}</span>
             </Link>
           ))}
@@ -347,7 +347,7 @@ function TeamDailyPulse({ pulse }: { pulse: TeamHubPayload["pulse"] }) {
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
-        <span className="rounded-full bg-pitch/10 border border-pitch/30 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-pitch">Athopia AI · {ctx}</span>
+        <span className="rounded-full bg-pitch/10 border border-pitch/30 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-pitch-ink">Athopia AI · {ctx}</span>
       </div>
       <h3 className="text-lg font-bold leading-snug text-foreground">{pulse.headline}</h3>
       {pulse.dek && <p className="text-sm font-medium text-muted-foreground">{pulse.dek}</p>}
@@ -398,12 +398,12 @@ function XgStat({ label, value, accent }: { label: string; value: number | null;
   return (
     <TactileCard className="rounded-xl p-2.5 text-center">
       {value == null ? (
-        <p className={`text-xl font-bold ${accent ? "text-pitch" : "text-foreground"}`}>–</p>
+        <p className={`text-xl font-bold ${accent ? "text-pitch-ink" : "text-foreground"}`}>–</p>
       ) : (
         <StatNumber
           value={value}
           format={{ minimumFractionDigits: 1, maximumFractionDigits: 1 }}
-          className={`text-xl ${accent ? "text-pitch" : "text-foreground"}`}
+          className={`text-xl ${accent ? "text-pitch-ink" : "text-foreground"}`}
         />
       )}
       <p className="text-[10px] text-muted-foreground mt-0.5">{label}</p>
@@ -476,7 +476,7 @@ function LeaderList({ title, rows, statKey, suffix }: { title: string; rows: Lea
           <div key={r.player_id} className="flex items-center gap-2.5">
             <span className="text-xs text-muted-foreground w-3">{i + 1}</span>
             {r.image && <span className="relative w-6 h-6 rounded-full overflow-hidden bg-muted shrink-0"><Image src={r.image} alt="" fill className="object-cover" sizes="24px" /></span>}
-            <Link href={`/spelare/${r.slug ?? r.player_id}`} className="flex-1 text-sm text-foreground hover:text-pitch truncate">{r.fullname}</Link>
+            <Link href={`/spelare/${r.slug ?? r.player_id}`} className="flex-1 text-sm text-foreground hover:text-pitch-ink truncate">{r.fullname}</Link>
             <span className="text-sm font-bold text-foreground tabular-nums">{r[statKey]}</span>
             <span className="text-[10px] text-muted-foreground w-6">{suffix}</span>
           </div>
@@ -504,7 +504,7 @@ function FixtureListRow({ fixture: f, smId, onSelect, density }: { fixture: Fixt
         played
           ? <span className={`text-xs font-bold ${color}`}>{r}</span>
           : f.status === "LIVE"
-            ? <span className="text-[10px] font-bold text-pitch animate-pulse">LIVE</span>
+            ? <span className="text-[10px] font-bold text-pitch-ink animate-pulse">LIVE</span>
             : <span className="text-[10px] font-bold text-muted-foreground">KOMMER</span>
       }
       title={`${isHome ? "H" : "B"} · ${opp}`}

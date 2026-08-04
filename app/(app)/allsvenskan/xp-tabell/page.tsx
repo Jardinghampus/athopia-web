@@ -151,7 +151,7 @@ export default async function XpTabellPage() {
               <tr key={r.team.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
                 <td className="py-3 px-4 text-muted-foreground">{i + 1}</td>
                 <td className="py-3 px-4">
-                  <Link href={`/lag/${r.team.slug ?? ""}`} className="font-medium hover:text-pitch transition-colors">
+                  <Link href={`/lag/${r.team.slug ?? ""}`} className="font-medium hover:text-pitch-ink transition-colors">
                     {r.team.name}
                   </Link>
                 </td>
@@ -172,8 +172,8 @@ export default async function XpTabellPage() {
       </div>
 
       <div className="mt-6 flex gap-4 text-sm">
-        <Link href="/allsvenskan/tabell" className="text-pitch hover:underline">Vanliga tabellen →</Link>
-        <Link href="/statistik" className="text-pitch hover:underline">All statistik →</Link>
+        <Link href="/allsvenskan/tabell" className="text-pitch-ink hover:underline">Vanliga tabellen →</Link>
+        <Link href="/statistik" className="text-pitch-ink hover:underline">All statistik →</Link>
       </div>
     </div>
   );

@@ -50,7 +50,7 @@ export function PlayerRatingPanel({ fixtureId, players }: { fixtureId: number; p
         <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Betygsätt insatsen</h3>
         {!isSignedIn && (
           <SignInButton mode="modal">
-            <button className="text-xs text-pitch hover:underline">Logga in för att rösta</button>
+            <button className="text-xs text-pitch-ink hover:underline">Logga in för att rösta</button>
           </SignInButton>
         )}
       </div>
@@ -72,7 +72,7 @@ export function PlayerRatingPanel({ fixtureId, players }: { fixtureId: number; p
                       onClick={() => setOpen(open === p.playerId ? null : p.playerId)}
                       className={`text-xs rounded-full border px-2 py-0.5 transition-colors ${
                         p.myRating != null
-                          ? "border-pitch/60 text-pitch"
+                          ? "border-pitch/60 text-pitch-ink"
                           : "border-border/60 text-muted-foreground hover:text-foreground"
                       }`}
                     >

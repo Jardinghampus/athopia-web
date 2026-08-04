@@ -143,7 +143,7 @@ export function ScoreWidget({ fixture, className }: ScoreWidgetProps) {
 
       {/* Minut */}
       {isLive && liveMinute !== null && (
-        <p className="text-center text-xs text-pitch font-medium">
+        <p className="text-center text-xs text-pitch-ink font-medium">
           {liveMinute}&apos;
         </p>
       )}

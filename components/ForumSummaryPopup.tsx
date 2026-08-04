@@ -95,7 +95,7 @@ export function ForumSummaryPopup() {
         <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
           <div className="flex items-center gap-2">
             <div className="flex h-6 w-6 items-center justify-center rounded-full bg-pitch/20">
-              <Sparkles className="h-3 w-3 text-pitch" />
+              <Sparkles className="h-3 w-3 text-pitch-ink" />
             </div>
             <span className="text-xs font-medium text-white/60">AI · Senaste timmen · {timeLabel}</span>
           </div>
@@ -110,7 +110,7 @@ export function ForumSummaryPopup() {
 
         <div className="px-4 py-3">
           <div className="mb-1 flex items-center gap-1.5">
-            <MessageSquare className="h-3.5 w-3.5 text-pitch" />
+            <MessageSquare className="h-3.5 w-3.5 text-pitch-ink" />
             <span className="text-xs font-semibold text-white/80">{teamName}</span>
           </div>
           <p className="text-sm leading-relaxed text-white/70">{digest.body}</p>

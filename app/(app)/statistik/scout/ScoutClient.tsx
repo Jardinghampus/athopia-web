@@ -141,7 +141,7 @@ export function ScoutClient({ pool }: { pool: ScoutPlayer[] }) {
     <p className="text-xs text-muted-foreground">
       Visar spelare <strong className="text-foreground">{aboveMedian ? "över" : "under"}</strong> {position === "all" ? "liga" : "positions"}median i{" "}
       <strong className="text-foreground">{metricLabels}</strong> ·{" "}
-      <strong className="text-pitch">{results.length}</strong> träffar
+      <strong className="text-pitch-ink">{results.length}</strong> träffar
     </p>
   );
 
@@ -162,7 +162,7 @@ export function ScoutClient({ pool }: { pool: ScoutPlayer[] }) {
             onClick={() => setSheetOpen(true)}
             aria-label="Scout-filter"
             className={`sm:hidden inline-flex shrink-0 items-center gap-1.5 rounded-xl border px-3.5 min-h-11 text-sm font-medium transition-colors touch-manipulation ${
-              filterActive ? "border-pitch/40 bg-pitch/10 text-pitch" : "border-border text-muted-foreground"
+              filterActive ? "border-pitch/40 bg-pitch/10 text-pitch-ink" : "border-border text-muted-foreground"
             }`}
           >
             <SlidersHorizontal className="h-4 w-4" />
@@ -185,7 +185,7 @@ export function ScoutClient({ pool }: { pool: ScoutPlayer[] }) {
       {/* Inline filter-panel (desktop) */}
       <div className="hidden sm:block rounded-2xl border border-border bg-card p-4 space-y-4">
         <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-          <SlidersHorizontal className="h-4 w-4 text-pitch" /> Scout-filter
+          <SlidersHorizontal className="h-4 w-4 text-pitch-ink" /> Scout-filter
         </div>
         <FilterControls f={filters} set={set} />
         {summary}
@@ -197,7 +197,7 @@ export function ScoutClient({ pool }: { pool: ScoutPlayer[] }) {
           <p className="text-sm text-muted-foreground">Inga spelare matchar filtret.</p>
           <button
             onClick={() => { setFilters({ position: "all", metrics: ["shots"], aboveMedian: true, minMinutes: 0 }); setQuery(""); }}
-            className="text-sm text-pitch hover:underline"
+            className="text-sm text-pitch-ink hover:underline"
           >
             Återställ filter
           </button>

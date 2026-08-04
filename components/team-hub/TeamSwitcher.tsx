@@ -68,7 +68,7 @@ export function TeamSwitcher({
             )}
           </span>
           <span className="truncate text-sm font-medium text-foreground">{team.name}</span>
-          {isCurrent && <Check className="h-4 w-4 shrink-0 text-pitch" aria-label="Visas nu" />}
+          {isCurrent && <Check className="h-4 w-4 shrink-0 text-pitch-ink" aria-label="Visas nu" />}
         </button>
         <button
           type="button"
@@ -77,7 +77,7 @@ export function TeamSwitcher({
           onClick={() => void setFavoriteTeam(team.slug)}
           className="shrink-0 rounded-lg p-2 touch-manipulation transition-colors hover:bg-muted"
         >
-          <Star className={`h-4 w-4 ${isFavorite ? "fill-pitch text-pitch" : "text-muted-foreground"}`} />
+          <Star className={`h-4 w-4 ${isFavorite ? "fill-pitch text-pitch-ink" : "text-muted-foreground"}`} />
         </button>
       </div>
     );

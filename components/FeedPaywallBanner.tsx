@@ -36,8 +36,8 @@ export function FeedPaywallBanner() {
 
       <div className="relative z-10">
         <div className="inline-flex items-center gap-1.5 rounded-full border border-pitch/40 bg-pitch/15 px-2.5 py-1 mb-3">
-          <Sparkles className="w-3 h-3 text-pitch" />
-          <span className="text-[11px] font-semibold text-pitch uppercase tracking-wide">
+          <Sparkles className="w-3 h-3 text-pitch-ink" />
+          <span className="text-[11px] font-semibold text-pitch-ink uppercase tracking-wide">
             {founder ? "Founder-PRO" : "Athopia PRO"}
           </span>
         </div>
@@ -56,7 +56,7 @@ export function FeedPaywallBanner() {
           {PERKS.map(({ icon: Icon, label }) => (
             <li key={label} className="flex items-center gap-2.5">
               <div className="w-5 h-5 rounded-full bg-pitch/20 flex items-center justify-center shrink-0">
-                <Icon className="w-3 h-3 text-pitch" />
+                <Icon className="w-3 h-3 text-pitch-ink" />
               </div>
               <span className="text-xs text-foreground/80">{label}</span>
             </li>

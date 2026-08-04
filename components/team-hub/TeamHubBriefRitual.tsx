@@ -48,7 +48,7 @@ export function TeamHubBriefRitual({
           <div className="px-4 sm:px-5 py-4 sm:py-5">
             <div className="mb-3 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                <Sparkles className="h-3.5 w-3.5 text-pitch" aria-hidden />
+                <Sparkles className="h-3.5 w-3.5 text-pitch-ink" aria-hidden />
                 Athopia idag · {ctx}
               </div>
               <span className="text-xs text-muted-foreground">{dateLabel(pulse.pulse_date)}</span>
@@ -64,7 +64,7 @@ export function TeamHubBriefRitual({
             ) : (
               <p className="mt-3 text-sm text-muted-foreground">
                 Fullständig dagens brief kräver PRO.{" "}
-                <Link href="/prenumerera" className="font-medium text-pitch hover:underline">
+                <Link href="/prenumerera" className="font-medium text-pitch-ink hover:underline">
                   Uppgradera
                 </Link>
               </p>
@@ -73,7 +73,7 @@ export function TeamHubBriefRitual({
             {hasFull && pulse.match_context_label === "post_match_hold" && (
               <p className="mt-3 text-xs text-muted-foreground">
                 Matchdetaljer och spelarbetyg finns på{" "}
-                <Link href="/nyheter" className="text-pitch hover:underline">
+                <Link href="/nyheter" className="text-pitch-ink hover:underline">
                   matchsidan
                 </Link>
                 .

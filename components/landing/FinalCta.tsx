@@ -39,7 +39,7 @@ export function FinalCta() {
                 <br />
                 läser du den
                 <br />
-                <span className="text-pitch">här.</span>
+                <span className="text-pitch-ink">här.</span>
               </h2>
             </Reveal>
 

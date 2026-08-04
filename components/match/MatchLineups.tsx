@@ -54,7 +54,7 @@ export function MatchLineups({
                     {(p.jersey as number | null) ?? "—"}
                   </span>
                   {pl ? (
-                    <Link href={href} className="truncate hover:text-pitch min-w-0 flex-1">
+                    <Link href={href} className="truncate hover:text-pitch-ink min-w-0 flex-1">
                       {pl.fullname as string}
                     </Link>
                   ) : (

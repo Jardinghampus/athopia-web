@@ -57,7 +57,7 @@ export default function OmOssPage() {
         <h2 className="font-semibold text-2xl text-foreground mb-3">Kontakt</h2>
         <p className="text-muted-foreground leading-relaxed">
           Frågor, rättelser eller samarbetsförfrågningar skickas till{" "}
-          <a href="mailto:hej@athopia.se" className="text-pitch hover:underline">hej@athopia.se</a>.
+          <a href="mailto:hej@athopia.se" className="text-pitch-ink hover:underline">hej@athopia.se</a>.
         </p>
       </section>
 
@@ -65,7 +65,7 @@ export default function OmOssPage() {
         <h2 className="font-semibold text-2xl text-foreground mb-3">Integritet</h2>
         <p className="text-muted-foreground leading-relaxed">
           Hur vi hanterar personuppgifter beskrivs i vår{" "}
-          <Link href="/integritetspolicy" className="text-pitch hover:underline">integritetspolicy</Link>.
+          <Link href="/integritetspolicy" className="text-pitch-ink hover:underline">integritetspolicy</Link>.
         </p>
       </section>
     </div>

@@ -550,7 +550,7 @@ export default async function MatchPage({ params }: PageProps) {
           <div className="space-y-2">
             {d!.related.map((a) => (
               <Link key={a.id} href={`/artikel/${a.slug}`} className="group flex items-baseline justify-between gap-3 rounded-lg border border-border/60 px-3 py-2.5 hover:border-pitch/50 transition-colors">
-                <span className="text-sm text-foreground group-hover:text-pitch truncate">{a.title}</span>
+                <span className="text-sm text-foreground group-hover:text-pitch-ink truncate">{a.title}</span>
                 <span className="text-xs text-muted-foreground shrink-0">{a.source_name ?? ""}</span>
               </Link>
             ))}

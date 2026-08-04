@@ -78,7 +78,7 @@ export function BentoCard({ item, className }: { item: BentoItem; className?: st
               </span>
             ))}
           </div>
-          <span className="text-xs text-pitch opacity-0 group-hover:opacity-100 transition-opacity">
+          <span className="text-xs text-pitch-ink opacity-0 group-hover:opacity-100 transition-opacity">
             {item.cta ?? "Läs mer →"}
           </span>
         </div>
