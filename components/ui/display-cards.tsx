@@ -15,11 +15,11 @@ export interface DisplayCardProps {
 
 export function DisplayCard({
   className,
-  icon = <Sparkles className="size-4 text-pitch-light" />,
+  icon = <Sparkles className="size-4 text-pitch-ink" />,
   title = "Nyhet",
   description = "Senaste från Allsvenskan",
   date = "Just nu",
-  titleClassName = "text-pitch",
+  titleClassName = "text-pitch-ink",
 }: DisplayCardProps) {
   return (
     <div

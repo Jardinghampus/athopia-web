@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Integritetspolicy | Athopia",
@@ -37,7 +37,7 @@ export default function IntegritetspolicyPage() {
           <h2 className="font-semibold text-2xl text-foreground mb-3">Dina rättigheter</h2>
           <p>
             Du har rätt att begära tillgång till, rättelse eller radering av dina personuppgifter.
-            Kontakta oss på <a href="mailto:hej@athopia.se" className="text-pitch hover:underline">hej@athopia.se</a>.
+            Kontakta oss på <a href="mailto:hej@athopia.se" className="text-pitch-ink hover:underline">hej@athopia.se</a>.
           </p>
         </section>
 

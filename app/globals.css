@@ -29,11 +29,20 @@
   --color-pitch:       #2D5349;
   --color-pitch-dark:  #1E3A32;
   --color-pitch-light: #5FA98C;
+
+  /* Accent som TEXT på sidbakgrund. Skild från --color-pitch (som är en YTA:
+     bg-pitch/border-pitch med vit text). Racing Green som text på mörkt tema ger
+     2.0–2.45:1 — långt under AA — så bläcket måste växla valör med temat medan
+     ytan står still. Använd text-pitch-ink, aldrig text-pitch. */
+  --color-pitch-ink: var(--pitch-ink);
   --color-pitch-muted: rgba(45, 83, 73, 0.12);
 
   /* Success = grönt, ENDAST positiv status (form, avklarat, stigande) */
   --color-success:       var(--success);
   --color-success-muted: rgba(29, 158, 117, 0.12);
+  /* Text ovanpå en SOLID success-yta. Mörkt tema har ljus mint (#25C48F) där vit
+     text ger 2.2:1 — bläcket måste vändas med temat. */
+  --color-success-foreground: var(--success-foreground);
   --color-warning:       var(--warning);
 
   /* Fel-röd i ljust tema: Tailwinds red-300/400 ger 1.8–2.7:1 på #FAFAF8.
@@ -111,13 +120,16 @@
   --secondary-foreground: #111111;
 
   --muted: #F3F2F0;
-  --muted-foreground: #8A8885;
+  /* 4.6:1 på #F3F2F0, 5.0:1 på #FAFAF8, 5.2:1 på #fff (WCAG AA).
+     #8A8885 gav 3.2–3.5:1 — under AA på appens vanligaste sekundärtext. */
+  --muted-foreground: #6E6D6A;
 
   --accent: #EAF0ED;
   --accent-foreground: #111111;
 
   --destructive: #D61F1F;
   --success: #12805F; /* mörkare än dark-valören: 4.7:1 på #FAFAF8 (WCAG AA), #1D9E75 gav 3.2 */
+  --success-foreground: #ffffff; /* 5.9:1 på #12805F */
   --warning: #D59B00;
 
   --red-300: #D61F1F;
@@ -127,6 +139,9 @@
   --input: #E2E0DC;
   --ring: #2D5349;
   --radius: 0.75rem;
+
+  /* 7.4:1 på #FAFAF8 */
+  --pitch-ink: #2D5349;
 
   --chart-1: #2D5349;
   --chart-2: #111111;
@@ -153,13 +168,16 @@
   --secondary-foreground: #F4F4F2;
 
   --muted: #151516;
-  --muted-foreground: #7D7D7A;
+  /* 5.0:1 på #1B1B1C, 5.3:1 på #151516, 6.1:1 på #000 (WCAG AA).
+     #7D7D7A gav 4.2–4.4:1 — precis under AA. */
+  --muted-foreground: #8A8A87;
 
   --accent: #14201C;
   --accent-foreground: #F4F4F2;
 
   --destructive: #FF453A;
   --success: #25C48F;
+  --success-foreground: #0A1A14; /* 10.6:1 på #25C48F — vit gav 2.2:1 */
   --warning: #F2A900;
 
   --red-300: #FCA5A5; /* Tailwind-default tillbaka i mörkt tema */
@@ -168,6 +186,9 @@
   --border: #2C2C2E;
   --input: #2C2C2E;
   --ring: #2D5349;
+
+  /* Ljus valör enligt BRAND.md — 7.9:1 på #000, 6.4:1 på #1B1B1C */
+  --pitch-ink: #5FA98C;
 
   --chart-1: #5FA98C;
   --chart-2: #F4F4F2;

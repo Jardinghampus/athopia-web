@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import type { Entity } from "@/lib/types";
 
 const typeColor: Record<Entity["type"], string> = {
-  team: "bg-pitch/20 text-pitch-light border-pitch/30 hover:bg-pitch/30",
+  team: "bg-pitch/20 text-pitch-ink border-pitch/30 hover:bg-pitch/30",
   player: "bg-blue-500/10 text-blue-300 border-blue-500/20 hover:bg-blue-500/20",
   coach: "bg-purple-500/10 text-purple-300 border-purple-500/20 hover:bg-purple-500/20",
 };

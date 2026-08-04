@@ -51,7 +51,7 @@ function ProPriceTag({ interval }: { interval: BillingInterval }) {
   const founder = FOUNDER_OFFER.active;
   return (
     <div className="mb-6">
-      <h2 className="font-semibold text-2xl text-pitch mb-1">PRO</h2>
+      <h2 className="font-semibold text-2xl text-pitch-ink mb-1">PRO</h2>
       <div className="flex items-baseline gap-2">
         <span className="text-4xl font-bold text-foreground">{amount / 100}</span>
         <span className="text-muted-foreground text-sm">kr / {interval === "year" ? "år" : "mån"}</span>
@@ -60,13 +60,13 @@ function ProPriceTag({ interval }: { interval: BillingInterval }) {
         )}
       </div>
       {founder ? (
-        <p className="text-xs text-pitch mt-1 font-medium">
+        <p className="text-xs text-pitch-ink mt-1 font-medium">
           Founder-pris för alltid — först till {FOUNDER_OFFER.cap}
           {interval === "year" && <> · motsvarar {formatKr(Math.round(amountFor("pro", "year") / 12))}/mån</>}
           {" · "}{TRIAL_DAYS} dagar gratis
         </p>
       ) : interval === "year" ? (
-        <p className="text-xs text-pitch mt-1">
+        <p className="text-xs text-pitch-ink mt-1">
           Motsvarar {formatKr(monthlyEquivalent("pro"))}/mån · spara 25 % · {TRIAL_DAYS} dagar gratis
         </p>
       ) : (
@@ -80,13 +80,13 @@ function ElitePriceTag({ interval }: { interval: BillingInterval }) {
   const amount = amountFor("elite", interval);
   return (
     <div className="mb-6">
-      <h2 className="font-semibold text-2xl text-pitch mb-1">ELITE</h2>
+      <h2 className="font-semibold text-2xl text-pitch-ink mb-1">ELITE</h2>
       <div className="flex items-baseline gap-1">
         <span className="text-4xl font-bold text-foreground">{amount / 100}</span>
         <span className="text-muted-foreground text-sm">kr / {interval === "year" ? "år" : "mån"}</span>
       </div>
       {interval === "year" ? (
-        <p className="text-xs text-pitch mt-1">
+        <p className="text-xs text-pitch-ink mt-1">
           Motsvarar {formatKr(monthlyEquivalent("elite"))}/mån · spara 25 %
         </p>
       ) : (
@@ -105,9 +105,9 @@ function FeatureList({ features, paid, hero }: { features: string[]; paid: boole
           className={`flex items-start gap-3 text-sm ${paid ? "text-foreground" : "text-muted-foreground"} ${hero !== undefined && i < hero ? "font-medium" : ""}`}
         >
           {hero !== undefined && i < hero ? (
-            <Star className="w-4 h-4 shrink-0 text-pitch mt-0.5" />
+            <Star className="w-4 h-4 shrink-0 text-pitch-ink mt-0.5" />
           ) : (
-            <Check className={`w-4 h-4 shrink-0 mt-0.5 ${paid ? "text-pitch" : "text-muted-foreground"}`} />
+            <Check className={`w-4 h-4 shrink-0 mt-0.5 ${paid ? "text-pitch-ink" : "text-muted-foreground"}`} />
           )}
           {f}
         </li>
@@ -138,7 +138,7 @@ export function PricingPlans() {
               interval === "year" ? "pitch-gradient text-white" : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            Årsvis <span className="text-pitch-light">−25 %</span>
+            Årsvis <span className="text-pitch-ink">−25 %</span>
           </button>
         </div>
       </div>

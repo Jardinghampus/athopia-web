@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Telescope } from "lucide-react";
 import { getScoutPool } from "@/lib/team-hub/scout";
@@ -19,7 +19,7 @@ export default async function ScoutPage() {
       <div className="flex items-end justify-between gap-4">
         <div>
           <h1 className="font-bold text-5xl text-foreground flex items-center gap-3">
-            <Telescope className="h-9 w-9 text-pitch" /> SCOUT MODE
+            <Telescope className="h-9 w-9 text-pitch-ink" /> SCOUT MODE
           </h1>
           <p className="text-muted-foreground mt-1 text-sm">
             Hitta spelare som överträffar median i valda mätvärden · Allsvenskan 2026

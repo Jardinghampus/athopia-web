@@ -166,7 +166,7 @@ export function OnboardingClient() {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-background">
+    <div id="main" tabIndex={-1} className="fixed inset-0 z-50 flex flex-col bg-background focus:outline-none">
       <div className="flex items-center gap-4 px-5 pt-[max(env(safe-area-inset-top),1.5rem)] pb-4 shrink-0">
         <Progress step={step} total={TOTAL_STEPS} />
         {step > 0 && (
@@ -324,7 +324,7 @@ export function OnboardingClient() {
               </p>
 
               <div className="rounded-2xl border border-border bg-card px-5 py-5 flex items-start gap-3">
-                <Bell className="h-5 w-5 text-pitch shrink-0 mt-0.5" />
+                <Bell className="h-5 w-5 text-pitch-ink shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-semibold">Push-notiser</p>
                   <p className="text-xs text-muted-foreground mt-1">
@@ -343,7 +343,7 @@ export function OnboardingClient() {
                   <button
                     type="button"
                     onClick={() => void enableNotifications()}
-                    className="w-full min-h-[54px] rounded-2xl border border-pitch/40 text-pitch font-semibold touch-manipulation"
+                    className="w-full min-h-[54px] rounded-2xl border border-pitch/40 text-pitch-ink font-semibold touch-manipulation"
                   >
                     Tillåt notiser
                   </button>
@@ -361,7 +361,7 @@ export function OnboardingClient() {
                   PRO kommer efteråt — när du sett värdet.{" "}
                   <button
                     type="button"
-                    className="text-pitch hover:underline"
+                    className="text-pitch-ink hover:underline"
                     onClick={() => router.push("/prenumerera")}
                   >
                     Se priser

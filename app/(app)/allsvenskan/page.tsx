@@ -60,11 +60,11 @@ export default async function AllsvenskanPage() {
         <h1 className="font-bold text-5xl text-foreground">ALLSVENSKAN</h1>
         <p className="text-muted-foreground mt-2">Nyheter, tabell och matcher — uppdateras löpande.</p>
         <div className="flex gap-4 flex-wrap mt-3">
-          <Link href="/allsvenskan/tabell" className="text-sm text-pitch hover:underline">Tabell</Link>
-          <Link href="/allsvenskan/spelschema" className="text-sm text-pitch hover:underline">Spelschema</Link>
-          <Link href="/allsvenskan/skytteliga" className="text-sm text-pitch hover:underline">Skytteliga</Link>
-          <Link href="/allsvenskan/resultat" className="text-sm text-pitch hover:underline">Resultat</Link>
-          <Link href="/statistik" className="text-sm text-pitch hover:underline">Statistik</Link>
+          <Link href="/allsvenskan/tabell" className="text-sm text-pitch-ink hover:underline">Tabell</Link>
+          <Link href="/allsvenskan/spelschema" className="text-sm text-pitch-ink hover:underline">Spelschema</Link>
+          <Link href="/allsvenskan/skytteliga" className="text-sm text-pitch-ink hover:underline">Skytteliga</Link>
+          <Link href="/allsvenskan/resultat" className="text-sm text-pitch-ink hover:underline">Resultat</Link>
+          <Link href="/statistik" className="text-sm text-pitch-ink hover:underline">Statistik</Link>
         </div>
       </div>
 
@@ -73,7 +73,7 @@ export default async function AllsvenskanPage() {
           href={`/narrativ/${topStory.id}`}
           className="mb-8 block rounded-2xl border border-border bg-card p-6 transition-colors hover:border-pitch/40"
         >
-          <span className="text-xs font-medium uppercase tracking-wider text-pitch">Dagens story</span>
+          <span className="text-xs font-medium uppercase tracking-wider text-pitch-ink">Dagens story</span>
           <h2 className="mt-2 font-bold text-2xl text-foreground">{topStory.topic}</h2>
           {topStory.description && (
             <p className="mt-2 text-muted-foreground line-clamp-2">{topStory.description}</p>
@@ -88,7 +88,7 @@ export default async function AllsvenskanPage() {
         <section>
           <div className="mb-4 flex items-center justify-between">
             <h2 className="font-semibold text-2xl text-foreground">NYHETER</h2>
-            <Link href="/nyheter" className="text-sm text-pitch hover:underline">
+            <Link href="/nyheter" className="text-sm text-pitch-ink hover:underline">
               Alla nyheter →
             </Link>
           </div>
@@ -109,7 +109,7 @@ export default async function AllsvenskanPage() {
           <div>
             <div className="mb-4 flex items-center justify-between">
               <h2 className="font-semibold text-2xl text-foreground">TABELL</h2>
-              <Link href="/allsvenskan/tabell" className="text-sm text-pitch hover:underline">
+              <Link href="/allsvenskan/tabell" className="text-sm text-pitch-ink hover:underline">
                 Hela tabellen →
               </Link>
             </div>
@@ -122,7 +122,7 @@ export default async function AllsvenskanPage() {
                       <td className="p-3 text-foreground">
                         <Link
                           href={`/lag/${row.team.slug ?? ""}`}
-                          className="hover:text-pitch-light"
+                          className="hover:text-pitch-ink"
                         >
                           {row.team.name}
                         </Link>
@@ -156,7 +156,7 @@ export default async function AllsvenskanPage() {
               )}
             </div>
             <Separator className="my-4" />
-            <Link href="/match" className="text-sm text-pitch hover:underline">
+            <Link href="/match" className="text-sm text-pitch-ink hover:underline">
               Alla matcher →
             </Link>
           </div>

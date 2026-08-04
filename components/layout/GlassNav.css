@@ -1,7 +1,10 @@
 /* ── GlassNav — floating liquid-glass tab bar ─────────────────────────────── */
 
 .glassnav {
-  --opt-size: 44px;
+  /* Bredden skalar med viewport så pillen ryms även på 320px-skärmar,
+     men växer aldrig förbi 64px per flik. */
+  --opt-w: min(64px, 18vw);
+  --opt-h: 48px;
   --opt-gap: 2px;
   --pad: 5px;
   /* --active is set inline (0-based index of the current tab) */
@@ -30,14 +33,14 @@
   position: absolute;
   top: var(--pad);
   left: var(--pad);
-  width: var(--opt-size);
-  height: var(--opt-size);
+  width: var(--opt-w);
+  height: var(--opt-h);
   border-radius: 999px;
   background: color-mix(in srgb, var(--primary) 16%, transparent);
   box-shadow:
     0 1px 1px 0 color-mix(in srgb, var(--foreground) 14%, transparent) inset,
     0 4px 12px -4px rgba(0, 0, 0, 0.35);
-  transform: translateX(calc((var(--opt-size) + var(--opt-gap)) * var(--active)));
+  transform: translateX(calc((var(--opt-w) + var(--opt-gap)) * var(--active)));
   transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1);
   pointer-events: none;
 }
@@ -45,10 +48,13 @@
 .glassnav__item {
   position: relative;
   z-index: 1;
-  display: grid;
-  place-items: center;
-  width: var(--opt-size);
-  height: var(--opt-size);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: var(--opt-w);
+  height: var(--opt-h);
   border-radius: 999px;
   color: color-mix(in srgb, var(--foreground) 50%, transparent);
   cursor: pointer;
@@ -74,8 +80,25 @@
 }
 
 .glassnav__item svg {
-  width: 21px;
-  height: 21px;
+  width: 20px;
+  height: 20px;
+}
+
+/* Etikett per flik — Apple HIG kräver text i tab bars, och ikonerna ensamma
+   skiljer inte "Mitt lag" (sköld) från "Allsvenskan" (pokal). */
+.glassnav__label {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 9px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.glassnav__item[data-active="true"] .glassnav__label {
+  font-weight: 600;
 }
 
 @media (prefers-reduced-motion: reduce) {

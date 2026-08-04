@@ -112,7 +112,7 @@ export function ArticleCard({ article, size = "md", priority = false, commentCou
         className={cn(base, "p-4")}
       >
         <div className="flex items-start justify-between gap-3">
-          <h3 className={cn("font-heading leading-tight text-foreground group-hover:text-pitch-light transition-colors", titleClass)}>
+          <h3 className={cn("font-heading leading-tight text-foreground group-hover:text-pitch-ink transition-colors", titleClass)}>
             {truncate(article.title, 90)}
           </h3>
           <SourceBadge sourceName={article.sourceName} />
@@ -174,14 +174,14 @@ export function ArticleCard({ article, size = "md", priority = false, commentCou
               <EntityChip key={entity.id} entity={entity} size="sm" linked={false} />
             ))
           ) : (
-            <span className="inline-flex items-center rounded-full border border-pitch/30 bg-pitch/10 px-2 py-0.5 text-xs font-medium text-pitch">
+            <span className="inline-flex items-center rounded-full border border-pitch/30 bg-pitch/10 px-2 py-0.5 text-xs font-medium text-pitch-ink">
               Allsvenskan
             </span>
           )}
         </div>
 
         {/* Rubrik */}
-        <h3 className={cn("font-heading leading-tight text-foreground group-hover:text-pitch-light transition-colors", titleClass)}>
+        <h3 className={cn("font-heading leading-tight text-foreground group-hover:text-pitch-ink transition-colors", titleClass)}>
           {article.title}
         </h3>
 

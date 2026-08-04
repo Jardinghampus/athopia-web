@@ -6,6 +6,9 @@ import { useUser } from "@clerk/nextjs";
 const LS_KEY = "athopia_favorite_team";
 const LS_ONBOARDING_KEY = "athopia_onboarding_done";
 
+/** Hur länge vi väntar på Clerk innan vi degraderar till gästläge. */
+const CLERK_LOAD_TIMEOUT_MS = 5000;
+
 export interface FavoriteTeamState {
   slug: string | null;
   isLoaded: boolean;
@@ -98,10 +101,23 @@ function useClerkFavoriteTeam(): FavoriteTeamState {
   const [slug, setSlug] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [needsOnboarding, setNeedsOnboarding] = useState(false);
+  const [clerkTimedOut, setClerkTimedOut] = useState(false);
+
+  /**
+   * Om Clerk-skriptet aldrig laddar (blockerat, offline, nere) blir clerkLoaded
+   * aldrig true — och konsumenter som MittLagGuestPreview fastnar i "Laddar…"
+   * för alltid på appens primära flik. Efter CLERK_LOAD_TIMEOUT_MS faller vi
+   * tillbaka på localStorage och visar gästupplevelsen i stället för att hänga.
+   */
+  useEffect(() => {
+    if (clerkLoaded) return;
+    const t = setTimeout(() => setClerkTimedOut(true), CLERK_LOAD_TIMEOUT_MS);
+    return () => clearTimeout(t);
+  }, [clerkLoaded]);
 
   // Initialisera från Clerk metadata (inloggad) eller localStorage (gäst)
   useEffect(() => {
-    if (!clerkLoaded) return;
+    if (!clerkLoaded && !clerkTimedOut) return;
 
     if (user) {
       const meta = user.unsafeMetadata as Record<string, unknown> | undefined;
@@ -125,7 +141,7 @@ function useClerkFavoriteTeam(): FavoriteTeamState {
       }
     }
     setIsLoaded(true);
-  }, [clerkLoaded, user]);
+  }, [clerkLoaded, clerkTimedOut, user]);
 
   const setFavoriteTeam = useCallback(
     async (newSlug: string, teamId?: string) => {

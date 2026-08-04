@@ -91,6 +91,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       suppressHydrationWarning
     >
       <body className="min-h-dvh flex flex-col">
+        {/*
+          WCAG 2.4.1 — hoppa förbi header/sidebar/bottendock till innehållet.
+          Inte `hidden`: länken måste vara fokuserbar. Den parkeras ovanför
+          viewporten och glider in först när den tabbas fram.
+        */}
+        <a
+          href="#main"
+          className="fixed left-2 top-[calc(env(safe-area-inset-top)+0.5rem)] z-[200]
+            -translate-y-[calc(100%+1.5rem)] rounded-xl bg-pitch px-5 py-3
+            text-[15px] font-medium text-white shadow-lg transition-transform
+            duration-150 ease-out focus:translate-y-0 focus:outline-2
+            focus:outline-offset-2 focus:outline-white motion-reduce:transition-none"
+        >
+          Hoppa till innehåll
+        </a>
         <NewsMediaJsonLd />
         <ThemeProvider>
           <Providers>

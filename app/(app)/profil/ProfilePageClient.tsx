@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -31,7 +31,7 @@ function WelcomePopup({ onClose }: { onClose: () => void }) {
         className="w-full max-w-sm rounded-3xl border border-pitch/30 bg-background/95 backdrop-blur p-6 text-center shadow-2xl"
       >
         <div className="w-14 h-14 rounded-2xl bg-pitch/15 border border-pitch/30 flex items-center justify-center mx-auto mb-4">
-          <Sparkles className="w-7 h-7 text-pitch" />
+          <Sparkles className="w-7 h-7 text-pitch-ink" />
         </div>
         <h2 className="font-semibold text-2xl text-foreground mb-2">Välkommen ombord!</h2>
         <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
@@ -376,7 +376,7 @@ function ProfileCardEditable({ profile, onPickFile }: { profile: PublicProfile; 
           {isAdmin && <BrandBadge kind="star" size="md" />}
         </div>
         {isColumnist && (
-          <span className="mt-0.5 text-[11px] font-semibold uppercase tracking-wide text-pitch">Journalist</span>
+          <span className="mt-0.5 text-[11px] font-semibold uppercase tracking-wide text-pitch-ink">Journalist</span>
         )}
         <p className="mt-1 text-xs text-muted-foreground">
           Tryck på bilden för att byta

@@ -54,10 +54,10 @@ export function PodcastCard({ podcast }: PodcastCardProps) {
       <div className="flex flex-col gap-2 min-w-0 flex-1">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <p className="text-xs text-pitch font-medium mb-0.5 truncate">
+            <p className="text-xs text-pitch-ink font-medium mb-0.5 truncate">
               {podcast.showName}
             </p>
-            <h3 className="font-heading text-lg text-foreground line-clamp-2 group-hover:text-pitch-light transition-colors leading-tight">
+            <h3 className="font-heading text-lg text-foreground line-clamp-2 group-hover:text-pitch-ink transition-colors leading-tight">
               {podcast.title}
             </h3>
           </div>
@@ -66,7 +66,7 @@ export function PodcastCard({ podcast }: PodcastCardProps) {
           {podcast.hasTranscript && (
             <Badge
               variant="outline"
-              className="text-xs border-pitch/40 text-pitch-light shrink-0 gap-1"
+              className="text-xs border-pitch/40 text-pitch-ink shrink-0 gap-1"
             >
               <FileText className="w-3 h-3" />
               Indexerad

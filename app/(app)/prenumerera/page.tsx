@@ -1,4 +1,4 @@
-﻿/**
+/**
  * app/prenumerera/page.tsx — Prissida
  * ─────────────────────────────────────────────────────────────────────────────
  * Free / PRO 89 kr / Elite 169 kr — 25 % rabatt på årsplan.
@@ -58,7 +58,7 @@ export default function PrenumereraPage() {
       <PricingJsonLd />
       {/* Rubrik */}
       <div className="text-center mb-12">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-pitch/15 border border-pitch/30 text-pitch text-sm font-medium mb-6">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-pitch/15 border border-pitch/30 text-pitch-ink text-sm font-medium mb-6">
           <Zap className="w-4 h-4" />
           {FOUNDER_OFFER.active
             ? `Founder-pris: 69 kr/mån för alltid — först till ${FOUNDER_OFFER.cap}`

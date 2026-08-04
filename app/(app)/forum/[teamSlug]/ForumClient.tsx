@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useUser } from "@clerk/nextjs";
 import { toast } from "sonner";
 import PostItem from "@/components/forum/PostItem";
@@ -85,14 +86,19 @@ export default function ForumClient({ teamSlug, sport, initialPosts, articlePref
             className="w-full flex items-center gap-3 px-4 py-3.5 border-b border-border/40 hover:bg-card/30 transition-colors text-left touch-manipulation"
             aria-label="Skriv ett inlägg"
           >
-            <div className="w-9 h-9 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-300 text-[13px] font-semibold shrink-0">
+            <div className="w-9 h-9 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-300 text-[13px] font-semibold shrink-0 overflow-hidden">
               {user.imageUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={user.imageUrl} alt="" className="w-full h-full rounded-full object-cover" />
+                <Image
+                  src={user.imageUrl}
+                  alt=""
+                  width={36}
+                  height={36}
+                  className="rounded-full object-cover"
+                />
               ) : userInitials}
             </div>
             <span className="flex-1 text-[15px] text-muted-foreground/50">Vad tänker du på?</span>
-            <span className="text-[13px] font-semibold text-pitch px-3 py-1.5 rounded-full border border-pitch/30 shrink-0">
+            <span className="text-[13px] font-semibold text-pitch-ink px-3 py-1.5 rounded-full border border-pitch/30 shrink-0">
               Skriv
             </span>
           </button>
@@ -134,7 +140,9 @@ export default function ForumClient({ teamSlug, sport, initialPosts, articlePref
           ) : (
             <Link
               href="/sign-up"
-              className="inline-flex h-10 items-center gap-2 rounded-xl bg-pitch px-5 text-sm font-bold text-black hover:bg-pitch/90 transition-colors"
+              // text-black på Racing Green ger 2.5:1 — vit text är normen på
+              // bg-pitch i övriga appen och ger 8.9:1.
+              className="inline-flex h-10 items-center gap-2 rounded-xl bg-pitch px-5 text-sm font-bold text-white hover:bg-pitch/90 transition-colors"
             >
               Skapa konto för att skriva
             </Link>

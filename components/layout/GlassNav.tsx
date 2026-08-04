@@ -38,13 +38,12 @@ export function GlassNav({ clerkEnabled: _clerkEnabled }: { clerkEnabled?: boole
             <Link
               key={href}
               href={href}
-              title={label}
-              aria-label={label}
               aria-current={active ? "page" : undefined}
               data-active={active}
               className="glassnav__item"
             >
-              <Icon strokeWidth={2} />
+              <Icon strokeWidth={2} aria-hidden />
+              <span className="glassnav__label">{label}</span>
             </Link>
           );
         })}

@@ -55,11 +55,11 @@ export function SeasonStreakBar({
               key={roundNum}
               className={`w-5 h-5 rounded-sm text-[9px] flex items-center justify-center font-bold ${
                 isCompleted
-                  ? 'bg-pitch text-black'
+                  ? 'bg-pitch text-white'
                   : isFrozen
                   ? 'bg-blue-500/60 text-white'
                   : isCurrent
-                  ? 'border border-pitch text-pitch'
+                  ? 'border border-pitch text-pitch-ink'
                   : 'bg-white/5 text-white/20'
               }`}
               whileHover={{ scale: 1.2 }}

@@ -84,7 +84,7 @@ export function OnboardingLeaguePicker({ onComplete }: { onComplete: () => void 
         <button
           onClick={joinLeague}
           disabled={!selected || saving}
-          className="w-full py-3 rounded-lg bg-pitch text-black font-bold disabled:opacity-40 transition-opacity"
+          className="w-full py-3 rounded-lg bg-pitch text-white font-bold disabled:opacity-40 transition-opacity"
         >
           {saving ? 'Sparar...' : 'Gå med i ligan →'}
         </button>

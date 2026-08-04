@@ -7,7 +7,7 @@ function hashString(input: string) {
 }
 
 const palette = [
-  "bg-pitch/15 text-pitch-light border-pitch/25",
+  "bg-pitch/15 text-pitch-ink border-pitch/25",
   "bg-blue-500/10 text-blue-300 border-blue-500/20",
   "bg-amber-500/10 text-amber-300 border-amber-500/20",
   "bg-purple-500/10 text-purple-300 border-purple-500/20",
