@@ -15,7 +15,8 @@ const PlayerRadar = dynamic(
 import { SCOUT_METRICS, type ScoutPlayer, type ScoutMetricKey } from "@/lib/team-hub/scout";
 
 const RADAR_METRICS: ScoutMetricKey[] = ["goals", "assists", "shots", "key_passes", "passes", "rating"];
-const COLOR_A = "var(--color-pitch)";
+// Ink-varianten så att serien också syns mot mörk bakgrund i diagrammet.
+const COLOR_A = "var(--color-pitch-ink)";
 const COLOR_B = "#3B82F6";
 
 type PositionFilter = "all" | "goalkeeper" | "defender" | "midfielder" | "attacker";
@@ -77,7 +78,18 @@ function PlayerCombobox({ pool, value, onChange, label, color }: {
 
   return (
     <div ref={containerRef} className="relative space-y-1">
-      <span className="text-xs font-semibold" style={{ color }}>{label}</span>
+      {/* Seriefärgen bär bara 3:1-kravet (icke-text). Som textfärg föll den
+          under AA — #2D5349 gav 2:1 på mörkt kort, #3B82F6 3.7:1 på vitt.
+          Färgen visas nu som en prick och etiketten står i läsbar brödtextfärg,
+          vilket dessutom slutar förlita sig på färg som enda bärare (WCAG 1.4.1). */}
+      <span className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+        <span
+          aria-hidden
+          className="size-2 shrink-0 rounded-full"
+          style={{ backgroundColor: color }}
+        />
+        {label}
+      </span>
       <div
         className={cn(
           "flex items-center gap-2 rounded-lg border bg-background px-2.5 min-h-11 sm:min-h-9 transition-colors",

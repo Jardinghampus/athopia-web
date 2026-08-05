@@ -2,14 +2,14 @@ import { test, expect } from '@playwright/test'
 
 test.describe('Forum-index', () => {
   test('Laddar och visar lag-lista', async ({ page }) => {
-    await page.goto('/forum', { timeout: 20000 })
+    await page.goto('/forum')
     await expect(page.locator('h1, h2, h3').first()).toBeVisible({ timeout: 10000 })
   })
 })
 
 test.describe('Team-forum (DIF)', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/forum/djurgardens-if', { timeout: 30000 })
+    await page.goto('/forum/djurgardens-if')
   })
 
   test('Laddar och visar inlägg eller auth-redirect', async ({ page }) => {

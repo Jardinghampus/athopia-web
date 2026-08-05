@@ -7,6 +7,7 @@ import { X, Search, Users } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { BOTTOM_NAV_ITEMS, SECONDARY_NAV_ITEMS } from "@/lib/nav";
 import { useModalA11y } from "@/hooks/useModalA11y";
+import { openSearchPalette } from "@/hooks/useCommandPalette";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export function MobileNav() {
@@ -26,7 +27,7 @@ export function MobileNav() {
 
   function openSearch() {
     setOpen(false);
-    window.dispatchEvent(new CustomEvent("athopia:open-search"));
+    openSearchPalette();
   }
 
   function openTeamSelect() {

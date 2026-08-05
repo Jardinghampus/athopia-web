@@ -50,7 +50,12 @@ export default function AthopiaLanding({
   heroCopy?: LandingHeroCopy;
 } = {}) {
   return (
-    <div className="min-h-screen overflow-x-clip bg-black font-sans text-white">
+    // `dark` på roten: landningssidan är alltid svart oavsett användarens tema,
+    // så tokens måste lösas till sina mörka valörer. Utan detta blev accenten
+    // som text #2D5349 på svart (2.45:1) för besökare med ljust tema.
+    // Custom properties ärvs, så klassen räcker här — den behöver inte ligga
+    // på <html>.
+    <div className="dark min-h-screen overflow-x-clip bg-black font-sans text-white">
       <LandingNav />
       <main id="main" tabIndex={-1} className="focus:outline-none">
         <Hero pulse={pulse} clubs={clubs} copy={heroCopy} />

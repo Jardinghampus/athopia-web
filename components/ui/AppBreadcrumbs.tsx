@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import Link from "next/link";
 import {
   Breadcrumb,
@@ -37,20 +38,27 @@ export function AppBreadcrumbs({
         {items.map((item, i) => {
           const last = i === items.length - 1;
           const label = truncate(item.label, last ? 42 : 28);
+          // BreadcrumbSeparator renderas som <li>, precis som BreadcrumbItem.
+          // Låg den kvar inuti item:et blev det <li> i <li> — ogiltig HTML som
+          // React 19 flaggar som hydreringsfel. Den ska vara syskon i <ol>:en.
           return (
-            <BreadcrumbItem key={`${item.label}-${i}`}>
-              {i > 0 ? <BreadcrumbSeparator className="text-muted-foreground/50 [&>svg]:size-3" /> : null}
-              {last || !item.href ? (
-                <BreadcrumbPage className="font-medium text-foreground/80">{label}</BreadcrumbPage>
-              ) : (
-                <BreadcrumbLink
-                  render={<Link href={item.href} />}
-                  className="text-muted-foreground hover:text-pitch-ink"
-                >
-                  {label}
-                </BreadcrumbLink>
-              )}
-            </BreadcrumbItem>
+            <Fragment key={`${item.label}-${i}`}>
+              {i > 0 ? (
+                <BreadcrumbSeparator className="text-muted-foreground/50 [&>svg]:size-3" />
+              ) : null}
+              <BreadcrumbItem>
+                {last || !item.href ? (
+                  <BreadcrumbPage className="font-medium text-foreground/80">{label}</BreadcrumbPage>
+                ) : (
+                  <BreadcrumbLink
+                    render={<Link href={item.href} />}
+                    className="text-muted-foreground hover:text-pitch-ink"
+                  >
+                    {label}
+                  </BreadcrumbLink>
+                )}
+              </BreadcrumbItem>
+            </Fragment>
           );
         })}
       </BreadcrumbList>

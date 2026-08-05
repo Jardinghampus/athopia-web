@@ -10,25 +10,16 @@ import { test, expect, Page } from '@playwright/test'
  */
 
 /**
- * Sökknappen skickar ett window-event som CommandPalette lyssnar på först efter
- * hydrering. Ett klick dessförinnan tappas tyst, så vi klickar tills dialogen
- * faktiskt är uppe i stället för att lita på en enda tryckning.
+ * Ett enda klick ska räcka. Tidigare gick sökknappen via ett window-event som
+ * bara nådde redan monterade lyssnare, så klick i glappet mellan hydreringar
+ * tappades och testet behövde klicka om. Med den delade storen är det ett krav
+ * att en tryckning öppnar dialogen — därför inga omförsök här.
  */
 async function openSearch(page: Page) {
   const trigger = page.getByRole('button', { name: 'Sök', exact: true })
-  const dialog = page.getByRole('dialog', { name: 'Sök' })
   await expect(trigger).toBeVisible()
-  await expect
-    .poll(
-      async () => {
-        if ((await dialog.count()) > 0) return true
-        await trigger.click()
-        await page.waitForTimeout(250)
-        return (await dialog.count()) > 0
-      },
-      { timeout: 20000 },
-    )
-    .toBe(true)
+  await trigger.click()
+  await expect(page.getByRole('dialog', { name: 'Sök' })).toBeVisible()
   return trigger
 }
 

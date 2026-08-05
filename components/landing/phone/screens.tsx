@@ -1,4 +1,10 @@
 "use client";
+/**
+ * Telefonmockupen är en BILD av appen, inte appen: den har fast ljus
+ * styling (text-zinc-900, divide-zinc-100) och ligger inuti landningssidans
+ * mörka wrapper. Den temaväxlande accenten text-pitch-ink löses därför till
+ * sin mörka valör på en ljus yta (2.5:1). Här ska accenten vara statisk.
+ */
 
 import {
   Search,
@@ -75,12 +81,12 @@ function TabBar({ active }: { active: "hem" | "matcher" | "utforska" | "profil" 
           ) : (
             <div key={id} className="flex w-11 flex-col items-center gap-0.5 pt-1">
               <Icon
-                className={`h-[18px] w-[18px] ${active === id ? "text-pitch-ink" : "text-zinc-400"}`}
+                className={`h-[18px] w-[18px] ${active === id ? "text-pitch-dark" : "text-zinc-400"}`}
                 strokeWidth={active === id ? 2.4 : 2}
               />
               <span
                 className={`text-[8px] font-semibold ${
-                  active === id ? "text-pitch-ink" : "text-zinc-400"
+                  active === id ? "text-pitch-dark" : "text-zinc-400"
                 }`}
               >
                 {label}
@@ -130,7 +136,7 @@ export function ScreenFeed() {
         {/* Breaking-kort */}
         <div className="mt-4 flex items-center justify-between">
           <span className="text-[11px] font-bold text-zinc-900">Viktigast just nu</span>
-          <span className="text-[10px] font-semibold text-pitch-ink">Visa alla</span>
+          <span className="text-[10px] font-semibold text-pitch-dark">Visa alla</span>
         </div>
         <div className={`mt-2 overflow-hidden ${card}`}>
           <div className="pitch-gradient flex items-center justify-between px-3.5 py-1.5">
@@ -247,7 +253,7 @@ export function ScreenMatch() {
         <div className={`mt-3 px-3.5 py-3 ${card}`}>
           <div className="flex items-center justify-between">
             <span className="text-[10.5px] font-bold text-zinc-900">AIK-forumet</span>
-            <span className="rounded-full bg-pitch/10 px-2 py-0.5 text-[8px] font-bold text-pitch-ink">
+            <span className="rounded-full bg-pitch/10 px-2 py-0.5 text-[8px] font-bold text-pitch-dark">
               Taktiksnack
             </span>
           </div>
@@ -307,7 +313,7 @@ export function ScreenExplore() {
             </div>
             <div className="px-2.5 py-2">
               <p className="text-[10px] font-bold leading-tight text-zinc-900">Isak → Premier League</p>
-              <span className="mt-1.5 inline-block rounded-full bg-pitch/10 px-1.5 py-0.5 text-[8px] font-bold text-pitch-ink">
+              <span className="mt-1.5 inline-block rounded-full bg-pitch/10 px-1.5 py-0.5 text-[8px] font-bold text-pitch-dark">
                 Transfer · 92 %
               </span>
             </div>
@@ -328,7 +334,7 @@ export function ScreenExplore() {
         {/* Mini-tabell */}
         <div className="mt-3 flex items-center justify-between">
           <span className="text-[11px] font-bold text-zinc-900">Tabellen</span>
-          <span className="flex items-center text-[10px] font-semibold text-pitch-ink">
+          <span className="flex items-center text-[10px] font-semibold text-pitch-dark">
             Se alla <ChevronRight className="h-3 w-3" />
           </span>
         </div>
