@@ -98,7 +98,10 @@ test.describe('404', () => {
     const wayfinding = page.getByRole('navigation', { name: 'Populära sidor' })
     await expect(wayfinding.getByRole('link')).toHaveCount(4)
 
+    // /allsvenskan kan behöva kallkompileras första gången, vilket lätt
+    // spränger toHaveURL:s 5s-standard. waitForURL väntar på navigeringen i
+    // stället för att pollra på en tidsgräns som inte har med kravet att göra.
     await wayfinding.getByRole('link', { name: /Allsvenskan/ }).click()
-    await expect(page).toHaveURL(/\/allsvenskan$/)
+    await page.waitForURL(/\/allsvenskan$/, { timeout: 120000 })
   })
 })
