@@ -39,29 +39,29 @@ export default async function AnalysListPage() {
       <h1 className="font-bold text-3xl sm:text-4xl text-foreground mb-2 leading-tight">
         Matchanalyser
       </h1>
-      <p className="text-sm text-zinc-400 mb-8">
+      <p className="text-sm text-muted-foreground mb-8">
         Djupdykningar efter varje match — xG, pressure och form jämfört med de tre senaste matcherna.
       </p>
 
       {analyses.length === 0 ? (
-        <p className="text-sm text-zinc-500 py-10 text-center">
+        <p className="text-sm text-muted-foreground py-10 text-center">
           Inga matchanalyser publicerade ännu.
         </p>
       ) : (
-        <div className="flex flex-col divide-y divide-zinc-800 rounded-xl border border-zinc-800 bg-zinc-900">
+        <div className="flex flex-col divide-y divide-border rounded-xl border border-border bg-card">
           {analyses.map((a) => (
             <Link
               key={a.id}
               href={`/analys/${a.id}`}
-              className="group flex flex-col gap-1.5 px-5 py-4 hover:bg-zinc-800/50 transition-colors"
+              className="group flex flex-col gap-1.5 px-5 py-4 hover:bg-muted/50 transition-colors"
             >
               <div className="flex items-center gap-2">
-                <Sparkles className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <Sparkles className="w-3.5 h-3.5 text-pitch-ink shrink-0" />
                 <span className="text-sm font-medium text-foreground group-hover:text-pitch-ink line-clamp-2">
                   {a.title}
                 </span>
               </div>
-              <div className="flex items-center gap-2 text-xs text-zinc-500">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 {a.matchName && <span>{a.matchName}</span>}
                 {a.playedAt && (
                   <>

@@ -55,13 +55,15 @@ test.describe('Team-forum (DIF)', () => {
       () => document.documentElement.scrollWidth > window.innerWidth + 1,
     )
     expect(overflow, 'forumet ska inte scrolla horisontellt på 390px').toBe(false)
-    // Höger sidebar (lg:block) ska vara dold
-    const rightSidebar = page.locator('aside').last()
-    const box = await rightSidebar.boundingBox()
-    // Om sidebar inte är visible (hidden via CSS) är box null
-    if (box) {
-      // Om den syns ändå — kolla att den inte är i viewport
-      expect(box.x).toBeGreaterThanOrEqual(390)
+    // Höger sidebar (lg:block) ska vara dold. Den behöver inte ens finnas i
+    // DOM:en på mobil, så vi frågar efter antal först — boundingBox() på en
+    // locator som inte matchar väntar ut sin timeout i stället för att ge null.
+    const asides = page.locator('aside')
+    if ((await asides.count()) > 0) {
+      const box = await asides.last().boundingBox()
+      // null = dold via CSS, vilket är det vi vill. Syns den ändå ska den
+      // ligga utanför viewporten.
+      if (box) expect(box.x).toBeGreaterThanOrEqual(390)
     }
   })
 })
