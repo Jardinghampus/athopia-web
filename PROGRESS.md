@@ -1,6 +1,20 @@
 # PROGRESS.md — Athopia Web
 
-Senast uppdaterad: 2026-05-29
+Senast uppdaterad: 2026-08-05
+
+> **2026-08-05 — UX/UI/a11y-audit.** Fas-tabellerna nedan är från maj och
+> beskriver den ursprungliga bygg-fasen. Den senaste genomgången av UX,
+> tillgänglighet och kontrast har en egen rapport:
+> **`UX-AUDIT-2026-08-03.md`** (metod, fynd, avfärdade hypoteser och öppna
+> punkter). Deployat till prod via PR #9–#12.
+>
+> Kortversion: forum-500 på varje tråd med avatar åtgärdad, skip-link tillagd
+> (fanns inte alls), fokusfällor i fem handrullade modaler, ~90 kontrastbrott
+> → 0 över 18 routes × 2 teman. Nya regressionsvakter i `tests/e2e/`:
+> `a11y-shell`, `contrast`, `modal-focus`.
+>
+> Kör e2e mot ett produktionsbygge (`pnpm build && pnpm start` + `pnpm test:e2e`),
+> inte mot `next dev` — se rapportens §3d.4.
 
 ## Statusöversikt
 
