@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useModalA11y } from "@/hooks/useModalA11y";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useFavoriteTeam } from "@/hooks/useFavoriteTeam";
@@ -45,6 +46,8 @@ export function TeamSelectionModal({ forceVisible = false }: TeamSelectionModalP
   const [selected, setSelected] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [visible, setVisible] = useState(forceVisible);
+  // Escape = samma sak som "Hoppa över": stäng utan att välja lag.
+  const dialogRef = useModalA11y<HTMLDivElement>(visible, () => setVisible(false));
 
   // Fördröj visning 800ms för att inte störa initial render (ignoreras om forceVisible)
   // Visa bara på sidor där lagval faktiskt används
@@ -101,11 +104,18 @@ export function TeamSelectionModal({ forceVisible = false }: TeamSelectionModalP
   };
 
   return (
-    <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+    <div
+      ref={dialogRef}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="team-selection-title"
+      tabIndex={-1}
+      className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm focus:outline-none"
+    >
       <div className="bg-background border border-border rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="p-6 border-b border-border">
-          <h2 className="text-2xl font-bold text-foreground" style={{ fontFamily: "var(--font-display)" }}>
+          <h2 id="team-selection-title" className="text-2xl font-bold text-foreground" style={{ fontFamily: "var(--font-display)" }}>
             VÄLJ DITT LAG
           </h2>
           <p className="text-muted-foreground text-sm mt-1">

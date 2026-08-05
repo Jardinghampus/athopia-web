@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useModalA11y } from "@/hooks/useModalA11y";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "motion/react";
 import { X } from "lucide-react";
@@ -28,12 +29,8 @@ function ProfilePopup({ userId, onClose }: { userId: string; onClose: () => void
     return () => { cancelled = true; };
   }, [userId]);
 
-  // Esc stänger
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  // Esc, fokusfälla, initialfokus, fokusåterlämning och scroll-lås.
+  const dialogRef = useModalA11y<HTMLDivElement>(true, onClose);
 
   return createPortal(
     <AnimatePresence>
@@ -52,13 +49,16 @@ function ProfilePopup({ userId, onClose }: { userId: string; onClose: () => void
 
         {/* Kort */}
         <motion.div
-          className="relative w-full max-w-sm"
+          className="relative w-full max-w-sm focus:outline-none"
           initial={{ opacity: 0, scale: 0.94, y: 12 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: 8 }}
           transition={{ type: "spring", stiffness: 380, damping: 30 }}
           role="dialog"
           aria-modal="true"
+          aria-label="Profil"
+          tabIndex={-1}
+          ref={dialogRef}
         >
           <button
             onClick={onClose}

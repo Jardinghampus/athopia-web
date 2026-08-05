@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { Search, CornerDownLeft } from "lucide-react";
 import { useCommandPalette } from "@/hooks/useCommandPalette";
+import { useModalA11y } from "@/hooks/useModalA11y";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { cn } from "@/lib/utils";
 
@@ -19,6 +20,10 @@ export function CommandPalette() {
   const [recent, setRecent] = useLocalStorage<string[]>("athopia.recentSearches", []);
   const [results, setResults] = useState<SearchResult | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Escape hanteras redan globalt i useCommandPalette; hooken sköter
+  // fokusfälla, initialfokus och återlämning.
+  const dialogRef = useModalA11y<HTMLDivElement>(open, close);
 
   const trimmed = query.trim();
   const suggestions = useMemo(() => {
@@ -71,14 +76,21 @@ export function CommandPalette() {
   };
 
   return (
-    <div className="fixed inset-0 z-[100]">
+    <div
+      ref={dialogRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Sök"
+      tabIndex={-1}
+      className="fixed inset-0 z-[100] focus:outline-none"
+    >
       <button className="absolute inset-0 bg-black/55" onClick={close} aria-label="Stäng sök" />
       <div className="absolute left-1/2 top-16 -translate-x-1/2 w-[92vw] max-w-2xl">
         <div className="rounded-2xl overflow-hidden border border-border bg-popover text-popover-foreground shadow-2xl ring-1 ring-black/5 dark:ring-white/10">
           <div className="flex items-center gap-3 p-4 border-b border-border">
             <Search className="w-4 h-4 shrink-0 text-muted-foreground" />
             <input
-              autoFocus
+              data-autofocus
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => {
