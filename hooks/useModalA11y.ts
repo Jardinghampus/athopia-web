@@ -38,9 +38,13 @@ export function useModalA11y<T extends HTMLElement>(
   const ref = useRef<T>(null);
   // Hålls i en ref så att en ny onClose-identitet per render inte river och
   // sätter upp effekten igen — det skulle stjäla tillbaka fokus vid varje
-  // knapptryck i dialogen.
+  // knapptryck i dialogen. Skrivningen sker i en effekt, inte under render:
+  // React kan slänga eller spela om en render, och en muterad ref kan då läcka
+  // från UI som aldrig committades.
   const onCloseRef = useRef(onClose);
-  onCloseRef.current = onClose;
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  });
 
   useEffect(() => {
     const node = ref.current;
