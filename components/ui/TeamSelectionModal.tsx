@@ -46,8 +46,6 @@ export function TeamSelectionModal({ forceVisible = false }: TeamSelectionModalP
   const [selected, setSelected] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [visible, setVisible] = useState(forceVisible);
-  // Escape = samma sak som "Hoppa över": stäng utan att välja lag.
-  const dialogRef = useModalA11y<HTMLDivElement>(visible, () => setVisible(false));
 
   // Fördröj visning 800ms för att inte störa initial render (ignoreras om forceVisible)
   // Visa bara på sidor där lagval faktiskt används
@@ -102,6 +100,11 @@ export function TeamSelectionModal({ forceVisible = false }: TeamSelectionModalP
     markOnboardingDone();
     setVisible(false);
   };
+
+  // Escape ska göra exakt samma sak som "Hoppa över" — annars stängs modalen
+  // utan att onboarding markeras klar, och den kan dyka upp igen vid nästa
+  // montering.
+  const dialogRef = useModalA11y<HTMLDivElement>(visible, handleSkip);
 
   return (
     <div
