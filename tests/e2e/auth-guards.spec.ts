@@ -10,7 +10,7 @@ const PROTECTED = [
 test.describe('Skyddade routes redirectar anonyma användare', () => {
   for (const path of PROTECTED) {
     test(`${path} → sign-in eller Clerk-UI`, async ({ page }) => {
-      await page.goto(path, { timeout: 20000 })
+      await page.goto(path)
 
       // Vänta på antingen redirect eller Clerk-komponent
       await page.waitForFunction(

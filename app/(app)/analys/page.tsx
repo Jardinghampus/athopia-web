@@ -36,7 +36,7 @@ export default async function AnalysListPage() {
       <p className="text-xs font-semibold text-amber-500 uppercase tracking-wide mb-3">
         Athopia AI
       </p>
-      <h1 className="font-bold text-3xl sm:text-4xl text-white mb-2 leading-tight">
+      <h1 className="font-bold text-3xl sm:text-4xl text-foreground mb-2 leading-tight">
         Matchanalyser
       </h1>
       <p className="text-sm text-zinc-400 mb-8">
@@ -57,7 +57,7 @@ export default async function AnalysListPage() {
             >
               <div className="flex items-center gap-2">
                 <Sparkles className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                <span className="text-sm font-medium text-white group-hover:text-emerald-400 line-clamp-2">
+                <span className="text-sm font-medium text-foreground group-hover:text-pitch-ink line-clamp-2">
                   {a.title}
                 </span>
               </div>

@@ -11,7 +11,13 @@ import { test, expect } from '@playwright/test'
  * (gradient, bild, oklab-färg i kedjan) hoppas över hellre än rapporteras som
  * brott — falska fynd är dyrare än missade.
  */
-const ROUTES = ['/nyheter', '/allsvenskan/tabell', '/prenumerera', '/mer', '/statistik', '/forum']
+const ROUTES = [
+  '/nyheter', '/allsvenskan/tabell', '/prenumerera', '/mer', '/statistik', '/forum',
+  // Andra vändan: ytorna som första svepet aldrig rörde.
+  '/', '/allsvenskan', '/match', '/mitt-lag', '/daily', '/podcast', '/analys',
+  '/allsvenskan/spelschema', '/allsvenskan/skytteliga', '/statistik/spelare',
+  '/om-oss', '/ai-transparens',
+]
 
 /**
  * Vakt mot att accentfärgen åter används som textfärg. `text-pitch` och
@@ -54,7 +60,7 @@ for (const theme of ['light', 'dark'] as const) {
       await page.addInitScript((t) => {
         localStorage.setItem('theme', t)
       }, theme)
-      await page.goto(route, { waitUntil: 'domcontentloaded', timeout: 150000 })
+      await page.goto(route, { waitUntil: 'domcontentloaded' })
       await page.waitForTimeout(1800)
 
       // Vänta på att temats VARIABLER faktiskt gäller, inte bara att .dark-

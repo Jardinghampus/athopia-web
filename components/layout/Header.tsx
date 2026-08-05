@@ -2,11 +2,14 @@
 
 import Link from "next/link";
 import { Menu, Search } from "lucide-react";
+import { openSearchPalette } from "@/hooks/useCommandPalette";
 import { NavAuth } from "@/components/ui/NavAuth";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 function openSearch() {
-  window.dispatchEvent(new CustomEvent("athopia:open-search"));
+  // Direkt mot den delade storen: ett window-event når bara lyssnare som redan
+  // hunnit monteras, och tappade klick i glappet mellan hydreringar.
+  openSearchPalette();
 }
 
 export function Header({ clerkEnabled }: { clerkEnabled: boolean }) {
