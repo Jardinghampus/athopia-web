@@ -90,7 +90,15 @@ export function ForumSummaryPopup() {
   });
 
   return (
-    <div className="fixed bottom-20 right-4 z-50 w-80 md:bottom-6 md:right-6 md:w-96">
+    // Icke-modal avisering: den blockerar inte sidan, så den ska INTE fånga
+    // fokus. Rätt behandling är en artig live-region som skärmläsare läser upp
+    // när den dyker upp, utan att avbryta det användaren håller på med.
+    <div
+      role="status"
+      aria-live="polite"
+      aria-label="Forumsammanfattning"
+      className="fixed bottom-20 right-4 z-50 w-80 md:bottom-6 md:right-6 md:w-96"
+    >
       <div className="rounded-xl border border-white/10 bg-[#111] shadow-2xl backdrop-blur-sm">
         <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
           <div className="flex items-center gap-2">

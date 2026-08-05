@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
+import { type ReactNode } from "react";
+import { useModalA11y } from "@/hooks/useModalA11y";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 /* Native-känsla: bottom sheet med drag-handle och drag-to-dismiss.
@@ -19,22 +20,20 @@ export function BottomSheet({
 }) {
   const reduced = useReducedMotion();
 
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    document.addEventListener("keydown", onKey);
-    const prev = document.documentElement.style.overflow;
-    document.documentElement.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.documentElement.style.overflow = prev;
-    };
-  }, [open, onClose]);
+  // Escape, scroll-lås, fokusfälla och fokusåterlämning.
+  const sheetRef = useModalA11y<HTMLDivElement>(open, onClose);
 
   return (
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-[60]" role="dialog" aria-modal="true" aria-label={title}>
+        <div
+          ref={sheetRef}
+          tabIndex={-1}
+          className="fixed inset-0 z-[60] focus:outline-none"
+          role="dialog"
+          aria-modal="true"
+          aria-label={title}
+        >
           <motion.button
             type="button"
             aria-label="Stäng"

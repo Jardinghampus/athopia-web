@@ -6,11 +6,13 @@ import { usePathname } from "next/navigation";
 import { X, Search, Users } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { BOTTOM_NAV_ITEMS, SECONDARY_NAV_ITEMS } from "@/lib/nav";
+import { useModalA11y } from "@/hooks/useModalA11y";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const drawerRef = useModalA11y<HTMLDivElement>(open, () => setOpen(false));
 
   useEffect(() => {
     const handler = () => setOpen(true);
@@ -50,7 +52,12 @@ export function MobileNav() {
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
             transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-y-0 left-0 z-[100] w-72 bg-background border-r border-border/50 flex flex-col pt-safe md:hidden"
+            ref={drawerRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Meny"
+            tabIndex={-1}
+            className="fixed inset-y-0 left-0 z-[100] w-72 bg-background border-r border-border/50 flex flex-col pt-safe md:hidden focus:outline-none"
           >
             <div className="flex items-center justify-between px-5 h-14 border-b border-border/40 shrink-0">
               <span className="font-heading text-lg text-foreground">ATHOPIA</span>
