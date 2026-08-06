@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useUser } from '@clerk/nextjs'
-import { createClient } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase-browser'
 
 const ALLSVENSKAN_TEAMS = [
   { slug: 'aik', name: 'AIK', color: '#1A1A1A' },

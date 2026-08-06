@@ -155,7 +155,7 @@ export function BentoFeatures() {
                 </div>
                 <div className="min-w-0">
                   <p className="text-xs font-bold text-white">Mål! Guidetti 2–1 (71&prime;)</p>
-                  <p className="mt-0.5 text-[10px] text-white/40">Athopia · nu</p>
+                  <p className="mt-0.5 text-[10px] text-white/55">Athopia · nu</p>
                 </div>
               </div>
             </CardShell>
@@ -202,7 +202,7 @@ export function BentoFeatures() {
                   </div>
                   <div>
                     <p className="text-sm font-bold text-pitch-ink">+12 denna omgång</p>
-                    <p className="mt-0.5 text-xs text-white/40">Plats 3 av 87 i AIK-ligan</p>
+                    <p className="mt-0.5 text-xs text-white/55">Plats 3 av 87 i AIK-ligan</p>
                   </div>
                 </div>
               </div>

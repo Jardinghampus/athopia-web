@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowRight, Bell, Check, Loader2 } from "lucide-react";
 import { useFavoriteTeam } from "@/hooks/useFavoriteTeam";
-import { createClient } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase-browser";
 
 interface Team {
   id: string;

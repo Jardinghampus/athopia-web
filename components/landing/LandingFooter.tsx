@@ -10,7 +10,7 @@ export function LandingFooter() {
         <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
           <span className="font-heading text-lg tracking-widest text-white/60">ATHOPIA</span>
 
-          <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-white/35">
+          <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-white/55">
             <a
               href="mailto:hej@athopia.se"
               className="transition-colors hover:text-white/70"
@@ -29,7 +29,7 @@ export function LandingFooter() {
             >
               AI-transparens
             </Link>
-            <span className="text-white/15">© 2026 Athopia</span>
+            <span className="text-white/55">© 2026 Athopia</span>
           </nav>
         </div>
       </Container>

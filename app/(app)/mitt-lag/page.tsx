@@ -9,9 +9,11 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { currentUser } from "@clerk/nextjs/server";
-import { Star, ArrowRight, Newspaper, BarChart3 } from "lucide-react";
+import { Star, ArrowRight, Newspaper, Trophy, Sparkles } from "lucide-react";
 import { getPrimaryTeam } from "@/lib/team/getPrimaryTeam";
 import { getTeamHub } from "@/lib/team-hub/queries";
+import { getTeamEntityInsights } from "@/lib/supabase";
+import { AnalysisCard } from "@/components/team-hub/AnalysisCard";
 import { getUserPlan } from "@/lib/user-plan";
 import { TeamHubBriefRitual } from "@/components/team-hub/TeamHubBriefRitual";
 import { MatchdayBanner } from "@/components/team-hub/MatchdayBanner";
@@ -61,9 +63,21 @@ export default async function MittLagPage({
   ]);
 
   if (primaryTeam?.slug && sp.hub === "1") {
+    // Gamla djuplänkar bar sektionen som ?tab=. Sektionerna är riktiga routes
+    // nu, så vi översätter i stället för att tappa destinationen.
+    const TAB_ROUTES: Record<string, string> = {
+      statistik: "/statistik",
+      trupp: "/trupp",
+      matcher: "/matcher",
+      forum: "/forum",
+    };
     const tab = typeof sp.tab === "string" ? sp.tab : undefined;
-    const qs = tab ? `?tab=${encodeURIComponent(tab)}` : "";
-    redirect(`/lag/${primaryTeam.slug}${qs}`);
+    const suffix = tab && tab !== "oversikt" ? (TAB_ROUTES[tab] ?? "") : "";
+    redirect(
+      tab === "forum"
+        ? `/forum/${primaryTeam.slug}`
+        : `/lag/${primaryTeam.slug}${suffix}`,
+    );
   }
 
   if (!primaryTeam?.slug) {
@@ -74,10 +88,11 @@ export default async function MittLagPage({
     return <MittLagGuestPreview />;
   }
 
-  const [plan, hub, teamHighlights] = await Promise.all([
+  const [plan, hub, teamHighlights, latestInsights] = await Promise.all([
     getUserPlan(),
     getTeamHub(primaryTeam.slug),
     getHighlights({ teamEntityId: primaryTeam.id, limit: 8 }),
+    getTeamEntityInsights(primaryTeam.id, 1),
   ]);
 
   if (!hub) {
@@ -115,7 +130,7 @@ export default async function MittLagPage({
           </p>
         </div>
         <Link
-          href={`/lag/${hub.team.slug}?tab=oversikt`}
+          href={`/lag/${hub.team.slug}`}
           className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:border-pitch/40 transition-colors"
         >
           Hela hubben
@@ -141,7 +156,7 @@ export default async function MittLagPage({
                 <span
                   key={i}
                   className={`w-6 h-6 rounded-full text-[10px] font-bold flex items-center justify-center ${
-                    r === "W" ? "bg-success/20 text-success" : r === "L" ? "bg-destructive/20 text-destructive" : "bg-muted text-muted-foreground"
+                    r === "W" ? "bg-success/20 text-success" : r === "L" ? "bg-destructive/20 text-destructive-ink" : "bg-muted text-muted-foreground"
                   }`}
                 >
                   {r === "W" ? "V" : r === "L" ? "F" : "O"}
@@ -164,6 +179,28 @@ export default async function MittLagPage({
 
       <FeedMatchHero />
 
+      {/* Ingång till analysytan — inte hela flödet, bara den senaste insikten.
+          Analysen är Athopias egen text och ska synas i den dagliga ritualen. */}
+      {latestInsights.length > 0 && (
+        <section className="mt-6" aria-labelledby="senaste-analys">
+          <div className="mb-2 flex items-baseline justify-between gap-3">
+            <h2
+              id="senaste-analys"
+              className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+            >
+              Senaste analysen
+            </h2>
+            <Link
+              href={`/lag/${hub.team.slug}/analys`}
+              className="text-xs font-medium text-pitch-ink hover:underline"
+            >
+              All analys →
+            </Link>
+          </div>
+          <AnalysisCard insight={latestInsights[0]!} />
+        </section>
+      )}
+
       <div className="mt-6">
         <MittLagWidgets hub={hub} />
       </div>
@@ -174,24 +211,27 @@ export default async function MittLagPage({
         </div>
       )}
 
+      {/* Snabbvägar: fyra destinationer, fyra betydelser. Tidigare fanns här två
+          länkar till laghubben (headern + "Laghub") och två till /nyheter under
+          namnen "Nyheter" och "Ditt flöde" — olika löften, samma resultat. */}
       <nav className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3" aria-label="Snabbvägar">
         <QuickLink
-          href={`/lag/${hub.team.slug}?tab=oversikt`}
-          icon={BarChart3}
-          title="Laghub"
-          desc="Statistik, trupp och form"
+          href={`/lag/${hub.team.slug}/analys`}
+          icon={Sparkles}
+          title="Analys"
+          desc={`Athopias egen analys om ${hub.team.name}`}
         />
         <QuickLink
-          href={`/nyheter?lag=${encodeURIComponent(hub.team.name)}`}
+          href={`/lag/${hub.team.slug}/nyheter`}
           icon={Newspaper}
-          title="Nyheter"
-          desc="Senaste om laget"
+          title={`Nyheter om ${hub.team.name}`}
+          desc="Allt som skrivs om laget"
         />
         <QuickLink
-          href="/nyheter"
-          icon={Newspaper}
-          title="Ditt flöde"
-          desc="Personaliserade headlines"
+          href="/nyheter?scope=allsvenskan&sort=latest"
+          icon={Trophy}
+          title="Hela Allsvenskan"
+          desc="Ofiltrerat ligaflöde"
         />
         <QuickLink
           href={`/forum/${hub.team.slug}`}

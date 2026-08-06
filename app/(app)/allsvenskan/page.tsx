@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { TrackedLink } from "@/components/analytics/TrackedLink";
 import { ArticleCard } from "@/components/ui/ArticleCard";
 import { ScoreWidget } from "@/components/ui/ScoreWidget";
 import { Separator } from "@/components/ui/separator";
 import { getNarratives, getFilteredArticles } from "@/lib/supabase";
 import { fetchAllsvenskanFixtures, fetchStandingsFull } from "@/lib/db/fixtures";
 import { FixturesTicker } from "@/components/ui/FixturesTicker";
+import { jsonLd } from "@/lib/json-ld";
 
 export const revalidate = 60;
 
@@ -28,7 +30,7 @@ const FIXTURES_PREVIEW_LIMIT = 5;
 
 function AllsvenskanJsonLd() {
   return (
-    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd({
       "@context": "https://schema.org",
       "@type": "SportsOrganization",
       "@id": "https://athopia.se/allsvenskan#allsvenskan",
@@ -88,9 +90,16 @@ export default async function AllsvenskanPage() {
         <section>
           <div className="mb-4 flex items-center justify-between">
             <h2 className="font-semibold text-2xl text-foreground">NYHETER</h2>
-            <Link href="/nyheter" className="text-sm text-pitch-ink hover:underline">
+            {/* Explicit scope: utan den defaultade /nyheter till "for-you" och
+                visade anvandarens favoritlag under rubriken "Alla nyheter". */}
+            <TrackedLink
+              href="/nyheter?scope=allsvenskan&sort=latest"
+              event="allsvenskan_news_opened"
+              props={{ source_page: "allsvenskan", active_scope: "allsvenskan" }}
+              className="text-sm text-pitch-ink hover:underline"
+            >
               Alla nyheter →
-            </Link>
+            </TrackedLink>
           </div>
           {articles.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -33,8 +33,12 @@ export function UpgradePrompt({
   const price = proPriceLabel();
   const founder = FOUNDER_OFFER.active;
 
+  // Tokens, inte zinc-skalan: komponenten var hardkodad for morkt tema
+  // (text-white + text-zinc-400/500) och matte 1.03:1 i ljust lage — pa en
+  // betalvagg. Yta = bg-card, black = foreground/muted-foreground, bada
+  // temamedvetna.
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 px-5 py-6 text-center">
+    <div className="rounded-xl border border-border bg-card px-5 py-6 text-center">
       <ProductEventTracker
         event="paywall_view"
         props={{ feature, surface: "upgrade_prompt" }}
@@ -42,13 +46,13 @@ export function UpgradePrompt({
         onceScope="session"
       />
       {teamName && (
-        <p className="text-sm font-semibold text-white mb-1">Missa inget om {teamName}</p>
+        <p className="text-sm font-semibold text-foreground mb-1">Missa inget om {teamName}</p>
       )}
-      <p className="text-sm text-zinc-400">
-        <span className="font-medium text-white">{label}</span> — så du är först utan att scrolla.
+      <p className="text-sm text-muted-foreground">
+        <span className="font-medium text-foreground">{label}</span> — så du är först utan att scrolla.
         Kräver {requiredPlan === "elite" ? "Elite" : "PRO eller Elite"}.
       </p>
-      <p className="mt-1 text-xs text-zinc-500">
+      <p className="mt-1 text-xs text-muted-foreground">
         {founder
           ? `Founder ${price} för alltid (ordinarie ${listMonthlyKr("pro")} kr) · ${TRIAL_DAYS} dagar gratis`
           : `${price} · ${TRIAL_DAYS} dagar gratis`}

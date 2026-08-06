@@ -68,13 +68,13 @@ function PulseStrip({ pulse }: { pulse: HeroPulse }) {
             <span className="h-2 w-2 rounded-full bg-pitch" />
           )}
           <span className="font-medium">{pulse.matchName}</span>
-          <span className="text-white/45">
+          <span className="text-white/55">
             {pulse.live ? "LIVE" : pulse.kickoff ? kickoffLabel(pulse.kickoff) : ""}
           </span>
         </Link>
       )}
       {hasLeader && (
-        <Link href="/allsvenskan/tabell" className="text-white/45 transition-colors hover:text-white/75">
+        <Link href="/allsvenskan/tabell" className="text-white/55 transition-colors hover:text-white/75">
           Serieledare: <span className="text-white/80">{pulse.leaderName}</span> · {pulse.leaderPoints} p
         </Link>
       )}
@@ -172,11 +172,11 @@ export function Hero({
                     </Link>
                   ))}
                 </div>
-                <p className="mt-4 text-sm text-white/30">Alla 16 klubbar · Gratis att börja</p>
+                <p className="mt-4 text-sm text-white/55">Alla 16 klubbar · Gratis att börja</p>
               </Reveal>
             ) : (
               <Reveal delay={0.32}>
-                <p className="text-sm text-white/30">Hela Allsvenskan · Gratis att börja</p>
+                <p className="text-sm text-white/55">Hela Allsvenskan · Gratis att börja</p>
               </Reveal>
             )}
           </div>

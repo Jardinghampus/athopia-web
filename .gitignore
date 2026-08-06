@@ -47,3 +47,4 @@ next-env.d.ts
 .codex/
 .github/hooks/
 test-results/
+tests/e2e/report/

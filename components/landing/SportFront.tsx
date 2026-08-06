@@ -113,14 +113,14 @@ export async function SportFront({ articles }: { articles: LandingArticle[] }) {
                   href={`/lag/${row.team.slug ?? ""}`}
                   className="flex items-center gap-3 px-4 py-2.5 border-b border-white/5 last:border-0 hover:bg-white/[0.05] transition-colors"
                 >
-                  <span className="w-5 text-sm text-zinc-500 tabular-nums">{row.position}</span>
+                  <span className="w-5 text-sm text-zinc-400 tabular-nums">{row.position}</span>
                   {row.team.image_path ? (
                     <Image src={row.team.image_path} alt="" width={20} height={20} className="shrink-0" />
                   ) : (
                     <span className="w-5" />
                   )}
                   <span className="flex-1 text-sm text-white truncate">{row.team.name}</span>
-                  <span className="text-xs text-zinc-500 tabular-nums hidden sm:inline">{row.played} sp</span>
+                  <span className="text-xs text-zinc-400 tabular-nums hidden sm:inline">{row.played} sp</span>
                   <span className="text-sm font-semibold text-white tabular-nums">{row.points}</span>
                 </Link>
               ))}
@@ -143,7 +143,7 @@ export async function SportFront({ articles }: { articles: LandingArticle[] }) {
                 <p className="text-[15px] font-medium text-white leading-snug line-clamp-3 group-hover:text-pitch-ink transition-colors">
                   {a.title}
                 </p>
-                <p className="mt-3 text-xs text-zinc-500">
+                <p className="mt-3 text-xs text-zinc-400">
                   {a.sourceName}
                   {a.publishedAt ? ` · ${relTime(a.publishedAt)}` : ""}
                 </p>

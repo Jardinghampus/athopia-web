@@ -49,6 +49,20 @@
      Overridas per tema här i stället för att röra 30+ callsites med text-red-400. */
   --color-red-300: var(--red-300);
   --color-red-400: var(--red-400);
+
+  /* Röd som TEXT ovanpå sin egen 10–20 %-tint (form-prickar, badges): ytan och
+     bläcket kan inte vara samma valör — `bg-red-400/20 text-red-400` gav 3.9:1.
+     Success behöver ingen motsvarighet, --success är mörk nog i båda teman. */
+  --color-destructive-ink: var(--destructive-ink);
+
+  /* Statusnyanser som text i ljust tema: Tailwinds 400-valörer ger 1.7–2.4:1
+     på sin egen tint. Overridas per tema, som red-300/400 ovan. */
+  --color-emerald-400: var(--emerald-400);
+  --color-amber-400:   var(--amber-400);
+  --color-amber-500:   var(--amber-500);
+  --color-orange-400:  var(--orange-400);
+  --color-blue-400:    var(--blue-400);
+  --color-purple-400:  var(--purple-400);
   --color-brand:         #2D5349; /* Racing Green — logotyp/hero/marketing */
 
   --color-chart-1: var(--chart-1);
@@ -128,12 +142,23 @@
   --accent-foreground: #111111;
 
   --destructive: #D61F1F;
-  --success: #12805F; /* mörkare än dark-valören: 4.7:1 på #FAFAF8 (WCAG AA), #1D9E75 gav 3.2 */
-  --success-foreground: #ffffff; /* 5.9:1 på #12805F */
+  /* #12805F gav 4.7:1 på #FAFAF8 men bara 4.3:1 på ljusare kortytor (#EFF1EF på
+     /match) och på sin egen 20 %-tint. #0B5C43 klarar 5.7–7.9:1 överallt. */
+  --success: #0B5C43;
+  --success-foreground: #ffffff; /* 7.9:1 på #0B5C43 */
   --warning: #D59B00;
 
   --red-300: #D61F1F;
   --red-400: #C81E1E;
+
+  --destructive-ink: #A81212; /* 5.2:1 på destructive/20-tinten */
+
+  --emerald-400: #006045;
+  --amber-400: #8A5400;
+  --amber-500: #8A5400;
+  --orange-400: #9F2D00;
+  --blue-400: #1447E6;
+  --purple-400: #8200DB;
 
   --border: #E2E0DC;
   --input: #E2E0DC;
@@ -182,6 +207,16 @@
 
   --red-300: #FCA5A5; /* Tailwind-default tillbaka i mörkt tema */
   --red-400: #F87171;
+
+  --destructive-ink: #FF6B61; /* #FF453A gav 4.0:1 på tinten över #1B1B1C */
+
+  /* Tailwind-defaults tillbaka i mörkt tema */
+  --emerald-400: #00D492;
+  --amber-400: #FFB900;
+  --amber-500: #FE9A00;
+  --orange-400: #FF8904;
+  --blue-400: #51A2FF;
+  --purple-400: #C27AFF;
 
   --border: #2C2C2E;
   --input: #2C2C2E;
@@ -414,4 +449,13 @@
 .prose-athopia ol { @apply list-decimal pl-5; }
 .prose-athopia code {
   @apply rounded bg-muted px-1.5 py-0.5 text-xs font-mono;
+}
+
+/* Klubbfärg som textfärg. Ingen valör klarar 4.5:1 mot både papper och true
+   black, så getTeamInk() ger ett par som sätts som variabler på elementet. */
+.team-ink {
+  color: var(--team-ink-light, var(--foreground));
+}
+.dark .team-ink {
+  color: var(--team-ink-dark, var(--foreground));
 }

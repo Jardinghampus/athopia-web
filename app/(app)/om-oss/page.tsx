@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { jsonLd } from "@/lib/json-ld";
 
 export const metadata: Metadata = {
   title: "Om Athopia – Svensk fotbollsintelligens för Allsvenskan",
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 export default function OmOssPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-16 space-y-12">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd({
         "@context": "https://schema.org",
         "@type": "Organization",
         name: "Athopia",

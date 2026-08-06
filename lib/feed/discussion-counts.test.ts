@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { articleIdForDiscussionCount } from "@/lib/feed/discussion-counts";
+import { articleIdForDiscussionCount } from "@/lib/feed/article-id";
 
 describe("articleIdForDiscussionCount", () => {
   it("strips hero article- prefix", () => {

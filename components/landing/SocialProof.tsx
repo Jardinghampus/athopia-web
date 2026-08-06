@@ -25,7 +25,7 @@ export function SocialProof() {
                 <div className="font-heading text-4xl tracking-wider text-white md:text-5xl">
                   {value}
                 </div>
-                <div className="mt-2 text-sm text-white/40">{label}</div>
+                <div className="mt-2 text-sm text-white/55">{label}</div>
               </div>
             ))}
           </div>

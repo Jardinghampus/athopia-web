@@ -2,13 +2,16 @@
 
 import Link from "next/link";
 import { Menu, Search } from "lucide-react";
-import { openSearchPalette } from "@/hooks/useCommandPalette";
+import { openSearchPalette, SEARCH_HREF } from "@/hooks/useCommandPalette";
 import { NavAuth } from "@/components/ui/NavAuth";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
-function openSearch() {
+function openSearch(e: React.MouseEvent) {
   // Direkt mot den delade storen: ett window-event når bara lyssnare som redan
   // hunnit monteras, och tappade klick i glappet mellan hydreringar.
+  // Modifierade klick lämnas åt webbläsaren (öppna i ny flik).
+  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+  e.preventDefault();
   openSearchPalette();
 }
 
@@ -37,8 +40,11 @@ export function Header({ clerkEnabled }: { clerkEnabled: boolean }) {
         </div>
 
         <div className="flex shrink-0 items-center gap-1.5">
-          <button
-            type="button"
+          {/* Riktig länk, inte knapp: ett klick före hydrering navigerar till
+              ?sok=1 och dialogen öppnas av URL:en. Efter hydrering tar onClick
+              över och öppnar utan navigering. */}
+          <a
+            href={SEARCH_HREF}
             onClick={openSearch}
             aria-label="Sök"
             title="Sök (⌘K)"
@@ -46,7 +52,7 @@ export function Header({ clerkEnabled }: { clerkEnabled: boolean }) {
               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             <Search className="w-[18px] h-[18px]" />
-          </button>
+          </a>
           {/* Temaväxlaren finns redan i mobilmenyn ("Utseende") — att bära den
               även i headern dubblerar kontrollen och spräcker raden på 320px. */}
           <span className="hidden md:inline-flex">

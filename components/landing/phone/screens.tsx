@@ -49,7 +49,7 @@ function Monogram({
 }
 
 function AvatarStack() {
-  const tones = ["bg-pitch", "bg-sky-600", "bg-amber-500", "bg-rose-500"];
+  const tones = ["bg-pitch", "bg-sky-700", "bg-amber-700", "bg-rose-700"];
   return (
     <div className="flex -space-x-1.5">
       {["JL", "SK", "MA", "EB"].map((t, i) => (
@@ -81,12 +81,12 @@ function TabBar({ active }: { active: "hem" | "matcher" | "utforska" | "profil" 
           ) : (
             <div key={id} className="flex w-11 flex-col items-center gap-0.5 pt-1">
               <Icon
-                className={`h-[18px] w-[18px] ${active === id ? "text-pitch-dark" : "text-zinc-400"}`}
+                className={`h-[18px] w-[18px] ${active === id ? "text-pitch-dark" : "text-zinc-600"}`}
                 strokeWidth={active === id ? 2.4 : 2}
               />
               <span
                 className={`text-[8px] font-semibold ${
-                  active === id ? "text-pitch-dark" : "text-zinc-400"
+                  active === id ? "text-pitch-dark" : "text-zinc-600"
                 }`}
               >
                 {label}
@@ -116,7 +116,7 @@ export function ScreenFeed() {
         {/* Hälsning */}
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-[10px] font-medium text-zinc-500">Tisdag 10 juni</p>
+            <p className="text-[10px] font-medium text-zinc-600">Tisdag 10 juni</p>
             <h3 className="font-sans text-[17px] font-bold tracking-tight text-zinc-900">
               God kväll, Hampus
             </h3>
@@ -129,8 +129,8 @@ export function ScreenFeed() {
 
         {/* Sök */}
         <div className={`mt-3 flex items-center gap-2 px-3.5 py-2.5 ${card}`}>
-          <Search className="h-3.5 w-3.5 text-zinc-400" />
-          <span className="text-[11px] text-zinc-400">Sök lag, spelare, nyheter…</span>
+          <Search className="h-3.5 w-3.5 text-zinc-600" />
+          <span className="text-[11px] text-zinc-600">Sök lag, spelare, nyheter…</span>
         </div>
 
         {/* Breaking-kort */}
@@ -151,7 +151,7 @@ export function ScreenFeed() {
             </p>
             <div className="mt-2.5 flex items-center justify-between">
               <AvatarStack />
-              <span className="text-[9px] font-medium text-zinc-400">3 källor · 12 min sedan</span>
+              <span className="text-[9px] font-medium text-zinc-600">3 källor · 12 min sedan</span>
             </div>
           </div>
         </div>
@@ -165,7 +165,7 @@ export function ScreenFeed() {
                 <p className="truncate text-[11.5px] font-semibold leading-snug text-zinc-900">
                   {title}
                 </p>
-                <p className="mt-0.5 text-[9px] text-zinc-400">
+                <p className="mt-0.5 text-[9px] text-zinc-600">
                   {source} · {time} sedan
                 </p>
               </div>
@@ -189,7 +189,7 @@ export function ScreenMatch() {
       <div className="flex-1 overflow-hidden px-4 pt-2">
         <div className="flex items-center justify-between">
           <h3 className="font-sans text-[17px] font-bold tracking-tight text-zinc-900">Matchdag</h3>
-          <span className={`px-2.5 py-1 text-[9px] font-semibold text-zinc-500 ${card}`}>
+          <span className={`px-2.5 py-1 text-[9px] font-semibold text-zinc-600 ${card}`}>
             Omgång 15
           </span>
         </div>
@@ -197,10 +197,10 @@ export function ScreenMatch() {
         {/* Live-kort */}
         <div className={`mt-3 overflow-hidden ${card}`}>
           <div className="flex items-center justify-between px-3.5 pt-3">
-            <span className="flex items-center gap-1.5 text-[9px] font-bold text-rose-500">
+            <span className="flex items-center gap-1.5 text-[9px] font-bold text-rose-700">
               <span className="live-dot !h-1.5 !w-1.5" /> LIVE 73&prime;
             </span>
-            <span className="text-[9px] font-medium text-zinc-400">Friends Arena</span>
+            <span className="text-[9px] font-medium text-zinc-600">Friends Arena</span>
           </div>
           <div className="flex items-center justify-between px-5 py-3">
             <div className="flex flex-col items-center gap-1.5">
@@ -211,7 +211,7 @@ export function ScreenMatch() {
               <p className="font-heading text-[30px] leading-none tracking-wider text-zinc-900">
                 2–1
               </p>
-              <p className="mt-1 text-[8px] font-medium text-zinc-400">Skott 12 – 7</p>
+              <p className="mt-1 text-[8px] font-medium text-zinc-600">Skott 12 – 7</p>
             </div>
             <div className="flex flex-col items-center gap-1.5">
               <Monogram text="HIF" className="h-9 w-9 bg-emerald-700 text-[8px]" />
@@ -226,13 +226,13 @@ export function ScreenMatch() {
           </div>
           {/* Engagement-rad */}
           <div className="flex items-center gap-4 border-t border-zinc-100 px-4 py-2.5">
-            <span className="flex items-center gap-1 text-[10px] font-semibold text-zinc-500">
+            <span className="flex items-center gap-1 text-[10px] font-semibold text-zinc-600">
               <Heart className="h-3 w-3 text-rose-500" fill="currentColor" /> 1,2k
             </span>
-            <span className="flex items-center gap-1 text-[10px] font-semibold text-zinc-500">
+            <span className="flex items-center gap-1 text-[10px] font-semibold text-zinc-600">
               <MessageCircle className="h-3 w-3" /> 384
             </span>
-            <span className="ml-auto flex items-center gap-1 text-[10px] font-semibold text-zinc-500">
+            <span className="ml-auto flex items-center gap-1 text-[10px] font-semibold text-zinc-600">
               <Share2 className="h-3 w-3" />
             </span>
           </div>
@@ -245,7 +245,7 @@ export function ScreenMatch() {
           </div>
           <div className="min-w-0">
             <p className="text-[10.5px] font-bold text-zinc-900">Mål! Guidetti 2–1 (71&prime;)</p>
-            <p className="text-[9px] text-zinc-400">Athopia · nu</p>
+            <p className="text-[9px] text-zinc-600">Athopia · nu</p>
           </div>
         </div>
 
@@ -262,7 +262,7 @@ export function ScreenMatch() {
           </p>
           <div className="mt-2.5 flex items-center justify-between">
             <AvatarStack />
-            <span className="text-[9px] font-semibold text-zinc-400">Matchtråden är igång</span>
+            <span className="text-[9px] font-semibold text-zinc-600">Matchtråden är igång</span>
           </div>
         </div>
       </div>
@@ -277,7 +277,7 @@ export function ScreenMatch() {
 export function ScreenExplore() {
   const pills = ["Alla", "Transfers", "Skador", "Statistik", "Rykten"];
   const table = [
-    { pos: 1, team: "Malmö FF", short: "MFF", pts: 34, tone: "bg-sky-600" },
+    { pos: 1, team: "Malmö FF", short: "MFF", pts: 34, tone: "bg-sky-700" },
     { pos: 2, team: "AIK", short: "AIK", pts: 31, tone: "bg-zinc-900" },
     { pos: 3, team: "Hammarby", short: "HIF", pts: 29, tone: "bg-emerald-700" },
   ];
@@ -297,7 +297,7 @@ export function ScreenExplore() {
               className={`shrink-0 rounded-full px-3 py-1.5 text-[10px] font-semibold ${
                 i === 0
                   ? "pitch-gradient text-white shadow-[0_4px_12px_-2px_rgba(45,83,73,0.45)]"
-                  : "border border-white/70 bg-white/80 text-zinc-500"
+                  : "border border-white/70 bg-white/80 text-zinc-600"
               }`}
             >
               {p}
@@ -324,7 +324,7 @@ export function ScreenExplore() {
             </div>
             <div className="px-2.5 py-2">
               <p className="text-[10px] font-bold leading-tight text-zinc-900">Berg tveksam till lördag</p>
-              <span className="mt-1.5 inline-block rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[8px] font-bold text-amber-600">
+              <span className="mt-1.5 inline-block rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[8px] font-bold text-amber-800">
                 Skada · Lindrig
               </span>
             </div>
@@ -341,7 +341,7 @@ export function ScreenExplore() {
         <div className={`mt-2 divide-y divide-zinc-100 ${card}`}>
           {table.map(({ pos, team, short, pts, tone }) => (
             <div key={team} className="flex items-center gap-2.5 px-3.5 py-2">
-              <span className="w-3 text-[10px] font-bold text-zinc-400">{pos}</span>
+              <span className="w-3 text-[10px] font-bold text-zinc-600">{pos}</span>
               <Monogram text={short} className={`h-6 w-6 text-[7px] ${tone}`} />
               <span className="flex-1 text-[11px] font-semibold text-zinc-800">{team}</span>
               <span className="font-heading text-[15px] tracking-wider text-zinc-900">{pts}</span>

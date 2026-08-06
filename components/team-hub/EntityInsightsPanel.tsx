@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Brain, Newspaper, ShieldCheck, TrendingUp } from "lucide-react";
 import type { EntityInsight } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,17 +21,32 @@ function severityClass(severity: EntityInsight["severity"]) {
   return "text-muted-foreground border-border bg-muted/30";
 }
 
-export function EntityInsightsPanel({ insights }: { insights: EntityInsight[] }) {
+export function EntityInsightsPanel({
+  insights,
+  teamSlug,
+}: {
+  insights: EntityInsight[];
+  /** Sätts på laghubben → panelen blir en ingång till hela analysytan. */
+  teamSlug?: string;
+}) {
   if (insights.length === 0) return null;
 
   return (
     <Card className="overflow-hidden">
       <CardHeader className="flex-row items-center gap-2 space-y-0 pb-3">
         <Brain className="h-4 w-4 text-pitch-ink" />
-        <div>
+        <div className="min-w-0 flex-1">
           <CardTitle className="text-base">Athopia Brain</CardTitle>
           <p className="text-xs text-muted-foreground">Precomputad fusion av statistik och nyhetsläge</p>
         </div>
+        {teamSlug && (
+          <Link
+            href={`/lag/${teamSlug}/analys`}
+            className="shrink-0 text-xs font-medium text-pitch-ink hover:underline whitespace-nowrap"
+          >
+            All analys →
+          </Link>
+        )}
       </CardHeader>
       <CardContent className="space-y-3">
         {insights.map((insight) => {

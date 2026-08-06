@@ -16,7 +16,7 @@ import { test, expect, Page } from '@playwright/test'
  * att en tryckning öppnar dialogen — därför inga omförsök här.
  */
 async function openSearch(page: Page) {
-  const trigger = page.getByRole('button', { name: 'Sök', exact: true })
+  const trigger = page.getByRole('link', { name: 'Sök', exact: true })
   await expect(trigger).toBeVisible()
   await trigger.click()
   await expect(page.getByRole('dialog', { name: 'Sök' })).toBeVisible()
@@ -75,7 +75,7 @@ test.describe('Sökdialogen (CommandPalette)', () => {
     // musklick, så efter ett klick finns det bokstavligen inget att lämna
     // tillbaka fokus till. Tangentbordsvägen är den som kravet gäller — och
     // den enda där återlämning är meningsfull.
-    const trigger = page.getByRole('button', { name: 'Sök', exact: true })
+    const trigger = page.getByRole('link', { name: 'Sök', exact: true })
     await expect(trigger).toBeVisible()
     const dialog = page.getByRole('dialog', { name: 'Sök' })
     await expect

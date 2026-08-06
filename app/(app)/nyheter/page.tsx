@@ -17,6 +17,7 @@ import {
   type ArticleSort,
 } from "@/lib/supabase";
 import { filterStateToParams } from "@/lib/filters";
+import { ActiveFilterChips, type FilterChip } from "@/components/feed/ActiveFilterChips";
 import { getUserFeedPreferences } from "@/lib/feed/getUserFeedPreferences";
 import { absoluteUrl } from "@/lib/site-url";
 import { buildFeedModules } from "@/lib/feed/build-feed-modules";
@@ -97,8 +98,15 @@ export default async function NyheterPage({
 
   const prefs = await getUserFeedPreferences();
 
+  // `scope=allsvenskan` = uttryckligen hela ligan. Utan den kunde /nyheter betyda
+  // olika saker för olika användare, vilket gjorde att "Alla nyheter" från
+  // ligasidan landade i ett lagfiltrerat flöde (produktbrief, problem 3).
+  const scope: "allsvenskan" | "personal" =
+    sp.scope === "allsvenskan" ? "allsvenskan" : "personal";
+
   // För dig = personliga defaults. Viktigt/Senaste = hela ligan (ingen lag-forcera).
   const usingPersonalDefaults =
+    scope === "personal" &&
     sort === "for-you" &&
     !urlHasTeamFilter &&
     !urlHasEventFilter &&
@@ -165,7 +173,66 @@ export default async function NyheterPage({
     events,
   });
   if (sort !== "for-you") filterParams.set("sort", sort);
+  if (scope === "allsvenskan") filterParams.set("scope", "allsvenskan");
   const urlBase = `/nyheter?${filterParams.toString()}`;
+
+  // Alla filter som faktiskt påverkar resultatet får ett synligt chip. Att ta
+  // bort ett chip = en URL utan det filtret; hela ligan nås alltid med ett klick.
+  const LEAGUE_HREF = "/nyheter?scope=allsvenskan&sort=latest";
+  const chipUrl = (mutate: (p: URLSearchParams) => void): string => {
+    const p = filterStateToParams({ visa, teams, sources, events });
+    if (sort !== "for-you") p.set("sort", sort);
+    if (scope === "allsvenskan") p.set("scope", "allsvenskan");
+    mutate(p);
+    const qs = p.toString();
+    return qs ? `/nyheter?${qs}` : "/nyheter";
+  };
+
+  const activeChips: FilterChip[] = [];
+  if (scope === "allsvenskan") {
+    activeChips.push({ kind: "Omfång", label: "Hela Allsvenskan", emphasis: true });
+  }
+  if (usingPersonalDefaults && prefs.favoriteTeamName) {
+    activeChips.push({
+      kind: "Personaliserat",
+      label: `Fokus: ${prefs.favoriteTeamName}`,
+      removeHref: LEAGUE_HREF,
+      emphasis: true,
+    });
+  }
+  for (const t of teams) {
+    activeChips.push({
+      kind: "Lag",
+      label: t,
+      removeHref: chipUrl((p) => {
+        const rest = teams.filter((x) => x !== t);
+        if (rest.length) p.set("lag", rest.join(","));
+        else p.delete("lag");
+      }),
+    });
+  }
+  for (const s of sources) {
+    activeChips.push({
+      kind: "Källa",
+      label: s,
+      removeHref: chipUrl((p) => {
+        const rest = sources.filter((x) => x !== s);
+        if (rest.length) p.set("kalla", rest.join(","));
+        else p.delete("kalla");
+      }),
+    });
+  }
+  for (const e of events) {
+    activeChips.push({
+      kind: "Händelse",
+      label: e,
+      removeHref: chipUrl((p) => {
+        const rest = events.filter((x) => x !== e);
+        if (rest.length) p.set("event", rest.join(","));
+        else p.delete("event");
+      }),
+    });
+  }
 
   // Hero: first page only — skip when headline_stack already shows top stories
   let heroIndex = -1;
@@ -193,19 +260,24 @@ export default async function NyheterPage({
           className="text-3xl font-bold text-foreground"
           style={{ fontFamily: "var(--font-display)" }}
         >
-          FLÖDE
+          {scope === "allsvenskan" ? "ALLSVENSKAN" : "FLÖDE"}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {total > 0 ? `${total} signaler` : "Inga artiklar"}
-          {usingPersonalDefaults && prefs.favoriteTeamName ? (
-            <>
-              {" "}
-              · fokusat för{" "}
-              <span className="font-medium text-foreground">{prefs.favoriteTeamName}</span>
-            </>
-          ) : null}
         </p>
       </header>
+
+      <ProductEventTracker
+        event="news_scope_changed"
+        props={{
+          active_scope: scope,
+          sort,
+          is_personalized: usingPersonalDefaults,
+          team_filters: teams.length,
+        }}
+      />
+
+      <ActiveFilterChips chips={activeChips} />
 
       <Suspense fallback={null}>
         <TeamPushPopups />

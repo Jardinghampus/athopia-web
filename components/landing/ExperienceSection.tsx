@@ -66,7 +66,7 @@ export function ExperienceSection() {
               </div>
               <div className="mt-6 max-w-[260px] text-center">
                 <h3 className="font-sans text-[17px] font-bold text-white">{title}</h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-white/45">{text}</p>
+                <p className="mt-1.5 text-sm leading-relaxed text-white/55">{text}</p>
               </div>
             </div>
           ))}
@@ -74,7 +74,7 @@ export function ExperienceSection() {
       </Reveal>
 
       {/* Svep-hint, endast mobil */}
-      <p className="mt-2 text-center text-xs text-white/25 lg:hidden">
+      <p className="mt-2 text-center text-xs text-white/55 lg:hidden">
         Svep för att se fler skärmar
       </p>
     </Section>

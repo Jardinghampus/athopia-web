@@ -6,15 +6,24 @@
  * Beslut: Vi exporterar två klienter:
  *  - `createServerClient` – används i Server Components och Route Handlers med
  *    service-role key (läser/skriver utan RLS-begränsning).
- *  - `createBrowserClient` – används i Client Components med anon key +
- *    Supabase RLS-regler.
  *
- * Typerna genereras av `pnpm supabase gen types` och import * as Sentry from "@sentry/nextjs";
-importeras från
+ * Modulen är server-only. `import "server-only"` nedan är inte kosmetik: utan
+ * den drogs hela service-role-fabriken in i klientbundlen (verifierat i
+ * .next/static 2026-08-06). Nyckelns VÄRDE läckte inte — Next inlinar bara
+ * NEXT_PUBLIC_*, så `env.SUPABASE_SERVICE_ROLE_KEY` blir undefined i
+ * webbläsaren — men koden låg där, och ett enda framtida namnbyte till
+ * NEXT_PUBLIC_ hade räckt för att läcka den på riktigt. Nu failar bygget i
+ * stället om en klientkomponent importerar härifrån.
+ *
+ * Klientkomponenter som behöver Supabase ska skapa en egen anon-klient; någon
+ * `createBrowserClient` finns inte längre exporterad härifrån.
+ *
+ * Typerna genereras av `pnpm supabase gen types` och importeras från
  * @/types/supabase (skapas manuellt/via Supabase CLI).
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
+import "server-only";
 import { unstable_cache } from "next/cache";
 import * as Sentry from "@sentry/nextjs";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
@@ -90,22 +99,8 @@ export function createServiceClient() {
   return createServerClient();
 }
 
-// ─── Browser-klient (Client Components) ───────────────────────────────────────
-// Singleton-mönster för att undvika duplicerade instanser.
-let browserClient: ReturnType<typeof createSupabaseClient> | null = null;
-export function createClient() {
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error(
-      "NEXT_PUBLIC_SUPABASE_URL och NEXT_PUBLIC_SUPABASE_ANON_KEY måste sättas."
-    );
-  }
-  if (!browserClient) {
-    browserClient = createSupabaseClient(supabaseUrl, supabaseAnonKey, {
-      auth: { persistSession: true, autoRefreshToken: true },
-    });
-  }
-  return browserClient;
-}
+// Browser-klienten (anon + RLS) bor i lib/supabase-browser.ts — den här
+// modulen är server-only och får aldrig nå klientbundlen.
 
 // ─── Typade queries ───────────────────────────────────────────────────────────
 
@@ -965,6 +960,68 @@ export async function getTeamEntityInsights(teamEntityId: string, limit = 3): Pr
     revalidate: 120,
     tags: ["entity-insights"],
   })(teamEntityId, limit);
+}
+
+async function fetchTeamAnalysis(teamEntityId: string, limit: number): Promise<EntityInsight[]> {
+  if (!isSupabaseConfigured()) return [];
+  try {
+    const supabase = createServerClient();
+    const { data } = await supabase
+      .from("published_entity_insights")
+      .select("*")
+      .eq("entity_id", teamEntityId)
+      .eq("sport", "football")
+      // Kronologiskt, till skillnad från getTeamEntityInsights som sorterar på
+      // confidence. Analysytan är en tidslinje — "senaste analyserna" måste vara
+      // senaste, annars ligger en gammal högkonfidensanalys kvar i toppen.
+      .order("generated_at", { ascending: false })
+      .limit(limit);
+
+    return (data ?? []).map(mapEntityInsight);
+  } catch (e) {
+    captureDbError(e);
+    return [];
+  }
+}
+
+/** Hela analyshistoriken för ett lag, senaste först. Driver /lag/[slug]/analys. */
+export async function getTeamAnalysis(teamEntityId: string, limit = 40): Promise<EntityInsight[]> {
+  return unstable_cache(fetchTeamAnalysis, ["team-analysis", teamEntityId], {
+    revalidate: 120,
+    tags: ["entity-insights"],
+  })(teamEntityId, limit);
+}
+
+async function fetchArticleRefs(
+  ids: string[],
+): Promise<{ id: string; title: string; slug: string | null; sourceName: string | null }[]> {
+  if (!isSupabaseConfigured() || ids.length === 0) return [];
+  try {
+    const supabase = createServerClient();
+    const { data } = await supabase
+      .from("articles")
+      .select("id, title, slug, source_name")
+      .in("id", ids.slice(0, 20));
+
+    return (data ?? []).map((r: Record<string, unknown>) => ({
+      id: String(r.id),
+      title: String(r.title ?? ""),
+      slug: r.slug ? String(r.slug) : null,
+      sourceName: r.source_name ? String(r.source_name) : null,
+    }));
+  } catch (e) {
+    captureDbError(e);
+    return [];
+  }
+}
+
+/**
+ * Källartiklarna bakom en analys — transparenskravet i produktbriefen.
+ * Utan dem är en insikt en påstående utan underlag.
+ */
+export async function getArticleRefs(ids: string[]) {
+  if (ids.length === 0) return [];
+  return fetchArticleRefs(ids);
 }
 
 async function fetchTeamDailyPulse(teamEntityId: string): Promise<TeamDailyPulse | null> {

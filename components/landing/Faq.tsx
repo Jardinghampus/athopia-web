@@ -127,7 +127,7 @@ export function Faq() {
               </Display>
             </Reveal>
             <Reveal delay={0.16}>
-              <p className="mt-6 max-w-[320px] text-[15px] leading-[1.7] text-white/45">
+              <p className="mt-6 max-w-[320px] text-[15px] leading-[1.7] text-white/55">
                 Hittar du inte svaret? Hör av dig i forumet — vi läser allt.
               </p>
             </Reveal>

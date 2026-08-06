@@ -1,10 +1,8 @@
 import type { FeedItem } from "@/lib/types";
 import { getDiscussionCounts } from "@/lib/supabase";
+import { articleIdForDiscussionCount } from "@/lib/feed/article-id";
 
-/** Strip hero-route `article-` prefix so counts key on articles.id. */
-export function articleIdForDiscussionCount(id: string): string {
-  return id.startsWith("article-") ? id.slice("article-".length) : id;
-}
+export { articleIdForDiscussionCount };
 
 /** Attach optional discussionCount (>0 only) onto FeedItems. */
 export async function withDiscussionCounts(

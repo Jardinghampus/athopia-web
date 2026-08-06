@@ -16,6 +16,7 @@ import { Sparkles } from "lucide-react";
 import { getPostMatchAnalysis } from "@/lib/supabase";
 import { getUserPlan } from "@/lib/user-plan";
 import { BlurPaywall } from "@/components/BlurPaywall";
+import { jsonLd } from "@/lib/json-ld";
 
 export const revalidate = 60;
 
@@ -62,7 +63,7 @@ export default async function AnalysPage({ params }: PageProps) {
   const plan = await getUserPlan();
   const [home, away] = analysis.comparisons;
 
-  const jsonLd = {
+  const analysisJsonLd = {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
     headline: analysis.title,
@@ -75,7 +76,7 @@ export default async function AnalysPage({ params }: PageProps) {
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(analysisJsonLd) }} />
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
         <p className="text-xs font-semibold text-amber-500 uppercase tracking-wide mb-3">
           Athopia AI · Matchanalys

@@ -98,11 +98,16 @@ Ny kod läggs i befintlig feature-mapp. Skapa inte parallella mönster —
 - Geist rubriker + brödtext · Geist Mono för data/siffror (tabular-nums) · optisk tracking
   via `--tracking-*`-tokens — justera aldrig letter-spacing fritt.
 - Accent = Racing Green `#2D5349` (`--color-pitch`; ljus valör `#5FA98C` på mörkt). Röd ENDAST
-  destructive/fel. Success-grön `#12805F` ljust / `#25C48F` mörkt = ENDAST status (`--color-success`).
+  destructive/fel. Success-grön `#0B5C43` ljust / `#25C48F` mörkt = ENDAST status (`--color-success`).
   95 % av UI:t neutralt; accent bara för handling (CTA, aktiv tab, aktiv chart-serie).
 - Light `#FAFAF8` (papper) · dark true black `#000000` med ytor `#151516`–`#222224`.
 - Native-feel-initiativet gäller: iOS-grade känsla, se `NATIVE-FEEL-PLAN.md` och
   `WEB-IA-STRUKTUR.md` (5-fliks-IA). Följ befintliga komponentmönster i `components/ui`.
+- **Yta och bläck är skilda tokens.** En färg och en tint av samma färg når aldrig
+  4.5:1. Text på sidbakgrund: `text-pitch-ink` (aldrig `text-pitch` eller
+  `text-[var(--color-pitch)]` — vakten i `contrast.spec.ts` failar bygget). Text
+  ovanpå `bg-destructive/10–20`: `text-destructive-ink`. Klubbfärg som text:
+  `getTeamInk()` + `.team-ink`, medan `getTeamAccent()` är ytan.
 - Loading/empty/error-states är obligatoriska på nya datavyer.
 
 ## 6. AI-agent-arbetsflöde

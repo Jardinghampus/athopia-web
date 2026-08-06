@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { TeamNav } from "@/components/team-hub/TeamNav";
 import { ChevronLeft } from "lucide-react";
 import { currentUser } from "@clerk/nextjs/server";
 import { createServerClient, isSupabaseConfigured, getEntities } from "@/lib/supabase";
@@ -127,6 +128,10 @@ export default async function ForumTeamPage({
 
   return (
     <div className="w-full min-h-screen">
+      {/* Forumet ligger utanfor /lag-tradet men ar en lagsektion for anvandaren.
+          Utan raden har forsvann navigationen sa fort man klickade "Forum" —
+          flikraden ska vara stabil genom hela lagflodet. */}
+      <TeamNav slug={teamSlug} sticky={false} />
       {/* 3-col grid: left 20% | center 60% | right 20% — collapses to single on mobile */}
       <div className="mx-auto w-full max-w-7xl px-4 xl:px-6">
         <div className="flex gap-6 items-start">

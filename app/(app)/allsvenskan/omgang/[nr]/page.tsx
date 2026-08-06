@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { fetchRoundFixtures } from "@/lib/db/fixtures";
 import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
+import { jsonLd } from "@/lib/json-ld";
 
 export const revalidate = 300;
 
@@ -48,7 +49,7 @@ export default async function OmgangPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: jsonLd({
             "@context": "https://schema.org",
             "@type": "SportsEvent",
             name: `Allsvenskan omgång ${round} 2026`,

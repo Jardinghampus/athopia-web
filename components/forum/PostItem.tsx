@@ -11,7 +11,7 @@ import QuoteBox from "./QuoteBox";
 import ComposeDrawer from "./ComposeDrawer";
 import { ProfileLink } from "@/components/profile/ProfilePopup";
 import { AvatarWriterBadge } from "@/components/brand/BrandBadge";
-import { getTeamColors, getTeamShort, getTeamAccent } from "@/lib/team-colors";
+import { getTeamColors, getTeamShort, getTeamInk } from "@/lib/team-colors";
 
 const PREVIEW_LENGTH = 220;
 
@@ -78,7 +78,7 @@ export default function PostItem({
   const label = post.label ? LABEL_STYLES[post.label] : null;
   const teamShort = getTeamShort(post.author_team);
   const teamColors = teamShort ? getTeamColors(post.author_team) : null;
-  const teamAccent = getTeamAccent(post.author_team);
+  const teamInk = getTeamInk(post.author_team);
   const isColumnist = post.author_role === "columnist" || post.author_role === "admin";
   const hasReplies = (post.replies?.length ?? 0) > 0;
   const showLine = showThread || depth > 0 || hasReplies;
@@ -229,8 +229,13 @@ export default function PostItem({
                   </ProfileLink>
                   {teamShort && (
                     <span
-                      className="text-[12px] font-semibold leading-tight"
-                      style={{ color: teamAccent }}
+                      className="team-ink text-[12px] font-semibold leading-tight"
+                      style={
+                        {
+                          "--team-ink-light": teamInk.light,
+                          "--team-ink-dark": teamInk.dark,
+                        } as React.CSSProperties
+                      }
                       title={`Supportrar ${post.author_team}`}
                     >
                       ({teamShort})

@@ -15,6 +15,7 @@ import { fetchStandingsFull } from "@/lib/db/fixtures";
 import type { SMStandingRow } from "@/lib/db/fixtures";
 import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
 import { buildMatchTimeline } from "@/lib/match/events";
+import { jsonLd } from "@/lib/json-ld";
 
 export const revalidate = 60;
 
@@ -250,7 +251,7 @@ function FormDots({ form }: { form: string[] }) {
         <span
           key={i}
           className={`w-5 h-5 rounded-full text-[9px] font-bold flex items-center justify-center ${
-            r === "W" ? "bg-success/20 text-success" : r === "L" ? "bg-destructive/20 text-destructive" : "bg-muted text-muted-foreground"
+            r === "W" ? "bg-success/20 text-success" : r === "L" ? "bg-destructive/20 text-destructive-ink" : "bg-muted text-muted-foreground"
           }`}
         >
           {r === "W" ? "V" : r === "L" ? "F" : "O"}
@@ -333,7 +334,7 @@ export default async function MatchPage({ params }: PageProps) {
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
       <ProductEventTracker event="match_page_view" props={{ fixture_id: fid }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(matchJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(matchJsonLd) }} />
       <AppBreadcrumbs
         items={[
           { label: "Matcher", href: "/match" },

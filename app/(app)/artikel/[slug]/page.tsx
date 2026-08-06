@@ -28,6 +28,7 @@ import {
 } from "@/lib/articles/public-article";
 import { getSiteUrl } from "@/lib/site-url";
 import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
+import { jsonLd } from "@/lib/json-ld";
 
 export const revalidate = 3600;
 
@@ -106,7 +107,7 @@ function ArticleJsonLd({ article }: { article: Article }) {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      dangerouslySetInnerHTML={{ __html: jsonLd(data) }}
     />
   );
 }

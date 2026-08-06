@@ -58,7 +58,7 @@ export function FinalCta() {
               >
                 Välj ditt lag <ArrowRight className="h-5 w-5" />
               </Link>
-              <p className="mt-6 text-xs text-white/20">
+              <p className="mt-6 text-xs text-white/55">
                 Allsvenskan 2026 · Tidig version · Uppdateras varje omgång
               </p>
             </Reveal>

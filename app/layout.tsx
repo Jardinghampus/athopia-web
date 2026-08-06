@@ -10,6 +10,7 @@ import { CookieBanner } from "@/components/CookieBanner";
 import { UtmVisitTracker } from "@/components/growth/UtmVisitTracker";
 import { getSiteUrl } from "@/lib/site-url";
 import "./globals.css";
+import { jsonLd } from "@/lib/json-ld";
 
 const SITE = getSiteUrl();
 
@@ -67,7 +68,7 @@ export const viewport: Viewport = {
 
 function NewsMediaJsonLd() {
   return (
-    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd({
       "@context": "https://schema.org",
       "@type": "NewsMediaOrganization",
       name: "Athopia",

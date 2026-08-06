@@ -11,6 +11,7 @@ import { Zap } from "lucide-react";
 import { FOUNDER_OFFER, TRIAL_DAYS } from "@/lib/pricing";
 import { absoluteUrl } from "@/lib/site-url";
 import { PricingPlans } from "./PricingPlans";
+import { jsonLd } from "@/lib/json-ld";
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +31,7 @@ export const metadata: Metadata = {
 
 function PricingJsonLd() {
   return (
-    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd({
       "@context": "https://schema.org",
       "@type": "ItemList",
       name: "Athopia prenumerationsplaner",

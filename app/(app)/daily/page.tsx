@@ -18,6 +18,7 @@ import { getDailyEpisodeForShareCached } from "@/lib/team-hub/queries";
 import { getUserPlan } from "@/lib/user-plan";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { jsonLd } from "@/lib/json-ld";
 
 export const revalidate = 60;
 
@@ -98,7 +99,7 @@ function DailyEpisodeJsonLd({
   };
 
   return (
-    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(payload) }} />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(payload) }} />
   );
 }
 

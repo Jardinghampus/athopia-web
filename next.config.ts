@@ -20,6 +20,20 @@ const nextConfig: NextConfig = {
       { source: "/hem", destination: "/allsvenskan", permanent: true },
       { source: "/sammanfattning", destination: "/mitt-lag", permanent: true },
       { source: "/feed", destination: "/mitt-lag", permanent: true },
+      // Lagsektionerna bytte namn nar `?tab=` blev riktiga routes. Redirecten
+      // ligger har och inte i en page.tsx: `permanentRedirect()` i en
+      // sidkomponent gav status 200 med NEXT_REDIRECT i bodyn bakom proxy.ts
+      // rewrite (verifierat mot prodbygge 2026-08-06) — routinglagret ger 308.
+      {
+        source: "/lag/:slug/podcasts",
+        destination: "/lag/:slug/poddar",
+        permanent: true,
+      },
+      {
+        source: "/lag/:slug/sammanfattning",
+        destination: "/lag/:slug/analys",
+        permanent: true,
+      },
     ];
   },
   experimental: {

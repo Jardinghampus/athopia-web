@@ -26,14 +26,14 @@ function NavItem({ href, label, icon: Icon, exact }: NavItemConfig) {
       className={cn(
         "flex items-center gap-3 px-2 py-2.5 rounded-lg text-sm transition-colors duration-150",
         isActive
-          ? "text-[var(--color-pitch)] bg-[var(--color-pitch)]/10"
+          ? "text-pitch-ink bg-pitch/10"
           : "text-muted-foreground hover:text-foreground hover:bg-muted",
       )}
     >
       <Icon
         className={cn(
           "h-5 w-5 shrink-0",
-          isActive ? "text-[var(--color-pitch)]" : "text-foreground/60",
+          isActive ? "text-pitch-ink" : "text-foreground/60",
         )}
       />
       <motion.span

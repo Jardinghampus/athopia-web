@@ -56,7 +56,10 @@
   width: var(--opt-w);
   height: var(--opt-h);
   border-radius: 999px;
-  color: color-mix(in srgb, var(--foreground) 50%, transparent);
+  /* 9px-etiketterna är den minsta texten i appen och måste klara 4.5:1. På
+     ljust papper ger 50 % foreground bara 3.51:1 — 65 % ger 5.8:1 och håller
+     kvar den dämpade känslan. Se contrast.spec.ts. */
+  color: color-mix(in srgb, var(--foreground) 65%, transparent);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transition: color 200ms ease, transform 160ms cubic-bezier(0.23, 1, 0.32, 1);

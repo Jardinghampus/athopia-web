@@ -14,6 +14,7 @@ import {
   fetchAllsvenskanFixtures,
   parseFixtureScore,
 } from "@/lib/db/fixtures";
+import { jsonLd } from "@/lib/json-ld";
 import {
   SEASON_IDS,
   type ScorerRow,
@@ -64,7 +65,7 @@ export const metadata: Metadata = {
 
 function StatistikBreadcrumb() {
   return (
-    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd({
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       itemListElement: [
@@ -97,7 +98,7 @@ function FormBadge({ result }: { result: string }) {
   const colorMap: Record<string, string> = {
     W: "bg-success text-success-foreground",
     D: "bg-muted text-muted-foreground",
-    L: "bg-red-500/20 text-red-400",
+    L: "bg-red-500/20 text-destructive-ink",
   };
   return (
     <span

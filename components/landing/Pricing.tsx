@@ -114,9 +114,9 @@ export function Pricing() {
                 <h3 className="font-heading text-2xl tracking-widest text-white">{name}</h3>
                 <div className="mt-4 flex items-baseline gap-1.5">
                   <span className="font-heading text-6xl tracking-wide text-white">{price}</span>
-                  <span className="text-sm text-white/40">kr/mån</span>
+                  <span className="text-sm text-white/55">kr/mån</span>
                   {priceNote && (
-                    <span className="ml-1 text-sm text-white/35 line-through">{priceNote}</span>
+                    <span className="ml-1 text-sm text-white/55 line-through">{priceNote}</span>
                   )}
                 </div>
                 <p className="mt-2 text-sm text-white/50">{tagline}</p>
@@ -126,7 +126,7 @@ export function Pricing() {
                     <li key={f} className="flex items-start gap-2.5 text-sm text-white/70">
                       <Check
                         className={`mt-0.5 h-4 w-4 shrink-0 ${
-                          highlighted ? "text-pitch-ink" : "text-white/30"
+                          highlighted ? "text-pitch-ink" : "text-white/55"
                         }`}
                         strokeWidth={3}
                       />

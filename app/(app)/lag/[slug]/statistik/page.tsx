@@ -3,6 +3,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import { TeamPlayerStatsTable, type TeamPlayerStat } from "./TeamPlayerStatsTable";
+import { loadTeamSectionSafe } from "@/lib/team-hub/loadTeamSection";
+import { TeamSection } from "@/components/team-hub/TeamSection";
+import { ProductEventTracker } from "@/components/analytics/ProductEventTracker";
 
 export const revalidate = 60;
 
@@ -200,6 +203,10 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
   const { slug } = await params;
   const { name: teamName, smId } = await getTeamSmId(slug);
 
+  // Laget kan saknas i entities även när smId finns — då hoppar vi över
+  // lagsektionen i stället för att 404:a hela statistiksidan.
+  const teamSection = await loadTeamSectionSafe(slug);
+
   const [standings, players, fixtures, projection, scheduleForm, goalTiming, athopiaRatings] = await Promise.all([
     smId ? getTeamStandings(smId) : Promise.resolve(null),
     smId ? getPlayerStats(smId) : Promise.resolve([]),
@@ -242,7 +249,24 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-      <h2 className="font-bold text-3xl text-foreground">STATISTIK — {teamName.toUpperCase()}</h2>
+      <ProductEventTracker
+        event="team_hub_tab_selected"
+        props={{ team_slug: slug, tab: "statistik" }}
+      />
+      <h1 className="font-bold text-3xl text-foreground">STATISTIK — {teamName.toUpperCase()}</h1>
+
+      {/* Lagstatistiken (xG-form + ligaprofil) låg tidigare i laghubbens egen
+          "Statistik"-flik, medan den här sidan hette "Spelarstatistik". Två
+          etiketter som båda hette Statistik pekade alltså på olika innehåll.
+          Nu är detta hela lagets statistik — lag först, sedan spelare. */}
+      {teamSection && (
+        <TeamSection
+          section="statistik"
+          hub={teamSection.hub}
+          plan={teamSection.plan}
+          insights={teamSection.insights}
+        />
+      )}
 
       {/* Tabellrad */}
       {standings && (
@@ -286,7 +310,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
               <p className="text-xs text-muted-foreground mb-2">Form</p>
               <div className="flex gap-1">
                 {(standings.form as string).split("").filter((c: string) => ["W","D","L"].includes(c)).slice(-10).map((r: string, i: number) => (
-                  <span key={i} className={`w-6 h-6 rounded text-xs font-bold flex items-center justify-center ${r === "W" ? "bg-success/20 text-success" : r === "L" ? "bg-red-400/20 text-red-400" : "bg-muted text-muted-foreground"}`}>
+                  <span key={i} className={`w-6 h-6 rounded text-xs font-bold flex items-center justify-center ${r === "W" ? "bg-success/20 text-success" : r === "L" ? "bg-red-400/20 text-destructive-ink" : "bg-muted text-muted-foreground"}`}>
                     {r === "W" ? "V" : r === "L" ? "F" : "O"}
                   </span>
                 ))}

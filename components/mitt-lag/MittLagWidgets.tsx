@@ -61,7 +61,7 @@ export function MittLagWidgets({
                   r === "W"
                     ? "bg-success/20 text-success"
                     : r === "L"
-                      ? "bg-destructive/20 text-destructive"
+                      ? "bg-destructive/20 text-destructive-ink"
                       : "bg-muted text-muted-foreground"
                 }`}
               >

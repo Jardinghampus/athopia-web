@@ -93,7 +93,7 @@ function StickyCard({
           </div>
           <div>
             <div className="text-sm font-semibold text-white">{name}</div>
-            <div className="mt-0.5 text-xs text-white/35">{meta}</div>
+            <div className="mt-0.5 text-xs text-white/55">{meta}</div>
           </div>
         </figcaption>
       </motion.figure>
@@ -147,7 +147,7 @@ export function Testimonials() {
                 </div>
                 <div>
                   <div className="text-sm font-semibold text-white">{name}</div>
-                  <div className="text-xs text-white/35">{meta}</div>
+                  <div className="text-xs text-white/55">{meta}</div>
                 </div>
               </figcaption>
             </figure>
@@ -180,7 +180,7 @@ export function Testimonials() {
                     </div>
                     <div>
                       <div className="text-sm font-semibold text-white">{name}</div>
-                      <div className="text-xs text-white/35">{meta}</div>
+                      <div className="text-xs text-white/55">{meta}</div>
                     </div>
                   </figcaption>
                 </figure>

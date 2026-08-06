@@ -3,6 +3,7 @@ import Link from "next/link";
 import { fetchAllsvenskanFixtures } from "@/lib/db/fixtures";
 import type { SMFixture } from "@/lib/db/fixtures";
 import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
+import { jsonLd } from "@/lib/json-ld";
 
 export const revalidate = 60;
 
@@ -49,7 +50,7 @@ export default async function AllsvenskanResultatPage() {
           ]}
         />
       </div>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd({
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
         itemListElement: [

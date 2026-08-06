@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Search, SlidersHorizontal } from "lucide-react";
-import { SCOUT_METRICS, median, type ScoutPlayer, type ScoutMetricKey } from "@/lib/team-hub/scout";
+import { SCOUT_METRICS, median, type ScoutPlayer, type ScoutMetricKey } from "@/lib/team-hub/scout-metrics";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { ListGroup } from "@/components/ui/ListGroup";
 import { ListRow } from "@/components/ui/ListRow";

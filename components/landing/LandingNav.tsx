@@ -91,7 +91,7 @@ export function LandingNav() {
               className="flex min-h-14 items-center justify-between border-b border-white/[0.06] text-[17px] font-medium text-white/85 active:text-pitch-ink"
             >
               {label}
-              <ArrowRight className="h-4 w-4 text-white/30" />
+              <ArrowRight className="h-4 w-4 text-white/55" />
             </a>
           ))}
           <div className="mt-6 flex flex-col gap-3">

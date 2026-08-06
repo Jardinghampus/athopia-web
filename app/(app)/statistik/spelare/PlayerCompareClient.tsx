@@ -12,7 +12,7 @@ const PlayerRadar = dynamic(
   () => import("@/components/team-hub/PlayerRadar").then((m) => m.PlayerRadar),
   { ssr: false, loading: () => <div className="h-64 rounded-xl skeleton-wave bg-muted/40" /> }
 );
-import { SCOUT_METRICS, type ScoutPlayer, type ScoutMetricKey } from "@/lib/team-hub/scout";
+import { SCOUT_METRICS, type ScoutPlayer, type ScoutMetricKey } from "@/lib/team-hub/scout-metrics";
 
 const RADAR_METRICS: ScoutMetricKey[] = ["goals", "assists", "shots", "key_passes", "passes", "rating"];
 // Ink-varianten så att serien också syns mot mörk bakgrund i diagrammet.

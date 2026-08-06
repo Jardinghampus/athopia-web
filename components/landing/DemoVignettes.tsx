@@ -7,7 +7,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { Container } from "./primitives";
-import { getTeamAccent } from "@/lib/team-colors";
+import { getTeamAccent, getTeamInk } from "@/lib/team-colors";
 
 const SPRING = { type: "spring" as const, stiffness: 380, damping: 30 };
 
@@ -56,7 +56,7 @@ function ChatDemo() {
             <div className="rounded-2xl rounded-tl-sm border border-white/10 bg-white/[0.05] px-3.5 py-2.5">
               <p className="text-[11px] font-semibold text-white/90">
                 {m.name}{" "}
-                <span style={{ color: getTeamAccent(m.team) }} className="font-bold">({m.short})</span>
+                <span style={{ color: getTeamInk(m.team).dark }} className="font-bold">({m.short})</span>
               </p>
               <p className="mt-0.5 text-[13px] leading-snug text-white/70">{m.text}</p>
             </div>
@@ -112,7 +112,7 @@ function NewsDemo() {
             <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${TIER_DOT[n.tier]}`} aria-hidden />
             <div className="min-w-0">
               <p className="text-[13px] font-medium leading-snug text-white/85">{n.title}</p>
-              <p className="mt-1 text-[11px] text-white/40">{n.source} · just nu</p>
+              <p className="mt-1 text-[11px] text-white/55">{n.source} · just nu</p>
             </div>
           </motion.div>
         ))}
@@ -136,7 +136,7 @@ function VignetteFrame({
     <div className="flex flex-col">
       <div className="flex items-baseline justify-between px-1 pb-3">
         <h3 className="font-heading text-2xl uppercase tracking-wide text-white">{title}</h3>
-        <span className="text-[11px] text-white/30">{caption}</span>
+        <span className="text-[11px] text-white/55">{caption}</span>
       </div>
       <div className="h-[340px] rounded-3xl border border-white/10 bg-zinc-900/60 p-4 sm:p-5">
         {children}

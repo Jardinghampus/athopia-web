@@ -5,6 +5,7 @@ import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import { getLandingCopy } from "@/lib/landing-copy";
 import { ProductEventTracker } from "@/components/analytics/ProductEventTracker";
 import { absoluteUrl, getSiteUrl } from "@/lib/site-url";
+import { jsonLd } from "@/lib/json-ld";
 
 // ISR: servera cachad HTML direkt (snabb laddning), regenerera i bakgrunden.
 // Tidigare 'force-dynamic' gjorde att varje besök blockerade på en Supabase-query
@@ -99,7 +100,7 @@ function LandingJsonLd() {
       },
     ],
   };
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />;
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(data) }} />;
 }
 
 export default async function LandingPage() {

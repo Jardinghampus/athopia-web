@@ -1,9 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   ChevronDown, Trophy, BarChart3, Users, MessageSquare,
   Newspaper, Activity, Star, ArrowRight,
@@ -15,7 +14,6 @@ import { type Plan, canAccess } from "@/lib/access-rules";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { EntityInsightsPanel } from "@/components/team-hub/EntityInsightsPanel";
 import { Card as TactileCard } from "@/components/ui/TactileCard";
-import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { StatNumber } from "@/components/ui/StatNumber";
 import { ListGroup } from "@/components/ui/ListGroup";
 import { ListRow } from "@/components/ui/ListRow";
@@ -27,51 +25,40 @@ const TeamRadar = dynamic(
   { ssr: false, loading: () => <div className="h-64 rounded-xl skeleton-wave bg-muted/40" /> }
 );
 
-type TabId = "oversikt" | "statistik" | "trupp" | "matcher" | "forum";
-const TAB_OPTIONS: { value: TabId; label: string }[] = [
-  { value: "oversikt", label: "Översikt" },
-  { value: "statistik", label: "Statistik" },
-  { value: "trupp", label: "Trupp" },
-  { value: "matcher", label: "Matcher" },
-  { value: "forum", label: "Forum" },
-];
-const TAB_IDS = TAB_OPTIONS.map((t) => t.value);
+export type TeamSectionId = "oversikt" | "statistik" | "trupp" | "matcher" | "forum";
 
 /**
- * TeamHubTabs — flikstruktur för lag-hubben. All data kommer serverhämtad
- * via props (getTeamHub i page.tsx) — ingen egen fetching. Aktiv flik lever
- * i URL:en (?tab=) så den är bokmärkbar och delbar.
+ * TeamSection — renderar EN lagsektion. All data kommer serverhämtad via props
+ * (getTeamHub i respektive page.tsx) — ingen egen fetching.
+ *
+ * Sektionen väljs av routen, inte av `?tab=`. Den gamla SegmentedControl-raden
+ * som låg här är borttagen: den var laghubbens andra flikrad och kolliderade
+ * med layoutens. Navigationen ägs nu uteslutande av `TeamNav` i layouten.
+ *
+ * Kvar som klientkomponent enbart för match-quickviewen (Sheet + state).
  */
-export function TeamHubTabs({ hub, plan, insights }: { hub: TeamHubPayload; plan: Plan; insights: EntityInsight[] }) {
+export function TeamSection({
+  section,
+  hub,
+  plan,
+  insights,
+}: {
+  section: TeamSectionId;
+  hub: TeamHubPayload;
+  plan: Plan;
+  insights: EntityInsight[];
+}) {
   const [quickview, setQuickview] = useState<FixtureRow | null>(null);
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const tabParam = searchParams.get("tab") as TabId | null;
-  const tab: TabId = tabParam && TAB_IDS.includes(tabParam) ? tabParam : "oversikt";
-  const setTab = useCallback(
-    (next: TabId) => {
-      const params = new URLSearchParams(searchParams.toString());
-      if (next === "oversikt") params.delete("tab");
-      else params.set("tab", next);
-      const qs = params.toString();
-      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-    },
-    [router, pathname, searchParams]
-  );
-
   const smId = hub.team.sportsmonks_id;
 
   return (
     <div className="px-4 sm:px-6 pt-5 space-y-5">
-      <SegmentedControl aria-label="Sektioner" options={TAB_OPTIONS} value={tab} onChange={setTab} />
-
       <div className="space-y-5">
-        {tab === "oversikt" && <Oversikt hub={hub} plan={plan} insights={insights} onFixture={setQuickview} />}
-        {tab === "statistik" && <Statistik hub={hub} plan={plan} />}
-        {tab === "trupp" && <Trupp squad={hub.squad} />}
-        {tab === "matcher" && <Matcher recent={hub.recent} upcoming={hub.upcoming} smId={smId} onFixture={setQuickview} />}
-        {tab === "forum" && <Forum hub={hub} />}
+        {section === "oversikt" && <Oversikt hub={hub} plan={plan} insights={insights} onFixture={setQuickview} />}
+        {section === "statistik" && <Statistik hub={hub} plan={plan} />}
+        {section === "trupp" && <Trupp squad={hub.squad} />}
+        {section === "matcher" && <Matcher recent={hub.recent} upcoming={hub.upcoming} smId={smId} onFixture={setQuickview} />}
+        {section === "forum" && <Forum hub={hub} />}
       </div>
 
       <MatchQuickview fixture={quickview} smId={smId} onClose={() => setQuickview(null)} />
@@ -166,7 +153,7 @@ function Oversikt({ hub, plan, insights, onFixture }: { hub: TeamHubPayload; pla
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
       {insights.length > 0 && (
         <div className="lg:col-span-3">
-          <EntityInsightsPanel insights={insights} />
+          <EntityInsightsPanel insights={insights} teamSlug={hub.team.slug} />
         </div>
       )}
 
@@ -211,20 +198,6 @@ function Oversikt({ hub, plan, insights, onFixture }: { hub: TeamHubPayload; pla
       </SectionCard>
 
       <SpotifyPodcast slug={hub.team.slug} />
-
-      {/* Djuplänkar till lag-undersidorna (egna routes med SEO-värde) */}
-      <div className="lg:col-span-3 flex flex-wrap gap-2 text-sm">
-        {[
-          { label: "Alla nyheter", href: `/lag/${hub.team.slug}/nyheter` },
-          { label: "Podcasts", href: `/lag/${hub.team.slug}/podcasts` },
-          { label: "AI-sammanfattning", href: `/lag/${hub.team.slug}/sammanfattning` },
-          { label: "Spelarstatistik", href: `/lag/${hub.team.slug}/statistik` },
-        ].map((l) => (
-          <Link key={l.href} href={l.href} className="rounded-full border border-border/60 px-3 py-1.5 text-muted-foreground hover:text-foreground hover:border-pitch/50 transition-colors">
-            {l.label} →
-          </Link>
-        ))}
-      </div>
     </div>
   );
 }

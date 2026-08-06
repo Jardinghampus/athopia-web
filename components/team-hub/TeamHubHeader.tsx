@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import Image from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { RefreshCw } from "lucide-react";
 import { TeamSwitcher, type SwitcherTeam } from "@/components/team-hub/TeamSwitcher";
 import { FollowButton } from "@/components/dashboard/follow-button";
@@ -12,12 +12,13 @@ import { Card as TactileCard } from "@/components/ui/TactileCard";
 import type { TeamSeasonRow } from "@/lib/team-hub/queries";
 
 // Global Header är sticky h-14 (56px) — compact-raden fastnar under den.
-const HEADER_OFFSET = 56;
+// Global header (56px) + TeamNav (44px) — kompaktraden fastnar under bada.
+const HEADER_OFFSET = 100;
 
 /**
  * TeamHubHeader — klientlagret ovanpå den serverrenderade lag-hubben.
  * Serverdata in via props (ingen client-fetch). Ansvarar för lagväxling
- * (navigerar till /lag/{slug}, bevarar aktiv ?tab=), följ-knapp, large-title
+ * (navigerar till /lag/{slug}, behåller aktiv sektion), följ-knapp, large-title
  * och nyckeltal. Data hämtas i page.tsx (getTeamHub) och skickas hit.
  */
 export function TeamHubHeader({
@@ -42,14 +43,18 @@ export function TeamHubHeader({
   initialFollowing: boolean;
 }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const pathname = usePathname();
   const [pending, startTransition] = useTransition();
 
   const goToTeam = (slug: string) => {
     if (slug === currentSlug) return;
-    const tab = searchParams.get("tab");
-    const qs = tab ? `?tab=${encodeURIComponent(tab)}` : "";
-    router.push(`/lag/${slug}${qs}`);
+    // Behåll sektionen vid lagbyte: står du på AIK:s statistik ska Djurgårdens
+    // statistik vara nästa vy. Tidigare bars detta av `?tab=`, men sektionerna
+    // är riktiga routes nu — så vi flyttar över path-suffixet i stället.
+    const suffix = pathname.startsWith(`/lag/${currentSlug}`)
+      ? pathname.slice(`/lag/${currentSlug}`.length)
+      : "";
+    router.push(`/lag/${slug}${suffix}`);
   };
 
   const refresh = () => startTransition(() => router.refresh());
@@ -89,7 +94,7 @@ export function TeamHubHeader({
                 />
               </div>
               <div className="flex items-center gap-3 mt-1">
-                {position && <span className="text-xs font-bold" style={{ color: "var(--team-accent, #2D5349)" }}>#{position} i Allsvenskan</span>}
+                {position && <span className="team-ink text-xs font-bold">#{position} i Allsvenskan</span>}
                 <FormDots form={form} />
               </div>
             </div>
@@ -116,7 +121,7 @@ export function TeamHubHeader({
 }
 
 function FormDots({ form }: { form: ("W" | "D" | "L")[] }) {
-  const map = { W: "bg-success text-success-foreground", D: "bg-muted text-foreground", L: "bg-red-500/20 text-red-400" };
+  const map = { W: "bg-success text-success-foreground", D: "bg-muted text-foreground", L: "bg-red-500/20 text-destructive-ink" };
   if (form.length === 0) return null;
   return <div className="flex gap-1">{form.map((r, i) => <span key={i} className={`w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center ${map[r]}`}>{r}</span>)}</div>;
 }

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { fetchStandingsFull } from "@/lib/db/fixtures";
 import type { SMStandingRow } from "@/lib/db/fixtures";
 import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
+import { jsonLd } from "@/lib/json-ld";
 
 export const revalidate = 60;
 
@@ -55,7 +56,7 @@ export default async function AllsvenskanTabellPage() {
           ]}
         />
       </div>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd({
         "@context": "https://schema.org",
         "@type": "Table",
         about: { "@type": "SportsOrganization", name: "Allsvenskan 2026", sport: "Soccer", url: "https://athopia.se/allsvenskan" },
@@ -155,7 +156,7 @@ export default async function AllsvenskanTabellPage() {
                 <td className="py-3 px-3 text-center hidden md:table-cell">
                   <span className="flex gap-0.5 justify-center">
                     {row.form.map((r, fi) => (
-                      <span key={fi} className={`w-4 h-4 rounded-sm text-[9px] font-bold flex items-center justify-center ${r === "W" ? "bg-success/20 text-success" : r === "L" ? "bg-red-400/20 text-red-400" : "bg-muted text-muted-foreground"}`}>{r === "W" ? "V" : r === "L" ? "F" : "O"}</span>
+                      <span key={fi} className={`w-4 h-4 rounded-sm text-[9px] font-bold flex items-center justify-center ${r === "W" ? "bg-success/20 text-success" : r === "L" ? "bg-red-400/20 text-destructive-ink" : "bg-muted text-muted-foreground"}`}>{r === "W" ? "V" : r === "L" ? "F" : "O"}</span>
                     ))}
                   </span>
                 </td>

@@ -16,12 +16,34 @@ import { useCallback, useEffect, useSyncExternalStore } from "react";
  * dialogen monteras, läser den ut `true` redan i sin första snapshot och
  * öppnas direkt.
  *
- * Kvarstående begränsning: ett klick *före all* hydrering gör ingenting, för då
- * finns ingen onClick-handler alls. Det är inneboende i en klientrenderad
- * dialog och kan bara lösas genom att flytta öppet-läget till URL:en.
+ * Öppet-läget speglas i URL:en (`?sok=1`) av två skäl: knappen kan vara en
+ * riktig länk och fungerar därför även före hydrering, och back-knappen stänger
+ * dialogen i stället för att lämna sidan.
+ *
+ * Stängning använder `replaceState`, inte `history.back()`. Att gå bakåt vore
+ * renare i historiken men `close()` anropas också när man klickar ett sökträff-
+ * resultat, och då skulle bakåtnavigeringen tävla med Next-routerns framåt-
+ * navigering. Priset är en dubblett i historiken när man stänger med X/Escape.
  */
 type State = { open: boolean; query: string };
 
+const PARAM = "sok";
+
+const urlIsOpen = () =>
+  typeof window !== "undefined" && new URLSearchParams(window.location.search).has(PARAM);
+
+function writeUrl(open: boolean) {
+  if (typeof window === "undefined" || urlIsOpen() === open) return;
+  const url = new URL(window.location.href);
+  if (open) url.searchParams.set(PARAM, "1");
+  else url.searchParams.delete(PARAM);
+  // pushState när vi öppnar → back stänger. replaceState när vi stänger, se ovan.
+  if (open) window.history.pushState(window.history.state, "", url);
+  else window.history.replaceState(window.history.state, "", url);
+}
+
+// Alltid stängt vid modulladdning — annars skiljer sig klientens första
+// snapshot från serverns. Direktlänkar öppnas i stället av effekten nedan.
 let state: State = { open: false, query: "" };
 const listeners = new Set<() => void>();
 
@@ -48,19 +70,41 @@ const getSnapshot = () => state;
 const SERVER_STATE: State = { open: false, query: "" };
 const getServerSnapshot = () => SERVER_STATE;
 
+/** URL:en ändras med — därför går allt öppna/stänga genom den här. */
+function setOpenState(open: boolean) {
+  writeUrl(open);
+  setState({ open });
+}
+
 /** Kan anropas var som helst, även utanför React. */
 export function openSearchPalette() {
-  setState({ open: true });
+  setOpenState(true);
 }
+
+/** Länkmål som fungerar innan sidan hydrerats. */
+export const SEARCH_HREF = `?${PARAM}=1`;
 
 export function useCommandPalette() {
   const { open, query } = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
-  const setOpen = useCallback((v: boolean) => setState({ open: v }), []);
-  const toggle = useCallback(() => setState({ open: !state.open }), []);
-  const close = useCallback(() => setState({ open: false }), []);
-  const openPalette = useCallback(() => setState({ open: true }), []);
+  const setOpen = useCallback((v: boolean) => setOpenState(v), []);
+  const toggle = useCallback(() => setOpenState(!state.open), []);
+  const close = useCallback(() => setOpenState(false), []);
+  const openPalette = useCallback(() => setOpenState(true), []);
   const setQuery = useCallback((q: string) => setState({ query: q }), []);
+
+  // Back/forward: URL:en är sanningen. Stänger dialogen när man backar ur den.
+  useEffect(() => {
+    const onPopState = () => setState({ open: urlIsOpen() });
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
+  // Direktlänk till ?sok=1 (och klicket som skedde före hydrering): synka
+  // storen från URL:en en gång efter hydrering.
+  useEffect(() => {
+    if (urlIsOpen()) setState({ open: true });
+  }, []);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -68,9 +112,9 @@ export function useCommandPalette() {
       const hasMod = e.metaKey || e.ctrlKey;
       if (hasMod && isK) {
         e.preventDefault();
-        setState({ open: true });
+        setOpenState(true);
       }
-      if (e.key === "Escape") setState({ open: false });
+      if (e.key === "Escape") setOpenState(false);
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
@@ -79,7 +123,7 @@ export function useCommandPalette() {
   // Bakåtkompatibelt: eventet finns kvar som ingång för kod som inte kan
   // importera hooken, men är inte längre den enda vägen in.
   useEffect(() => {
-    const onOpenEvent = () => setState({ open: true });
+    const onOpenEvent = () => setOpenState(true);
     window.addEventListener("athopia:open-search", onOpenEvent);
     return () => window.removeEventListener("athopia:open-search", onOpenEvent);
   }, []);

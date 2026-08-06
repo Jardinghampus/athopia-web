@@ -24,16 +24,17 @@ import { getHighlights } from "@/lib/highlights/queries";
 import { HighlightRail } from "@/components/highlights/HighlightRail";
 import { getUserPlan } from "@/lib/user-plan";
 import { TeamContextTracker } from "@/components/team-hub/TeamContextTracker";
-import { getTeamColors, getTeamAccent } from "@/lib/team-colors";
+import { getTeamColors, getTeamAccent, getTeamInk } from "@/lib/team-colors";
 import { TeamHubHeader } from "@/components/team-hub/TeamHubHeader";
-import { TeamHubTabs } from "@/components/team-hub/TeamHubTabs";
+import { TeamSection } from "@/components/team-hub/TeamSection";
 import { MatchdayBanner } from "@/components/team-hub/MatchdayBanner";
-import { TeamHubBriefRitual } from "@/components/team-hub/TeamHubBriefRitual";
+import { ProductEventTracker } from "@/components/analytics/ProductEventTracker";
 import { PodcastSignalsPanel } from "@/components/podcast/PodcastSignalsPanel";
 import { TransferRadar } from "@/components/team-hub/TransferRadar";
 import { PositionTrend } from "@/components/team-hub/PositionTrend";
 import type { SwitcherTeam } from "@/components/team-hub/TeamSwitcher";
 import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
+import { jsonLd } from "@/lib/json-ld";
 
 export const revalidate = 60;
 
@@ -159,11 +160,20 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
   };
 
   const colors = getTeamColors(hub.team.slug);
+  const ink = getTeamInk(hub.team.slug);
 
   return (
     <div
       className="max-w-6xl mx-auto pb-6"
-      style={{ "--team-accent": getTeamAccent(hub.team.slug), "--team-accent-2": colors.secondary } as React.CSSProperties}
+      style={
+        {
+          "--team-accent": getTeamAccent(hub.team.slug),
+          "--team-accent-2": colors.secondary,
+          // Klubbfärgen som TEXT behöver egen valör per tema — se getTeamInk().
+          "--team-ink-light": ink.light,
+          "--team-ink-dark": ink.dark,
+        } as React.CSSProperties
+      }
     >
       {/* Klubbfärgad accentlinje (audit T6) — gradientStops om laget har fler än 2 klubbfärger */}
       <div
@@ -175,8 +185,12 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
         }}
         aria-hidden
       />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(teamJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(teamJsonLd) }} />
       <TeamContextTracker slug={hub.team.slug} name={hub.team.name} logo_url={hub.team.logo_url} />
+      <ProductEventTracker
+        event="team_hub_opened"
+        props={{ team_slug: hub.team.slug, team_id: hub.team.id }}
+      />
 
       <div className="px-4 sm:px-6 pt-3 pb-1">
         <AppBreadcrumbs
@@ -201,7 +215,9 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
 
       <MatchdayBanner teamName={hub.team.name} recent={hub.recent} upcoming={hub.upcoming} />
 
-      <TeamHubBriefRitual pulse={hub.pulse} dailyEpisode={hub.dailyEpisode} plan={plan} />
+      {/* Brief-ritualen ligger uteslutande på /mitt-lag. Den är den personliga
+          dagliga vanan; laghubben är lagets permanenta uppslagsverk och ska inte
+          vara ett andra hem för samma innehåll (produktbrief, problem 1). */}
 
       <div className="mx-4 sm:mx-6 mb-5">
         <PodcastSignalsPanel
@@ -222,7 +238,7 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
         </div>
       )}
 
-      <TeamHubTabs hub={hub} plan={plan} insights={insights} />
+      <TeamSection section="oversikt" hub={hub} plan={plan} insights={insights} />
     </div>
   );
 }

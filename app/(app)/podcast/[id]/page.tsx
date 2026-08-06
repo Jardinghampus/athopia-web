@@ -20,6 +20,7 @@ import {
   spotifyShowEmbedUrl,
 } from "@/lib/podcast/spotify";
 import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
+import { jsonLd } from "@/lib/json-ld";
 
 export const revalidate = 300;
 
@@ -76,7 +77,7 @@ function EpisodeJsonLd({ ep }: { ep: EpisodeRow }) {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      dangerouslySetInnerHTML={{ __html: jsonLd(data) }}
     />
   );
 }

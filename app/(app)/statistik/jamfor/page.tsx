@@ -79,7 +79,7 @@ function StatRow({
 function FormRow({ label, a, b }: { label: string; a: string[]; b: string[] }) {
   const Badge = ({ r }: { r: string }) => {
     const color =
-      r === "W" ? "bg-success text-success-foreground" : r === "D" ? "bg-muted text-muted-foreground" : "bg-red-500/20 text-red-400";
+      r === "W" ? "bg-success text-success-foreground" : r === "D" ? "bg-muted text-muted-foreground" : "bg-red-500/20 text-destructive-ink";
     return (
       <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold ${color}`}>
         {r}
