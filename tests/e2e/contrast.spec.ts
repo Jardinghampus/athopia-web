@@ -48,6 +48,13 @@ test('accentfärgen används inte som statisk textfärg', async () => {
           ) {
             offenders.push(`${p}:${i + 1}`)
           }
+          // text-red-400 är overridad per tema i globals.css och red-600 mäter
+          // 4.83:1 på vitt. red-500 är varken overridad eller tillräcklig:
+          // 3.81:1 på vit yta, vilket gjorde LIVE-märket på matchsidan svårläst
+          // i ljust läge. Använd text-destructive-ink.
+          if (/text-red-500(?![-\w/])/.test(line) && !/^\s*(\/\/|\*|\{\/\*)/.test(line)) {
+            offenders.push(`${p}:${i + 1} (text-red-500 → text-destructive-ink)`)
+          }
         })
     }
   }

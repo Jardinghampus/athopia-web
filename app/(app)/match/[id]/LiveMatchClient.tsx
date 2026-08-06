@@ -183,7 +183,7 @@ export function LiveMatchClient({ fixtureId, initialStats, isLive, teamIds }: Li
           {isLive && (
             <div className="mt-3 flex items-center justify-center gap-2">
               <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-              <span className="text-xs text-red-500 font-medium uppercase tracking-wide">Live</span>
+              <span className="text-xs text-destructive-ink font-medium uppercase tracking-wide">Live</span>
             </div>
           )}
         </div>

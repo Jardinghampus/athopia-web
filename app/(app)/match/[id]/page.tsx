@@ -345,7 +345,10 @@ export default async function MatchPage({ params }: PageProps) {
       <div className="bg-card border border-border rounded-2xl p-6">
         <p className="text-xs text-muted-foreground text-center mb-3">
           Allsvenskan {kickoff ? new Date(kickoff).toLocaleDateString("sv-SE", { weekday: "long", day: "numeric", month: "long" }) : ""}
-          {isLive && <span className="ml-2 text-red-500">● LIVE{(d?.live as { minute: number | null } | null)?.minute != null ? ` ${(d!.live as { minute: number }).minute}′` : ""}</span>}
+          {/* text-red-500 matte 3.81:1 pa vit yta — destructive-ink ar den
+              kontrastmatta valoren per tema (globals.css). Ett live-marke som
+              ar svarlast ar illa i en sportprodukt. */}
+          {isLive && <span className="ml-2 text-destructive-ink">● LIVE{(d?.live as { minute: number | null } | null)?.minute != null ? ` ${(d!.live as { minute: number }).minute}′` : ""}</span>}
         </p>
         <div className="flex items-center justify-center gap-6">
           <p className="text-lg font-bold text-right flex-1">{homeName}</p>
