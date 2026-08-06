@@ -7,7 +7,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { MessageSquare } from "lucide-react";
 import type { Article } from "@/lib/types";
-import { formatDateRelative, truncate } from "@/lib/utils";
+import { truncate } from "@/lib/utils";
+import { ArticleMeta } from "@/components/news/ArticleMeta";
 import { OutboundLink } from "@/components/news/OutboundLink";
 import { articlePublicPath, canPublishBody, resolveRightsStatus } from "@/lib/provenance";
 
@@ -22,17 +23,18 @@ function articleHref(article: Article): { href: string; external: boolean } {
 export function AthleticFeedHero({
   article,
   commentCount,
+  becauseTeam,
 }: {
   article: Article;
   commentCount?: number;
+  becauseTeam?: string | null;
 }) {
   const { href, external } = articleHref(article);
   const meta = (
-    <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-      <span className="font-medium text-foreground/80">{article.sourceName}</span>
-      <span>{formatDateRelative(article.publishedAt)}</span>
+    <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1">
+      <ArticleMeta article={article} becauseTeam={becauseTeam} />
       {typeof commentCount === "number" && commentCount > 0 && (
-        <span className="inline-flex items-center gap-1 tabular-nums">
+        <span className="inline-flex items-center gap-1 text-xs text-muted-foreground tabular-nums">
           <MessageSquare className="h-3.5 w-3.5" aria-hidden />
           {commentCount}
         </span>
@@ -88,9 +90,11 @@ export function AthleticFeedHero({
 export function AthleticFeedRow({
   article,
   commentCount,
+  becauseTeam,
 }: {
   article: Article;
   commentCount?: number;
+  becauseTeam?: string | null;
 }) {
   const { href, external } = articleHref(article);
   const thumb = article.imageUrl;
@@ -101,18 +105,13 @@ export function AthleticFeedRow({
         <h3 className="font-heading text-[17px] leading-snug text-foreground group-hover:text-pitch-ink transition-colors line-clamp-3">
           {article.title}
         </h3>
-        <div className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-muted-foreground">
-          <span className="font-medium text-foreground/70">{article.sourceName}</span>
-          <span aria-hidden>·</span>
-          <span>{formatDateRelative(article.publishedAt)}</span>
+        <div className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1">
+          <ArticleMeta article={article} becauseTeam={becauseTeam} />
           {typeof commentCount === "number" && commentCount > 0 && (
-            <>
-              <span aria-hidden>·</span>
-              <span className="inline-flex items-center gap-1 tabular-nums">
-                <MessageSquare className="h-3.5 w-3.5" aria-hidden />
-                {commentCount}
-              </span>
-            </>
+            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground tabular-nums">
+              <MessageSquare className="h-3.5 w-3.5" aria-hidden />
+              {commentCount}
+            </span>
           )}
         </div>
       </div>

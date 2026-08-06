@@ -188,6 +188,12 @@ export default async function NyheterPage({
     return qs ? `/nyheter?${qs}` : "/nyheter";
   };
 
+  // "Visas eftersom du följer X" satts BARA nar personaliseringen faktiskt
+  // styr urvalet. Ett explicit lagfilter ar anvandarens eget val och behover
+  // ingen forklaring — chipet visar det redan.
+  const becauseTeam =
+    usingPersonalDefaults && prefs.favoriteTeamName ? prefs.favoriteTeamName : null;
+
   const activeChips: FilterChip[] = [];
   if (scope === "allsvenskan") {
     activeChips.push({ kind: "Omfång", label: "Hela Allsvenskan", emphasis: true });
@@ -307,7 +313,11 @@ export default async function NyheterPage({
       ) : (
         <div>
           {hero ? (
-            <AthleticFeedHero article={hero} commentCount={commentCounts[hero.id]} />
+            <AthleticFeedHero
+              article={hero}
+              commentCount={commentCounts[hero.id]}
+              becauseTeam={becauseTeam}
+            />
           ) : null}
           <div className={hero ? "mt-0" : ""}>
             {list.map((a) => (
@@ -315,6 +325,7 @@ export default async function NyheterPage({
                 key={a.id}
                 article={a}
                 commentCount={commentCounts[a.id]}
+                becauseTeam={becauseTeam}
               />
             ))}
           </div>
