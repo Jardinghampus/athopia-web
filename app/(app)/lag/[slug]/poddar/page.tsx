@@ -90,6 +90,8 @@ export default async function LagPodcastsPage({
         </div>
       ) : (
         <div className="flex flex-col gap-3">
+          {/* Korten är h3. Utan sektionsrubriken hoppade sidan h1 → h3. */}
+          <h2 className="sr-only">Avsnitt</h2>
           {podcasts.map((podcast) => (
             <PodcastCard key={podcast.id} podcast={podcast} />
           ))}

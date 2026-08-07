@@ -100,6 +100,8 @@ export default async function LagNyheterPage({
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* Korten är h3. Utan sektionsrubriken hoppade sidan h1 → h3. */}
+          <h2 className="sr-only">Artiklar</h2>
           {articles.map((article) => (
             <ArticleCard key={article.id} article={article} size="md" />
           ))}
