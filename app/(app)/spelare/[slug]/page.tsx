@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import { buildPlayerProfile } from "@/lib/player/profile";
+import { getSiteUrl } from "@/lib/site-url";
 import { ListGroup } from "@/components/ui/ListGroup";
 import { ListRow } from "@/components/ui/ListRow";
 import { StatNumber } from "@/components/ui/StatNumber";
@@ -87,6 +88,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: `${profile.player.fullname} | Athopia`,
     description: `Statistik för ${profile.player.fullname} i Allsvenskan på Athopia.`,
+    alternates: { canonical: `${getSiteUrl()}/spelare/${slug}` },
+    openGraph: {
+      type: "profile",
+      title: `${profile.player.fullname} | Athopia`,
+      description: `Statistik för ${profile.player.fullname} i Allsvenskan på Athopia.`,
+    },
   };
 }
 
