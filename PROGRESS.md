@@ -261,3 +261,38 @@ rtk tsc (0 fel) → pnpm build (Compiled successfully; prerender-felet ovan är 
 - Kända scheman-krockar att bevaka: sync-fixtures (id PK, home_team_id) vs
   webbens äldre fixtures-användning i mitt-lag/match (sportmonks_id,
   home_team_name) — mitt-lag-hubben kan behöva samma migrering senare.
+
+### Tillägg 2026-08-07: POLISH-PLAN-2026-08-07 exekverad (WP0–WP6)
+
+Auditerad av Opus 5, exekverad av Sonnet-agenter, ett paket i taget.
+
+- **WP0** DESIGN.md regenererad ur koden — den påstod Lora/Instrument Serif,
+  koden kör Geist/Geist Mono. Döda `TabBar.tsx` + `tubelight-navbar.tsx`
+  borttagna (noll imports). Kontrastvakten fångar nu även `text-pitch-dark`.
+- **WP1** Hårdkodade hex → tokens (BRAND, feed-kategorier, `--color-away`,
+  cookie-hover, IQ-widget). `OnboardingLeaguePicker` hämtar klubbfärg via
+  `getTeamAccent()` — flera klubbar delade tidigare felaktigt samma blå.
+  Alla nya färger kontrastmätta i båda teman (4.6–8:1).
+- **WP1b** Vakten kunde smitas förbi med `text-[var(--color-pitch-dark)]`.
+  Hålet stängt; telefon-mockupen är ett namngivet undantag på sökväg.
+- **WP2** Godtycklig tracking → `--tracking-badge`/`--tracking-label`.
+  Rubrikhopp h1→h3 i lag-statistiken rättat (bara taggen). `text-balance` på
+  180 rubriker, samtliga verifierat h1–h3. 115 av 161 texter under 12px lyfta
+  till `text-xs`; 12 kvar i fasta chips. `font-mono tabular-nums` på siffror.
+- **WP3** Planens "5 sidor saknar metadata" höll inte: /ai och /elite/chat
+  ärver från sin layout, och tre är `redirect()`-stubbar där metadata aldrig
+  når klienten bakom en 307. Kvar blev den enda riktiga luckan — canonical +
+  openGraph på spelarsidan, via `getSiteUrl()`.
+- **WP4** 28 nya `loading.tsx` vars skelett speglar sidans faktiska layout,
+  6 nya `error.tsx` nära de tunga träden, och empty states som säger vad ytan
+  gör och vad som händer härnäst. H2H-vyn slutade läcka "athopia-os" till
+  användaren.
+- **WP5** Mätt med Playwright mot prodbygge i 390×844 + 1440×900, ljust och
+  mörkt. /prenumerera scrollade i sidled på mobil (390→483px) — rättat och
+  verifierat live. Rubriksemantik på tre sidor, cookie-knappar till 44px.
+- **WP6** `/mer` togs bort ur `SECONDARY_NAV_ITEMS` (Mer-sidan listade sig
+  själv) tillsammans med filtret som dolde det.
+
+**Kvar, medvetet inte fixat** — kräver omgörning av global chrome, inte polish:
+AppSidebar-railen och topbarens "Logga in" under 44px träffyta, samt Clerks
+egna widgets på /konto och /profil.
