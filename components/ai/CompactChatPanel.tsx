@@ -8,8 +8,6 @@ import Link from 'next/link'
 import type { Plan } from '@/lib/access-rules'
 import { canAccess } from '@/lib/access-rules'
 
-const BRAND = '#2D5349'
-
 interface CompactChatPanelProps {
   apiUrl: string
   title: string
@@ -80,7 +78,7 @@ export function CompactChatPanel({
         aria-expanded={open}
       >
         <div className="flex items-center gap-2 min-w-0">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full" style={{ background: BRAND }}>
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-pitch">
             <Bot className="h-4 w-4 text-white" />
           </div>
           <div className="min-w-0">
@@ -185,8 +183,7 @@ export function CompactChatPanel({
             <button
               type="submit"
               disabled={isLoading || !input.trim()}
-              className="rounded-xl px-3 py-2 text-white disabled:opacity-40"
-              style={{ background: BRAND }}
+              className="rounded-xl px-3 py-2 bg-pitch text-white disabled:opacity-40"
               aria-label="Skicka"
             >
               <Send size={16} />

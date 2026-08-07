@@ -22,11 +22,12 @@ import type { FeedItem, FeedItemType } from "@/lib/types";
 
 // ─── Meta ────────────────────────────────────────────────────────────────────
 
-const TYPE_META: Record<FeedItemType, { label: string; color: string; icon: React.ElementType }> = {
-  news:    { label: "Nyhet",    color: "var(--color-pitch)", icon: Newspaper },
-  forum:   { label: "Forum",   color: "#7F77DD", icon: MessageSquare },
-  summary: { label: "AI-analys", color: "#BA7517", icon: Brain },
-  podcast: { label: "Podcast", color: "#378ADD", icon: Podcast },
+// color = yta (chip-tint), ink = bläck (ikon + etikett ovanpå tinten)
+const TYPE_META: Record<FeedItemType, { label: string; color: string; ink: string; icon: React.ElementType }> = {
+  news:    { label: "Nyhet",     color: "var(--color-pitch)",       ink: "var(--color-pitch-ink)",       icon: Newspaper },
+  forum:   { label: "Forum",     color: "var(--color-cat-forum)",   ink: "var(--color-cat-forum-ink)",   icon: MessageSquare },
+  summary: { label: "AI-analys", color: "var(--color-cat-summary)", ink: "var(--color-cat-summary-ink)", icon: Brain },
+  podcast: { label: "Podcast",   color: "var(--color-cat-podcast)", ink: "var(--color-cat-podcast-ink)", icon: Podcast },
 };
 
 type FilterType = "all" | FeedItemType;
@@ -198,11 +199,11 @@ function FeedItemCard({ item, showCluster }: { item: FeedItem; showCluster?: boo
         className="mt-0.5 shrink-0 w-8 h-8 rounded-full flex items-center justify-center"
         style={{ backgroundColor: meta.color + "20" }}
       >
-        <Icon className="w-4 h-4" style={{ color: meta.color }} />
+        <Icon className="w-4 h-4" style={{ color: meta.ink }} />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1 flex-wrap">
-          <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: meta.color }}>
+          <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: meta.ink }}>
             {meta.label}
           </span>
           <span className="text-[11px] text-muted-foreground">{timeAgo(item.time)}</span>

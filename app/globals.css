@@ -65,6 +65,19 @@
   --color-purple-400:  var(--purple-400);
   --color-brand:         #2D5349; /* Racing Green — logotyp/hero/marketing */
 
+  /* Feed-kategorier (FeedClient TYPE_META). Basfärgen är ytan (chip-tint,
+     ikon), *-ink är bläcket ovanpå tinten — samma yta/bläck-uppdelning som
+     pitch/pitch-ink, se motivering vid --color-pitch-ink ovan. */
+  --color-cat-forum:         #7F77DD;
+  --color-cat-forum-ink:     var(--cat-forum-ink);
+  --color-cat-summary:       #BA7517;
+  --color-cat-summary-ink:   var(--cat-summary-ink);
+  --color-cat-podcast:       #378ADD;
+  --color-cat-podcast-ink:   var(--cat-podcast-ink);
+
+  /* Jämförelsefärg (LiveMatchClient hemmalag-bar, PlayerCompareClient spelare B) */
+  --color-away:      var(--away);
+
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -168,6 +181,14 @@
   /* 7.4:1 på #FAFAF8 */
   --pitch-ink: #2D5349;
 
+  /* Feed-kategori-bläck på egen 12.5%-tint (kort/vit yta): 4.67–4.83:1 */
+  --cat-forum-ink: #6056D5;
+  --cat-summary-ink: #965E13;
+  --cat-podcast-ink: #1F6BB8;
+
+  /* Jämförelsefärg B (blå) — 4.6:1 på #FAFAF8 */
+  --away: #1D5FC2;
+
   --chart-1: #2D5349;
   --chart-2: #111111;
   --chart-3: #8A8885;
@@ -224,6 +245,14 @@
 
   /* Ljus valör enligt BRAND.md — 7.9:1 på #000, 6.4:1 på #1B1B1C */
   --pitch-ink: #5FA98C;
+
+  /* Feed-kategori-bläck på egen 12.5%-tint (kort/svart yta): 4.62–4.72:1 */
+  --cat-forum-ink: #8E87E1;
+  --cat-summary-ink: #CC8019;
+  --cat-podcast-ink: #4894E0;
+
+  /* Jämförelsefärg B — 7.96:1 på #000, 6.53:1 på #1B1B1C */
+  --away: #51A2FF;
 
   --chart-1: #5FA98C;
   --chart-2: #F4F4F2;

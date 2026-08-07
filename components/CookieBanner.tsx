@@ -104,7 +104,7 @@ export function CookieBanner() {
           <div className="mt-4 flex flex-wrap gap-2">
             <button
               onClick={() => save({ analytics: true, marketing: true })}
-              className="flex-1 rounded-xl bg-pitch px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#18876A] active:scale-[0.97]"
+              className="flex-1 rounded-xl bg-pitch px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-pitch-dark active:scale-[0.97]"
             >
               Godkänn alla
             </button>

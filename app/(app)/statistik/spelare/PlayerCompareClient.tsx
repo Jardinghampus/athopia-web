@@ -17,7 +17,7 @@ import { SCOUT_METRICS, type ScoutPlayer, type ScoutMetricKey } from "@/lib/team
 const RADAR_METRICS: ScoutMetricKey[] = ["goals", "assists", "shots", "key_passes", "passes", "rating"];
 // Ink-varianten så att serien också syns mot mörk bakgrund i diagrammet.
 const COLOR_A = "var(--color-pitch-ink)";
-const COLOR_B = "#3B82F6";
+const COLOR_B = "var(--color-away)";
 
 type PositionFilter = "all" | "goalkeeper" | "defender" | "midfielder" | "attacker";
 const POSITION_OPTIONS: { value: PositionFilter; label: string }[] = [

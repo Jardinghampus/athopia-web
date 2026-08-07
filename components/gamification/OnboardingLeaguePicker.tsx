@@ -3,24 +3,25 @@
 import { useState } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { createClient } from '@/lib/supabase-browser'
+import { getTeamAccent } from '@/lib/team-colors'
 
 const ALLSVENSKAN_TEAMS = [
-  { slug: 'aik', name: 'AIK', color: '#1A1A1A' },
-  { slug: 'malmo-ff', name: 'Malmö FF', color: '#1565C0' },
-  { slug: 'ifk-goteborg', name: 'IFK Göteborg', color: '#1565C0' },
-  { slug: 'djurgarden', name: 'Djurgårdens IF', color: '#1565C0' },
-  { slug: 'hammarby', name: 'Hammarby IF', color: '#2E7D32' },
-  { slug: 'ifk-norrkoping', name: 'IFK Norrköping', color: '#1565C0' },
-  { slug: 'bk-hacken', name: 'BK Häcken', color: '#F9A825' },
-  { slug: 'kalmar-ff', name: 'Kalmar FF', color: '#C62828' },
-  { slug: 'if-elfsborg', name: 'IF Elfsborg', color: '#F9A825' },
-  { slug: 'vasteras-sk', name: 'Västerås SK', color: '#1A1A1A' },
-  { slug: 'sirius', name: 'IK Sirius', color: '#1565C0' },
-  { slug: 'brommapojkarna', name: 'IF Brommapojkarna', color: '#1A1A1A' },
-  { slug: 'hif', name: 'Helsingborgs IF', color: '#C62828' },
-  { slug: 'orebro-sk', name: 'Örebro SK', color: '#F9A825' },
-  { slug: 'gif-sundsvall', name: 'GIF Sundsvall', color: '#C62828' },
-  { slug: 'halmstad-bk', name: 'Halmstads BK', color: '#C62828' },
+  { slug: 'aik', name: 'AIK' },
+  { slug: 'malmo-ff', name: 'Malmö FF' },
+  { slug: 'ifk-goteborg', name: 'IFK Göteborg' },
+  { slug: 'djurgarden', name: 'Djurgårdens IF' },
+  { slug: 'hammarby', name: 'Hammarby IF' },
+  { slug: 'ifk-norrkoping', name: 'IFK Norrköping' },
+  { slug: 'bk-hacken', name: 'BK Häcken' },
+  { slug: 'kalmar-ff', name: 'Kalmar FF' },
+  { slug: 'if-elfsborg', name: 'IF Elfsborg' },
+  { slug: 'vasteras-sk', name: 'Västerås SK' },
+  { slug: 'sirius', name: 'IK Sirius' },
+  { slug: 'brommapojkarna', name: 'IF Brommapojkarna' },
+  { slug: 'hif', name: 'Helsingborgs IF' },
+  { slug: 'orebro-sk', name: 'Örebro SK' },
+  { slug: 'gif-sundsvall', name: 'GIF Sundsvall' },
+  { slug: 'halmstad-bk', name: 'Halmstads BK' },
 ]
 
 export function OnboardingLeaguePicker({ onComplete }: { onComplete: () => void }) {
@@ -74,7 +75,7 @@ export function OnboardingLeaguePicker({ onComplete }: { onComplete: () => void 
             >
               <div
                 className="w-2 h-2 rounded-full mx-auto mb-1"
-                style={{ backgroundColor: team.color }}
+                style={{ backgroundColor: getTeamAccent(team.slug) }}
               />
               <span className="text-xs font-semibold">{team.name}</span>
             </button>

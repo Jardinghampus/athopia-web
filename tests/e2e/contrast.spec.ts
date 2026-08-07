@@ -20,9 +20,10 @@ const ROUTES = [
 ]
 
 /**
- * Vakt mot att accentfärgen åter används som textfärg. `text-pitch` och
- * `text-pitch-light` är fasta hex som inte växlar med temat och ger 2.0–2.8:1.
- * Använd `text-pitch-ink`. Ytor (`bg-pitch`, `border-pitch`) är fortsatt rätt.
+ * Vakt mot att accentfärgen åter används som textfärg. `text-pitch`,
+ * `text-pitch-light` och `text-pitch-dark` är fasta hex som inte växlar med
+ * temat och ger 2.0–2.8:1. Använd `text-pitch-ink`. Ytor (`bg-pitch`,
+ * `border-pitch`, `bg-pitch-dark`) är fortsatt rätt.
  */
 test('accentfärgen används inte som statisk textfärg', async () => {
   const { readdirSync, readFileSync, statSync } = await import('fs')
@@ -43,7 +44,7 @@ test('accentfärgen används inte som statisk textfärg', async () => {
           // Även den godtyckliga formen: `text-[var(--color-pitch)]` smet förbi
           // den första vakten och gjorde sidomenyns aktiva post 2.34:1 i mörkt.
           if (
-            /text-pitch(?![-\w/])|text-pitch-light\b/.test(line) ||
+            /text-pitch(?![-\w/])|text-pitch-light\b|text-pitch-dark\b/.test(line) ||
             /text-\[var\(--color-pitch(-light)?\)\]/.test(line)
           ) {
             offenders.push(`${p}:${i + 1}`)

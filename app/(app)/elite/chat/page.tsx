@@ -5,8 +5,10 @@ import { isToolUIPart, getToolName, isTextUIPart } from 'ai'
 import { useEffect, useRef, useState } from 'react'
 import { Send, Loader2, Bot } from 'lucide-react'
 
-const BRAND = '#2D5349'
-
+// Sidan har fast mörk styling (zinc-900/950) oavsett sidtema, så bot-ikonen
+// använder --color-pitch-light direkt (6.36:1 på zinc-900) i stället för den
+// temaväxlande text-pitch-ink, som i ljust läge skulle lösa till den mörka
+// valören och ge 2.06:1 mot denna alltid-mörka yta.
 const SUGGESTIONS = [
   'Hur ligger Hammarby till i tabellen?',
   'Senaste nyheter om Malmö FF',
@@ -62,7 +64,7 @@ export default function EliteChatPage() {
       <div className="flex-1 overflow-y-auto space-y-4 pb-4">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full gap-3 text-zinc-500">
-            <Bot size={40} style={{ color: BRAND }} />
+            <Bot size={40} style={{ color: 'var(--color-pitch-light)' }} />
             <p className="text-sm text-center max-w-xs">Fråga om statistik, tabell, matcher eller nyheter.</p>
             <div className="flex flex-col gap-2 w-full max-w-xs">
               {SUGGESTIONS.map((s) => (
@@ -84,7 +86,7 @@ export default function EliteChatPage() {
             ) : (
               // Grok-stil: assistentsvar är löpande text utan bubbla/ram — bara indraget under en liten logga.
               <div className="max-w-[85%] space-y-1.5">
-                <Bot size={16} style={{ color: BRAND }} />
+                <Bot size={16} style={{ color: 'var(--color-pitch-light)' }} />
                 <div className="text-sm leading-relaxed text-zinc-100">
                   {(m.parts ?? []).map((part, i) => {
                     if (isTextUIPart(part)) return <span key={i}>{part.text}</span>
@@ -108,7 +110,7 @@ export default function EliteChatPage() {
 
         {isLoading && messages[messages.length - 1]?.role === 'user' && (
           <div className="flex items-center gap-2">
-            <Bot size={16} style={{ color: BRAND }} />
+            <Bot size={16} style={{ color: 'var(--color-pitch-light)' }} />
             <Loader2 size={14} className="animate-spin text-zinc-400" />
           </div>
         )}
@@ -149,8 +151,7 @@ export default function EliteChatPage() {
           className="max-h-32 flex-1 resize-none overflow-y-auto bg-transparent px-1 py-1.5 text-sm leading-relaxed
             placeholder:text-zinc-600 focus:outline-none disabled:opacity-50" />
         <button type="submit" disabled={isLoading || !input.trim() || remaining === 0}
-          className="mb-0.5 flex size-9 shrink-0 items-center justify-center rounded-full text-white disabled:opacity-40 transition-opacity"
-          style={{ background: BRAND }}>
+          className="mb-0.5 flex size-9 shrink-0 items-center justify-center rounded-full bg-pitch text-white disabled:opacity-40 transition-opacity">
           <Send size={16} />
         </button>
       </form>

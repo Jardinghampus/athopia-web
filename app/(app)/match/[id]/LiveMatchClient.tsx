@@ -50,7 +50,7 @@ function StatBar({ label, home, away, format = (v: number) => String(v) }: { lab
       </div>
       <div className="h-1.5 bg-muted rounded-full overflow-hidden flex">
         <div className="bg-pitch transition-all duration-700" style={{ width: `${homeW}%` }} />
-        <div className="bg-[#3B82F6] transition-all duration-700" style={{ width: `${100 - homeW}%` }} />
+        <div className="bg-away transition-all duration-700" style={{ width: `${100 - homeW}%` }} />
       </div>
     </div>
   );
