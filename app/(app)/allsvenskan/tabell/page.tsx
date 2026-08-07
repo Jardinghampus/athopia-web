@@ -3,6 +3,7 @@ import Link from "next/link";
 import { fetchStandingsFull } from "@/lib/db/fixtures";
 import type { SMStandingRow } from "@/lib/db/fixtures";
 import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
+import { Target, CalendarDays, Flag, BarChart3, Sparkles } from "lucide-react";
 import { jsonLd } from "@/lib/json-ld";
 
 export const revalidate = 60;
@@ -63,29 +64,26 @@ export default async function AllsvenskanTabellPage() {
         description: standings[0] ? `Allsvenskan-tabell 2026. Ledare: ${standings[0].team.name}` : "Allsvenskan-tabell 2026",
       })}} />
 
-      <nav className="text-xs text-muted-foreground mb-6 flex gap-2">
-        <Link href="/allsvenskan" className="hover:text-foreground">Allsvenskan</Link>
-        <span>›</span>
-        <span className="text-foreground">Tabell</span>
-      </nav>
-
       <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2 text-balance">ALLSVENSKAN TABELL 2026</h1>
       <p className="text-muted-foreground mb-6">Uppdateras löpande under säsongen.</p>
 
       <nav aria-label="Allsvenskan-sidor" className="mb-8 flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
+        {/* Lucide-ikoner, inte emoji. Emoji renderas i systemets egen stil och
+            bryter mot ikonspråket i resten av appen — och jordgloben som stod
+            för Skytteliga betydde ingenting. */}
         {[
-          { href: "/allsvenskan/skytteliga", emoji: "⚽", label: "Skytteliga" },
-          { href: "/allsvenskan/spelschema", emoji: "📅", label: "Spelschema" },
-          { href: "/allsvenskan/resultat", emoji: "🏁", label: "Resultat" },
-          { href: "/allsvenskan/xp-tabell", emoji: "📊", label: "xP-tabell" },
-          { href: "/allsvenskan/talanger", emoji: "🌟", label: "Talanger" },
+          { href: "/allsvenskan/skytteliga", Icon: Target, label: "Skytteliga" },
+          { href: "/allsvenskan/spelschema", Icon: CalendarDays, label: "Spelschema" },
+          { href: "/allsvenskan/resultat", Icon: Flag, label: "Resultat" },
+          { href: "/allsvenskan/xp-tabell", Icon: BarChart3, label: "xP-tabell" },
+          { href: "/allsvenskan/talanger", Icon: Sparkles, label: "Talanger" },
         ].map((l) => (
           <Link
             key={l.href}
             href={l.href}
-            className="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-border bg-card text-sm font-medium text-foreground hover:border-pitch/60 hover:text-pitch-ink transition-colors"
+            className="shrink-0 inline-flex min-h-11 items-center gap-1.5 px-3.5 rounded-xl border border-border bg-card text-sm font-medium text-foreground hover:border-pitch/60 hover:text-pitch-ink transition-colors"
           >
-            <span aria-hidden>{l.emoji}</span>
+            <l.Icon className="h-4 w-4 shrink-0" aria-hidden />
             {l.label}
           </Link>
         ))}

@@ -621,7 +621,17 @@ export async function getPostMatchAnalyses(limit = 20): Promise<PostMatchAnalysi
       .filter("metadata->>type", "eq", "post_match_analysis")
       .order("published_at", { ascending: false })
       .limit(limit);
-    return (data ?? []).map((row) => mapPostMatchAnalysis(row as Record<string, unknown>));
+    // Listan VISAR matchdatum men sorterades på publiceringsdatum, så ordningen
+    // såg slumpmässig ut (11 juli, 11 juli, 4 juli, 6 juli, 5 juli). Sortera på
+    // det som läsaren faktiskt ser; publiceringsdatum är reserv när matchdatum
+    // saknas.
+    return (data ?? [])
+      .map((row) => mapPostMatchAnalysis(row as Record<string, unknown>))
+      .sort((a, b) => {
+        const at = new Date(a.playedAt ?? a.publishedAt ?? 0).getTime();
+        const bt = new Date(b.playedAt ?? b.publishedAt ?? 0).getTime();
+        return bt - at;
+      });
   } catch (e) { captureDbError(e);
     return [];
   }

@@ -56,7 +56,13 @@ for (const route of ROUTES) {
     ).toBe(0)
 
     // Bevisa att flikarna faktiskt går att träffa, inte bara att de syns.
-    await page.getByRole('link', { name: 'Allsvenskan' }).first().click({ timeout: 5000 })
+    // Lokatorn måste vara scopad till docken: en lös `getByRole('link')` fångade
+    // en artikelrubrik som råkade börja med "Allsvenskan" och klickade sig till
+    // fel sida så fort flödesinnehållet ändrades.
+    await page
+      .getByRole('navigation', { name: 'Huvudnavigation' })
+      .getByRole('link', { name: 'Allsvenskan' })
+      .click({ timeout: 5000 })
     await expect(page).toHaveURL(/\/allsvenskan/)
 
     await ctx.close()

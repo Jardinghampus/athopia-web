@@ -15,6 +15,7 @@ import {
   parseFixtureScore,
 } from "@/lib/db/fixtures";
 import { jsonLd } from "@/lib/json-ld";
+import { formLetter, formLabel } from "@/lib/form-letter";
 import {
   SEASON_IDS,
   type ScorerRow,
@@ -95,6 +96,7 @@ function EmptyState({ message = "Ingen data för vald säsong ännu." }: { messa
 }
 
 function FormBadge({ result }: { result: string }) {
+  // Datat är engelskt (W/D/L); produkten är svensk.
   const colorMap: Record<string, string> = {
     W: "bg-success text-success-foreground",
     D: "bg-muted text-muted-foreground",
@@ -105,8 +107,10 @@ function FormBadge({ result }: { result: string }) {
       className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold ${
         colorMap[result] ?? "bg-muted text-muted-foreground"
       }`}
+      title={formLabel(result)}
+      aria-label={formLabel(result)}
     >
-      {result}
+      {formLetter(result)}
     </span>
   );
 }
@@ -236,7 +240,7 @@ async function TabelTab({ seasonId }: { seasonId: string }) {
           <tr className="border-b border-border text-muted-foreground text-xs uppercase tracking-wider">
             <th className="py-2 px-3 text-left w-8">#</th>
             <th className="py-2 px-3 text-left min-w-[140px]">Lag</th>
-            <th className="py-2 px-3 text-center">S</th>
+            <th className="py-2 px-3 text-center">M</th>
             <th className="py-2 px-3 text-center">V</th>
             <th className="py-2 px-3 text-center">O</th>
             <th className="py-2 px-3 text-center">F</th>

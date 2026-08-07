@@ -48,7 +48,9 @@ export default function ForumRightSidebar({
         </div>
       )}
 
-      {/* Latest news */}
+      {/* Latest news — blocket renderades tidigare alltid, även med noll
+          artiklar, så rubriken stod ensam över en tom ruta. */}
+      {news.length > 0 && (
       <div className="rounded-xl border border-border/60 bg-card/50 p-4">
         <h2 className="text-[13px] font-semibold text-foreground mb-3 text-balance">Senaste nytt · {teamName}</h2>
         <div className="space-y-3">
@@ -76,7 +78,10 @@ export default function ForumRightSidebar({
         </div>
       </div>
 
+      )}
+
       {/* Recent matches */}
+      {recentMatches.length > 0 && (
       <div className="rounded-xl border border-border/60 bg-card/50 p-4">
         <div className="flex items-center gap-2 mb-3">
           <Trophy className="w-3.5 h-3.5 text-muted-foreground" />
@@ -94,6 +99,7 @@ export default function ForumRightSidebar({
           ))}
         </div>
       </div>
+      )}
 
       {/* Upcoming match */}
       {upcomingMatch && (

@@ -19,25 +19,6 @@ import { canAccess } from "@/lib/access-rules";
 
 export const dynamic = "force-dynamic";
 
-// Allsvenskan 2025 — slugs som förväntas finnas i entities
-const ALLSVENSKAN_SLUGS = new Set([
-  "aik",
-  "bk-hacken",
-  "djurgardens-if",
-  "gais",
-  "hammarby-if",
-  "helsingborgs-if",
-  "ifk-goteborg",
-  "ifk-norrkoping",
-  "ifk-varnamo",
-  "if-elfsborg",
-  "kalmar-ff",
-  "malmo-ff",
-  "mjallby-aif",
-  "degerfors-if",
-  "halmstads-bk",
-  "vasteras-sk",
-]);
 
 
 async function getPosts(teamSlug: string): Promise<ForumPost[]> {
@@ -111,10 +92,16 @@ export default async function ForumTeamPage({
     getUserPlan(),
   ]);
 
-  // Filter to Allsvenskan only
-  const allsvenskanTeams = allTeams
-    .filter((t) => ALLSVENSKAN_SLUGS.has(t.slug ?? ""))
-    .sort((a, b) => (a.name ?? "").localeCompare(b.name ?? "", "sv"));
+  // getEntities("team") filtrerar redan på Allsvenskan. Här låg tidigare en
+  // handskriven slug-lista ("Allsvenskan 2025") ovanpå den, och den hade glidit
+  // ifrån databasen: 8 av 16 klubbar hade fel slug eller saknades —
+  // djurgardens-if mot djurgarden, hammarby-if mot hammarby, mjallby-aif mot
+  // mjallby, och varken Brommapojkarna eller Sirius fanns med. Följden var att
+  // lagnamnet inte gick att slå upp och rubriken föll tillbaka på råslugen:
+  // "DJURGARDEN". Listan är borta; entities är källan.
+  const allsvenskanTeams = [...allTeams].sort((a, b) =>
+    (a.name ?? "").localeCompare(b.name ?? "", "sv"),
+  );
 
   const teamName =
     allsvenskanTeams.find((t) => t.slug === teamSlug)?.name ??

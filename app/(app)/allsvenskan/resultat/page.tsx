@@ -59,12 +59,6 @@ export default async function AllsvenskanResultatPage() {
         ],
       })}} />
 
-      <nav className="text-xs text-muted-foreground mb-6 flex gap-2">
-        <Link href="/allsvenskan" className="hover:text-foreground">Allsvenskan</Link>
-        <span>›</span>
-        <span className="text-foreground">Resultat</span>
-      </nav>
-
       <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2 text-balance">ALLSVENSKAN RESULTAT 2026</h1>
       <p className="text-muted-foreground mb-8">Alla matchresultat — senaste matchen visas först.</p>
 

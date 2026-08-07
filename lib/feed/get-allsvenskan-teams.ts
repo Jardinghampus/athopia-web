@@ -42,6 +42,7 @@ export async function getAllsvenskanTeams(): Promise<FeedTeamOption[]> {
       .from("entities")
       .select("name, slug")
       .eq("type", "team")
+      .eq("metadata->>league", "Allsvenskan")
       .not("slug", "is", null)
       .order("name", { ascending: true });
     return (data ?? [])

@@ -10,6 +10,7 @@ import { LargeTitleHeader } from "@/components/ui/LargeTitleHeader";
 import { StatNumber } from "@/components/ui/StatNumber";
 import { Card as TactileCard } from "@/components/ui/TactileCard";
 import type { TeamSeasonRow } from "@/lib/team-hub/queries";
+import { formLetter, formLabel } from "@/lib/form-letter";
 
 // Global Header är sticky h-14 (56px) — compact-raden fastnar under den.
 // Global header (56px) + TeamNav (44px) — kompaktraden fastnar under bada.
@@ -123,7 +124,20 @@ export function TeamHubHeader({
 function FormDots({ form }: { form: ("W" | "D" | "L")[] }) {
   const map = { W: "bg-success text-success-foreground", D: "bg-muted text-foreground", L: "bg-red-500/20 text-destructive-ink" };
   if (form.length === 0) return null;
-  return <div className="flex gap-1">{form.map((r, i) => <span key={i} className={`w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center ${map[r]}`}>{r}</span>)}</div>;
+  return (
+    <div className="flex gap-1">
+      {form.map((r, i) => (
+        <span
+          key={i}
+          title={formLabel(r)}
+          aria-label={formLabel(r)}
+          className={`w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center ${map[r]}`}
+        >
+          {formLetter(r)}
+        </span>
+      ))}
+    </div>
+  );
 }
 
 function KeyStat({ label, value, accent, signed }: { label: string; value: number | null; accent?: boolean; signed?: boolean }) {

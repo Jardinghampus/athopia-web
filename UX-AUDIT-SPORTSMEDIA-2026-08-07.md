@@ -276,6 +276,44 @@ Kvar är brödsmulor och "Läs mer"-länkar, som är inline-text.
 
 ---
 
+### Andra omgången (commit följer)
+
+- **Forumets rubrik visade råslugen "DJURGARDEN".** Rotorsak: en handskriven
+  slug-lista (`ALLSVENSKAN_SLUGS`, kommenterad "Allsvenskan 2025") låg ovanpå
+  `getEntities("team")`, som redan filtrerar på Allsvenskan. Listan hade glidit
+  ifrån databasen — **8 av 16 klubbar** hade fel slug eller saknades:
+  `djurgardens-if` mot `djurgarden`, `hammarby-if` mot `hammarby`, `mjallby-aif`
+  mot `mjallby`, och varken Brommapojkarna eller Sirius fanns med. Namnuppslaget
+  misslyckades därför och föll tillbaka på slugen. Listan är borttagen.
+- **Tomma modulskal i forumets högerkolumn** ("Senaste nytt", "Senaste matcher")
+  renderades alltid, även med noll innehåll. Döljs nu när de är tomma.
+- **Formbokstäverna** fanns i fyra kopior, två av dem oöversatta (W/D/L i en
+  svensk produkt). En källa: `lib/form-letter.ts`, V/O/F överallt, med utskrivet
+  resultat som `aria-label` så färgen inte bär ensam.
+- **Lagvalet visar nu klubbmärken.** Initialerna genererades ur ordens första
+  bokstäver och gav "DI" för *både* Degerfors IF och Djurgårdens IF, "A" för
+  AIK. Nu crest från `entities.metadata.logo_url` (14 av 16 klubbar), med
+  kanoniska förkortningar som reserv (`lib/team-abbr.ts`).
+- **Modalen avbryter inte längre bläddring.** `/statistik`, `/spelare` och
+  `/match` togs bort ur `TEAM_REQUIRED_PREFIXES` — ligaövergripande ytor
+  fungerar utan lagval, och på mobil gick det inte att nå ens
+  bottennavigationen. `/mitt-lag` har en egen gästvy och behöver den inte
+  heller. Kvar: `/feed` och `/profil`.
+- **Dubblerad brödsmula** på `/allsvenskan/tabell` och `/allsvenskan/resultat` —
+  en handrullad `<nav>` utöver `AppBreadcrumbs`. Borttagen.
+- **Emoji i navigationen** på `/allsvenskan` bytt mot lucide-ikoner (och
+  träffytan höjd till 44px). Jordgloben som stod för Skytteliga är borta.
+- **Kolumnrubriken** för spelade matcher är `M` på båda tabellerna (var `S` på
+  `/statistik`).
+- **`/analys` sorterades på publiceringsdatum men visade matchdatum**, så
+  ordningen såg slumpmässig ut (11, 11, 4, 6, 5, 4 juli). Sorteras nu på det
+  som läsaren ser.
+
+**Kvar, medvetet inte åtgärdat:** de två identiska analysrubrikerna
+("matchen som vände på små marginaler") kommer ur generatorn i `athopia-os`,
+inte ur web. Densiteten på `/mitt-lag` och `/lag/[slug]` är en layoutomgörning,
+inte polish — den ligger kvar på listan.
+
 ## Ordning jag skulle ta det i
 
 1. ~~LIVE-vakten~~ och ~~tom matchstatistik~~ — **avvaktar Sportmonks-aktiveringen**

@@ -3,11 +3,25 @@
 import { useEffect, useState } from "react";
 import { useModalA11y } from "@/hooks/useModalA11y";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { teamAbbr } from "@/lib/team-abbr";
 import { useFavoriteTeam } from "@/hooks/useFavoriteTeam";
 
-// Sidor där lagval faktiskt används — visa inte modalen på t.ex. /priser eller /forum
-const TEAM_REQUIRED_PREFIXES = ["/feed", "/statistik", "/spelare", "/match", "/profil"];
+/**
+ * Sidor som inte kan visa något meningsfullt utan ett valt lag.
+ *
+ * `/statistik`, `/spelare` och `/match` låg tidigare med i listan, men de är
+ * ligaövergripande ytor som fungerar utmärkt utan lagval — modalen la sig över
+ * dem och avbröt en pågående bläddring. På mobil gick det inte att se en enda
+ * matchrad, och inte heller att nå bottennavigationen, förrän man valt lag
+ * eller hoppat över.
+ *
+ * `/mitt-lag` är medvetet inte med heller: den har redan en inbyggd gästvy med
+ * eget lagval, så modalen ovanpå den var både redundant och blockerande.
+ * Kvar är ytorna som inte kan visa någonting alls utan ett lag.
+ */
+const TEAM_REQUIRED_PREFIXES = ["/feed", "/profil"];
 
 function useRequiresTeam() {
   const pathname = usePathname();
@@ -26,13 +40,9 @@ function getTeamColor(metadata: Record<string, unknown> | null): string {
   return (metadata?.["primary_color"] as string | undefined) ?? "var(--color-pitch)";
 }
 
-function getTeamInitials(name: string): string {
-  return name
-    .split(" ")
-    .map((w) => w[0] ?? "")
-    .join("")
-    .slice(0, 3)
-    .toUpperCase();
+function getTeamLogo(metadata: Record<string, unknown> | null): string | null {
+  const url = metadata?.["logo_url"];
+  return typeof url === "string" && url.startsWith("http") ? url : null;
 }
 
 interface TeamSelectionModalProps {
@@ -137,20 +147,21 @@ export function TeamSelectionModal({ forceVisible = false }: TeamSelectionModalP
           {teams.length === 0 ? (
             <div className="grid grid-cols-4 gap-2">
               {Array.from({ length: 16 }).map((_, i) => (
-                <div key={i} className="h-16 rounded-lg bg-muted animate-pulse" />
+                <div key={i} className="h-[72px] rounded-lg bg-muted animate-pulse" />
               ))}
             </div>
           ) : (
             <div className="grid grid-cols-4 gap-2">
               {teams.map((team) => {
                 const color = getTeamColor(team.metadata);
+                const logo = getTeamLogo(team.metadata);
                 const isSelected = selected === team.slug;
                 return (
                   <button
                     key={team.id}
                     onClick={() => setSelected(isSelected ? null : (team.slug ?? team.id))}
                     className={cn(
-                      "relative flex flex-col items-center justify-center h-16 rounded-lg border-2 transition-all text-xs font-medium text-center px-1",
+                      "relative flex flex-col items-center justify-center gap-1 h-[72px] rounded-lg border-2 transition-all text-xs font-medium text-center px-1",
                       isSelected
                         ? "border-[var(--team-color)] bg-[var(--team-color)]/10 text-foreground scale-105"
                         : "border-border bg-muted/30 hover:border-[var(--team-color)] hover:bg-[var(--team-color)]/5 text-muted-foreground",
@@ -158,12 +169,24 @@ export function TeamSelectionModal({ forceVisible = false }: TeamSelectionModalP
                     style={{ "--team-color": color } as React.CSSProperties}
                     title={team.name}
                   >
-                    <span
-                      className="text-lg font-bold leading-none"
-                      style={{ color: isSelected ? color : undefined }}
-                    >
-                      {getTeamInitials(team.name)}
-                    </span>
+                    {logo ? (
+                      <span className="relative h-7 w-7 shrink-0">
+                        <Image
+                          src={logo}
+                          alt=""
+                          fill
+                          sizes="28px"
+                          className="object-contain"
+                        />
+                      </span>
+                    ) : (
+                      <span
+                        className="text-base font-bold leading-none"
+                        style={{ color: isSelected ? color : undefined }}
+                      >
+                        {teamAbbr(team.slug, team.name)}
+                      </span>
+                    )}
                     <span className="text-xs mt-0.5 leading-tight line-clamp-2">
                       {team.name}
                     </span>
