@@ -30,12 +30,12 @@ export async function TeamPushPopups() {
               {formatScore(item.feedScore ?? item.importanceScore)}
             </span>
           </div>
-          <h3
+          <h2
             className="line-clamp-2 text-[15px] font-semibold leading-snug text-foreground text-balance"
             style={{ fontFamily: "system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif" }}
           >
             {item.title}
-          </h3>
+          </h2>
           <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
             {item.body}
           </p>

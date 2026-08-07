@@ -124,7 +124,7 @@ export function PodcastSignalsPanel({
     <section className="rounded-xl border border-border bg-card p-4">
       <div className="mb-3 flex items-center gap-2">
         <Podcast className="h-4 w-4 text-sky-400" />
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground text-balance">{title}</h3>
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground text-balance">{title}</h2>
       </div>
 
       {!hasAccess ? (

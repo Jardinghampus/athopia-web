@@ -18,9 +18,9 @@ export function ListGroup({ children, header, footer, className }: ListGroupProp
   return (
     <section className={cn("w-full", className)}>
       {header && (
-        <h3 className="mb-2 px-4 text-xs font-medium uppercase tracking-wider text-muted-foreground text-balance">
+        <h2 className="mb-2 px-4 text-xs font-medium uppercase tracking-wider text-muted-foreground text-balance">
           {header}
-        </h3>
+        </h2>
       )}
       <div className="divide-y divide-border overflow-hidden rounded-2xl bg-card">
         {children}

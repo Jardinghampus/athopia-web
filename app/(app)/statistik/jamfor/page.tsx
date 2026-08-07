@@ -122,7 +122,9 @@ export default async function JamforPage({ searchParams }: PageProps) {
       {/* Header */}
       <div>
         <h1
-          className="text-4xl font-bold text-foreground mb-1 text-balance"
+          // "STATISTIKJÄMFÖRELSE" är ett enda obrytbart ord: i text-4xl blir det
+          // 405px brett och sköt ut sidan i sidled på 390px-skärmar.
+          className="text-3xl sm:text-4xl font-bold text-foreground mb-1 text-balance"
           style={{ fontFamily: "var(--font-display)" }}
         >
           STATISTIKJÄMFÖRELSE

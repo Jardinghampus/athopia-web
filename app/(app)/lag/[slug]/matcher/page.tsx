@@ -29,6 +29,9 @@ export default async function LagMatcherPage({
 
   return (
     <div className="max-w-6xl mx-auto pb-6">
+      <h1 className="font-bold text-3xl text-foreground mb-6 text-balance">
+        MATCHER — {hub.team.name.toUpperCase()}
+      </h1>
       <ProductEventTracker
         event="team_hub_tab_selected"
         props={{ team_slug: slug, team_id: hub.team.id, tab: "matcher" }}
