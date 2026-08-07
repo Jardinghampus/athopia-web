@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { getTopScorersFromDb, SEASON_IDS } from "@/lib/statistik";
 import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
+import { PlayerAvatar } from "@/components/ui/PlayerAvatar";
 
 export const revalidate = 300;
 
@@ -59,7 +59,7 @@ export default async function AllsvenskanSkytteligaPage() {
                   <Link href={`/spelare/${s.slug ?? s.player_id}`} className="flex items-center gap-3 hover:text-pitch-ink transition-colors">
                     {s.image && (
                       <div className="relative w-8 h-8 rounded-full overflow-hidden bg-muted shrink-0">
-                        <Image src={s.image} alt={s.player_name ?? ""} fill className="object-cover" sizes="32px" />
+                        <PlayerAvatar src={s.image} alt={s.player_name ?? ""} sizes="32px" />
                       </div>
                     )}
                     <span className="font-medium">{s.player_name}</span>

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import {
   ChevronDown, Trophy, BarChart3, Users, MessageSquare,
   Newspaper, Activity, Star, ArrowRight,
@@ -127,6 +126,7 @@ function MatchQuickview({ fixture, smId, onClose }: { fixture: FixtureRow | null
 }
 
 import { TEAM_SPOTIFY_SHOW_IDS, spotifyShowEmbedUrl } from "@/lib/podcast/spotify";
+import { PlayerAvatar } from "@/components/ui/PlayerAvatar";
 
 function SpotifyPodcast({ slug }: { slug: string }) {
   const showId = TEAM_SPOTIFY_SHOW_IDS[slug];
@@ -259,7 +259,7 @@ function Trupp({ squad }: { squad: LeaderRow[] }) {
               <tr key={p.player_id} className="border-b border-border/40 last:border-0 hover:bg-muted/20">
                 <td className="py-2">
                   <Link href={`/spelare/${p.slug ?? p.player_id}`} className="flex items-center gap-2 text-foreground hover:text-pitch-ink">
-                    {p.image && <span className="relative w-6 h-6 rounded-full overflow-hidden bg-muted shrink-0"><Image src={p.image} alt="" fill className="object-cover" sizes="24px" /></span>}
+                    {p.image && <span className="relative w-6 h-6 rounded-full overflow-hidden bg-muted shrink-0"><PlayerAvatar src={p.image} alt="" sizes="24px" /></span>}
                     <span className="truncate">{p.fullname}</span>
                   </Link>
                 </td>
@@ -454,7 +454,7 @@ function LeaderList({ title, rows, statKey, suffix }: { title: string; rows: Lea
         {rows.slice(0, 3).map((r, i) => (
           <div key={r.player_id} className="flex items-center gap-2.5">
             <span className="text-xs text-muted-foreground w-3 font-mono tabular-nums">{i + 1}</span>
-            {r.image && <span className="relative w-6 h-6 rounded-full overflow-hidden bg-muted shrink-0"><Image src={r.image} alt="" fill className="object-cover" sizes="24px" /></span>}
+            {r.image && <span className="relative w-6 h-6 rounded-full overflow-hidden bg-muted shrink-0"><PlayerAvatar src={r.image} alt="" sizes="24px" /></span>}
             <Link href={`/spelare/${r.slug ?? r.player_id}`} className="flex-1 text-sm text-foreground hover:text-pitch-ink truncate">{r.fullname}</Link>
             <span className="text-sm font-bold text-foreground font-mono tabular-nums">{r[statKey]}</span>
             <span className="text-xs text-muted-foreground w-6">{suffix}</span>

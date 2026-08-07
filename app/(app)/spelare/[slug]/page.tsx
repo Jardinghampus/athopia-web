@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
@@ -10,6 +9,7 @@ import { ListRow } from "@/components/ui/ListRow";
 import { StatNumber } from "@/components/ui/StatNumber";
 import { PlayerProfileAnalytics } from "./PlayerProfileAnalytics";
 import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
+import { PlayerAvatar } from "@/components/ui/PlayerAvatar";
 
 export const revalidate = 60;
 
@@ -157,7 +157,7 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
       <div className="flex items-center gap-6">
         {!!player.image && (
           <div className="relative w-20 h-20 rounded-full overflow-hidden bg-card border border-border shrink-0">
-            <Image src={player.image} alt={player.fullname} fill className="object-cover" sizes="80px" />
+            <PlayerAvatar src={player.image} alt={player.fullname} sizes="80px" />
           </div>
         )}
         <div>
@@ -335,7 +335,7 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
                   className="flex items-center gap-3 px-5 py-3 hover:bg-muted/20 transition-colors">
                   {!!pl?.image && (
                     <div className="relative w-8 h-8 rounded-full overflow-hidden bg-muted shrink-0">
-                      <Image src={pl.image as string} alt="" fill className="object-cover" sizes="32px" />
+                      <PlayerAvatar src={pl.image as string} alt="" sizes="32px" />
                     </div>
                   )}
                   <div className="flex-1 min-w-0">

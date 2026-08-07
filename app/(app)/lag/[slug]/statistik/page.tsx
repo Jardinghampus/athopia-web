@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import { TeamPlayerStatsTable, type TeamPlayerStat } from "./TeamPlayerStatsTable";
 import { loadTeamSectionSafe } from "@/lib/team-hub/loadTeamSection";
 import { TeamSection } from "@/components/team-hub/TeamSection";
 import { ProductEventTracker } from "@/components/analytics/ProductEventTracker";
+import { PlayerAvatar } from "@/components/ui/PlayerAvatar";
 
 export const revalidate = 60;
 
@@ -403,7 +403,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
                 <span className="text-xs text-muted-foreground w-4 font-mono tabular-nums">{i + 1}</span>
                 {row.image ? (
                   <div className="relative w-7 h-7 rounded-full overflow-hidden bg-muted shrink-0">
-                    <Image src={row.image} alt="" fill className="object-cover" sizes="28px" />
+                    <PlayerAvatar src={row.image} alt="" sizes="28px" />
                   </div>
                 ) : (
                   <div className="w-7 h-7 rounded-full bg-muted shrink-0" />
@@ -442,7 +442,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
                       <span className="text-xs text-muted-foreground w-4 font-mono tabular-nums">{i + 1}</span>
                       {!!pl?.image && (
                         <div className="relative w-7 h-7 rounded-full overflow-hidden bg-muted shrink-0">
-                          <Image src={pl.image as string} alt="" fill className="object-cover" sizes="28px" />
+                          <PlayerAvatar src={pl.image as string} alt="" sizes="28px" />
                         </div>
                       )}
                       <Link href={`/spelare/${playerSlug}`} className="flex-1 text-sm text-foreground hover:text-pitch-ink truncate">
