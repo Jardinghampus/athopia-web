@@ -6,11 +6,12 @@
  * Upgrade flyttas till efter demonstrerat värde (/prenumerera).
  */
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowRight, Bell, Check, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bell, Check, Loader2, RotateCw } from "lucide-react";
 import { useFavoriteTeam } from "@/hooks/useFavoriteTeam";
+import { usePushPermission, useServiceWorker } from "@/hooks/usePwa";
 import { createClient } from "@/lib/supabase-browser";
 
 interface Team {
@@ -31,6 +32,8 @@ type Preview = {
 const TOTAL_STEPS = 3;
 const LOAD_TIMEOUT_MS = 8000;
 
+const STEP_TITLES = ["Välj ditt lag", "Din startsida", "Notiser"];
+
 const slideVariants = {
   enter: (dir: number) => ({ x: dir > 0 ? 40 : -40, opacity: 0 }),
   center: { x: 0, opacity: 1 },
@@ -39,15 +42,21 @@ const slideVariants = {
 
 function Progress({ step, total }: { step: number; total: number }) {
   return (
-    <div className="flex-1 flex gap-1.5" aria-hidden>
+    <div className="flex-1 flex gap-1.5">
       {Array.from({ length: total }, (_, i) => (
         <div
           key={i}
+          aria-hidden
           className={`h-1 flex-1 rounded-full transition-colors ${
             i <= step ? "bg-pitch" : "bg-border"
           }`}
         />
       ))}
+      {/* Staplarna är dekor för seende. Skärmläsare fick tidigare ingen
+          lägesangivelse alls eftersom hela raden var aria-hidden. */}
+      <p className="sr-only" aria-live="polite">
+        Steg {step + 1} av {total}: {STEP_TITLES[step]}
+      </p>
     </div>
   );
 }
@@ -63,27 +72,57 @@ function formatKickoff(iso: string): string {
   });
 }
 
+/** Form som W/O/F-prickar. Visas bara när riktig form finns. */
+function FormDots({ form }: { form: ("W" | "D" | "L")[] }) {
+  const label = { W: "Vinst", D: "Oavgjort", L: "Förlust" } as const;
+  return (
+    <div className="mt-2 flex items-center gap-1">
+      {form.slice(-5).map((r, i) => (
+        <span
+          key={i}
+          title={label[r]}
+          aria-label={label[r]}
+          className={`h-2 w-2 rounded-full ${
+            r === "W" ? "bg-success" : r === "L" ? "bg-destructive" : "bg-muted-foreground/40"
+          }`}
+        />
+      ))}
+    </div>
+  );
+}
+
 export function OnboardingClient() {
   const router = useRouter();
   const { setFavoriteTeam, markOnboardingDone } = useFavoriteTeam();
+  // Service workern måste vara registrerad innan pushManager.subscribe kan köra.
+  useServiceWorker();
+  const { status: pushStatus, isSubscribed, requestPermission } = usePushPermission();
 
   const [step, setStep] = useState(0);
   const [dir, setDir] = useState(1);
   const [teams, setTeams] = useState<Team[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const [loadFailed, setLoadFailed] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const [saving, setSaving] = useState(false);
   const [preview, setPreview] = useState<Preview | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
-  const [notifStatus, setNotifStatus] = useState<"idle" | "granted" | "denied" | "unsupported">("idle");
+  const [previewFailed, setPreviewFailed] = useState(false);
+  const [pushPending, setPushPending] = useState(false);
+  const [pushFailed, setPushFailed] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const firstRender = useRef(true);
 
   useEffect(() => {
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
       setLoadFailed(true);
       return;
     }
-    timeoutRef.current = setTimeout(() => setLoadFailed(true), LOAD_TIMEOUT_MS);
+    let cancelled = false;
+    timeoutRef.current = setTimeout(() => {
+      if (!cancelled) setLoadFailed(true);
+    }, LOAD_TIMEOUT_MS);
     const db = createClient();
     void db
       .from("entities")
@@ -91,6 +130,7 @@ export function OnboardingClient() {
       .eq("type", "team")
       .order("name")
       .then(({ data, error }) => {
+        if (cancelled) return;
         if (timeoutRef.current) {
           clearTimeout(timeoutRef.current);
           timeoutRef.current = null;
@@ -103,11 +143,25 @@ export function OnboardingClient() {
           (t) => (t.metadata?.["league"] as string | undefined) === "Allsvenskan",
         );
         setTeams(filtered.length > 0 ? filtered : (data as Team[]));
+        // Svaret kan komma efter timeouten. Utan den här raden visades
+        // "Kunde inte ladda lagen" ovanpå en fullt laddad laglista.
+        setLoadFailed(false);
       });
     return () => {
+      cancelled = true;
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, []);
+  }, [reloadKey]);
+
+  // Fokus följer med till det nya steget. Knappen man klickade avmonteras, så
+  // utan detta hamnade fokus på <body> och skärmläsaren tappade sammanhanget.
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    headingRef.current?.focus();
+  }, [step]);
 
   const teamObj = teams.find((t) => (t.slug ?? t.id) === selectedTeam);
 
@@ -116,42 +170,48 @@ export function OnboardingClient() {
     setStep(next);
   };
 
+  const loadPreview = useCallback(async (slug: string) => {
+    setPreviewFailed(false);
+    setPreviewLoading(true);
+    try {
+      const res = await fetch(`/api/team/${encodeURIComponent(slug)}/hub`);
+      if (!res.ok) throw new Error(String(res.status));
+      setPreview((await res.json()) as Preview);
+    } catch {
+      // Tyst fel gav tidigare texten "Preview laddas när laget är sparat" —
+      // vilseledande, för laget ÄR sparat. Nu ett ärligt fel med omförsök.
+      setPreviewFailed(true);
+    } finally {
+      setPreviewLoading(false);
+    }
+  }, []);
+
   async function chooseTeam(slug: string, team: Team) {
     setSelectedTeam(slug);
     setSaving(true);
+    goTo(1);
     try {
       await setFavoriteTeam(slug, team.id);
-      setPreviewLoading(true);
-      goTo(1);
-      const res = await fetch(`/api/team/${encodeURIComponent(slug)}/hub`);
-      if (res.ok) {
-        const data = (await res.json()) as Preview;
-        setPreview(data);
-      }
+    } catch {
+      // Lagvalet ligger redan i localStorage; server-synk kan komma ikapp.
     } finally {
       setSaving(false);
-      setPreviewLoading(false);
     }
+    await loadPreview(slug);
   }
 
   async function enableNotifications() {
-    if (typeof window === "undefined" || !("Notification" in window)) {
-      setNotifStatus("unsupported");
-      return;
-    }
+    setPushPending(true);
+    setPushFailed(false);
     try {
-      const perm = await Notification.requestPermission();
-      setNotifStatus(perm === "granted" ? "granted" : "denied");
-      if (perm === "granted") {
-        // Subscribe via existing PWA flow if available
-        try {
-          await fetch("/api/push/subscribe", { method: "POST" }).catch(() => {});
-        } catch {
-          /* optional */
-        }
-      }
-    } catch {
-      setNotifStatus("denied");
+      // Använder samma väg som resten av appen. Onboarding hade en egen
+      // variant som bara frågade om lov och sedan POSTade utan body — den
+      // registrerade aldrig någon prenumeration, så "Aktiverade" var en lögn
+      // och användaren fick aldrig en enda notis.
+      const ok = await requestPermission(teamObj ? [teamObj.id] : []);
+      if (!ok) setPushFailed(true);
+    } finally {
+      setPushPending(false);
     }
   }
 
@@ -159,26 +219,49 @@ export function OnboardingClient() {
     setSaving(true);
     try {
       if (!selectedTeam) markOnboardingDone();
-      router.push("/mitt-lag");
+      router.push(selectedTeam ? "/mitt-lag" : "/nyheter");
     } finally {
       setSaving(false);
     }
   }
 
+  const pushDenied = pushStatus === "denied";
+  const pushUnsupported = pushStatus === "unsupported";
+
+  const heading = (text: string) => (
+    <h1
+      ref={headingRef}
+      tabIndex={-1}
+      className="font-heading text-3xl text-foreground mt-2 mb-2 text-balance focus:outline-none"
+    >
+      {text}
+    </h1>
+  );
+
   return (
     <div id="main" tabIndex={-1} className="fixed inset-0 z-50 flex flex-col bg-background focus:outline-none">
-      <div className="flex items-center gap-4 px-5 pt-[max(env(safe-area-inset-top),1.5rem)] pb-4 shrink-0">
-        <Progress step={step} total={TOTAL_STEPS} />
+      <div className="flex items-center gap-3 px-5 pt-[max(env(safe-area-inset-top),1.5rem)] pb-4 shrink-0">
         {step > 0 && (
           <button
             type="button"
-            onClick={() => void finish()}
-            disabled={saving}
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors touch-manipulation min-h-[44px] flex items-center shrink-0 disabled:opacity-50"
+            onClick={() => goTo(step - 1)}
+            aria-label="Tillbaka till föregående steg"
+            className="min-h-[44px] flex items-center text-muted-foreground hover:text-foreground transition-colors touch-manipulation shrink-0"
           >
-            Hoppa över
+            <ArrowLeft className="h-4 w-4" aria-hidden />
           </button>
         )}
+        <Progress step={step} total={TOTAL_STEPS} />
+        {/* Även första steget har en väg ut. Tidigare gick det bara att komma
+            vidare genom att välja ett lag. */}
+        <button
+          type="button"
+          onClick={() => void finish()}
+          disabled={saving}
+          className="text-xs text-muted-foreground hover:text-foreground transition-colors touch-manipulation min-h-[44px] flex items-center shrink-0 disabled:opacity-50"
+        >
+          Hoppa över
+        </button>
       </div>
 
       <div className="flex-1 overflow-hidden relative">
@@ -194,15 +277,29 @@ export function OnboardingClient() {
               transition={{ duration: 0.28 }}
               className="absolute inset-0 flex flex-col px-5 pb-8 overflow-y-auto"
             >
-              <h1 className="font-heading text-3xl text-foreground mt-2 mb-2 text-balance">Välj ditt lag</h1>
+              {heading("Välj ditt lag")}
               <p className="text-sm text-muted-foreground mb-6">
                 Du får brief, matchdag och forum för just dem.
               </p>
               {loadFailed ? (
-                <p className="text-sm text-destructive">Kunde inte ladda lagen. Försök igen.</p>
+                <div>
+                  <p className="text-sm text-destructive-ink">Kunde inte ladda lagen.</p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLoadFailed(false);
+                      setReloadKey((k) => k + 1);
+                    }}
+                    className="mt-3 inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-border bg-card px-4 text-sm font-medium text-foreground hover:border-pitch/40 transition-colors touch-manipulation"
+                  >
+                    <RotateCw className="h-4 w-4" aria-hidden /> Försök igen
+                  </button>
+                </div>
               ) : teams.length === 0 ? (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Loader2 className="h-4 w-4 animate-spin" /> Laddar Allsvenskan…
+                <div className="grid grid-cols-2 gap-2" aria-label="Laddar lag" aria-busy>
+                  {Array.from({ length: 16 }, (_, i) => (
+                    <div key={i} className="h-[52px] rounded-xl bg-muted skeleton-wave" />
+                  ))}
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-2">
@@ -215,7 +312,7 @@ export function OnboardingClient() {
                         type="button"
                         disabled={saving}
                         onClick={() => void chooseTeam(slug, t)}
-                        className={`min-h-[52px] rounded-xl border px-3 py-3 text-left text-sm font-medium touch-manipulation transition-colors ${
+                        className={`min-h-[52px] rounded-xl border px-3 py-3 text-left text-sm font-medium touch-manipulation transition-colors disabled:opacity-60 ${
                           active
                             ? "border-pitch bg-pitch/10 text-foreground"
                             : "border-border bg-card text-foreground hover:border-pitch/40"
@@ -241,16 +338,16 @@ export function OnboardingClient() {
               transition={{ duration: 0.28 }}
               className="absolute inset-0 flex flex-col px-5 pb-8 overflow-y-auto"
             >
-              <h1 className="font-heading text-3xl text-foreground mt-2 mb-2 text-balance">
-                Så här ser {preview?.team.name ?? teamObj?.name ?? "ditt lag"} ut
-              </h1>
+              {heading(`Så här ser ${preview?.team.name ?? teamObj?.name ?? "ditt lag"} ut`)}
               <p className="text-sm text-muted-foreground mb-6">
                 Riktig data — ingen demo. Det här är din startsida.
               </p>
 
               {previewLoading && !preview ? (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Loader2 className="h-4 w-4 animate-spin" /> Hämtar laget…
+                <div className="space-y-4" aria-label="Hämtar laget" aria-busy>
+                  <div className="h-[76px] rounded-2xl bg-muted skeleton-wave" />
+                  <div className="h-[92px] rounded-2xl bg-muted skeleton-wave" />
+                  <div className="h-[112px] rounded-2xl bg-muted skeleton-wave" />
                 </div>
               ) : null}
 
@@ -263,6 +360,7 @@ export function OnboardingClient() {
                         {preview.position}
                         <span className="text-sm font-normal text-muted-foreground"> / 16</span>
                       </p>
+                      {preview.form?.length > 0 ? <FormDots form={preview.form} /> : null}
                     </div>
                   ) : null}
                   {preview.nextMatch ? (
@@ -291,10 +389,19 @@ export function OnboardingClient() {
                     )}
                   </div>
                 </div>
-              ) : !previewLoading ? (
-                <p className="text-sm text-muted-foreground">
-                  Preview laddas när laget är sparat. Fortsätt till notiser.
-                </p>
+              ) : previewFailed ? (
+                <div className="rounded-2xl border border-border bg-card px-4 py-4">
+                  <p className="text-sm text-foreground">
+                    Ditt lag är sparat, men förhandsvisningen kunde inte hämtas.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => selectedTeam && void loadPreview(selectedTeam)}
+                    className="mt-3 inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-border px-4 text-sm font-medium text-foreground hover:border-pitch/40 transition-colors touch-manipulation"
+                  >
+                    <RotateCw className="h-4 w-4" aria-hidden /> Försök igen
+                  </button>
+                </div>
               ) : null}
 
               <button
@@ -302,7 +409,7 @@ export function OnboardingClient() {
                 onClick={() => goTo(2)}
                 className="mt-auto w-full min-h-[54px] rounded-2xl pitch-gradient text-white font-semibold flex items-center justify-center gap-2 touch-manipulation"
               >
-                Fortsätt <ArrowRight className="w-4 h-4" />
+                Fortsätt <ArrowRight className="w-4 h-4" aria-hidden />
               </button>
             </motion.div>
           )}
@@ -316,36 +423,56 @@ export function OnboardingClient() {
               animate="center"
               exit="exit"
               transition={{ duration: 0.28 }}
-              className="absolute inset-0 flex flex-col px-5 pb-8"
+              className="absolute inset-0 flex flex-col px-5 pb-8 overflow-y-auto"
             >
-              <h1 className="font-heading text-3xl text-foreground mt-2 mb-2 text-balance">Notiser</h1>
+              {heading("Notiser")}
               <p className="text-sm text-muted-foreground mb-8">
                 Valfritt. Få push när ditt lag har breaking news eller matchdag.
               </p>
 
               <div className="rounded-2xl border border-border bg-card px-5 py-5 flex items-start gap-3">
-                <Bell className="h-5 w-5 text-pitch-ink shrink-0 mt-0.5" />
+                <Bell className="h-5 w-5 text-pitch-ink shrink-0 mt-0.5" aria-hidden />
                 <div>
                   <p className="text-sm font-semibold">Push-notiser</p>
                   <p className="text-xs text-muted-foreground mt-1">
                     Du kan alltid stänga av dem senare under Konto.
                   </p>
-                  {notifStatus === "granted" ? (
+                  {isSubscribed ? (
                     <p className="mt-3 text-xs text-success inline-flex items-center gap-1">
-                      <Check className="h-3.5 w-3.5" /> Aktiverade
+                      <Check className="h-3.5 w-3.5" aria-hidden /> Aktiverade
+                    </p>
+                  ) : null}
+                  {/* Alla utfall får besked. Tidigare stod knappen kvar utan ett
+                      ord när webbläsaren nekade, och det såg ut som en bugg. */}
+                  {!isSubscribed && pushUnsupported ? (
+                    <p className="mt-3 text-xs text-muted-foreground">
+                      Din webbläsare stöder inte push. Du hittar allt i appen ändå.
+                    </p>
+                  ) : null}
+                  {!isSubscribed && pushDenied ? (
+                    <p className="mt-3 text-xs text-muted-foreground">
+                      Notiser är blockerade för athopia.se. Slå på dem i webbläsarens
+                      inställningar om du ändrar dig.
+                    </p>
+                  ) : null}
+                  {!isSubscribed && pushFailed && !pushDenied && !pushUnsupported ? (
+                    <p className="mt-3 text-xs text-muted-foreground">
+                      Notiserna kunde inte aktiveras just nu. Du kan slå på dem under Konto.
                     </p>
                   ) : null}
                 </div>
               </div>
 
               <div className="mt-auto space-y-2">
-                {notifStatus !== "granted" ? (
+                {!isSubscribed && !pushDenied && !pushUnsupported ? (
                   <button
                     type="button"
+                    disabled={pushPending}
                     onClick={() => void enableNotifications()}
-                    className="w-full min-h-[54px] rounded-2xl border border-pitch/40 text-pitch-ink font-semibold touch-manipulation"
+                    className="w-full min-h-[54px] rounded-2xl border border-pitch/40 text-pitch-ink font-semibold flex items-center justify-center gap-2 touch-manipulation disabled:opacity-60"
                   >
-                    Tillåt notiser
+                    {pushPending ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : null}
+                    {pushFailed ? "Försök igen" : "Tillåt notiser"}
                   </button>
                 ) : null}
                 <button
@@ -354,8 +481,8 @@ export function OnboardingClient() {
                   onClick={() => void finish()}
                   className="w-full min-h-[54px] rounded-2xl pitch-gradient text-white font-semibold flex items-center justify-center gap-2 touch-manipulation disabled:opacity-60"
                 >
-                  {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                  Öppna Mitt lag
+                  {saving ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : null}
+                  {selectedTeam ? "Öppna Mitt lag" : "Öppna flödet"}
                 </button>
                 <p className="text-center text-xs text-muted-foreground pt-1">
                   PRO kommer efteråt — när du sett värdet.{" "}

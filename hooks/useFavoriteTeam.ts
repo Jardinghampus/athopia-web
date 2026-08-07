@@ -127,6 +127,15 @@ function useClerkFavoriteTeam(): FavoriteTeamState {
         setIsLoaded(true);
         return;
       }
+      // Onboarding avklarad UTAN lagval. markOnboardingDone() persisterar just
+      // det här fältet till Clerk för att gälla på alla enheter — men läsvägen
+      // tittade bara i localStorage, som är enhetsbunden. Följden: den som
+      // hoppade över lagvalet fick lagvalsmodalen igen i varje ny webbläsare.
+      if (meta?.["onboardingDone"] === true) {
+        setNeedsOnboarding(false);
+        setIsLoaded(true);
+        return;
+      }
     }
 
     // Fallback: localStorage
