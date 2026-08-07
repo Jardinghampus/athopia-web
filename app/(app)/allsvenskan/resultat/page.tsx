@@ -69,7 +69,12 @@ export default async function AllsvenskanResultatPage() {
       <p className="text-muted-foreground mb-8">Alla matchresultat — senaste matchen visas först.</p>
 
       {finished.length === 0 ? (
-        <p className="text-muted-foreground">Inga spelade matcher ännu.</p>
+        <div className="rounded-2xl border border-border bg-card px-4 py-10 text-center text-muted-foreground">
+          <p>Säsongen har inte sparkat igång än — inga matcher är spelade.</p>
+          <Link href="/allsvenskan/spelschema" className="mt-2 inline-block text-sm text-pitch-ink hover:underline">
+            Se spelschemat →
+          </Link>
+        </div>
       ) : (
         <div className="space-y-2">
           {finished.map(f => {

@@ -114,11 +114,12 @@ export function H2HSearch({ fixtures }: Props) {
         </p>
       ) : fixtures.length === 0 ? (
         <p className="text-center py-16 text-sm text-muted-foreground">
-          Data ej tillgänglig — matchdata synkroniseras via athopia-os.
+          Inbördes möten mellan lagen visas här. Matchdatan är inte synkad
+          ännu — prova igen om en stund.
         </p>
       ) : filtered.length === 0 ? (
         <p className="text-center py-16 text-sm text-muted-foreground">
-          Inga möten hittades för vald säsong.
+          Lagen möttes inte under vald säsong — välj en annan säsong ovan.
         </p>
       ) : (
         <>

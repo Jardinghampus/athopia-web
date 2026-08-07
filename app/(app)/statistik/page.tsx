@@ -83,7 +83,7 @@ const VALID_SEASONS = Object.keys(SEASON_IDS);
 
 // ── Delade komponenter ────────────────────────────────────────────────────────
 
-function EmptyState({ message = "Data ej tillgänglig." }: { message?: string }) {
+function EmptyState({ message = "Ingen data för vald säsong ännu." }: { message?: string }) {
   return (
     <div className="text-center py-20 text-muted-foreground">
       <p className="text-sm">{message}</p>
@@ -181,7 +181,7 @@ function PlayerLeaderboard({
   primaryDecimals?: number;
   secondary?: Array<{ key: keyof ScorerRow; label: string; decimals?: number }>;
 }) {
-  if (rows.length === 0) return <EmptyState />;
+  if (rows.length === 0) return <EmptyState message="Listan rankar spelarna i Allsvenskan — den fylls på när säsongens matcher är spelade." />;
   const cols = secondary ?? [
     { key: "appearances", label: "M" },
     { key: "minutes", label: "Min" },
@@ -228,7 +228,7 @@ function PlayerLeaderboard({
 
 async function TabelTab({ seasonId }: { seasonId: string }) {
   const rows = await getStandings(seasonId);
-  if (rows.length === 0) return <EmptyState />;
+  if (rows.length === 0) return <EmptyState message="Tabellen visar ställningen i Allsvenskan — den skrivs så snart första omgången är spelad." />;
   return (
     <div className="overflow-x-auto -mx-4 sm:mx-0">
       <table className="w-full text-sm">
@@ -345,7 +345,7 @@ async function XGTab({ seasonId }: { seasonId: string }) {
 
 async function FormTab({ seasonId }: { seasonId: string }) {
   const rows = await getStandings(seasonId);
-  if (rows.length === 0) return <EmptyState />;
+  if (rows.length === 0) return <EmptyState message="Formtabellen visar de fem senaste matcherna per lag — den kräver spelade omgångar." />;
   const withForm = rows.filter((r) => r.form.length > 0);
   if (withForm.length === 0)
     return <EmptyState message="Formdata ej tillgänglig för säsongen." />;

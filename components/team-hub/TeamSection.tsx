@@ -231,7 +231,13 @@ function Statistik({ hub, plan }: { hub: TeamHubPayload; plan: Plan }) {
 
 // ─── Tab: Trupp ─────────────────────────────────────────────────────────────
 function Trupp({ squad }: { squad: LeaderRow[] }) {
-  if (squad.length === 0) return <p className="text-sm text-muted-foreground py-8 text-center">Ingen truppdata ännu.</p>;
+  if (squad.length === 0)
+    return (
+      <p className="text-sm text-muted-foreground py-8 text-center text-balance">
+        Här listas spelartruppen med matcher, mål och betyg. Den fylls på när
+        säsongens första matcher är synkade.
+      </p>
+    );
   return (
     <SectionCard title="Trupp" icon={Users}>
       <div className="overflow-x-auto">
@@ -494,7 +500,11 @@ function FixtureListRow({ fixture: f, smId, onSelect, density }: { fixture: Fixt
 /** Kompakt blandat flöde (Översikt) — samma quickview. */
 function FixtureFeed({ recent, upcoming, smId, onFixture }: { recent: FixtureRow[]; upcoming: FixtureRow[]; smId: number | null; onFixture: (f: FixtureRow) => void }) {
   if (recent.length === 0 && upcoming.length === 0) {
-    return <p className="text-sm text-muted-foreground">Inga matcher ännu.</p>;
+    return (
+      <p className="text-sm text-muted-foreground text-balance">
+        Spelade och kommande matcher dyker upp här så snart omgången är satt.
+      </p>
+    );
   }
   return (
     <div className="-mx-2 space-y-0.5">

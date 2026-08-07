@@ -83,7 +83,10 @@ export default async function LagPodcastsPage({
       {podcasts.length === 0 ? (
         <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
           <Mic className="w-10 h-10 opacity-30" />
-          <p className="text-sm">Inga podcast-avsnitt hittades för {teamName}.</p>
+          <p className="max-w-sm text-center text-sm text-balance">
+            Poddavsnitt som handlar om {teamName} samlas här. Inget har
+            hittats ännu — hela poddflödet finns under Podcast.
+          </p>
         </div>
       ) : (
         <div className="flex flex-col gap-3">

@@ -504,7 +504,8 @@ export default async function MatchPage({ params }: PageProps) {
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3 text-balance">Händelser</h3>
             {timelineEvents.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                Inga matchhändelser synkade ännu.
+                Inga matchhändelser synkade ännu — mål, kort och byten dyker upp här
+                allt eftersom matchen synkas.
               </p>
             ) : (
               <div className="space-y-2">

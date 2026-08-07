@@ -44,9 +44,12 @@ export default async function AnalysListPage() {
       </p>
 
       {analyses.length === 0 ? (
-        <p className="text-sm text-muted-foreground py-10 text-center">
-          Inga matchanalyser publicerade ännu.
-        </p>
+        <div className="rounded-xl border border-border bg-card py-10 text-center text-sm text-muted-foreground">
+          <p>Inga matchanalyser publicerade ännu — Athopia AI skriver en efter varje match.</p>
+          <Link href="/match" className="mt-2 inline-block text-pitch-ink hover:underline">
+            Se kommande matcher →
+          </Link>
+        </div>
       ) : (
         <div className="flex flex-col divide-y divide-border rounded-xl border border-border bg-card">
           {analyses.map((a) => (

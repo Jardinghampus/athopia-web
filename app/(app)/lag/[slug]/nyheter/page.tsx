@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { ArticleCard } from "@/components/ui/ArticleCard";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import type { Article } from "@/lib/types";
@@ -92,7 +93,10 @@ export default async function LagNyheterPage({
       {articles.length === 0 ? (
         <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
           <Newspaper className="w-10 h-10 opacity-30" />
-          <p className="text-sm">Inga nyheter hittades för {teamName}.</p>
+          <p className="max-w-sm text-center text-sm text-balance">
+            Här samlas allt skrivet om {teamName}. Inget har publicerats det
+            senaste dygnet — <Link href="/nyheter" className="underline">se hela nyhetsflödet</Link> under tiden.
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

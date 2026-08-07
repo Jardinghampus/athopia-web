@@ -394,7 +394,10 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
       )}
 
       {!stats && matches.length === 0 && (
-        <p className="text-sm text-muted-foreground">Ingen statistik insamlad ännu för {player.fullname}.</p>
+        <p className="text-sm text-muted-foreground text-balance">
+          Matcher, mål och betyg för {player.fullname} visas här så snart
+          spelaren varit med i en synkad match.
+        </p>
       )}
     </div>
   );
