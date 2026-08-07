@@ -221,16 +221,72 @@ scroll — den delen är ren.
 
 ---
 
+---
+
+## Åtgärdat samma dag (commit ad587de)
+
+### Nyhetsflödet — svar på frågan "har vi byggt en riktig nyhetssida?"
+
+Ja, men den var trasig på ett sätt som doldes av att den såg rätt ut.
+
+**Lagfiltret matchade lagnamn i rubriken**, inte entitetstaggningen:
+`title.ilike '%Djurgårdens IF%'`. Det gav **2 träffar av 35** — allt som skrev
+"Djurgården", "DIF" eller bara nämnde klubben i brödtexten föll bort. Därav den
+förvirrande räknaren "2 signaler" bredvid ett flöde som såg fullt ut. Filtrerar
+nu på `entity_ids`. Verifierat mot databasen: 2 → 35.
+
+**Nyhetstyp saknade UI helt** trots att datat funnits hela tiden: transfer 490,
+match 432, analys 414, nyheter 214, skador 80. Nu ett eget filter, placerat
+överst — fem val som används oftare än de 16 klubbarna under.
+
+**Källistan var beroende av pagineringen** — den härleddes ur den aktuella
+sidans artiklar, så sida 3 visade andra källor än sida 1. Läses nu ur hela
+flödesvyn (32 källor).
+
+Alla tre dimensionerna kombinerar korrekt, kontrollräknat mot databasen:
+hela ligan 408, Djurgården 35, skador 20, AIK + transfer 43, två klubbar 118
+(= unionen), två typer 158 (= 138 + 20).
+
+Räknaren säger nu "408 artiklar" i stället för "2 signaler".
+
+### Navigationsmodellen
+
+Docken är mobilnavigation och döljs från `md`, där AppSidebar tar över med
+exakt samma fem destinationer. På desktop var den ren dubblering som dessutom
+skymde innehåll — bland annat PRO-kortets funktionslista på `/prenumerera`.
+
+### Träffytor
+
+Headerns "Logga in" (53×20) och "PRO" (60×32) fanns på *varje* sida;
+fixture-tickerns kort var 30px och flödets pillerknappar 28px. Alla 44px nu.
+`/nyheter` gick från 24 till 2 för små träffytor, `/allsvenskan` från 36 till 18.
+Kvar är brödsmulor och "Läs mer"-länkar, som är inline-text.
+
+### Övrigt
+
+- "Viktig lagnotis" låg i `md:grid-cols-2` och renderade halvbrett med ett
+  tomrum bredvid sig när det bara fanns en notis. `auto-fit` i stället.
+- "SNACKIS JUST NU" påstod att något diskuterades och lyfte ett inlägg som löd
+  "Hej!". Kräver nu både substans och att någon svarat; annars renderas den
+  inte. **Notera:** hela forumet innehåller testinlägg från juni ("Hej!",
+  "Futexhcu", "Ggdsgviifg") som ligger publika på `/forum/aik`. Att rensa
+  användarinnehåll är ett founder-beslut, inte mitt.
+
+**Verifierat:** 147 e2e-tester gröna, **463 interna länkar utan en enda trasig**.
+
+---
+
 ## Ordning jag skulle ta det i
 
-1. LIVE-vakten (P0-1) — en visningsregel, liten diff, stoppar det mest skadande.
-2. Dölj tom matchstatistik (P0-2) — respekterar redan skriven regel.
-3. Planvisningen på `/prenumerera` och `/daily` (P1-3, P1-4) — intäktsytor.
-4. Slug-namnet i forumet + tomma modulskal (P1-6).
-5. Enhetliga formbokstäver V/O/F överallt, en tabell som kanon (P1-5).
-6. Klubbmärken och riktiga förkortningar i lagvalet (P1-8).
-7. Händelselistans hemma/borta-struktur och målikonen (P1-7).
-8. Sedan densitet och desktop-layout (P2-9, P2-10, P2-11).
+1. ~~LIVE-vakten~~ och ~~tom matchstatistik~~ — **avvaktar Sportmonks-aktiveringen**
+   (founder-beslut 2026-08-07). Båda är datadrivna och löser sig när kontot är
+   igång. Överväg ändå visningsvakten som skydd mot framtida syncavbrott.
+2. Planvisningen på `/prenumerera` och `/daily` (P1-3, P1-4) — intäktsytor.
+3. Slug-namnet i forumet + tomma modulskal (P1-6).
+4. Enhetliga formbokstäver V/O/F överallt, en tabell som kanon (P1-5).
+5. Klubbmärken och riktiga förkortningar i lagvalet (P1-8).
+6. Händelselistans hemma/borta-struktur och målikonen (P1-7).
+7. Densitet och desktop-layout på /mitt-lag och /lag (P2-10, P2-11).
 
 Laguppställning och xG på matchsidan är inte polish utan produktarbete — men
 det är det som avgör om produkten håller vad PRODUCT.md lovar.
