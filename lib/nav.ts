@@ -2,7 +2,6 @@ import {
   Shield,
   Newspaper,
   MessageSquare,
-  MoreHorizontal,
   Trophy,
   CalendarDays,
   BarChart3,
@@ -53,7 +52,14 @@ export const SIDEBAR_NAV_ITEMS: NavItem[] = [
   { href: "/analys", label: "Analys", icon: FileSearch, iosSymbol: "doc.text.magnifyingglass" },
 ];
 
-/** Overflow: Mer-sida + hamburger. Inga dubbletter mot bottenraden. */
+/**
+ * Overflow: Mer-sida + hamburger. Inga dubbletter mot bottenraden — och
+ * ingen `/mer`-post, eftersom Mer-sidan då hade listat sig själv.
+ *
+ * Djupa rutter (`/lag/[slug]/...`) markerar med flit INGEN flik: en laghubb
+ * nås från flera flikar, och att gissa fel förälder är sämre än att låta
+ * GlassNav-tummen tona ut (den gör det redan vid activeIndex === -1).
+ */
 export const SECONDARY_NAV_ITEMS: NavItem[] = [
   { href: "/forum", label: "Forum", icon: MessageSquare, iosSymbol: "bubble.left.and.bubble.right.fill" },
   { href: "/statistik", label: "Statistik", icon: BarChart3, iosSymbol: "chart.bar.fill" },
@@ -63,7 +69,6 @@ export const SECONDARY_NAV_ITEMS: NavItem[] = [
   { href: "/konto", label: "Konto", icon: User, iosSymbol: "person.crop.circle" },
   { href: "/prenumerera", label: "Prenumeration", icon: CreditCard, iosSymbol: "creditcard.fill" },
   { href: "/om-oss", label: "Om Athopia", icon: Info, iosSymbol: "info.circle" },
-  { href: "/mer", label: "Mer", icon: MoreHorizontal, iosSymbol: "ellipsis" },
 ];
 
 /** @deprecated Använd BOTTOM_NAV_ITEMS — behålls för tillfälliga imports. */

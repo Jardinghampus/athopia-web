@@ -351,12 +351,13 @@ export default async function NyheterPage({
                 />
               ) : null}
               <div className={hero ? "mt-0" : ""}>
-                {list.map((a) => (
+                {list.map((a, i) => (
                   <AthleticFeedRow
                     key={a.id}
                     article={a}
                     commentCount={commentCounts[a.id]}
                     becauseTeam={becauseTeam}
+                    headingLevel={!hero && i === 0 ? "h2" : "h3"}
                   />
                 ))}
               </div>

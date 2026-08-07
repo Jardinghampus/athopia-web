@@ -76,9 +76,9 @@ export default async function LagPodcastsPage({
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-      <h2 className="font-bold text-3xl text-foreground mb-6 text-balance">
+      <h1 className="font-bold text-3xl text-foreground mb-6 text-balance">
         PODCASTS — {teamName.toUpperCase()}
-      </h2>
+      </h1>
 
       {podcasts.length === 0 ? (
         <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">

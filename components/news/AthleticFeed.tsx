@@ -91,20 +91,24 @@ export function AthleticFeedRow({
   article,
   commentCount,
   becauseTeam,
+  headingLevel = "h3",
 }: {
   article: Article;
   commentCount?: number;
   becauseTeam?: string | null;
+  /** h2 om raden är den första rubriken i listan (ingen hero ovanför) — undviker h1→h3-hopp. */
+  headingLevel?: "h2" | "h3";
 }) {
   const { href, external } = articleHref(article);
   const thumb = article.imageUrl;
+  const Heading = headingLevel;
 
   const body = (
     <div className="flex items-start gap-3 py-4">
       <div className="min-w-0 flex-1">
-        <h3 className="font-heading text-[17px] leading-snug text-foreground group-hover:text-pitch-ink transition-colors line-clamp-3 text-balance">
+        <Heading className="font-heading text-[17px] leading-snug text-foreground group-hover:text-pitch-ink transition-colors line-clamp-3 text-balance">
           {article.title}
-        </h3>
+        </Heading>
         <div className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1">
           <ArticleMeta article={article} becauseTeam={becauseTeam} />
           {typeof commentCount === "number" && commentCount > 0 && (

@@ -86,9 +86,9 @@ export default async function LagNyheterPage({
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-      <h2 className="font-bold text-3xl text-foreground mb-6 text-balance">
+      <h1 className="font-bold text-3xl text-foreground mb-6 text-balance">
         NYHETER — {teamName.toUpperCase()}
-      </h2>
+      </h1>
 
       {articles.length === 0 ? (
         <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">

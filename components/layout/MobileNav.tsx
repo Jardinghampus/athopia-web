@@ -98,7 +98,7 @@ export function MobileNav() {
               <p className="px-3 pb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Mer
               </p>
-              {SECONDARY_NAV_ITEMS.filter((i) => i.href !== "/mer").map(({ href, label, icon: Icon }) => {
+              {SECONDARY_NAV_ITEMS.map(({ href, label, icon: Icon }) => {
                 const active = pathname === href || pathname.startsWith(href + "/");
                 return (
                   <Link
