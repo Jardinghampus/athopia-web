@@ -30,7 +30,15 @@ const UTM_CAMPAIGN_RE = /^[a-z0-9_-]{3,64}$/;
 
 export default clerkMiddleware(async (auth, req) => {
   if (isProtectedRoute(req)) {
-    await auth.protect();
+    // Explicit mål i stället för Clerks fallback. Utan `unauthenticatedUrl`
+    // härleder Clerk sign-in-adressen ur miljövariabler, och i produktion —
+    // där NEXT_PUBLIC_CLERK_SIGN_IN_URL saknades — gav den 404 i stället för
+    // att skicka besökaren till inloggningen. En utloggad som klickade "Konto"
+    // från /mer möttes alltså av en 404-sida. Lokalt syntes det aldrig,
+    // eftersom .env.local har variabeln satt.
+    await auth.protect({
+      unauthenticatedUrl: new URL("/sign-in", req.url).toString(),
+    });
   }
 
   // LCP-fix: landningssidan (/) körde tidigare currentUser() i render-trädet
