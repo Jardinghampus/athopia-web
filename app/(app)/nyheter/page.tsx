@@ -9,6 +9,7 @@ import { TeamPushPopups } from "@/components/news/TeamPushPopups";
 import { AthleticFeedHero, AthleticFeedRow } from "@/components/news/AthleticFeed";
 import { FeedSortBar, type FeedSort } from "@/components/news/FeedSortBar";
 import { FeedModulesRail } from "@/components/feed/FeedModulesRail";
+import { FeedFilterPanel, FeedFilterButton } from "@/components/feed/FeedFilterPanel";
 import {
   getFilteredArticles,
   getDiscussionCounts,
@@ -21,6 +22,7 @@ import { ActiveFilterChips, type FilterChip } from "@/components/feed/ActiveFilt
 import { getUserFeedPreferences } from "@/lib/feed/getUserFeedPreferences";
 import { absoluteUrl } from "@/lib/site-url";
 import { buildFeedModules } from "@/lib/feed/build-feed-modules";
+import { getAllsvenskanTeams } from "@/lib/feed/get-allsvenskan-teams";
 import {
   extractHeadlineStackIds,
   extractHeadlineStackTitles,
@@ -141,6 +143,13 @@ export default async function NyheterPage({
 
   const commentCounts = await getDiscussionCounts(articles.map((a) => a.id));
 
+  const filterTeams = await getAllsvenskanTeams();
+  // Ingen billig global distinct-källa finns server-side (news_feed saknar
+  // en indexerad distinct-väg) — härledd från sidans egna artiklar per spec.
+  const filterSources = [...new Set(articles.map((a) => a.sourceName).filter(Boolean))].sort(
+    (a, b) => a.localeCompare(b, "sv"),
+  );
+
   const showModules = page === 1 && !urlHasTeamFilter && !urlHasEventFilter;
   let modules: FeedModule[] = [];
   if (showModules && isSupabaseConfigured()) {
@@ -250,89 +259,121 @@ export default async function NyheterPage({
   const hero = heroIndex >= 0 ? feedArticles[heroIndex] : null;
   const list = hero ? feedArticles.filter((_, i) => i !== heroIndex) : feedArticles;
 
+  const viewTitle =
+    scope === "allsvenskan"
+      ? sort === "important"
+        ? "Allsvenskan — viktigt"
+        : "Allsvenskan — senaste"
+      : "För dig";
+
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 sm:px-6 py-6 pb-24 md:pb-10">
+    <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 py-6 pb-24 md:pb-10 lg:grid lg:grid-cols-[260px_minmax(0,1fr)_320px] lg:gap-8">
       <ProductEventTracker event="nyheter_open" />
-      <div className="-mx-4 sm:-mx-6 -mt-6 mb-4">
+      <div className="-mx-4 sm:-mx-6 -mt-6 mb-4 lg:col-span-3">
         <Suspense fallback={null}>
           <FixturesTicker />
         </Suspense>
       </div>
-      <NyheterRealtimeBanner />
-      <FeedMatchHero />
 
-      <header className="mb-5">
-        <h1
-          className="text-3xl font-bold text-foreground"
-          style={{ fontFamily: "var(--font-display)" }}
-        >
-          {scope === "allsvenskan" ? "ALLSVENSKAN" : "FLÖDE"}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {total > 0 ? `${total} signaler` : "Inga artiklar"}
-        </p>
-      </header>
+      <FeedFilterPanel teams={filterTeams} sources={filterSources} />
 
-      <ProductEventTracker
-        event="news_scope_changed"
-        props={{
-          active_scope: scope,
-          sort,
-          is_personalized: usingPersonalDefaults,
-          team_filters: teams.length,
-        }}
-      />
+      <div className="min-w-0">
+        <div className="mx-auto max-w-2xl">
+          {scope === "personal" ? (
+            <>
+              <NyheterRealtimeBanner />
+              <FeedMatchHero />
+            </>
+          ) : null}
 
-      <ActiveFilterChips chips={activeChips} />
+          <header className="mb-5 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+            <h1
+              className="text-3xl font-bold text-foreground"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              {viewTitle}
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {total > 0 ? `${total} signaler` : "Inga artiklar"}
+            </p>
+          </header>
 
-      <Suspense fallback={null}>
-        <TeamPushPopups />
-      </Suspense>
+          <ProductEventTracker
+            event="news_scope_changed"
+            props={{
+              active_scope: scope,
+              sort,
+              is_personalized: usingPersonalDefaults,
+              team_filters: teams.length,
+            }}
+          />
 
-      <Suspense fallback={null}>
-        <FeedSortBar sort={sort} visa={visa} />
-      </Suspense>
+          <ActiveFilterChips chips={activeChips} />
+
+          <Suspense fallback={null}>
+            <TeamPushPopups />
+          </Suspense>
+
+          <div className="mb-3 flex items-center gap-2 lg:hidden">
+            <FeedFilterButton teams={filterTeams} sources={filterSources} />
+          </div>
+
+          <Suspense fallback={null}>
+            <FeedSortBar sort={sort} scope={scope} visa={visa} />
+          </Suspense>
+
+          {showModules ? (
+            <div className="lg:hidden">
+              <Suspense fallback={null}>
+                <FeedModulesRail modules={modules} />
+              </Suspense>
+            </div>
+          ) : null}
+
+          {feedArticles.length === 0 && articles.length === 0 ? (
+            <div className="py-16 text-center text-sm text-muted-foreground">
+              <p>Inga artiklar matchade filtret.</p>
+              <Link href="/nyheter" className="mt-2 inline-block text-pitch-ink hover:underline">
+                Visa allt
+              </Link>
+            </div>
+          ) : feedArticles.length === 0 && !hero ? (
+            <div className="py-8 text-center text-sm text-muted-foreground">
+              <p>Toppnyheter visas ovan — mer i listan snart.</p>
+            </div>
+          ) : (
+            <div>
+              {hero ? (
+                <AthleticFeedHero
+                  article={hero}
+                  commentCount={commentCounts[hero.id]}
+                  becauseTeam={becauseTeam}
+                />
+              ) : null}
+              <div className={hero ? "mt-0" : ""}>
+                {list.map((a) => (
+                  <AthleticFeedRow
+                    key={a.id}
+                    article={a}
+                    commentCount={commentCounts[a.id]}
+                    becauseTeam={becauseTeam}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          <Pagination page={page} total={total} urlBase={urlBase} />
+        </div>
+      </div>
 
       {showModules ? (
-        <Suspense fallback={null}>
-          <FeedModulesRail modules={modules} />
-        </Suspense>
+        <aside className="hidden lg:block lg:sticky lg:top-6 lg:self-start">
+          <Suspense fallback={null}>
+            <FeedModulesRail modules={modules} />
+          </Suspense>
+        </aside>
       ) : null}
-
-      {feedArticles.length === 0 && articles.length === 0 ? (
-        <div className="py-16 text-center text-sm text-muted-foreground">
-          <p>Inga artiklar matchade filtret.</p>
-          <Link href="/nyheter" className="mt-2 inline-block text-pitch-ink hover:underline">
-            Visa allt
-          </Link>
-        </div>
-      ) : feedArticles.length === 0 && !hero ? (
-        <div className="py-8 text-center text-sm text-muted-foreground">
-          <p>Toppnyheter visas ovan — mer i listan snart.</p>
-        </div>
-      ) : (
-        <div>
-          {hero ? (
-            <AthleticFeedHero
-              article={hero}
-              commentCount={commentCounts[hero.id]}
-              becauseTeam={becauseTeam}
-            />
-          ) : null}
-          <div className={hero ? "mt-0" : ""}>
-            {list.map((a) => (
-              <AthleticFeedRow
-                key={a.id}
-                article={a}
-                commentCount={commentCounts[a.id]}
-                becauseTeam={becauseTeam}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
-      <Pagination page={page} total={total} urlBase={urlBase} />
     </div>
   );
 }

@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { TrackedLink } from "@/components/analytics/TrackedLink";
 import { ArticleCard } from "@/components/ui/ArticleCard";
+import { AthleticFeedRow } from "@/components/news/AthleticFeed";
 import { ScoreWidget } from "@/components/ui/ScoreWidget";
 import { Separator } from "@/components/ui/separator";
 import { getNarratives, getFilteredArticles } from "@/lib/supabase";
 import { fetchAllsvenskanFixtures, fetchStandingsFull } from "@/lib/db/fixtures";
+import { getTopScorersFromDb, SEASON_IDS } from "@/lib/statistik";
 import { FixturesTicker } from "@/components/ui/FixturesTicker";
 import { jsonLd } from "@/lib/json-ld";
 
@@ -24,9 +26,11 @@ export const metadata: Metadata = {
   },
 };
 
-const NEWS_PREVIEW_LIMIT = 6;
+const NEWS_PREVIEW_LIMIT = 12;
+const NEWS_MORE_LIMIT = 8;
 const STANDINGS_PREVIEW_ROWS = 8;
 const FIXTURES_PREVIEW_LIMIT = 5;
+const SCORERS_PREVIEW_ROWS = 5;
 
 function AllsvenskanJsonLd() {
   return (
@@ -43,14 +47,19 @@ function AllsvenskanJsonLd() {
 }
 
 export default async function AllsvenskanPage() {
-  const [narratives, { articles }, standings, fixtures] = await Promise.all([
+  const [narratives, { articles: allArticles }, standings, fixtures, scorers] = await Promise.all([
     getNarratives(1).catch(() => []),
-    getFilteredArticles({ visa: "all", limit: NEWS_PREVIEW_LIMIT }).catch(() => ({ articles: [], total: 0 })),
+    getFilteredArticles({ visa: "all", limit: NEWS_PREVIEW_LIMIT + NEWS_MORE_LIMIT }).catch(() => ({ articles: [], total: 0 })),
     fetchStandingsFull().catch(() => []),
     fetchAllsvenskanFixtures().catch(() => []),
+    getTopScorersFromDb(SEASON_IDS["2026"] ?? "").catch(() => []),
   ]);
 
   const topStory = narratives[0] ?? null;
+  const articles = allArticles.slice(0, NEWS_PREVIEW_LIMIT);
+  const moreArticles = allArticles.slice(NEWS_PREVIEW_LIMIT, NEWS_PREVIEW_LIMIT + NEWS_MORE_LIMIT);
+  const topScorers = scorers.slice(0, SCORERS_PREVIEW_ROWS);
+  const hasForm = standings.length > 0 && standings.some((row) => row.form.length > 0);
 
   return (
     <div className="w-full px-6 sm:px-8 py-10">
@@ -112,6 +121,30 @@ export default async function AllsvenskanPage() {
               Inga nyheter tillgängliga just nu.
             </div>
           )}
+
+          {moreArticles.length > 0 && (
+            <div className="mt-8">
+              <h3 className="mb-2 font-semibold text-lg text-foreground">Fler nyheter</h3>
+              <div className="rounded-2xl border border-border bg-card px-4">
+                {moreArticles.map((a) => (
+                  <AthleticFeedRow key={a.id} article={a} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {(articles.length > 0 || moreArticles.length > 0) && (
+            <div className="mt-6">
+              <TrackedLink
+                href="/nyheter?scope=allsvenskan&sort=latest"
+                event="allsvenskan_news_opened"
+                props={{ source_page: "allsvenskan", active_scope: "allsvenskan" }}
+                className="inline-flex items-center justify-center rounded-full bg-pitch px-5 py-2.5 text-sm font-medium text-white hover:bg-pitch/90 transition-colors"
+              >
+                Alla nyheter →
+              </TrackedLink>
+            </div>
+          )}
         </section>
 
         <aside className="flex flex-col gap-8">
@@ -138,6 +171,26 @@ export default async function AllsvenskanPage() {
                       </td>
                       <td className="p-3 text-right tabular-nums text-muted-foreground w-12">{row.goal_diff > 0 ? `+${row.goal_diff}` : row.goal_diff}</td>
                       <td className="p-3 text-right tabular-nums font-medium text-foreground w-10">{row.points}</td>
+                      {hasForm && (
+                        <td className="p-3">
+                          <div className="flex items-center justify-end gap-1">
+                            {row.form.map((result, i) => (
+                              <span
+                                key={i}
+                                aria-label={result === "W" ? "Vinst" : result === "L" ? "Förlust" : "Oavgjort"}
+                                title={result === "W" ? "Vinst" : result === "L" ? "Förlust" : "Oavgjort"}
+                                className={`h-2 w-2 rounded-full ${
+                                  result === "W"
+                                    ? "bg-success"
+                                    : result === "L"
+                                      ? "bg-destructive"
+                                      : "bg-muted-foreground/40"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   ))}
                   {standings.length === 0 && (
@@ -169,6 +222,39 @@ export default async function AllsvenskanPage() {
               Alla matcher →
             </Link>
           </div>
+
+          {topScorers.length > 0 && (
+            <div>
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="font-semibold text-2xl text-foreground">SKYTTELIGA</h2>
+                <Link href="/allsvenskan/skytteliga" className="text-sm text-pitch-ink hover:underline">
+                  Hela skytteligan →
+                </Link>
+              </div>
+              <div className="rounded-2xl border border-border bg-card overflow-hidden">
+                <table className="w-full text-sm">
+                  <tbody>
+                    {topScorers.map((s, i) => (
+                      <tr key={s.player_id ?? i} className="border-b border-border/50 last:border-0">
+                        <td className="p-3 text-muted-foreground tabular-nums w-8">{i + 1}</td>
+                        <td className="p-3 text-foreground">
+                          {s.slug ? (
+                            <Link href={`/spelare/${s.slug}`} className="hover:text-pitch-ink">
+                              {s.player_name}
+                            </Link>
+                          ) : (
+                            s.player_name
+                          )}
+                        </td>
+                        <td className="p-3 text-muted-foreground">{s.team_name}</td>
+                        <td className="p-3 text-right tabular-nums font-medium text-foreground w-10">{s.goals}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </aside>
       </div>
     </div>

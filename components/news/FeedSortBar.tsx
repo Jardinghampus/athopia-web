@@ -5,8 +5,11 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 
 export type FeedSort = "for-you" | "latest" | "important";
+export type FeedScope = "personal" | "allsvenskan";
 
-const SORT_OPTIONS: { value: FeedSort; label: string }[] = [
+type TabValue = "for-you" | "latest" | "important";
+
+const TAB_OPTIONS: { value: TabValue; label: string }[] = [
   { value: "for-you", label: "För dig" },
   { value: "latest", label: "Senaste" },
   { value: "important", label: "Viktigt" },
@@ -19,18 +22,46 @@ const VISA_OPTIONS = [
 ] as const;
 
 /**
- * Flödeskontroller — sort + visa-pills. Behåller övriga query-params (lag, källa, event).
+ * Flödeskontroller — tabbarna växlar VY (scope+sort), inte bara sort.
+ * För dig = /nyheter utan scope/sort. Senaste/Viktigt = hela Allsvenskan
+ * med respektive sort. lag/kalla/event/visa behålls alltid; page nollas.
  */
 export function FeedSortBar({
   sort,
+  scope,
   visa,
 }: {
   sort: FeedSort;
+  scope: FeedScope;
   visa: "all" | "ai" | "source";
 }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  const activeTab: TabValue =
+    scope === "allsvenskan" && sort === "important"
+      ? "important"
+      : scope === "allsvenskan" && sort === "latest"
+        ? "latest"
+        : "for-you";
+
+  function buildTabHref(tab: TabValue): string {
+    const next = new URLSearchParams(searchParams.toString());
+    next.delete("page");
+    next.delete("scope");
+    next.delete("sort");
+    if (tab === "latest") {
+      next.set("scope", "allsvenskan");
+      next.set("sort", "latest");
+    } else if (tab === "important") {
+      next.set("scope", "allsvenskan");
+      next.set("sort", "important");
+    }
+    // för-dig: varken scope eller sort sätts
+    const qs = next.toString();
+    return qs ? `${pathname}?${qs}` : pathname;
+  }
 
   function setParam(key: string, value: string, defaultValue: string) {
     const next = new URLSearchParams(searchParams.toString());
@@ -44,10 +75,10 @@ export function FeedSortBar({
   return (
     <div className="space-y-3 mb-6">
       <SegmentedControl
-        aria-label="Sortering"
-        options={SORT_OPTIONS}
-        value={sort}
-        onChange={(v) => setParam("sort", v, "for-you")}
+        aria-label="Vy"
+        options={TAB_OPTIONS}
+        value={activeTab}
+        onChange={(v) => router.push(buildTabHref(v))}
       />
       <div className="flex items-center gap-2 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {VISA_OPTIONS.map((opt) => {
