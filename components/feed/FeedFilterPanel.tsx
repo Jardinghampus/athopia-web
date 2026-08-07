@@ -3,19 +3,16 @@
 import { useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/TactileSheet";
-import type { FeedTeamOption } from "@/lib/feed/get-allsvenskan-teams";
+import type { FeedFilterOptions } from "@/lib/feed/get-allsvenskan-teams";
 
-interface FeedFilterPanelProps {
-  teams: FeedTeamOption[];
-  /** Källnamn härledda från aktuell sidas artiklar — inte en global distinct-lista. */
-  sources: string[];
-}
+type FilterKey = "lag" | "typ" | "kalla";
+
+const KEYS: FilterKey[] = ["lag", "typ", "kalla"];
 
 function useFilterState() {
   const searchParams = useSearchParams();
-  const selectedTeams = searchParams.get("lag")?.split(",").filter(Boolean) ?? [];
-  const selectedSources = searchParams.get("kalla")?.split(",").filter(Boolean) ?? [];
-  return { selectedTeams, selectedSources };
+  const read = (key: FilterKey) => searchParams.get(key)?.split(",").filter(Boolean) ?? [];
+  return { lag: read("lag"), typ: read("typ"), kalla: read("kalla") };
 }
 
 function useApplyFilter() {
@@ -23,7 +20,7 @@ function useApplyFilter() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  return function toggle(key: "lag" | "kalla", value: string) {
+  return function toggle(key: FilterKey, value: string) {
     const next = new URLSearchParams(searchParams.toString());
     const current = next.get(key)?.split(",").filter(Boolean) ?? [];
     const nextValues = current.includes(value)
@@ -42,11 +39,14 @@ function FilterCheckboxGroup({
   options,
   selected,
   onToggle,
+  scroll,
 }: {
   header: string;
-  options: string[];
+  options: { value: string; label: string }[];
   selected: string[];
   onToggle: (value: string) => void;
+  /** Källistan är lång — låt den scrolla i stället för att skjuta ned resten. */
+  scroll?: boolean;
 }) {
   if (options.length === 0) return null;
   return (
@@ -54,13 +54,17 @@ function FilterCheckboxGroup({
       <legend className="mb-2 px-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
         {header}
       </legend>
-      <div className="divide-y divide-border overflow-hidden rounded-2xl bg-card">
+      <div
+        className={`divide-y divide-border overflow-hidden rounded-2xl bg-card ${
+          scroll ? "max-h-72 overflow-y-auto" : ""
+        }`}
+      >
         {options.map((opt) => {
-          const id = `${header}-${opt}`;
-          const checked = selected.includes(opt);
+          const id = `${header}-${opt.value}`;
+          const checked = selected.includes(opt.value);
           return (
             <label
-              key={opt}
+              key={opt.value}
               htmlFor={id}
               className="flex min-h-11 cursor-pointer items-center gap-3 px-4 py-2.5 text-sm text-foreground"
             >
@@ -68,10 +72,10 @@ function FilterCheckboxGroup({
                 id={id}
                 type="checkbox"
                 checked={checked}
-                onChange={() => onToggle(opt)}
+                onChange={() => onToggle(opt.value)}
                 className="h-[18px] w-[18px] shrink-0 rounded border-border accent-pitch"
               />
-              <span className="truncate">{opt}</span>
+              <span className="truncate">{opt.label}</span>
             </label>
           );
         })}
@@ -80,18 +84,17 @@ function FilterCheckboxGroup({
   );
 }
 
-function FilterPanelBody({ teams, sources }: FeedFilterPanelProps) {
-  const { selectedTeams, selectedSources } = useFilterState();
+function FilterPanelBody({ teams, sources, types }: FeedFilterOptions) {
+  const selected = useFilterState();
   const toggle = useApplyFilter();
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const hasActive = selectedTeams.length > 0 || selectedSources.length > 0;
+  const activeCount = KEYS.reduce((n, k) => n + selected[k].length, 0);
 
   function clearFilters() {
     const next = new URLSearchParams(searchParams.toString());
-    next.delete("lag");
-    next.delete("kalla");
+    for (const k of KEYS) next.delete(k);
     next.delete("page");
     const qs = next.toString();
     router.push(qs ? `${pathname}?${qs}` : pathname);
@@ -100,18 +103,26 @@ function FilterPanelBody({ teams, sources }: FeedFilterPanelProps) {
   return (
     <div className="space-y-6">
       <FilterCheckboxGroup
+        header="Nyhetstyp"
+        options={types}
+        selected={selected.typ}
+        onToggle={(v) => toggle("typ", v)}
+      />
+      <FilterCheckboxGroup
         header="Klubbar"
-        options={teams.map((t) => t.name)}
-        selected={selectedTeams}
+        options={teams.map((t) => ({ value: t.name, label: t.name }))}
+        selected={selected.lag}
         onToggle={(v) => toggle("lag", v)}
+        scroll
       />
       <FilterCheckboxGroup
         header="Källor"
-        options={sources}
-        selected={selectedSources}
+        options={sources.map((s) => ({ value: s, label: s }))}
+        selected={selected.kalla}
         onToggle={(v) => toggle("kalla", v)}
+        scroll
       />
-      {hasActive && (
+      {activeCount > 0 && (
         <button
           type="button"
           onClick={clearFilters}
@@ -125,12 +136,12 @@ function FilterPanelBody({ teams, sources }: FeedFilterPanelProps) {
 }
 
 /**
- * Klubb- och källfilter för /nyheter — desktop sticky vänsterfält.
+ * Klubb-, typ- och källfilter för /nyheter — desktop sticky vänsterfält.
  * Dold under lg (använd `FeedFilterButton` för mobilvyn).
  */
-export function FeedFilterPanel(props: FeedFilterPanelProps) {
+export function FeedFilterPanel(props: FeedFilterOptions) {
   return (
-    <aside className="hidden lg:block lg:sticky lg:top-6 lg:self-start">
+    <aside className="hidden lg:block lg:sticky lg:top-6 lg:self-start lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto">
       <FilterPanelBody {...props} />
     </aside>
   );
@@ -140,9 +151,9 @@ export function FeedFilterPanel(props: FeedFilterPanelProps) {
  * Mobil "Filter"-knapp (med räknare) som öppnar samma panel i TactileSheet.
  * Placeras bredvid FeedSortBar. Dold på lg+ (desktop använder FeedFilterPanel).
  */
-export function FeedFilterButton(props: FeedFilterPanelProps) {
-  const { selectedTeams, selectedSources } = useFilterState();
-  const activeCount = selectedTeams.length + selectedSources.length;
+export function FeedFilterButton(props: FeedFilterOptions) {
+  const selected = useFilterState();
+  const activeCount = KEYS.reduce((n, k) => n + selected[k].length, 0);
   const [open, setOpen] = useState(false);
 
   return (

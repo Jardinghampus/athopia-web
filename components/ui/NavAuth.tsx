@@ -14,7 +14,7 @@ function FallbackAuth() {
   return (
     <Link
       href="/prenumerera"
-      className="text-sm px-4 py-1.5 rounded-full pitch-gradient text-white font-medium hover:opacity-90 transition-opacity"
+      className="inline-flex min-h-11 items-center text-sm px-4 rounded-full pitch-gradient text-white font-medium hover:opacity-90 transition-opacity"
     >
       PRO
     </Link>
@@ -33,13 +33,13 @@ function ClerkAuth() {
     return (
       <div className="flex items-center gap-3">
         <SignInButton mode="modal">
-          <button className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <button className="inline-flex min-h-11 items-center px-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
             Logga in
           </button>
         </SignInButton>
         <Link
           href="/prenumerera"
-          className="text-sm px-4 py-1.5 rounded-full pitch-gradient text-white font-medium hover:opacity-90 transition-opacity"
+          className="inline-flex min-h-11 items-center text-sm px-4 rounded-full pitch-gradient text-white font-medium hover:opacity-90 transition-opacity"
         >
           PRO
         </Link>
@@ -49,7 +49,7 @@ function ClerkAuth() {
 
   return (
     <div className="flex items-center gap-3">
-      <Link href="/konto" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+      <Link href="/konto" className="inline-flex min-h-11 items-center px-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
         Konto
       </Link>
       <UserButton />

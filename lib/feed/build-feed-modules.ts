@@ -239,7 +239,15 @@ export async function buildFeedModules(
     const snippet = t.content.trim();
     const title =
       snippet.split("\n")[0]?.slice(0, 120) || "Diskussion";
-    candidates.push({
+    // "SNACKIS JUST NU" påstår att något diskuteras. Utan tröskel lyfte modulen
+    // först ett inlägg som bara löd "Hej!", och därefter en automatpostad
+    // matchtråd utan ett enda svar — båda gånger ett falskt påstående på
+    // förstasidan. Kräv att någon faktiskt reagerat. Finns ingen sådan tråd
+    // renderas modulen inte alls, vilket är rätt: säg inte att folk snackar
+    // när ingen gör det.
+    const harEngagemang = (t.reply_count ?? 0) > 0 || (t.like_count ?? 0) > 0;
+    const harSubstans = snippet.length >= 25;
+    if (harEngagemang && harSubstans) candidates.push({
       id: `mod_discussion_${t.id}`,
       type: "discussion",
       schemaVersion: 1,

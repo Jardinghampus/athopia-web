@@ -431,9 +431,24 @@ export async function getFilteredArticles(filters: ArticleFilters = {}): Promise
       q = q.in("source_name", filters.sources);
     }
 
+    // Lagfiltret går via entitetstaggningen, inte via rubriktext. Den gamla
+    // varianten (`title.ilike.%Djurgårdens IF%`) hittade 2 av 35 artiklar om
+    // laget — allt som skrev "Djurgården", "DIF" eller bara nämnde klubben i
+    // brödtexten föll bort. entity_ids är den kanoniska kopplingen och fylls av
+    // athopia-os entity resolution.
     if (filters.teams && filters.teams.length > 0) {
-      const orClauses = filters.teams.map(t => `title.ilike.%${t.replace(/[,()]/g, " ")}%`).join(",");
-      q = (q as any).or(orClauses);
+      const { data: ents } = await supabase
+        .from("entities")
+        .select("id")
+        .eq("type", "team")
+        .or(
+          filters.teams
+            .map((t) => `name.eq.${t.replace(/[,()]/g, " ")},slug.eq.${t}`)
+            .join(","),
+        );
+      const ids = (ents ?? []).map((e: { id: unknown }) => String(e.id));
+      if (ids.length === 0) return { articles: [], total: 0 };
+      q = q.overlaps("entity_ids", ids);
     }
 
     const { data, count } = await q;

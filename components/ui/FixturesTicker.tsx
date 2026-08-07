@@ -41,7 +41,7 @@ function TickerItem({ fixture }: { fixture: SMFixture }) {
     <Link
       href={`/match/${fixture.id}`}
       className={cn(
-        "flex items-center gap-2 shrink-0 rounded-full border border-border bg-card px-3 py-1.5",
+        "flex min-h-11 items-center gap-2 shrink-0 rounded-full border border-border bg-card px-3",
         "text-xs transition-colors hover:border-pitch/40",
         isLive && "border-pitch/40 bg-pitch/5"
       )}

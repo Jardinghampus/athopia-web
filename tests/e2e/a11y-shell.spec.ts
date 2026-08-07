@@ -49,6 +49,9 @@ test.describe('skip link (WCAG 2.4.1)', () => {
 })
 
 test.describe('bottendock', () => {
+  // Docken är mobilnavigationen och döljs från `md` där AppSidebar tar över.
+  test.use({ viewport: { width: 390, height: 844 } })
+
   test('varje flik har synlig etikett, inte bara ikon', async ({ page }) => {
     await page.goto('/nyheter')
     const nav = page.getByRole('navigation', { name: 'Huvudnavigation' })

@@ -22,7 +22,7 @@ import { ActiveFilterChips, type FilterChip } from "@/components/feed/ActiveFilt
 import { getUserFeedPreferences } from "@/lib/feed/getUserFeedPreferences";
 import { absoluteUrl } from "@/lib/site-url";
 import { buildFeedModules } from "@/lib/feed/build-feed-modules";
-import { getAllsvenskanTeams } from "@/lib/feed/get-allsvenskan-teams";
+import { getFeedFilterOptions } from "@/lib/feed/get-allsvenskan-teams";
 import {
   extractHeadlineStackIds,
   extractHeadlineStackTitles,
@@ -97,6 +97,7 @@ export default async function NyheterPage({
   const teams = sp.lag ? sp.lag.split(",").filter(Boolean) : [];
   const sources = sp.kalla ? sp.kalla.split(",").filter(Boolean) : [];
   const events = sp.event ? sp.event.split(",").filter(Boolean) : [];
+  const typer = sp.typ ? sp.typ.split(",").filter(Boolean) : [];
 
   const prefs = await getUserFeedPreferences();
 
@@ -114,6 +115,7 @@ export default async function NyheterPage({
     !urlHasEventFilter &&
     visa === "all" &&
     sources.length === 0 &&
+    typer.length === 0 &&
     (prefs.favoriteTeamName != null || (prefs.newsTags?.length ?? 0) > 0);
 
   const effectiveTeams =
@@ -124,11 +126,13 @@ export default async function NyheterPage({
         : [];
 
   const effectiveNewsTags =
-    events.length > 0
-      ? undefined
-      : usingPersonalDefaults
-        ? prefs.newsTags ?? undefined
-        : undefined;
+    typer.length > 0
+      ? typer
+      : events.length > 0
+        ? undefined
+        : usingPersonalDefaults
+          ? prefs.newsTags ?? undefined
+          : undefined;
 
   const { articles, total } = await getFilteredArticles({
     visa,
@@ -143,12 +147,9 @@ export default async function NyheterPage({
 
   const commentCounts = await getDiscussionCounts(articles.map((a) => a.id));
 
-  const filterTeams = await getAllsvenskanTeams();
+  const filterOptions = await getFeedFilterOptions();
   // Ingen billig global distinct-källa finns server-side (news_feed saknar
   // en indexerad distinct-väg) — härledd från sidans egna artiklar per spec.
-  const filterSources = [...new Set(articles.map((a) => a.sourceName).filter(Boolean))].sort(
-    (a, b) => a.localeCompare(b, "sv"),
-  );
 
   const showModules = page === 1 && !urlHasTeamFilter && !urlHasEventFilter;
   let modules: FeedModule[] = [];
@@ -190,6 +191,7 @@ export default async function NyheterPage({
   const LEAGUE_HREF = "/nyheter?scope=allsvenskan&sort=latest";
   const chipUrl = (mutate: (p: URLSearchParams) => void): string => {
     const p = filterStateToParams({ visa, teams, sources, events });
+    if (typer.length) p.set("typ", typer.join(","));
     if (sort !== "for-you") p.set("sort", sort);
     if (scope === "allsvenskan") p.set("scope", "allsvenskan");
     mutate(p);
@@ -223,6 +225,24 @@ export default async function NyheterPage({
         const rest = teams.filter((x) => x !== t);
         if (rest.length) p.set("lag", rest.join(","));
         else p.delete("lag");
+      }),
+    });
+  }
+  const TYP_ETIKETT: Record<string, string> = {
+    transfer: "Transfer",
+    match: "Match",
+    analysis: "Analys",
+    news: "Nyheter",
+    injury: "Skador",
+  };
+  for (const t of typer) {
+    activeChips.push({
+      kind: "Typ",
+      label: TYP_ETIKETT[t] ?? t,
+      removeHref: chipUrl((p) => {
+        const rest = typer.filter((x) => x !== t);
+        if (rest.length) p.set("typ", rest.join(","));
+        else p.delete("typ");
       }),
     });
   }
@@ -275,7 +295,7 @@ export default async function NyheterPage({
         </Suspense>
       </div>
 
-      <FeedFilterPanel teams={filterTeams} sources={filterSources} />
+      <FeedFilterPanel {...filterOptions} />
 
       <div className="min-w-0">
         <div className="mx-auto max-w-2xl">
@@ -294,7 +314,9 @@ export default async function NyheterPage({
               {viewTitle}
             </h1>
             <p className="text-sm text-muted-foreground">
-              {total > 0 ? `${total} signaler` : "Inga artiklar"}
+              {total > 0
+                ? `${total} ${total === 1 ? "artikel" : "artiklar"}`
+                : "Inga artiklar matchar filtret"}
             </p>
           </header>
 
@@ -315,7 +337,7 @@ export default async function NyheterPage({
           </Suspense>
 
           <div className="mb-3 flex items-center gap-2 lg:hidden">
-            <FeedFilterButton teams={filterTeams} sources={filterSources} />
+            <FeedFilterButton {...filterOptions} />
           </div>
 
           <Suspense fallback={null}>

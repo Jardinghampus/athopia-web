@@ -14,7 +14,9 @@ export async function TeamPushPopups() {
   return (
     // Temaneutrala tokens genomgående: kortet var hårdkodat mörkt (zinc-900/80)
     // men ärvde ljusa temats red-300 (#D61F1F) och gav 1.85:1.
-    <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-4">
+    // auto-fit i stället för fasta kolumner: med en enda notis låg kortet kvar
+    // i halva bredden med ett tomrum bredvid sig, vilket såg trasigt ut.
+    <section className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr))]">
       {items.map((item) => (
         <Link
           key={item.id}

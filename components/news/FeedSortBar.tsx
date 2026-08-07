@@ -88,7 +88,7 @@ export function FeedSortBar({
               key={opt.value}
               type="button"
               onClick={() => setParam("visa", opt.value, "all")}
-              className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors touch-manipulation ${
+              className={`inline-flex min-h-11 shrink-0 items-center rounded-full px-3.5 text-xs font-medium transition-colors touch-manipulation ${
                 active
                   ? "bg-pitch text-white"
                   : "bg-muted text-muted-foreground hover:text-foreground"
@@ -100,7 +100,7 @@ export function FeedSortBar({
         })}
         <Link
           href="/nyheter"
-          className="shrink-0 ml-auto text-xs text-pitch-ink hover:underline"
+          className="inline-flex min-h-11 shrink-0 items-center ml-auto text-xs text-pitch-ink hover:underline"
         >
           Rensa
         </Link>

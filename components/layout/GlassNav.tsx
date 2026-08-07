@@ -26,7 +26,9 @@ export function GlassNav({ clerkEnabled: _clerkEnabled }: { clerkEnabled?: boole
   // när docken göms på en forumtråd och React kastar #310.
   useEffect(() => {
     const root = document.documentElement;
-    if (hideOnThread) {
+    // Docken är dold från `md` — då ska ingen yta reserveras ovanför den heller.
+    const doldAvBrytpunkt = window.matchMedia("(min-width: 768px)").matches;
+    if (hideOnThread || doldAvBrytpunkt) {
       root.style.removeProperty("--dock-inset");
       return;
     }
@@ -43,7 +45,11 @@ export function GlassNav({ clerkEnabled: _clerkEnabled }: { clerkEnabled?: boole
   );
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 z-50 flex justify-center bottom-[calc(env(safe-area-inset-bottom)+1rem)]">
+    // Docken är mobilnavigationen. Från `md` tar AppSidebar över med exakt
+    // samma fem destinationer, och då blev docken ren dubblering som dessutom
+    // låg och skymde innehåll mitt på skärmen (t.ex. PRO-kortets funktionslista
+    // på /prenumerera). En navigation per brytpunkt.
+    <div className="pointer-events-none fixed inset-x-0 z-50 flex justify-center bottom-[calc(env(safe-area-inset-bottom)+1rem)] md:hidden">
       <nav
         className="glassnav pointer-events-auto"
         aria-label="Huvudnavigation"
