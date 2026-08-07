@@ -68,7 +68,14 @@ export function LargeTitleHeader({
 
       {/* Stor titel som scrollar med */}
       <div ref={sentinelRef} className="px-4 pb-3 pt-1">
-        {titleContent ?? (
+        {titleContent ? (
+          // Sidan måste ha exakt en h1 även när titeln ersätts av en väljare —
+          // annars saknar lagsidorna rubrik för skärmläsare och sökmotorer.
+          <>
+            <h1 className="sr-only">{title}</h1>
+            {titleContent}
+          </>
+        ) : (
           <h1 className="text-[34px] font-bold tracking-tight text-balance">{title}</h1>
         )}
         {subtitle && (

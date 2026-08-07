@@ -159,7 +159,7 @@ export default function AiChatPage() {
       {/* Header */}
       <header className="flex w-full max-w-2xl shrink-0 items-center gap-2.5 px-5 py-4">
         <Sparkles size={16} className="text-pitch-ink" aria-hidden />
-        <p className="text-sm font-semibold text-foreground">Athopia AI</p>
+        <h1 className="text-sm font-semibold text-foreground">Athopia AI</h1>
         <span className="ml-auto flex shrink-0 items-center gap-1.5 rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-amber-500">
           <Sparkles size={9} aria-hidden />
           PRO

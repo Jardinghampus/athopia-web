@@ -143,9 +143,10 @@ export default async function ForumTeamPage({
             <div className="sticky top-12 z-30 bg-background/90 backdrop-blur-xl border-b border-border/40 px-4 py-3 flex items-center gap-3">
               <Link
                 href="/forum"
+                aria-label="Tillbaka till alla forum"
                 className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-800/60 transition-colors shrink-0"
               >
-                <ChevronLeft className="w-5 h-5 text-zinc-400" />
+                <ChevronLeft className="w-5 h-5 text-zinc-400" aria-hidden />
               </Link>
               <div className="flex-1 min-w-0">
                 <h1 className="font-semibold text-[15px] text-white truncate text-balance">{teamName}</h1>
