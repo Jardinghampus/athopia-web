@@ -4,9 +4,9 @@
  * styling (text-zinc-900, divide-zinc-100) och ligger inuti landningssidans
  * mörka wrapper. Den temaväxlande accenten text-pitch-ink löses därför till
  * sin mörka valör på en ljus yta (2.5:1) — fel här, eftersom mockupens yta
- * aldrig växlar med temat. text-[var(--color-pitch-dark)] är den statiska
- * accenten (11.06:1 på #F2F3F1) och undviker källkodsvaktens text-pitch-dark-
- * regel, som gäller den temaväxlande sidbakgrunden, inte denna fasta yta.
+ * aldrig växlar med temat. Den fasta pitch-dark ger 11.06:1 på #F2F3F1 och är
+ * rätt här. Källkodsvakten i tests/e2e/contrast.spec.ts undantar denna mapp
+ * explicit vid sökväg — smit aldrig förbi vakten med bracket-syntax i stället.
  */
 
 import {

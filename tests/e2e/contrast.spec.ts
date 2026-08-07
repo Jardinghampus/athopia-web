@@ -43,9 +43,16 @@ test('accentfärgen används inte som statisk textfärg', async () => {
         .forEach((line, i) => {
           // Även den godtyckliga formen: `text-[var(--color-pitch)]` smet förbi
           // den första vakten och gjorde sidomenyns aktiva post 2.34:1 i mörkt.
+          // components/landing/phone/* är en telefon-mockup med en FAST ljus yta
+          // (#F2F3F1) som aldrig växlar med temat — där är den temaväxlande
+          // ink-token fel (2.5:1) och den statiska pitch-dark rätt (11.06:1).
+          // Enda undantaget, och det är namngivet här i stället för att smitas
+          // förbi med bracket-syntax.
+          const staticMockup = p.replace(/\\/g, '/').includes('components/landing/phone/')
           if (
-            /text-pitch(?![-\w/])|text-pitch-light\b|text-pitch-dark\b/.test(line) ||
-            /text-\[var\(--color-pitch(-light)?\)\]/.test(line)
+            !staticMockup &&
+            (/text-pitch(?![-\w/])|text-pitch-light\b|text-pitch-dark\b/.test(line) ||
+              /text-\[var\(--color-pitch(-light|-dark)?\)\]/.test(line))
           ) {
             offenders.push(`${p}:${i + 1}`)
           }
