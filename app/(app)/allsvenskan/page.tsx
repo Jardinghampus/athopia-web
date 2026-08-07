@@ -70,12 +70,22 @@ export default async function AllsvenskanPage() {
       <div className="mb-8">
         <h1 className="font-bold text-5xl text-foreground">ALLSVENSKAN</h1>
         <p className="text-muted-foreground mt-2">Nyheter, tabell och matcher — uppdateras löpande.</p>
-        <div className="flex gap-4 flex-wrap mt-3">
-          <Link href="/allsvenskan/tabell" className="text-sm text-pitch-ink hover:underline">Tabell</Link>
-          <Link href="/allsvenskan/spelschema" className="text-sm text-pitch-ink hover:underline">Spelschema</Link>
-          <Link href="/allsvenskan/skytteliga" className="text-sm text-pitch-ink hover:underline">Skytteliga</Link>
-          <Link href="/allsvenskan/resultat" className="text-sm text-pitch-ink hover:underline">Resultat</Link>
-          <Link href="/statistik" className="text-sm text-pitch-ink hover:underline">Statistik</Link>
+        <div className="flex gap-2 flex-wrap mt-4">
+          {[
+            { href: "/allsvenskan/tabell", label: "Tabell" },
+            { href: "/allsvenskan/spelschema", label: "Spelschema" },
+            { href: "/allsvenskan/skytteliga", label: "Skytteliga" },
+            { href: "/allsvenskan/resultat", label: "Resultat" },
+            { href: "/statistik", label: "Statistik" },
+          ].map(({ href, label }) => (
+            <Link
+              key={href}
+              href={href}
+              className="inline-flex min-h-11 items-center rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground transition-colors hover:border-pitch/40 hover:text-pitch-ink active:scale-[0.97] touch-manipulation"
+            >
+              {label}
+            </Link>
+          ))}
         </div>
       </div>
 
