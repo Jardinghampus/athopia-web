@@ -22,7 +22,22 @@ for (const route of ROUTES) {
     await page.goto(route, { waitUntil: 'networkidle' })
 
     const banner = page.locator('[aria-label="Cookie-inställningar"]')
-    await expect(banner, 'bannern ska visas utan tidigare samtycke').toBeVisible()
+    // Bannern monteras i en effekt efter hydrering och glider in med en spring.
+    // Mät först när den står stilla — annars fångas den mitt i rörelsen och
+    // överlappet blir en slump snarare än en mätning.
+    await expect(banner, 'bannern ska visas utan tidigare samtycke').toBeVisible({
+      timeout: 15000,
+    })
+    let prev = ''
+    await expect
+      .poll(async () => {
+        const box = await banner.boundingBox()
+        const now = box ? `${Math.round(box.y)}x${Math.round(box.height)}` : ''
+        const stable = now !== '' && now === prev
+        prev = now
+        return stable
+      }, { timeout: 10000, message: 'bannerns position hann aldrig sluta röra sig' })
+      .toBe(true)
 
     const overlap = await page.evaluate(() => {
       const b = document.querySelector('[aria-label="Cookie-inställningar"]')!.getBoundingClientRect()
