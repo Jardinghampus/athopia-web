@@ -21,6 +21,25 @@ export const FUNNEL_EVENTS = [
 
 export type FunnelEvent = (typeof FUNNEL_EVENTS)[number];
 
+/**
+ * Produktevents som ytorna skickar via `<ProductEventTracker>` / `<TrackedLink>`.
+ *
+ * Måste stå här, inte bara i komponenten: `/api/analytics/event` avvisar allt
+ * som saknas i allowlistan med 400, och klienten sväljer svaret. De sex nedan
+ * skickades utan att någonsin loggas — telemetrin för lag-IA:n, nyhetsscopet
+ * och analysytan var tyst tom medan konsolen larmade vid varje sidladdning.
+ * Lägger du till ett nytt `event="..."` i en komponent: lägg till det här i
+ * samma commit. `tests/e2e/analytics-allowlist.spec.ts` failar annars.
+ */
+export const PRODUCT_EVENTS = [
+  "allsvenskan_news_opened",
+  "news_filter_removed",
+  "news_scope_changed",
+  "team_analysis_opened",
+  "team_hub_opened",
+  "team_hub_tab_selected",
+] as const;
+
 /** Server-side logging — samma agent_logs-väg som /api/analytics/event. Får aldrig kasta. */
 export async function logFunnelEvent(
   event: FunnelEvent,

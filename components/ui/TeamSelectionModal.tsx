@@ -81,6 +81,22 @@ export function TeamSelectionModal({ forceVisible = false }: TeamSelectionModalP
       });
   }, [visible]);
 
+  const handleSkip = () => {
+    markOnboardingDone();
+    setVisible(false);
+  };
+
+  // Escape ska göra exakt samma sak som "Hoppa över" — annars stängs modalen
+  // utan att onboarding markeras klar, och den kan dyka upp igen vid nästa
+  // montering.
+  //
+  // Hooken MÅSTE ligga före `if (!visible) return null` nedan. Låg den efter
+  // returen anropades den bara i renders där modalen var synlig, så antalet
+  // hooks växte i samma render som modalen öppnades: React kastade #310 och
+  // trädet dog. Modalen syntes därför aldrig på /feed, /statistik, /spelare,
+  // /match och /profil — exakt de sidor TEAM_REQUIRED_PREFIXES finns för.
+  const dialogRef = useModalA11y<HTMLDivElement>(visible, handleSkip);
+
   if (!visible) return null;
 
   const handleSave = async () => {
@@ -95,16 +111,6 @@ export function TeamSelectionModal({ forceVisible = false }: TeamSelectionModalP
     setSaving(false);
     setVisible(false);
   };
-
-  const handleSkip = () => {
-    markOnboardingDone();
-    setVisible(false);
-  };
-
-  // Escape ska göra exakt samma sak som "Hoppa över" — annars stängs modalen
-  // utan att onboarding markeras klar, och den kan dyka upp igen vid nästa
-  // montering.
-  const dialogRef = useModalA11y<HTMLDivElement>(visible, handleSkip);
 
   return (
     <div
