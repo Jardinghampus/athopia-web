@@ -1,9 +1,18 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BOTTOM_NAV_ITEMS } from "@/lib/nav";
 import "./GlassNav.css";
+
+/**
+ * Ytan docken upptar från nedre kanten: dess egen 1rem-offset + 3.75rem höjd +
+ * 0.75rem luft. Publiceras som CSS-variabel så att fixerade element som måste
+ * ligga ovanför den (cookie-bannern) slipper gissa — och slipper lämna ett
+ * tomrum på sidor där docken inte finns, som landningssidan.
+ */
+const DOCK_INSET = "4.75rem";
 
 /**
  * Floating liquid-glass tab bar — botten-dock på alla viewports.
@@ -12,6 +21,20 @@ import "./GlassNav.css";
 export function GlassNav({ clerkEnabled: _clerkEnabled }: { clerkEnabled?: boolean }) {
   const pathname = usePathname();
   const hideOnThread = /^\/forum\/.+\/.+/.test(pathname);
+
+  // Effekten MÅSTE ligga före den tidiga returen — annars ändras antalet hooks
+  // när docken göms på en forumtråd och React kastar #310.
+  useEffect(() => {
+    const root = document.documentElement;
+    if (hideOnThread) {
+      root.style.removeProperty("--dock-inset");
+      return;
+    }
+    root.style.setProperty("--dock-inset", DOCK_INSET);
+    return () => {
+      root.style.removeProperty("--dock-inset");
+    };
+  }, [hideOnThread]);
 
   if (hideOnThread) return null;
 

@@ -65,7 +65,12 @@ export function CookieBanner() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: "110%", opacity: 0 }}
           transition={{ type: "spring", stiffness: 320, damping: 38, mass: 0.9 }}
-          className="fixed bottom-4 left-1/2 z-[9999] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 rounded-2xl border border-zinc-800 bg-zinc-950/95 p-5 shadow-2xl backdrop-blur-md"
+          // Ovanför bottendocken, inte ovanpå den. På bottom-4 låg bannern rakt
+          // över alla fem flikarna i GlassNav, så en ny besökare kunde inte
+          // navigera alls förrän den hanterats — trots aria-modal="false".
+          // `--dock-inset` sätts av GlassNav och är 0 där docken inte finns, så
+          // bannern hamnar inte högt upp i tomma luften på landningssidan.
+          className="fixed bottom-[calc(env(safe-area-inset-bottom)+1rem+var(--dock-inset,0rem))] left-1/2 z-[9999] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 rounded-2xl border border-zinc-800 bg-zinc-950/95 p-5 shadow-2xl backdrop-blur-md"
         >
           <p className="text-sm font-semibold text-white">Vi använder cookies</p>
           <p className="mt-1 text-xs leading-relaxed text-zinc-400">
