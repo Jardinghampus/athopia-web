@@ -106,12 +106,12 @@ export function Pricing() {
                 }`}
               >
                 {badge && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-pitch px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white">
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-pitch px-3 py-1 text-xs font-bold uppercase tracking-[var(--tracking-badge)] text-white">
                     {badge}
                   </span>
                 )}
 
-                <h3 className="font-heading text-2xl tracking-widest text-white">{name}</h3>
+                <h3 className="font-heading text-2xl tracking-widest text-white text-balance">{name}</h3>
                 <div className="mt-4 flex items-baseline gap-1.5">
                   <span className="font-heading text-6xl tracking-wide text-white">{price}</span>
                   <span className="text-sm text-white/55">kr/mån</span>

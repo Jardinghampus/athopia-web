@@ -12,7 +12,7 @@ export default function AiTransparensPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
-      <h1 className="font-bold text-4xl text-foreground mb-6">AI-transparens</h1>
+      <h1 className="font-bold text-4xl text-foreground mb-6 text-balance">AI-transparens</h1>
       <div className="prose prose-invert max-w-none space-y-6 text-muted-foreground leading-relaxed">
         <p>
           Athopia använder artificiell intelligens för att skriva, sammanfatta och analysera
@@ -22,7 +22,7 @@ export default function AiTransparensPage() {
         </p>
 
         <section>
-          <h2 className="font-semibold text-2xl text-foreground mb-3">Var vi använder AI</h2>
+          <h2 className="font-semibold text-2xl text-foreground mb-3 text-balance">Var vi använder AI</h2>
           <ul className="list-disc list-inside space-y-1">
             <li>
               <strong>Artiklar och sammanfattningar</strong> — texter märkta
@@ -45,7 +45,7 @@ export default function AiTransparensPage() {
         </section>
 
         <section>
-          <h2 className="font-semibold text-2xl text-foreground mb-3">Hur AI-innehåll märks</h2>
+          <h2 className="font-semibold text-2xl text-foreground mb-3 text-balance">Hur AI-innehåll märks</h2>
           <p>
             Allt AI-genererat innehåll bär en synlig märkning på sidan där det visas — den
             döljs aldrig bakom betalvägg eller inställningar. Märkningen finns dessutom
@@ -60,7 +60,7 @@ export default function AiTransparensPage() {
         </section>
 
         <section>
-          <h2 className="font-semibold text-2xl text-foreground mb-3">
+          <h2 className="font-semibold text-2xl text-foreground mb-3 text-balance">
             Mänsklig granskning och redaktionellt ansvar
           </h2>
           <p>
@@ -82,7 +82,7 @@ export default function AiTransparensPage() {
         </section>
 
         <section>
-          <h2 className="font-semibold text-2xl text-foreground mb-3">Begränsningar</h2>
+          <h2 className="font-semibold text-2xl text-foreground mb-3 text-balance">Begränsningar</h2>
           <p>
             AI-genererad text kan innehålla fel. Vi grundar innehållet i verkliga resultat
             och statistik, men uppgifter bör kontrolleras mot originalkällan innan de
@@ -91,7 +91,7 @@ export default function AiTransparensPage() {
         </section>
 
         <section>
-          <h2 className="font-semibold text-2xl text-foreground mb-3">Upphovsrätt</h2>
+          <h2 className="font-semibold text-2xl text-foreground mb-3 text-balance">Upphovsrätt</h2>
           <p>
             Athopia återger aldrig andra publicisters brödtext ordagrant. Externa nyheter
             visas som rubrik, källnamn och länk till originalet.

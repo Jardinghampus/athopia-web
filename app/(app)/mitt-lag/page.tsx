@@ -122,7 +122,7 @@ export default async function MittLagPage({
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Athopia · {hub.team.name}
           </p>
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground mt-1">
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground mt-1 text-balance">
             {greeting}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
@@ -186,7 +186,7 @@ export default async function MittLagPage({
           <div className="mb-2 flex items-baseline justify-between gap-3">
             <h2
               id="senaste-analys"
-              className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+              className="text-xs font-semibold uppercase tracking-wide text-muted-foreground text-balance"
             >
               Senaste analysen
             </h2>

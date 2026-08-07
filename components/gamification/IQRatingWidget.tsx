@@ -25,7 +25,7 @@ export function IQRatingWidget({ iq, leagueTeamName }: Props) {
 
       <div className="flex items-end gap-3">
         <motion.span
-          className="text-5xl font-black tabular-nums"
+          className="text-5xl font-black font-mono tabular-nums"
           style={{ color: scoreColor }}
           key={iq.weekly_iq}
           initial={{ scale: 1.2 }}
@@ -62,7 +62,7 @@ export function IQRatingWidget({ iq, leagueTeamName }: Props) {
         ].map(stat => (
           <div key={stat.label}>
             <p className="text-lg font-bold text-white">{stat.value}</p>
-            <p className="text-[10px] text-white/30 uppercase tracking-wider">{stat.label}</p>
+            <p className="text-xs text-white/30 uppercase tracking-wider">{stat.label}</p>
           </div>
         ))}
       </div>

@@ -97,7 +97,7 @@ export default async function LagAnalysPage({
           <Sparkles className="h-3.5 w-3.5" aria-hidden />
           Athopias egen analys
         </p>
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground mt-1">
+        <h1 className="text-3xl font-semibold tracking-tight text-foreground mt-1 text-balance">
           {hub.team.name}
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
@@ -125,7 +125,7 @@ export default async function LagAnalysPage({
             <section aria-labelledby="lead-heading">
               <h2
                 id="lead-heading"
-                className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2"
+                className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2 text-balance"
               >
                 Viktigast just nu
               </h2>
@@ -137,7 +137,7 @@ export default async function LagAnalysPage({
             <section aria-labelledby="summary-heading">
               <h2
                 id="summary-heading"
-                className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2"
+                className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2 text-balance"
               >
                 Athopias sammanfattning
               </h2>
@@ -145,7 +145,7 @@ export default async function LagAnalysPage({
                 <div className="flex flex-col gap-3">
                   {summaries.map((a) => (
                     <article key={a.id} className="rounded-2xl border border-pitch/30 bg-pitch/5 p-5">
-                      <h3 className="font-semibold text-lg text-foreground">{a.title}</h3>
+                      <h3 className="font-semibold text-lg text-foreground text-balance">{a.title}</h3>
                       <div className="text-sm text-foreground/90 mt-2 whitespace-pre-line">
                         {a.content ?? a.summary}
                       </div>
@@ -160,7 +160,7 @@ export default async function LagAnalysPage({
             <section aria-labelledby="narrative-heading">
               <h2
                 id="narrative-heading"
-                className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2"
+                className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2 text-balance"
               >
                 Synteser · flera källor
               </h2>
@@ -176,7 +176,7 @@ export default async function LagAnalysPage({
             <section aria-labelledby="rest-heading">
               <h2
                 id="rest-heading"
-                className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2"
+                className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2 text-balance"
               >
                 Tidigare analyser
               </h2>

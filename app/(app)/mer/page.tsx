@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 export default function MerPage() {
   return (
     <div className="mx-auto max-w-lg px-4 py-6 space-y-6 pb-24">
-      <h1 className="text-2xl font-bold" style={{ fontFamily: "var(--font-display)" }}>
+      <h1 className="text-2xl font-bold text-balance" style={{ fontFamily: "var(--font-display)" }}>
         MER
       </h1>
 

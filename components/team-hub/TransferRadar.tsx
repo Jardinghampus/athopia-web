@@ -29,7 +29,7 @@ function RadarList({ items }: { items: Awaited<ReturnType<typeof getTransferRada
             className="flex items-start gap-3 px-4 py-2.5 transition-colors hover:bg-muted/20"
           >
             <span
-              className={`mt-0.5 shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${transferStatusBadgeClass(it.status)}`}
+              className={`mt-0.5 shrink-0 rounded-full px-2 py-0.5 text-xs font-bold uppercase tracking-wide ${transferStatusBadgeClass(it.status)}`}
             >
               {it.label}
             </span>
@@ -37,7 +37,7 @@ function RadarList({ items }: { items: Awaited<ReturnType<typeof getTransferRada
               <span className="block text-sm leading-snug text-foreground line-clamp-2">
                 {it.title}
               </span>
-              <span className="mt-0.5 block text-[11px] text-muted-foreground">
+              <span className="mt-0.5 block text-xs text-muted-foreground">
                 {it.sourceName ?? "Okänd källa"}
                 {it.sourceCount >= 2 ? ` · ${it.sourceCount} källor` : ""}
                 {" · "}
@@ -69,10 +69,10 @@ export async function TransferRadar({
     <section className="mx-auto mt-6 w-full max-w-6xl px-4 sm:px-6" aria-label="Ryktesradarn">
       <div className="overflow-hidden rounded-2xl border border-border bg-card">
         <div className="flex items-baseline justify-between px-4 pb-2 pt-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground text-balance">
             Ryktesradarn
           </h2>
-          <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+          <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Rykte / Bekräftad
           </span>
         </div>

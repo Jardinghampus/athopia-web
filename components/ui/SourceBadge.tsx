@@ -17,7 +17,7 @@ const palette = [
 export function SourceBadge({ sourceName }: { sourceName: string }) {
   const idx = hashString(sourceName ?? "") % palette.length;
   return (
-    <Badge variant="outline" className={`text-[11px] px-2 py-0.5 ${palette[idx]}`}>
+    <Badge variant="outline" className={`text-xs px-2 py-0.5 ${palette[idx]}`}>
       {sourceName}
     </Badge>
   );

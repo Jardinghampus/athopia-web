@@ -28,7 +28,7 @@ export function ActiveFilterChips({ chips }: { chips: FilterChip[] }) {
 
   return (
     <div className="mb-4 flex flex-wrap items-center gap-2">
-      <h2 className="sr-only">Aktiva filter</h2>
+      <h2 className="sr-only text-balance">Aktiva filter</h2>
       {chips.map((chip) => {
         const body = (
           <>

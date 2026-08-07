@@ -96,7 +96,7 @@ export function ArticleMeta({
       </div>
 
       {becauseTeam && (
-        <p className="mt-1 text-[11px] text-muted-foreground">
+        <p className="mt-1 text-xs text-muted-foreground">
           Visas eftersom du följer {becauseTeam}
         </p>
       )}

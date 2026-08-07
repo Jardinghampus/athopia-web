@@ -43,7 +43,7 @@ function CardHead({
       <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl border border-pitch/15 bg-pitch/10">
         <Icon className="h-5 w-5 text-pitch-ink" />
       </div>
-      <h3 className="font-sans text-[17px] font-bold text-white">{title}</h3>
+      <h3 className="font-sans text-[17px] font-bold text-white text-balance">{title}</h3>
       <p className="mt-1.5 text-sm leading-relaxed text-white/50">{text}</p>
     </div>
   );
@@ -86,7 +86,7 @@ export function BentoFeatures() {
                       key={tier}
                       className="rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5"
                     >
-                      <div className="flex items-center justify-between text-[10px] font-bold">
+                      <div className="flex items-center justify-between text-xs font-bold">
                         <span className="text-white/70">{score}</span>
                         <span className="text-pitch-ink">{tier}</span>
                       </div>
@@ -112,7 +112,7 @@ export function BentoFeatures() {
                 <div className="h-2 w-[85%] rounded bg-white/[0.1]" />
                 <div className="mt-2 h-2 w-[65%] rounded bg-white/[0.07]" />
                 <div className="mt-2 h-2 w-[75%] rounded bg-white/[0.05]" />
-                <span className="mt-3 inline-block rounded-full bg-pitch/15 px-2.5 py-1 text-[10px] font-bold text-pitch-ink">
+                <span className="mt-3 inline-block rounded-full bg-pitch/15 px-2.5 py-1 text-xs font-bold text-pitch-ink">
                   Sammanfatta omgång 15
                 </span>
               </div>
@@ -131,7 +131,7 @@ export function BentoFeatures() {
                 <span className="text-sm font-bold text-white/80">AIK</span>
                 <div className="text-center">
                   <span className="font-heading text-2xl tracking-wider text-white">2–1</span>
-                  <span className="ml-2 inline-flex items-center gap-1 text-[10px] font-bold text-rose-400">
+                  <span className="ml-2 inline-flex items-center gap-1 text-xs font-bold text-rose-400">
                     <span className="live-dot !h-1.5 !w-1.5" />
                     73&prime;
                   </span>
@@ -155,7 +155,7 @@ export function BentoFeatures() {
                 </div>
                 <div className="min-w-0">
                   <p className="text-xs font-bold text-white">Mål! Guidetti 2–1 (71&prime;)</p>
-                  <p className="mt-0.5 text-[10px] text-white/55">Athopia · nu</p>
+                  <p className="mt-0.5 text-xs text-white/55">Athopia · nu</p>
                 </div>
               </div>
             </CardShell>

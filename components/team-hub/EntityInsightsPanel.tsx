@@ -57,10 +57,10 @@ export function EntityInsightsPanel({
             <div key={insight.id} className="rounded-lg border border-border/70 bg-muted/20 p-3">
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-sm font-semibold text-foreground">{insight.title}</h3>
+                  <h3 className="text-sm font-semibold text-foreground text-balance">{insight.title}</h3>
                   <p className="mt-1 text-sm text-muted-foreground">{insight.summary}</p>
                 </div>
-                <span className={`rounded-full border px-2 py-1 text-[11px] font-semibold ${severityClass(insight.severity)}`}>
+                <span className={`rounded-full border px-2 py-1 text-xs font-semibold ${severityClass(insight.severity)}`}>
                   {confidenceLabel(insight.confidence)} {Math.round(insight.confidence * 100)}%
                 </span>
               </div>
@@ -69,25 +69,25 @@ export function EntityInsightsPanel({
 
               <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
                 <div className="rounded-md border border-border/60 bg-background/50 p-2">
-                  <div className="flex items-center gap-1 text-[10px] uppercase tracking-wide text-muted-foreground">
+                  <div className="flex items-center gap-1 text-xs uppercase tracking-wide text-muted-foreground">
                     <TrendingUp className="h-3 w-3" /> Poäng
                   </div>
                   <p className="mt-1 text-sm font-semibold text-foreground">{formatMetric(metrics.points)}</p>
                 </div>
                 <div className="rounded-md border border-border/60 bg-background/50 p-2">
-                  <div className="flex items-center gap-1 text-[10px] uppercase tracking-wide text-muted-foreground">
+                  <div className="flex items-center gap-1 text-xs uppercase tracking-wide text-muted-foreground">
                     <ShieldCheck className="h-3 w-3" /> Målskillnad
                   </div>
                   <p className="mt-1 text-sm font-semibold text-foreground">{formatMetric(metrics.goal_diff, "p")}</p>
                 </div>
                 <div className="rounded-md border border-border/60 bg-background/50 p-2">
-                  <div className="flex items-center gap-1 text-[10px] uppercase tracking-wide text-muted-foreground">
+                  <div className="flex items-center gap-1 text-xs uppercase tracking-wide text-muted-foreground">
                     <TrendingUp className="h-3 w-3" /> Form
                   </div>
                   <p className="mt-1 text-sm font-semibold text-foreground">{formatMetric(metrics.form)}</p>
                 </div>
                 <div className="rounded-md border border-border/60 bg-background/50 p-2">
-                  <div className="flex items-center gap-1 text-[10px] uppercase tracking-wide text-muted-foreground">
+                  <div className="flex items-center gap-1 text-xs uppercase tracking-wide text-muted-foreground">
                     <Newspaper className="h-3 w-3" /> Nyheter
                   </div>
                   <p className="mt-1 text-sm font-semibold text-foreground">{articleCount}</p>

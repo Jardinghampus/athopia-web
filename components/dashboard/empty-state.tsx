@@ -5,7 +5,7 @@ export function EmptyState() {
   return (
     <div className="mx-auto flex max-w-md flex-col items-center gap-4 py-24 text-center">
       <Star className="h-10 w-10 text-muted-foreground" />
-      <h2 className="text-xl font-semibold">Följ ett lag för att komma igång</h2>
+      <h2 className="text-xl font-semibold text-balance">Följ ett lag för att komma igång</h2>
       <p className="text-sm text-muted-foreground">
         Din dashboard fylls med nyheter, matcher, statistik och forum för lagen du följer.
       </p>

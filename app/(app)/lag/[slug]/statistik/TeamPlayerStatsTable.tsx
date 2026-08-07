@@ -75,7 +75,7 @@ export function TeamPlayerStatsTable({ players }: { players: TeamPlayerStat[] })
     <div className="rounded-2xl border border-border bg-card">
       <div className="space-y-3 border-b border-border px-4 py-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h3 className="font-semibold text-sm text-foreground">ALL SPELARSTATISTIK</h3>
+          <h3 className="font-semibold text-sm text-foreground text-balance">ALL SPELARSTATISTIK</h3>
           <div className="flex flex-col gap-2 sm:flex-row">
             <label className="relative">
               <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -135,7 +135,7 @@ export function TeamPlayerStatsTable({ players }: { players: TeamPlayerStat[] })
                 {COLUMNS.map((column) => {
                   const value = row[column.key];
                   return (
-                    <td key={column.key} className="text-center px-3 py-2 text-muted-foreground tabular-nums">
+                    <td key={column.key} className="text-center px-3 py-2 text-muted-foreground font-mono tabular-nums">
                       {column.key === "rating" ? (typeof value === "number" ? value.toFixed(2) : "-") : String(value ?? 0)}
                     </td>
                   );

@@ -128,7 +128,7 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
   if (!hub) {
     return (
       <div className="w-full px-6 sm:px-8 py-16 text-center">
-        <h1 className="font-bold text-4xl text-foreground mb-4">Lag hittades inte</h1>
+        <h1 className="font-bold text-4xl text-foreground mb-4 text-balance">Lag hittades inte</h1>
         <p className="text-muted-foreground">Laget <strong>{slug}</strong> finns inte i systemet ännu.</p>
       </div>
     );

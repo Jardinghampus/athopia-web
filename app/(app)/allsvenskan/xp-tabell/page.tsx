@@ -125,7 +125,7 @@ export default async function XpTabellPage() {
         />
       </div>
 
-      <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2">XP-TABELLEN</h1>
+      <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2 text-balance">XP-TABELLEN</h1>
       <p className="text-muted-foreground mb-8 max-w-xl">
         Förväntade poäng utifrån xG per match (Poisson-modell). Grönt = laget har tagit fler
         poäng än chanserna motiverar, rött = färre. Athopias beräkning på synkad matchdata.
@@ -149,18 +149,18 @@ export default async function XpTabellPage() {
             )}
             {rows.map((r, i) => (
               <tr key={r.team.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
-                <td className="py-3 px-4 text-muted-foreground">{i + 1}</td>
+                <td className="py-3 px-4 text-muted-foreground font-mono tabular-nums">{i + 1}</td>
                 <td className="py-3 px-4">
                   <Link href={`/lag/${r.team.slug ?? ""}`} className="font-medium hover:text-pitch-ink transition-colors">
                     {r.team.name}
                   </Link>
                 </td>
-                <td className="py-3 px-3 text-center text-muted-foreground">{r.played}</td>
-                <td className="py-3 px-3 text-center font-semibold text-foreground tabular-nums">
+                <td className="py-3 px-3 text-center text-muted-foreground font-mono tabular-nums">{r.played}</td>
+                <td className="py-3 px-3 text-center font-semibold text-foreground font-mono tabular-nums">
                   {r.xp != null ? r.xp.toFixed(1) : "–"}
                 </td>
-                <td className="py-3 px-3 text-center text-muted-foreground tabular-nums">{r.points}</td>
-                <td className={`py-3 px-4 text-center font-bold tabular-nums ${
+                <td className="py-3 px-3 text-center text-muted-foreground font-mono tabular-nums">{r.points}</td>
+                <td className={`py-3 px-4 text-center font-bold font-mono tabular-nums ${
                   r.diff == null ? "text-muted-foreground" : r.diff > 1 ? "text-success" : r.diff < -1 ? "text-red-400" : "text-muted-foreground"
                 }`}>
                   {r.diff != null ? (r.diff > 0 ? `+${r.diff.toFixed(1)}` : r.diff.toFixed(1)) : "–"}

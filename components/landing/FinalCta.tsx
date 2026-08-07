@@ -34,7 +34,7 @@ export function FinalCta() {
             </Reveal>
 
             <Reveal delay={0.08}>
-              <h2 className="mt-4 font-heading text-[clamp(3rem,9vw,7rem)] leading-[0.94] tracking-wide">
+              <h2 className="mt-4 font-heading text-[clamp(3rem,9vw,7rem)] leading-[0.94] tracking-wide text-balance">
                 Nästa omgång
                 <br />
                 läser du den

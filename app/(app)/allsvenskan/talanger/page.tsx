@@ -106,7 +106,7 @@ export default async function TalangerPage() {
         />
       </div>
 
-      <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2">U21-TALANGERNA</h1>
+      <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2 text-balance">U21-TALANGERNA</h1>
       <p className="text-muted-foreground mb-8 max-w-xl">
         Allsvenskans mest tongivande unga spelare 2026, rankade på mål + assist och speltid.
         Alla 21 år eller yngre med minst 150 spelade minuter.
@@ -132,7 +132,7 @@ export default async function TalangerPage() {
             <tbody>
               {talents.map((t, i) => (
                 <tr key={t.playerId} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
-                  <td className="py-3 px-4 text-muted-foreground">{i + 1}</td>
+                  <td className="py-3 px-4 text-muted-foreground font-mono tabular-nums">{i + 1}</td>
                   <td className="py-3 px-4">
                     {t.slug ? (
                       <Link href={`/spelare/${t.slug}`} className="font-medium hover:text-pitch-ink transition-colors">{t.name}</Link>
@@ -145,10 +145,10 @@ export default async function TalangerPage() {
                       </span>
                     )}
                   </td>
-                  <td className="py-3 px-2 text-center text-muted-foreground tabular-nums">{t.age}</td>
-                  <td className="py-3 px-2 text-center text-muted-foreground tabular-nums">{t.minutes}</td>
-                  <td className="py-3 px-2 text-center font-semibold text-foreground tabular-nums">{t.goals}</td>
-                  <td className="py-3 px-3 text-center text-muted-foreground tabular-nums">{t.assists}</td>
+                  <td className="py-3 px-2 text-center text-muted-foreground font-mono tabular-nums">{t.age}</td>
+                  <td className="py-3 px-2 text-center text-muted-foreground font-mono tabular-nums">{t.minutes}</td>
+                  <td className="py-3 px-2 text-center font-semibold text-foreground font-mono tabular-nums">{t.goals}</td>
+                  <td className="py-3 px-3 text-center text-muted-foreground font-mono tabular-nums">{t.assists}</td>
                 </tr>
               ))}
             </tbody>

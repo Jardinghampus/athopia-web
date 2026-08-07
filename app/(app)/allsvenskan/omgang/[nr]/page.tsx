@@ -73,7 +73,7 @@ export default async function OmgangPage({
         />
       </div>
 
-      <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2">OMGÅNG {round}</h1>
+      <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2 text-balance">OMGÅNG {round}</h1>
       <p className="text-muted-foreground mb-8">Allsvenskan 2026 — {fixtures.length || 8} matcher.</p>
 
       {fixtures.length === 0 ? (
@@ -92,7 +92,7 @@ export default async function OmgangPage({
               <li key={f.id} className="hover:bg-muted/20 transition-colors">
                 <Link href={`/match/${f.id}`} className="flex items-center justify-between px-4 py-3 gap-3">
                   <span className="flex-1 text-right font-medium text-foreground truncate">{home?.name}</span>
-                  <span className={`px-3 py-1 rounded-lg text-sm font-bold tabular-nums ${played ? "bg-muted text-foreground" : "text-muted-foreground"}`}>
+                  <span className={`px-3 py-1 rounded-lg text-sm font-bold font-mono tabular-nums ${played ? "bg-muted text-foreground" : "text-muted-foreground"}`}>
                     {played && homeGoals != null && awayGoals != null
                       ? `${homeGoals} – ${awayGoals}`
                       : new Date(f.starting_at).toLocaleString("sv-SE", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Stockholm" })}

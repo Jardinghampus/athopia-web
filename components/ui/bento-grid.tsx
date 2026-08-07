@@ -56,7 +56,7 @@ export function BentoCard({ item, className }: { item: BentoItem; className?: st
         </div>
 
         <div className="space-y-2 flex-1">
-          <h3 className="font-sans font-semibold text-white tracking-tight text-[15px] leading-snug">
+          <h3 className="font-sans font-semibold text-white tracking-tight text-[15px] leading-snug text-balance">
             {item.title}
             {item.meta && (
               <span className="ml-2 text-xs text-white/40 font-normal">{item.meta}</span>

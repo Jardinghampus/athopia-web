@@ -99,7 +99,7 @@ export default async function MotenPage({
         />
       </div>
 
-      <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2">
+      <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2 text-balance">
         {a.name.toUpperCase()} – {b.name.toUpperCase()}
       </h1>
       <p className="text-muted-foreground mb-8">Inbördes möten i Allsvenskan.</p>
@@ -131,13 +131,13 @@ export default async function MotenPage({
 
       {upcoming.length > 0 && (
         <section className="mb-8">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground mb-3">Kommande möten</h2>
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground mb-3 text-balance">Kommande möten</h2>
           <MatchList fixtures={upcoming} />
         </section>
       )}
 
       <section>
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground mb-3">Spelade möten</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground mb-3 text-balance">Spelade möten</h2>
         {played.length === 0 ? (
           <p className="rounded-2xl border border-border bg-card px-4 py-8 text-center text-muted-foreground">
             Inga spelade möten i databasen ännu.
@@ -163,7 +163,7 @@ function MatchList({ fixtures }: { fixtures: Awaited<ReturnType<typeof fetchH2HF
           <li key={f.id} className="hover:bg-muted/20 transition-colors">
             <Link href={`/match/${f.id}`} className="flex items-center justify-between px-4 py-3 gap-3">
               <span className="flex-1 text-right font-medium text-foreground truncate">{home?.name}</span>
-              <span className={`px-3 py-1 rounded-lg text-sm font-bold tabular-nums ${played ? "bg-muted text-foreground" : "text-muted-foreground"}`}>
+              <span className={`px-3 py-1 rounded-lg text-sm font-bold font-mono tabular-nums ${played ? "bg-muted text-foreground" : "text-muted-foreground"}`}>
                 {played && hg != null && ag != null
                   ? `${hg} – ${ag}`
                   : new Date(f.starting_at).toLocaleDateString("sv-SE", { day: "numeric", month: "short" })}

@@ -50,7 +50,7 @@ export function PlayerStatsExplorer({ players }: { players: ScorerRow[] }) {
     <section className="rounded-2xl border border-border bg-card p-4">
       <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Utforska spelarstats</h2>
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground text-balance">Utforska spelarstats</h2>
           <p className="mt-1 text-xs text-muted-foreground">Filtrera efter lag och position. Sorteras högst till lägst.</p>
         </div>
         <div className="grid gap-2 sm:grid-cols-3 lg:w-[620px]">
@@ -82,7 +82,7 @@ export function PlayerStatsExplorer({ players }: { players: ScorerRow[] }) {
           <tbody>
             {rows.map((row, index) => (
               <tr key={row.player_id} className="border-b border-border/40 last:border-0">
-                <td className="px-3 py-2 text-muted-foreground">{index + 1}</td>
+                <td className="px-3 py-2 text-muted-foreground font-mono tabular-nums">{index + 1}</td>
                 <td className="px-3 py-2 font-medium">
                   <Link href={`/spelare/${row.slug ?? row.player_id}`} className="hover:text-pitch-ink">{row.player_name}</Link>
                 </td>
@@ -90,8 +90,8 @@ export function PlayerStatsExplorer({ players }: { players: ScorerRow[] }) {
                   <Link href={`/lag/${row.team_name.toLowerCase().replace(/\s+/g, "-").replace(/[åä]/g, "a").replace(/ö/g, "o")}`} className="hover:text-pitch-ink transition-colors">{row.team_name}</Link>
                 </td>
                 <td className="px-3 py-2 text-center text-muted-foreground">{row.position?.slice(0, 3) ?? "-"}</td>
-                <td className="px-3 py-2 text-center text-muted-foreground tabular-nums">{row.minutes}</td>
-                <td className="px-3 py-2 text-center font-bold tabular-nums text-foreground">
+                <td className="px-3 py-2 text-center text-muted-foreground font-mono tabular-nums">{row.minutes}</td>
+                <td className="px-3 py-2 text-center font-bold font-mono tabular-nums text-foreground">
                   {fmt(row[metric] as number | null | undefined, metricDef.decimals)}
                 </td>
               </tr>

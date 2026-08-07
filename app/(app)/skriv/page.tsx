@@ -26,7 +26,7 @@ export default async function SkrivPage() {
     <div className="mx-auto max-w-2xl px-4 sm:px-6 py-12">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Dina krönikor</h1>
+          <h1 className="text-3xl font-bold text-foreground text-balance">Dina krönikor</h1>
           <p className="mt-1 text-sm text-muted-foreground">Skriv, redigera och publicera — endast synligt för dig tills du publicerar.</p>
         </div>
       </div>

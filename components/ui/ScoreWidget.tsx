@@ -78,7 +78,7 @@ export function ScoreWidget({ fixture, className }: ScoreWidgetProps) {
             LIVE
           </span>
         ) : (
-          <span className="flex items-center gap-1 shrink-0 tabular-nums">
+          <span className="flex items-center gap-1 shrink-0 font-mono tabular-nums">
             <Clock className="w-3 h-3" />
             {when}
           </span>
@@ -106,7 +106,7 @@ export function ScoreWidget({ fixture, className }: ScoreWidgetProps) {
             <>
               <span
                 className={cn(
-                  "text-xl font-heading tabular-nums",
+                  "text-xl font-heading font-mono tabular-nums",
                   home?.meta.winner === true ? "text-success" : "text-foreground"
                 )}
               >
@@ -115,7 +115,7 @@ export function ScoreWidget({ fixture, className }: ScoreWidgetProps) {
               <span className="text-muted-foreground text-sm">–</span>
               <span
                 className={cn(
-                  "text-xl font-heading tabular-nums",
+                  "text-xl font-heading font-mono tabular-nums",
                   away?.meta.winner === true ? "text-success" : "text-foreground"
                 )}
               >

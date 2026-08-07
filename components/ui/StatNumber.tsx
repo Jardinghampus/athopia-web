@@ -32,7 +32,7 @@ export function StatNumber({
       prefix={prefix}
       suffix={suffix ? ` ${suffix}` : undefined}
       locales="sv-SE"
-      className={cn("font-semibold tabular-nums", className)}
+      className={cn("font-semibold font-mono tabular-nums", className)}
     />
   );
 }

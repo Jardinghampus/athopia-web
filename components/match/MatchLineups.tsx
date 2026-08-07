@@ -27,7 +27,7 @@ export function MatchLineups({
 
   return (
     <div className="bg-card border border-border rounded-xl p-4">
-      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3 text-balance">
         Startelvor
       </h3>
       <div className="grid grid-cols-2 gap-3">
@@ -61,7 +61,7 @@ export function MatchLineups({
                     <span className="truncate flex-1">–</span>
                   )}
                   {statLabel ? (
-                    <span className="text-[10px] tabular-nums text-muted-foreground shrink-0 ml-auto">
+                    <span className="text-xs font-mono tabular-nums text-muted-foreground shrink-0 ml-auto">
                       {statLabel}
                     </span>
                   ) : null}
@@ -86,6 +86,6 @@ export function PlayerMatchStatBadge({
   const label = formatPlayerStat(goals, xg);
   if (!label) return null;
   return (
-    <span className="text-[10px] tabular-nums text-muted-foreground">{label}</span>
+    <span className="text-xs font-mono tabular-nums text-muted-foreground">{label}</span>
   );
 }

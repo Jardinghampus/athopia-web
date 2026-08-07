@@ -154,7 +154,7 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
           </div>
         )}
         <div>
-          <h1 className="font-bold text-5xl text-foreground leading-none mb-1">{player.fullname}</h1>
+          <h1 className="font-bold text-5xl text-foreground leading-none mb-1 text-balance">{player.fullname}</h1>
           <p className="text-muted-foreground text-sm">
             {POS_SV[player.position ?? ""] ?? player.position ?? "–"}
             {age ? ` · ${age} år` : ""}
@@ -168,7 +168,7 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
       {athopiaRatings && (
         <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
           <div className="flex items-baseline justify-between">
-            <h2 className="font-semibold text-sm text-foreground">ATHOPIA AI-BETYG</h2>
+            <h2 className="font-semibold text-sm text-foreground text-balance">ATHOPIA AI-BETYG</h2>
             {athopiaRatings.athopia_rating != null && (
               <span className="font-bold text-2xl text-pitch-ink">{Number(athopiaRatings.athopia_rating).toFixed(1)}</span>
             )}
@@ -193,7 +193,7 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
 
       {stats && (
         <div>
-          <h2 className="font-semibold text-xl text-foreground mb-3">ALLSVENSKAN 2026</h2>
+          <h2 className="font-semibold text-xl text-foreground mb-3 text-balance">ALLSVENSKAN 2026</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
             <StatBox label="Matcher"    value={stats.appearances} />
             <StatBox label="Mål"        value={stats.goals} />
@@ -251,7 +251,7 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
 
       {finishing && Number(finishing.goals ?? 0) > 0 && (
         <div className="bg-card border border-border rounded-2xl p-5">
-          <h2 className="font-semibold text-sm text-foreground mb-4">MÅLSKYTTEINDEX</h2>
+          <h2 className="font-semibold text-sm text-foreground mb-4 text-balance">MÅLSKYTTEINDEX</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
             <div className="text-center">
               <p className="font-bold text-3xl text-foreground">{finishing.goals as number}</p>
@@ -285,7 +285,7 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
       {clutch && Number(clutch.goals ?? 0) > 0 && (
         <div className="bg-card border border-border rounded-2xl p-5">
           <div className="flex items-baseline justify-between mb-4">
-            <h2 className="font-semibold text-sm text-foreground">CLUTCH INDEX</h2>
+            <h2 className="font-semibold text-sm text-foreground text-balance">CLUTCH INDEX</h2>
             <span className="font-bold text-2xl text-foreground">{clutch.clutch_score as number}</span>
           </div>
           <div className="grid grid-cols-3 gap-3 text-center">
@@ -317,7 +317,7 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
       {twins.length > 0 && (
         <div className="bg-card border border-border rounded-2xl overflow-hidden">
           <div className="px-5 py-4 border-b border-border">
-            <h2 className="font-semibold text-sm text-foreground">LIKNANDE SPELARE</h2>
+            <h2 className="font-semibold text-sm text-foreground text-balance">LIKNANDE SPELARE</h2>
           </div>
           <div className="divide-y divide-border/50">
             {twins.map((t, i) => {
@@ -335,7 +335,7 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
                     <p className="text-sm text-foreground truncate">{(pl?.fullname as string) ?? `Spelare ${t.twin_player_id}`}</p>
                     <p className="text-xs text-muted-foreground capitalize">{(pl?.position as string) ?? ""}</p>
                   </div>
-                  <span className="text-xs text-muted-foreground tabular-nums">
+                  <span className="text-xs text-muted-foreground font-mono tabular-nums">
                     {Math.round((t.similarity as number) * 100)}% likhet
                   </span>
                 </Link>
@@ -347,7 +347,7 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
 
       {matches.length > 0 && (
         <div>
-          <h2 className="font-semibold text-xl text-foreground mb-3">MATCH FÖR MATCH</h2>
+          <h2 className="font-semibold text-xl text-foreground mb-3 text-balance">MATCH FÖR MATCH</h2>
           <ListGroup footer="Senaste 10 matcherna. Tryck på en match för detaljer.">
             {matches.map((m) => {
               const goals = m.goals;
@@ -376,8 +376,8 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
                   subtitle={parts.join(" · ")}
                   trailing={
                     contribution
-                      ? <span className="font-semibold tabular-nums text-foreground">{contribution}</span>
-                      : <span className="tabular-nums">–</span>
+                      ? <span className="font-semibold font-mono tabular-nums text-foreground">{contribution}</span>
+                      : <span className="font-mono tabular-nums">–</span>
                   }
                 />
               );

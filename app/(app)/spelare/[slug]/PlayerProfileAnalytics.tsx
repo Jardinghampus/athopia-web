@@ -64,7 +64,7 @@ export function PlayerProfileAnalytics({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.04, duration: 0.36, ease: [0.22, 1, 0.36, 1] }}
       >
-        <h2 className="font-semibold text-xl text-foreground">PROFILKORT</h2>
+        <h2 className="font-semibold text-xl text-foreground text-balance">PROFILKORT</h2>
         <p className="text-sm text-muted-foreground">
           Jämförd mot snittet för allsvenska spelare med minst {qualifyingMinutes} minuter. {minutes >= qualifyingMinutes ? "Kvalificerad sample." : "Under kvalgränsen, tolka percentiler försiktigt."}
         </p>
@@ -97,7 +97,7 @@ export function PlayerProfileAnalytics({
               <Radar dataKey="percentile" name={playerName} stroke="var(--color-pitch)" fill="var(--color-pitch)" fillOpacity={0.24} strokeWidth={2} />
             </RadarChart>
           </ResponsiveContainer>
-          <p className="text-center text-[11px] text-muted-foreground">
+          <p className="text-center text-xs text-muted-foreground">
             <span className="text-amber-500">Gul linje</span> = Allsvenskan baseline (P50). Grönt = spelarens profil.
           </p>
         </motion.div>
@@ -134,7 +134,7 @@ export function PlayerProfileAnalytics({
             className="rounded-2xl border border-border bg-card p-4 shadow-sm"
           >
             <p className="text-xs text-muted-foreground">{metric.label}</p>
-            <p className="mt-1 text-2xl font-bold tabular-nums text-foreground">
+            <p className="mt-1 text-2xl font-bold font-mono tabular-nums text-foreground">
               {fmt(metric.value, metric.decimals ?? 2)}{metric.suffix ?? ""}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">

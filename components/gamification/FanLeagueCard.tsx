@@ -65,7 +65,7 @@ export function FanLeagueCard({ membership, currentUserId }: Props) {
                 <span className={`text-xs ${isMe ? 'text-pitch-ink font-semibold' : 'text-white/40'}`}>
                   #{entry.league_rank ?? i + 1} {isMe ? 'Du' : '···'}
                 </span>
-                <span className={`text-sm font-bold tabular-nums ${isMe ? 'text-pitch-ink' : 'text-white/60'}`}>
+                <span className={`text-sm font-bold font-mono tabular-nums ${isMe ? 'text-pitch-ink' : 'text-white/60'}`}>
                   {entry.weekly_iq}
                 </span>
               </div>

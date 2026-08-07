@@ -18,7 +18,7 @@ export default async function ScoutPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="font-bold text-5xl text-foreground flex items-center gap-3">
+          <h1 className="font-bold text-5xl text-foreground flex items-center gap-3 text-balance">
             <Telescope className="h-9 w-9 text-pitch-ink" /> SCOUT MODE
           </h1>
           <p className="text-muted-foreground mt-1 text-sm">

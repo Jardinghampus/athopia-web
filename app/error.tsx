@@ -16,7 +16,7 @@ export default function Error({
 
   return (
     <div className="mx-auto flex max-w-md flex-col items-center gap-4 py-24 text-center">
-      <h1 className="text-xl font-semibold">Något gick fel</h1>
+      <h1 className="text-xl font-semibold text-balance">Något gick fel</h1>
       <p className="text-sm text-muted-foreground">
         Vi loggade felet. Försök igen om en stund.
       </p>

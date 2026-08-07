@@ -89,7 +89,7 @@ export default async function NarrativePage({
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
-      <h1 className="font-bold text-5xl text-foreground mb-3">{narrative.topic}</h1>
+      <h1 className="font-bold text-5xl text-foreground mb-3 text-balance">{narrative.topic}</h1>
       {narrative.description && (
         <p className="mb-6 max-w-3xl text-lg leading-8 text-muted-foreground">{narrative.description}</p>
       )}
@@ -124,7 +124,7 @@ export default async function NarrativePage({
 
       {sources.length > 0 && (
         <section className="mt-10">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground mb-4">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground mb-4 text-balance">
             Källartiklar ({sources.length})
           </h2>
           <ul className="space-y-2">

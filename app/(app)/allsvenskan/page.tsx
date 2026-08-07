@@ -68,7 +68,7 @@ export default async function AllsvenskanPage() {
         <FixturesTicker />
       </div>
       <div className="mb-8">
-        <h1 className="font-bold text-5xl text-foreground">ALLSVENSKAN</h1>
+        <h1 className="font-bold text-5xl text-foreground text-balance">ALLSVENSKAN</h1>
         <p className="text-muted-foreground mt-2">Nyheter, tabell och matcher — uppdateras löpande.</p>
         <div className="flex gap-2 flex-wrap mt-4">
           {[
@@ -95,7 +95,7 @@ export default async function AllsvenskanPage() {
           className="mb-8 block rounded-2xl border border-border bg-card p-6 transition-colors hover:border-pitch/40"
         >
           <span className="text-xs font-medium uppercase tracking-wider text-pitch-ink">Dagens story</span>
-          <h2 className="mt-2 font-bold text-2xl text-foreground">{topStory.topic}</h2>
+          <h2 className="mt-2 font-bold text-2xl text-foreground text-balance">{topStory.topic}</h2>
           {topStory.description && (
             <p className="mt-2 text-muted-foreground line-clamp-2">{topStory.description}</p>
           )}
@@ -108,7 +108,7 @@ export default async function AllsvenskanPage() {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8">
         <section>
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-semibold text-2xl text-foreground">NYHETER</h2>
+            <h2 className="font-semibold text-2xl text-foreground text-balance">NYHETER</h2>
             {/* Explicit scope: utan den defaultade /nyheter till "for-you" och
                 visade anvandarens favoritlag under rubriken "Alla nyheter". */}
             <TrackedLink
@@ -134,7 +134,7 @@ export default async function AllsvenskanPage() {
 
           {moreArticles.length > 0 && (
             <div className="mt-8">
-              <h3 className="mb-2 font-semibold text-lg text-foreground">Fler nyheter</h3>
+              <h3 className="mb-2 font-semibold text-lg text-foreground text-balance">Fler nyheter</h3>
               <div className="rounded-2xl border border-border bg-card px-4">
                 {moreArticles.map((a) => (
                   <AthleticFeedRow key={a.id} article={a} />
@@ -160,7 +160,7 @@ export default async function AllsvenskanPage() {
         <aside className="flex flex-col gap-8">
           <div>
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="font-semibold text-2xl text-foreground">TABELL</h2>
+              <h2 className="font-semibold text-2xl text-foreground text-balance">TABELL</h2>
               <Link href="/allsvenskan/tabell" className="text-sm text-pitch-ink hover:underline">
                 Hela tabellen →
               </Link>
@@ -170,7 +170,7 @@ export default async function AllsvenskanPage() {
                 <tbody>
                   {standings.slice(0, STANDINGS_PREVIEW_ROWS).map((row) => (
                     <tr key={row.team.id} className="border-b border-border/50 last:border-0">
-                      <td className="p-3 text-muted-foreground tabular-nums w-8">{row.position}</td>
+                      <td className="p-3 text-muted-foreground font-mono tabular-nums w-8">{row.position}</td>
                       <td className="p-3 text-foreground">
                         <Link
                           href={`/lag/${row.team.slug ?? ""}`}
@@ -179,8 +179,8 @@ export default async function AllsvenskanPage() {
                           {row.team.name}
                         </Link>
                       </td>
-                      <td className="p-3 text-right tabular-nums text-muted-foreground w-12">{row.goal_diff > 0 ? `+${row.goal_diff}` : row.goal_diff}</td>
-                      <td className="p-3 text-right tabular-nums font-medium text-foreground w-10">{row.points}</td>
+                      <td className="p-3 text-right font-mono tabular-nums text-muted-foreground w-12">{row.goal_diff > 0 ? `+${row.goal_diff}` : row.goal_diff}</td>
+                      <td className="p-3 text-right font-mono tabular-nums font-medium text-foreground w-10">{row.points}</td>
                       {hasForm && (
                         <td className="p-3">
                           <div className="flex items-center justify-end gap-1">
@@ -216,7 +216,7 @@ export default async function AllsvenskanPage() {
           </div>
 
           <div>
-            <h2 className="mb-4 font-semibold text-2xl text-foreground">MATCHER</h2>
+            <h2 className="mb-4 font-semibold text-2xl text-foreground text-balance">MATCHER</h2>
             <div className="flex flex-col gap-3">
               {fixtures.slice(0, FIXTURES_PREVIEW_LIMIT).map((f) => (
                 <ScoreWidget key={f.id} fixture={f} />
@@ -236,7 +236,7 @@ export default async function AllsvenskanPage() {
           {topScorers.length > 0 && (
             <div>
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="font-semibold text-2xl text-foreground">SKYTTELIGA</h2>
+                <h2 className="font-semibold text-2xl text-foreground text-balance">SKYTTELIGA</h2>
                 <Link href="/allsvenskan/skytteliga" className="text-sm text-pitch-ink hover:underline">
                   Hela skytteligan →
                 </Link>
@@ -246,7 +246,7 @@ export default async function AllsvenskanPage() {
                   <tbody>
                     {topScorers.map((s, i) => (
                       <tr key={s.player_id ?? i} className="border-b border-border/50 last:border-0">
-                        <td className="p-3 text-muted-foreground tabular-nums w-8">{i + 1}</td>
+                        <td className="p-3 text-muted-foreground font-mono tabular-nums w-8">{i + 1}</td>
                         <td className="p-3 text-foreground">
                           {s.slug ? (
                             <Link href={`/spelare/${s.slug}`} className="hover:text-pitch-ink">
@@ -257,7 +257,7 @@ export default async function AllsvenskanPage() {
                           )}
                         </td>
                         <td className="p-3 text-muted-foreground">{s.team_name}</td>
-                        <td className="p-3 text-right tabular-nums font-medium text-foreground w-10">{s.goals}</td>
+                        <td className="p-3 text-right font-mono tabular-nums font-medium text-foreground w-10">{s.goals}</td>
                       </tr>
                     ))}
                   </tbody>

@@ -56,7 +56,7 @@ export function PersonalizedFeed() {
   return (
     <section className="mb-10">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="font-heading text-3xl text-foreground">{title}</h2>
+        <h2 className="font-heading text-3xl text-foreground text-balance">{title}</h2>
         {slug && (
           <Link
             href={`/lag/${slug}`}

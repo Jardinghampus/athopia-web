@@ -23,7 +23,7 @@ export default function NotFound() {
   return (
     <main id="main" tabIndex={-1} className="mx-auto w-full max-w-2xl px-5 py-20 focus:outline-none sm:py-28">
       <p className="font-mono text-sm tracking-wide text-muted-foreground">404</p>
-      <h1 className="mt-2 text-3xl font-semibold text-foreground sm:text-4xl">
+      <h1 className="mt-2 text-3xl font-semibold text-foreground sm:text-4xl text-balance">
         Sidan hittades inte
       </h1>
       <p className="mt-3 max-w-md text-[15px] leading-relaxed text-muted-foreground">

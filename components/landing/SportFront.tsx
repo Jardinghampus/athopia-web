@@ -28,7 +28,7 @@ function relTime(iso: string): string {
 function SectionHeading({ title, href, linkLabel }: { title: string; href: string; linkLabel: string }) {
   return (
     <div className="flex items-baseline justify-between mb-4">
-      <h2 className="font-display text-2xl sm:text-3xl uppercase tracking-wide text-white">{title}</h2>
+      <h2 className="font-display text-2xl sm:text-3xl uppercase tracking-wide text-white text-balance">{title}</h2>
       <Link href={href} className="text-sm text-pitch-ink hover:underline shrink-0">
         {linkLabel} →
       </Link>
@@ -113,15 +113,15 @@ export async function SportFront({ articles }: { articles: LandingArticle[] }) {
                   href={`/lag/${row.team.slug ?? ""}`}
                   className="flex items-center gap-3 px-4 py-2.5 border-b border-white/5 last:border-0 hover:bg-white/[0.05] transition-colors"
                 >
-                  <span className="w-5 text-sm text-zinc-400 tabular-nums">{row.position}</span>
+                  <span className="w-5 text-sm text-zinc-400 font-mono tabular-nums">{row.position}</span>
                   {row.team.image_path ? (
                     <Image src={row.team.image_path} alt="" width={20} height={20} className="shrink-0" />
                   ) : (
                     <span className="w-5" />
                   )}
                   <span className="flex-1 text-sm text-white truncate">{row.team.name}</span>
-                  <span className="text-xs text-zinc-400 tabular-nums hidden sm:inline">{row.played} sp</span>
-                  <span className="text-sm font-semibold text-white tabular-nums">{row.points}</span>
+                  <span className="text-xs text-zinc-400 font-mono tabular-nums hidden sm:inline">{row.played} sp</span>
+                  <span className="text-sm font-semibold text-white font-mono tabular-nums">{row.points}</span>
                 </Link>
               ))}
             </div>
@@ -155,7 +155,7 @@ export async function SportFront({ articles }: { articles: LandingArticle[] }) {
 
       {/* Lagval-CTA */}
       <div className="rounded-2xl border border-pitch/30 bg-pitch/10 px-6 py-8 text-center">
-        <h2 className="font-display text-2xl uppercase tracking-wide text-white">Välj ditt lag</h2>
+        <h2 className="font-display text-2xl uppercase tracking-wide text-white text-balance">Välj ditt lag</h2>
         <p className="mt-2 text-sm text-zinc-400 max-w-md mx-auto">
           Följ din klubb och få nyheter, matcher, statistik och forum — samlat på ett ställe.
         </p>

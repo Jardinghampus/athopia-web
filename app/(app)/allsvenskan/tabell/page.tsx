@@ -69,7 +69,7 @@ export default async function AllsvenskanTabellPage() {
         <span className="text-foreground">Tabell</span>
       </nav>
 
-      <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2">ALLSVENSKAN TABELL 2026</h1>
+      <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2 text-balance">ALLSVENSKAN TABELL 2026</h1>
       <p className="text-muted-foreground mb-6">Uppdateras löpande under säsongen.</p>
 
       <nav aria-label="Allsvenskan-sidor" className="mb-8 flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
@@ -120,7 +120,7 @@ export default async function AllsvenskanTabellPage() {
               const zone = zoneFor(row.position);
               return (
               <tr key={row.team.name} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
-                <td className="py-3 px-4 text-muted-foreground">
+                <td className="py-3 px-4 text-muted-foreground font-mono tabular-nums">
                   <span className="inline-flex items-center gap-1.5">
                     {zone && (
                       <span
@@ -131,7 +131,7 @@ export default async function AllsvenskanTabellPage() {
                     {row.position}
                     {row.trend != null && row.trend !== 0 && (
                       <span
-                        className={`text-[10px] leading-none ${row.trend > 0 ? "text-success" : "text-red-400"}`}
+                        className={`text-xs leading-none ${row.trend > 0 ? "text-success" : "text-red-400"}`}
                         title={row.trend > 0 ? `Upp ${row.trend}` : `Ner ${Math.abs(row.trend)}`}
                         aria-label={row.trend > 0 ? `Klättrat ${row.trend} placeringar` : `Tappat ${Math.abs(row.trend)} placeringar`}
                       >
@@ -145,14 +145,14 @@ export default async function AllsvenskanTabellPage() {
                     {row.team.name}
                   </Link>
                 </td>
-                <td className="py-3 px-3 text-center text-muted-foreground">{row.played}</td>
-                <td className="py-3 px-3 text-center text-muted-foreground">{row.wins}</td>
-                <td className="py-3 px-3 text-center text-muted-foreground">{row.draws}</td>
-                <td className="py-3 px-3 text-center text-muted-foreground">{row.losses}</td>
-                <td className="py-3 px-3 text-center text-muted-foreground hidden sm:table-cell">{row.goals_for}</td>
-                <td className="py-3 px-3 text-center text-muted-foreground hidden sm:table-cell">{row.goals_against}</td>
-                <td className="py-3 px-3 text-center text-muted-foreground">{row.goal_diff > 0 ? `+${row.goal_diff}` : row.goal_diff}</td>
-                <td className="py-3 px-4 text-center font-bold text-foreground">{row.points}</td>
+                <td className="py-3 px-3 text-center text-muted-foreground font-mono tabular-nums">{row.played}</td>
+                <td className="py-3 px-3 text-center text-muted-foreground font-mono tabular-nums">{row.wins}</td>
+                <td className="py-3 px-3 text-center text-muted-foreground font-mono tabular-nums">{row.draws}</td>
+                <td className="py-3 px-3 text-center text-muted-foreground font-mono tabular-nums">{row.losses}</td>
+                <td className="py-3 px-3 text-center text-muted-foreground hidden sm:table-cell font-mono tabular-nums">{row.goals_for}</td>
+                <td className="py-3 px-3 text-center text-muted-foreground hidden sm:table-cell font-mono tabular-nums">{row.goals_against}</td>
+                <td className="py-3 px-3 text-center text-muted-foreground font-mono tabular-nums">{row.goal_diff > 0 ? `+${row.goal_diff}` : row.goal_diff}</td>
+                <td className="py-3 px-4 text-center font-bold text-foreground font-mono tabular-nums">{row.points}</td>
                 <td className="py-3 px-3 text-center hidden md:table-cell">
                   <span className="flex gap-0.5 justify-center">
                     {row.form.map((r, fi) => (

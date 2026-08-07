@@ -69,7 +69,7 @@ function Pagination({ page, total, urlBase }: { page: number; total: number; url
       ) : (
         <span className="opacity-40">Föregående</span>
       )}
-      <span className="text-muted-foreground tabular-nums">
+      <span className="text-muted-foreground font-mono tabular-nums">
         {page} / {totalPages}
       </span>
       {next ? (
@@ -288,7 +288,7 @@ export default async function NyheterPage({
 
           <header className="mb-5 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
             <h1
-              className="text-3xl font-bold text-foreground"
+              className="text-3xl font-bold text-foreground text-balance"
               style={{ fontFamily: "var(--font-display)" }}
             >
               {viewTitle}

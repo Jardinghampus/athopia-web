@@ -96,13 +96,13 @@ export function DailyPodcastPlayer({ episode, plan, className }: DailyPodcastPla
             <Headphones className="h-3.5 w-3.5 text-pitch-ink" aria-hidden />
             Athopia Daily
             {episode.episode_type === "club_daily" && (
-              <span className="rounded-full bg-pitch/15 px-2 py-0.5 text-[10px] text-pitch-ink">Ditt lag</span>
+              <span className="rounded-full bg-pitch/15 px-2 py-0.5 text-xs text-pitch-ink">Ditt lag</span>
             )}
           </div>
           <span className="text-xs text-muted-foreground">{dateLabel(episode.episode_date)}</span>
         </div>
 
-        <h2 className="text-lg sm:text-xl font-bold leading-snug text-foreground">{episode.title}</h2>
+        <h2 className="text-lg sm:text-xl font-bold leading-snug text-foreground text-balance">{episode.title}</h2>
         <p className="mt-1 text-xs text-muted-foreground">
           {episode.duration_sec ? `${Math.round(episode.duration_sec / 60)} min` : "~7 min"} · Allsvenskan idag
         </p>
@@ -175,7 +175,7 @@ export function DailyPodcastPlayer({ episode, plan, className }: DailyPodcastPla
                     style={{ width: `${progress}%` }}
                   />
                 </button>
-                <div className="mt-1.5 flex justify-between text-[11px] tabular-nums text-muted-foreground">
+                <div className="mt-1.5 flex justify-between text-xs font-mono tabular-nums text-muted-foreground">
                   <span>{formatTime(currentTime)}</span>
                   <span>{formatTime(duration)}</span>
                 </div>
@@ -194,7 +194,7 @@ export function DailyPodcastPlayer({ episode, plan, className }: DailyPodcastPla
                         void audioRef.current.play().then(() => setPlaying(true));
                       }
                     }}
-                    className="rounded-full border border-border bg-background/60 px-2.5 py-1 text-[11px] text-muted-foreground transition-colors hover:border-pitch/40 hover:text-foreground"
+                    className="rounded-full border border-border bg-background/60 px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:border-pitch/40 hover:text-foreground"
                   >
                     {chapter.label}
                   </button>

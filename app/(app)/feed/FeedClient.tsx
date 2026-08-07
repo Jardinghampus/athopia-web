@@ -64,10 +64,10 @@ function AISummaryCard({ item }: { item: FeedItem }) {
         <div className="w-7 h-7 rounded-full bg-amber-500/20 flex items-center justify-center shrink-0">
           <Sparkles className="w-3.5 h-3.5 text-amber-400" />
         </div>
-        <span className="text-[11px] font-semibold uppercase tracking-wide text-amber-400">
+        <span className="text-xs font-semibold uppercase tracking-wide text-amber-400">
           AI-analys
         </span>
-        <span className="text-[11px] text-muted-foreground ml-auto">{timeAgo(item.time)}</span>
+        <span className="text-xs text-muted-foreground ml-auto">{timeAgo(item.time)}</span>
       </div>
       <p className="text-sm font-semibold text-foreground group-hover:text-amber-300 transition-colors line-clamp-3 leading-snug">
         {item.title}
@@ -101,7 +101,7 @@ function CarouselCard({
     >
       <div>
         <div className="flex items-center gap-1.5 mb-2 flex-wrap">
-          <span className="text-[10px] font-bold text-pitch-ink uppercase tracking-wide">
+          <span className="text-xs font-bold text-pitch-ink uppercase tracking-wide">
             #{index + 1}
           </span>
           {(item.sourceCount ?? 0) > 1 || item.importanceTier === "breaking" || item.importanceTier === "major" ? (
@@ -112,8 +112,8 @@ function CarouselCard({
             />
           ) : item.source ? (
             <>
-              <span className="text-[10px] text-muted-foreground">·</span>
-              <span className="text-[10px] text-muted-foreground truncate">{item.source}</span>
+              <span className="text-xs text-muted-foreground">·</span>
+              <span className="text-xs text-muted-foreground truncate">{item.source}</span>
             </>
           ) : null}
         </div>
@@ -121,7 +121,7 @@ function CarouselCard({
           {item.title}
         </p>
       </div>
-      <p className="text-[11px] text-muted-foreground mt-3">{timeAgo(item.time)}</p>
+      <p className="text-xs text-muted-foreground mt-3">{timeAgo(item.time)}</p>
     </Link>
   );
 }
@@ -131,10 +131,10 @@ function TopNewsCarousel({ items, showCluster }: { items: FeedItem[]; showCluste
   return (
     <div className="-mx-4 sm:-mx-6">
       <div className="flex items-center justify-between px-4 sm:px-6 mb-3">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground text-balance">
           Topbnyheter
         </h2>
-        <span className="text-[10px] text-muted-foreground/50">Swipa →</span>
+        <span className="text-xs text-muted-foreground/50">Swipa →</span>
       </div>
       <div
         className="flex gap-3 overflow-x-auto px-4 sm:px-6 pb-2 snap-x snap-mandatory scroll-smooth"
@@ -203,14 +203,14 @@ function FeedItemCard({ item, showCluster }: { item: FeedItem; showCluster?: boo
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1 flex-wrap">
-          <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: meta.ink }}>
+          <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: meta.ink }}>
             {meta.label}
           </span>
-          <span className="text-[11px] text-muted-foreground">{timeAgo(item.time)}</span>
+          <span className="text-xs text-muted-foreground">{timeAgo(item.time)}</span>
           {(item.sourceCount ?? 0) <= 1 && item.source && (
             <>
-              <span className="text-[11px] text-muted-foreground">·</span>
-              <span className="text-[11px] text-muted-foreground truncate">{item.source}</span>
+              <span className="text-xs text-muted-foreground">·</span>
+              <span className="text-xs text-muted-foreground truncate">{item.source}</span>
             </>
           )}
         </div>
@@ -435,7 +435,7 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="font-bold text-4xl text-foreground leading-none">MITT FEED</h1>
+            <h1 className="font-bold text-4xl text-foreground leading-none text-balance">MITT FEED</h1>
             <p className="text-sm text-muted-foreground mt-1">{teamLabel}</p>
           </div>
           {!needsOnboarding && (

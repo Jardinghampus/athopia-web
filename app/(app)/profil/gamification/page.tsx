@@ -12,7 +12,7 @@ export default async function GamificationPage() {
 
   return (
     <main className="max-w-lg mx-auto px-4 py-8">
-      <h1 className="text-2xl font-black text-white mb-6">Din säsong</h1>
+      <h1 className="text-2xl font-black text-white mb-6 text-balance">Din säsong</h1>
       <GamificationHub />
     </main>
   )

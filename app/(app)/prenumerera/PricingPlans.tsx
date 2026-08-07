@@ -51,7 +51,7 @@ function ProPriceTag({ interval }: { interval: BillingInterval }) {
   const founder = FOUNDER_OFFER.active;
   return (
     <div className="mb-6">
-      <h2 className="font-semibold text-2xl text-pitch-ink mb-1">PRO</h2>
+      <h2 className="font-semibold text-2xl text-pitch-ink mb-1 text-balance">PRO</h2>
       <div className="flex items-baseline gap-2">
         <span className="text-4xl font-bold text-foreground">{amount / 100}</span>
         <span className="text-muted-foreground text-sm">kr / {interval === "year" ? "år" : "mån"}</span>
@@ -80,7 +80,7 @@ function ElitePriceTag({ interval }: { interval: BillingInterval }) {
   const amount = amountFor("elite", interval);
   return (
     <div className="mb-6">
-      <h2 className="font-semibold text-2xl text-pitch-ink mb-1">ELITE</h2>
+      <h2 className="font-semibold text-2xl text-pitch-ink mb-1 text-balance">ELITE</h2>
       <div className="flex items-baseline gap-1">
         <span className="text-4xl font-bold text-foreground">{amount / 100}</span>
         <span className="text-muted-foreground text-sm">kr / {interval === "year" ? "år" : "mån"}</span>
@@ -148,7 +148,7 @@ export function PricingPlans() {
         {/* Gratis */}
         <div className="rounded-2xl border border-border bg-card p-6 flex flex-col">
           <div className="mb-6">
-            <h2 className="font-semibold text-2xl text-foreground mb-1">GRATIS</h2>
+            <h2 className="font-semibold text-2xl text-foreground mb-1 text-balance">GRATIS</h2>
             <div className="flex items-baseline gap-1">
               <span className="text-4xl font-bold text-foreground">0</span>
               <span className="text-muted-foreground text-sm">kr / mån</span>

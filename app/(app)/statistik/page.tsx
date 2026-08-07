@@ -206,14 +206,14 @@ function PlayerLeaderboard({
         <tbody>
           {rows.slice(0, 30).map((row) => (
             <tr key={`${row.player_id}-${row.rank}`} className="border-b border-border/40 hover:bg-card/50 transition-colors">
-              <td className="py-3 px-3 text-xs font-semibold tabular-nums text-muted-foreground">{row.rank}</td>
+              <td className="py-3 px-3 text-xs font-semibold font-mono tabular-nums text-muted-foreground">{row.rank}</td>
               <td className="py-3 px-3"><PlayerCell row={row} /></td>
               {cols.map((col) => (
-                <td key={String(col.key)} className="py-3 px-3 text-center text-muted-foreground tabular-nums">
+                <td key={String(col.key)} className="py-3 px-3 text-center text-muted-foreground font-mono tabular-nums">
                   {fmt(row[col.key] as number | null, col.decimals)}
                 </td>
               ))}
-              <td className="py-3 px-3 text-center text-lg font-bold tabular-nums text-foreground">
+              <td className="py-3 px-3 text-center text-lg font-bold font-mono tabular-nums text-foreground">
                 {fmt(row[primary] as number | null, primaryDecimals)}
               </td>
             </tr>
@@ -257,7 +257,7 @@ async function TabelTab({ seasonId }: { seasonId: string }) {
             >
               <td className="py-3 px-3">
                 <span
-                  className={`text-xs font-semibold ${
+                  className={`text-xs font-semibold font-mono tabular-nums ${
                     i < 3 ? "text-pitch-ink" : "text-muted-foreground"
                   }`}
                 >
@@ -267,15 +267,15 @@ async function TabelTab({ seasonId }: { seasonId: string }) {
               <td className="py-3 px-3 font-medium">
                 <TeamCell name={row.team.name} image={row.team.image_path || undefined} />
               </td>
-              <td className="py-3 px-3 text-center text-muted-foreground">{row.played}</td>
-              <td className="py-3 px-3 text-center">{row.wins}</td>
-              <td className="py-3 px-3 text-center">{row.draws}</td>
-              <td className="py-3 px-3 text-center">{row.losses}</td>
-              <td className="py-3 px-3 text-center text-muted-foreground hidden sm:table-cell">
+              <td className="py-3 px-3 text-center text-muted-foreground font-mono tabular-nums">{row.played}</td>
+              <td className="py-3 px-3 text-center font-mono tabular-nums">{row.wins}</td>
+              <td className="py-3 px-3 text-center font-mono tabular-nums">{row.draws}</td>
+              <td className="py-3 px-3 text-center font-mono tabular-nums">{row.losses}</td>
+              <td className="py-3 px-3 text-center text-muted-foreground hidden sm:table-cell font-mono tabular-nums">
                 {row.goals_for}–{row.goals_against}
               </td>
               <td
-                className={`py-3 px-3 text-center font-medium ${
+                className={`py-3 px-3 text-center font-medium font-mono tabular-nums ${
                   row.goal_diff > 0
                     ? "text-success"
                     : row.goal_diff < 0
@@ -286,7 +286,7 @@ async function TabelTab({ seasonId }: { seasonId: string }) {
                 {row.goal_diff > 0 ? "+" : ""}
                 {row.goal_diff}
               </td>
-              <td className="py-3 px-3 text-center font-bold">{row.points}</td>
+              <td className="py-3 px-3 text-center font-bold font-mono tabular-nums">{row.points}</td>
               <td className="py-3 px-3 hidden md:table-cell">
                 <div className="flex items-center gap-0.5">
                   {row.form.map((r, idx) => (
@@ -379,7 +379,7 @@ async function FormTab({ seasonId }: { seasonId: string }) {
                     <FormBadge key={i} result={r} />
                   ))}
                 </span>
-                <span className="text-xs tabular-nums text-muted-foreground w-12 text-right">{pts}/15 p</span>
+                <span className="text-xs font-mono tabular-nums text-muted-foreground w-12 text-right">{pts}/15 p</span>
               </span>
             }
           />
@@ -397,24 +397,24 @@ async function PressTab({ seasonId }: { seasonId: string }) {
     <div className="space-y-8">
       <PlayerStatsExplorer players={allPlayers} />
       <section>
-        <h2 className="mb-3 text-base font-semibold text-foreground">Högst betyg</h2>
+        <h2 className="mb-3 text-base font-semibold text-foreground text-balance">Högst betyg</h2>
         <PlayerLeaderboard rows={ratings} primary="rating" primaryLabel="Betyg" primaryDecimals={2} />
       </section>
       <div className="grid gap-8 xl:grid-cols-2">
         <section>
-          <h2 className="mb-3 text-base font-semibold text-foreground">Flest skott</h2>
+          <h2 className="mb-3 text-base font-semibold text-foreground text-balance">Flest skott</h2>
           <PlayerLeaderboard rows={shots} primary="shots" primaryLabel="Skott" />
         </section>
         <section>
-          <h2 className="mb-3 text-base font-semibold text-foreground">Flest passningar</h2>
+          <h2 className="mb-3 text-base font-semibold text-foreground text-balance">Flest passningar</h2>
           <PlayerLeaderboard rows={passers} primary="passes" primaryLabel="Pass" />
         </section>
         <section>
-          <h2 className="mb-3 text-base font-semibold text-foreground">Flest tacklingar</h2>
+          <h2 className="mb-3 text-base font-semibold text-foreground text-balance">Flest tacklingar</h2>
           <PlayerLeaderboard rows={defenders} primary="tackles" primaryLabel="Tackl" />
         </section>
         <section>
-          <h2 className="mb-3 text-base font-semibold text-foreground">Kort</h2>
+          <h2 className="mb-3 text-base font-semibold text-foreground text-balance">Kort</h2>
           <PlayerLeaderboard
             rows={cards}
             primary="yellow_cards"
@@ -488,11 +488,11 @@ async function ProjektionTab() {
             {rows.map((r) => (
               <tr key={r.teamId} className="border-b border-border/40 hover:bg-card/50 transition-colors">
                 <td className="py-3 px-3 font-medium">{r.teamName}</td>
-                <td className="py-3 px-3 text-center tabular-nums">{r.points}</td>
-                <td className="py-3 px-3 text-center tabular-nums text-muted-foreground">{r.elo}</td>
-                <td className="py-3 px-3 text-center tabular-nums font-bold text-success">{(r.pChampion * 100).toFixed(1)}%</td>
-                <td className="py-3 px-3 text-center tabular-nums">{(r.pTop3 * 100).toFixed(1)}%</td>
-                <td className="py-3 px-3 text-center tabular-nums text-red-400">{(r.pRelegation * 100).toFixed(1)}%</td>
+                <td className="py-3 px-3 text-center font-mono tabular-nums">{r.points}</td>
+                <td className="py-3 px-3 text-center font-mono tabular-nums text-muted-foreground">{r.elo}</td>
+                <td className="py-3 px-3 text-center font-mono tabular-nums font-bold text-success">{(r.pChampion * 100).toFixed(1)}%</td>
+                <td className="py-3 px-3 text-center font-mono tabular-nums">{(r.pTop3 * 100).toFixed(1)}%</td>
+                <td className="py-3 px-3 text-center font-mono tabular-nums text-red-400">{(r.pRelegation * 100).toFixed(1)}%</td>
               </tr>
             ))}
           </tbody>
@@ -527,12 +527,12 @@ async function LuckTab() {
               return (
                 <tr key={r.teamId} className="border-b border-border/40 hover:bg-card/50 transition-colors">
                   <td className="py-3 px-3 font-medium">{r.teamName}</td>
-                  <td className="py-3 px-3 text-center tabular-nums">{r.actualPoints}</td>
-                  <td className="py-3 px-3 text-center tabular-nums text-muted-foreground">{r.xpts != null ? r.xpts.toFixed(1) : "–"}</td>
-                  <td className={`py-3 px-3 text-center tabular-nums font-bold ${luck > 0 ? "text-success" : luck < 0 ? "text-red-400" : ""}`}>
+                  <td className="py-3 px-3 text-center font-mono tabular-nums">{r.actualPoints}</td>
+                  <td className="py-3 px-3 text-center font-mono tabular-nums text-muted-foreground">{r.xpts != null ? r.xpts.toFixed(1) : "–"}</td>
+                  <td className={`py-3 px-3 text-center font-mono tabular-nums font-bold ${luck > 0 ? "text-success" : luck < 0 ? "text-red-400" : ""}`}>
                     {luck > 0 ? "+" : ""}{luck.toFixed(1)}
                   </td>
-                  <td className="py-3 px-3 text-center tabular-nums text-muted-foreground">{r.sos ?? "–"}</td>
+                  <td className="py-3 px-3 text-center font-mono tabular-nums text-muted-foreground">{r.sos ?? "–"}</td>
                 </tr>
               );
             })}
@@ -566,15 +566,15 @@ async function ClutchTab() {
           <tbody>
             {rows.map((r) => (
               <tr key={r.playerId} className="border-b border-border/40 hover:bg-card/50 transition-colors">
-                <td className="py-3 px-3 text-xs font-semibold tabular-nums text-muted-foreground">{r.rank}</td>
+                <td className="py-3 px-3 text-xs font-semibold font-mono tabular-nums text-muted-foreground">{r.rank}</td>
                 <td className="py-3 px-3">
                   <span className="font-medium">{r.playerName}</span>
                   <span className="ml-2 text-xs text-muted-foreground">{r.teamName}</span>
                 </td>
-                <td className="py-3 px-3 text-center tabular-nums">{r.goals}</td>
-                <td className="py-3 px-3 text-center tabular-nums text-pitch-ink">{r.trailingGoals}</td>
-                <td className="py-3 px-3 text-center tabular-nums">{r.levelGoals}</td>
-                <td className="py-3 px-3 text-center text-lg font-bold tabular-nums text-foreground">{r.clutchScore}</td>
+                <td className="py-3 px-3 text-center font-mono tabular-nums">{r.goals}</td>
+                <td className="py-3 px-3 text-center font-mono tabular-nums text-pitch-ink">{r.trailingGoals}</td>
+                <td className="py-3 px-3 text-center font-mono tabular-nums">{r.levelGoals}</td>
+                <td className="py-3 px-3 text-center text-lg font-bold font-mono tabular-nums text-foreground">{r.clutchScore}</td>
               </tr>
             ))}
           </tbody>
@@ -629,7 +629,7 @@ export default async function StatistikPage({
       <div className="w-full px-6 sm:px-8 py-8">
         <div className="mb-6 flex items-end justify-between">
           <div>
-            <h1 className="font-bold text-3xl text-foreground">Statistik</h1>
+            <h1 className="font-bold text-3xl text-foreground text-balance">Statistik</h1>
             <p className="text-muted-foreground mt-1 text-sm">Allsvenskan {sasong}</p>
           </div>
           <div className="flex items-center gap-2">

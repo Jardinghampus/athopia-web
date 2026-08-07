@@ -27,7 +27,7 @@ export function MobileDock() {
           <div className="flex items-center justify-between gap-3 rounded-[24px] border border-white/10 bg-[#111312]/90 p-2 pl-5 shadow-[0_16px_48px_rgba(0,0,0,0.55)] backdrop-blur-xl">
             <div className="min-w-0">
               <p className="font-heading text-base tracking-widest text-white">ATHOPIA</p>
-              <p className="truncate text-[11px] text-white/55">Gratis · inget kreditkort</p>
+              <p className="truncate text-xs text-white/55">Gratis · inget kreditkort</p>
             </div>
             <Link
               href="/onboarding"

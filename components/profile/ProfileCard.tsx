@@ -84,12 +84,12 @@ export function ProfileCard({ profile }: { profile: PublicProfile }) {
 
         {/* Nickname + verifierad / staff */}
         <div className="mt-4 flex items-center gap-1.5">
-          <h2 className="text-xl font-semibold text-foreground">{name}</h2>
+          <h2 className="text-xl font-semibold text-foreground text-balance">{name}</h2>
           {profile.verified && <BrandBadge kind="verified" size="md" />}
           {isAdmin && <BrandBadge kind="star" size="md" />}
         </div>
         {isColumnist && (
-          <span className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-pitch-ink">
+          <span className="mt-1 text-xs font-semibold uppercase tracking-wide text-pitch-ink">
             Journalist
           </span>
         )}

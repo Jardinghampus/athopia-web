@@ -36,7 +36,7 @@ export default async function AnalysListPage() {
       <p className="text-xs font-semibold text-amber-500 uppercase tracking-wide mb-3">
         Athopia AI
       </p>
-      <h1 className="font-bold text-3xl sm:text-4xl text-foreground mb-2 leading-tight">
+      <h1 className="font-bold text-3xl sm:text-4xl text-foreground mb-2 leading-tight text-balance">
         Matchanalyser
       </h1>
       <p className="text-sm text-muted-foreground mb-8">

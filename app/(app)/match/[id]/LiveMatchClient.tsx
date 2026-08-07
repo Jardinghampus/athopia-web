@@ -107,7 +107,7 @@ function LiveForumFeed({ teamIds }: { teamIds: string[] }) {
           <div key={r.id} className="bg-muted/40 rounded-lg p-2">
             <div className="flex items-center gap-2 mb-1">
               <span className="text-xs font-medium text-foreground">{r.author_name}</span>
-              <span className="text-[10px] text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 {new Date(r.created_at).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Stockholm" })}
               </span>
             </div>
@@ -191,7 +191,7 @@ export function LiveMatchClient({ fixtureId, initialStats, isLive, teamIds }: Li
         {/* Statistik */}
         {hasAnyStats && (
           <div className="bg-card border border-border rounded-xl p-4">
-            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-4">
+            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-4 text-balance">
               Matchstatistik
             </h3>
             {hasXg && (
@@ -212,7 +212,7 @@ export function LiveMatchClient({ fixtureId, initialStats, isLive, teamIds }: Li
 
       {/* Höger: live forum */}
       <div className="bg-card border border-border rounded-xl p-4 flex flex-col">
-        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3 text-balance">
           Forum live
         </h3>
         <LiveForumFeed teamIds={teamIds} />

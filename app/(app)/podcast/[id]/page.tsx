@@ -121,7 +121,7 @@ export default async function PodcastEpisodePage({
           <span className="text-sm text-pitch-ink font-medium">{episode.show_name ?? "Podcast"}</span>
         </div>
 
-        <h1 className="font-bold text-3xl sm:text-4xl text-foreground mb-4 leading-tight">
+        <h1 className="font-bold text-3xl sm:text-4xl text-foreground mb-4 leading-tight text-balance">
           {episode.title}
         </h1>
 

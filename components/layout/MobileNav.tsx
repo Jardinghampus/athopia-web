@@ -72,7 +72,7 @@ export function MobileNav() {
             </div>
 
             <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
-              <p className="px-3 pb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="px-3 pb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Snabbvägar
               </p>
               {BOTTOM_NAV_ITEMS.map(({ href, label, icon: Icon }) => {
@@ -95,7 +95,7 @@ export function MobileNav() {
 
               <div className="my-3 border-t border-border/40" />
 
-              <p className="px-3 pb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="px-3 pb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Mer
               </p>
               {SECONDARY_NAV_ITEMS.filter((i) => i.href !== "/mer").map(({ href, label, icon: Icon }) => {

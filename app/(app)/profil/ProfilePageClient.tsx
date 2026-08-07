@@ -33,7 +33,7 @@ function WelcomePopup({ onClose }: { onClose: () => void }) {
         <div className="w-14 h-14 rounded-2xl bg-pitch/15 border border-pitch/30 flex items-center justify-center mx-auto mb-4">
           <Sparkles className="w-7 h-7 text-pitch-ink" />
         </div>
-        <h2 className="font-semibold text-2xl text-foreground mb-2">Välkommen ombord!</h2>
+        <h2 className="font-semibold text-2xl text-foreground mb-2 text-balance">Välkommen ombord!</h2>
         <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
           Din profil är skapad. Nu är det dags att se ditt personliga fotbollsflöde.
         </p>
@@ -187,7 +187,7 @@ export function ProfilePageClient({
         {showWelcome && <WelcomePopup onClose={() => setShowWelcome(false)} />}
       </AnimatePresence>
     <div className="max-w-xl mx-auto px-4 sm:px-6 py-10 space-y-8">
-      <h1 className="font-bold text-4xl text-foreground">MIN PROFIL</h1>
+      <h1 className="font-bold text-4xl text-foreground text-balance">MIN PROFIL</h1>
 
       {/* Profilkort med kamera-overlay direkt på avataren */}
       <ProfileCardEditable profile={profile} onPickFile={() => fileRef.current?.click()} />
@@ -195,7 +195,7 @@ export function ProfilePageClient({
 
       {/* Redigera offentlig profil */}
       <section className="space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground text-balance">
           Offentlig profil
         </h2>
 
@@ -241,7 +241,7 @@ export function ProfilePageClient({
 
       {/* Byt favoritlag */}
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground text-balance">
           Mitt lag
         </h2>
         <select
@@ -257,7 +257,7 @@ export function ProfilePageClient({
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground text-balance">
           Nyhetsintressen
         </h2>
         <Link
@@ -271,7 +271,7 @@ export function ProfilePageClient({
 
       {/* Hemlig kontoinfo — ALDRIG offentlig */}
       <section className="space-y-3">
-        <h2 className="flex items-center gap-1.5 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+        <h2 className="flex items-center gap-1.5 text-sm font-semibold uppercase tracking-wider text-muted-foreground text-balance">
           <Lock className="h-3.5 w-3.5" /> Privat kontoinfo
         </h2>
         <p className="text-xs text-muted-foreground">Detta visas aldrig för andra användare.</p>
@@ -371,12 +371,12 @@ function ProfileCardEditable({ profile, onPickFile }: { profile: PublicProfile; 
         </div>
 
         <div className="mt-4 flex items-center gap-1.5">
-          <h2 className="text-xl font-semibold text-foreground">{name}</h2>
+          <h2 className="text-xl font-semibold text-foreground text-balance">{name}</h2>
           {profile.verified && <BrandBadge kind="verified" size="md" />}
           {isAdmin && <BrandBadge kind="star" size="md" />}
         </div>
         {isColumnist && (
-          <span className="mt-0.5 text-[11px] font-semibold uppercase tracking-wide text-pitch-ink">Journalist</span>
+          <span className="mt-0.5 text-xs font-semibold uppercase tracking-wide text-pitch-ink">Journalist</span>
         )}
         <p className="mt-1 text-xs text-muted-foreground">
           Tryck på bilden för att byta
@@ -431,7 +431,7 @@ function AccountManagement({ clerkUserId: _ }: { clerkUserId: string }) {
 
   return (
     <section className="space-y-3 pb-10">
-      <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+      <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground text-balance">
         Hantera konto
       </h2>
 

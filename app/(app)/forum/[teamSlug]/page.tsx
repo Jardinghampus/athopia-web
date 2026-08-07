@@ -148,7 +148,7 @@ export default async function ForumTeamPage({
                 <ChevronLeft className="w-5 h-5 text-zinc-400" />
               </Link>
               <div className="flex-1 min-w-0">
-                <h1 className="font-semibold text-[15px] text-white truncate">{teamName}</h1>
+                <h1 className="font-semibold text-[15px] text-white truncate text-balance">{teamName}</h1>
                 <p className="text-[12px] text-muted-foreground">Community</p>
               </div>
               <TeamDropdown teams={sidebarTeams} currentSlug={teamSlug} />

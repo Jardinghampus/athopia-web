@@ -74,14 +74,14 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
                 className="block rounded-xl border border-pitch/40 bg-card px-4 py-3 hover:bg-muted/40 transition-colors"
               >
                 <div className="flex items-center justify-between gap-2">
-                  <p className="text-[11px] font-bold tracking-wide text-pitch-ink">LIVE</p>
+                  <p className="text-xs font-bold tracking-wide text-pitch-ink">LIVE</p>
                   {typeof minute === "number" ? (
-                    <p className="text-[11px] tabular-nums text-muted-foreground">{minute}′</p>
+                    <p className="text-xs font-mono tabular-nums text-muted-foreground">{minute}′</p>
                   ) : null}
                 </div>
                 <p className="mt-1 font-semibold text-foreground">
                   {home}{" "}
-                  <span className="tabular-nums text-pitch-ink">{score}</span>{" "}
+                  <span className="font-mono tabular-nums text-pitch-ink">{score}</span>{" "}
                   {away}
                 </p>
               </TrackedLink>
@@ -99,7 +99,7 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
             <div key={mod.id}>
               {impression}
               <div className="rounded-xl border border-border bg-card px-4 py-3">
-                <p className="text-[11px] font-bold tracking-wide text-pitch-ink">
+                <p className="text-xs font-bold tracking-wide text-pitch-ink">
                   KOMMANDE
                 </p>
                 <ul className="mt-2 divide-y divide-border">
@@ -128,7 +128,7 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
                             {home} – {away}
                           </p>
                           {kickoff ? (
-                            <p className="shrink-0 text-[11px] tabular-nums text-muted-foreground">
+                            <p className="shrink-0 text-xs font-mono tabular-nums text-muted-foreground">
                               {kickoff}
                             </p>
                           ) : null}
@@ -152,7 +152,7 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
             <div key={mod.id}>
               {impression}
               <div className="rounded-xl border border-border bg-card px-4 py-3">
-                <p className="text-[11px] font-bold tracking-wide text-pitch-ink">
+                <p className="text-xs font-bold tracking-wide text-pitch-ink">
                   TOPPNYHETER
                 </p>
                 <ul className="mt-2 divide-y divide-border">
@@ -172,7 +172,7 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
                             {title}
                           </p>
                           {source ? (
-                            <p className="mt-0.5 text-[11px] text-muted-foreground">
+                            <p className="mt-0.5 text-xs text-muted-foreground">
                               {source}
                             </p>
                           ) : null}
@@ -202,7 +202,7 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
                 props={props}
                 className="block rounded-xl border border-pitch/30 bg-card px-4 py-3 hover:bg-muted/40 transition-colors"
               >
-                <p className="text-[11px] font-bold tracking-wide text-pitch-ink">
+                <p className="text-xs font-bold tracking-wide text-pitch-ink">
                   ATHOPIA
                 </p>
                 <p className="mt-1 font-semibold text-foreground line-clamp-2">
@@ -244,13 +244,13 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
                 className="block rounded-xl border border-border bg-card px-4 py-3 hover:bg-muted/40 transition-colors"
               >
                 <div className="flex items-center justify-between gap-2">
-                  <p className="text-[11px] font-bold tracking-wide text-pitch-ink">
+                  <p className="text-xs font-bold tracking-wide text-pitch-ink">
                     DAILY
                   </p>
                   {!unlocked ? (
-                    <p className="text-[11px] font-semibold text-pitch-ink">PRO</p>
+                    <p className="text-xs font-semibold text-pitch-ink">PRO</p>
                   ) : mins != null ? (
-                    <p className="text-[11px] tabular-nums text-muted-foreground">
+                    <p className="text-xs font-mono tabular-nums text-muted-foreground">
                       ~{mins} min
                     </p>
                   ) : null}
@@ -280,7 +280,7 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
                 props={props}
                 className="block rounded-xl border border-pitch/30 bg-card px-4 py-3 hover:bg-muted/40 transition-colors"
               >
-                <p className="text-[11px] font-bold tracking-wide text-pitch-ink">PODD</p>
+                <p className="text-xs font-bold tracking-wide text-pitch-ink">PODD</p>
                 <p className="mt-1 font-semibold text-foreground line-clamp-2">{title}</p>
                 <p className="mt-0.5 text-sm text-pitch-ink">{show}</p>
               </TrackedLink>
@@ -305,7 +305,7 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
                 props={props}
                 className="block rounded-xl border border-border bg-card px-4 py-3 hover:bg-muted/40 transition-colors"
               >
-                <p className="text-[11px] font-bold tracking-wide text-pitch-ink">SNACKIS JUST NU</p>
+                <p className="text-xs font-bold tracking-wide text-pitch-ink">SNACKIS JUST NU</p>
                 <p className="mt-1 font-semibold text-foreground line-clamp-2">{title}</p>
               </TrackedLink>
             </div>
@@ -323,14 +323,14 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
                 props={props}
                 className="block rounded-xl border border-border bg-card px-4 py-3 hover:bg-muted/40 transition-colors"
               >
-                <p className="text-[11px] font-bold tracking-wide text-pitch-ink">TABELL</p>
+                <p className="text-xs font-bold tracking-wide text-pitch-ink">TABELL</p>
                 <ul className="mt-2 space-y-1">
                   {rows.map((raw) => {
                     const r = raw as Record<string, unknown>;
                     return (
                       <li
                         key={String(r.teamSlug ?? r.teamName)}
-                        className="flex justify-between text-sm tabular-nums"
+                        className="flex justify-between text-sm font-mono tabular-nums"
                       >
                         <span>
                           {String(r.position)}. {String(r.teamName)}

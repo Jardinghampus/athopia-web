@@ -146,7 +146,7 @@ function Toggle({
     <div className="flex items-start justify-between gap-3">
       <div>
         <p className="text-xs font-medium text-white">{label}</p>
-        <p className="text-[11px] leading-snug text-zinc-500">{description}</p>
+        <p className="text-xs leading-snug text-zinc-500">{description}</p>
       </div>
       <button
         id={id}

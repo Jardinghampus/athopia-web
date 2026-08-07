@@ -27,7 +27,7 @@ export function SeasonStreakBar({
 
       <div className="flex items-end gap-3">
         <motion.span
-          className="text-4xl font-black text-white tabular-nums"
+          className="text-4xl font-black text-white font-mono tabular-nums"
           key={streak.current_streak}
           initial={{ scale: 1.2 }}
           animate={{ scale: 1 }}

@@ -65,7 +65,7 @@ export default function PrenumereraPage() {
             ? `Founder-pris: 69 kr/mån för alltid — först till ${FOUNDER_OFFER.cap}`
             : `PRO ${TRIAL_DAYS} dagar gratis · sedan 89 kr/mån`}
         </div>
-        <h1 className="font-bold text-6xl sm:text-7xl text-foreground mb-4">
+        <h1 className="font-bold text-6xl sm:text-7xl text-foreground mb-4 text-balance">
           ALLSVENSKANS HEMMAPLAN
         </h1>
         <p className="text-muted-foreground text-lg max-w-xl mx-auto">

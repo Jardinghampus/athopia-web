@@ -30,16 +30,16 @@ export function MatchdayBanner({
       >
         <div className="flex min-w-0 items-center gap-2">
           {isLive ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-background">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-background">
               <Radio className="size-3 animate-pulse" />
               Live
             </span>
           ) : isFinished ? (
-            <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Slutresultat
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+            <span className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               <Clock className="size-3" />
               Matchdag · {formatKickoff(match.kickoff_at)}
             </span>

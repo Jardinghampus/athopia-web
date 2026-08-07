@@ -133,7 +133,7 @@ async function DailyAuthArea({
       ) : (
         <section className="rounded-xl border border-border bg-card px-5 py-8 text-center">
           <Sparkles className="mx-auto h-8 w-8 text-pitch-ink mb-3" aria-hidden />
-          <h2 className="text-lg font-semibold text-foreground">Första avsnittet kommer snart</h2>
+          <h2 className="text-lg font-semibold text-foreground text-balance">Första avsnittet kommer snart</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Athopia Daily publiceras varje morgon efter granskning. Skapa konto så får du briefen direkt i appen.
           </p>
@@ -207,7 +207,7 @@ export default async function DailyPage({
           <Headphones className="h-3.5 w-3.5" aria-hidden />
           Athopia Daily
         </p>
-        <h1 className="mt-4 text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
+        <h1 className="mt-4 text-3xl sm:text-4xl font-bold tracking-tight text-foreground text-balance">
           {teamLabel ? `Ditt lag · ${teamLabel}` : "Allsvenskan på 7 minuter"}
         </h1>
         <p className="mt-3 text-sm sm:text-base text-muted-foreground max-w-lg mx-auto leading-relaxed">

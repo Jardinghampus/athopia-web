@@ -245,7 +245,7 @@ export default function PostItem({
                     {timeAgo(post.created_at)}
                   </span>
                   {post.pinned && (
-                    <span className="text-[11px] font-medium text-pitch-ink bg-pitch/10 px-1.5 py-0.5 rounded-full">
+                    <span className="text-xs font-medium text-pitch-ink bg-pitch/10 px-1.5 py-0.5 rounded-full">
                       📌 Fäst
                     </span>
                   )}
@@ -261,7 +261,7 @@ export default function PostItem({
               {/* Label badge */}
               {label && post.label && (
                 <span
-                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border mb-2 ${label.bg} ${label.text}`}
+                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border mb-2 ${label.bg} ${label.text}`}
                 >
                   {label.emoji}
                   {post.label.charAt(0).toUpperCase() + post.label.slice(1)}

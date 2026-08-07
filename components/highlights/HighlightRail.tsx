@@ -19,7 +19,7 @@ export function HighlightRail({
     <section className="rounded-2xl border border-border bg-card px-5 py-4">
       <div className="mb-3 flex items-center gap-2">
         <Film className="h-4 w-4 text-muted-foreground" aria-hidden />
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground text-balance">
           {title}
         </h2>
       </div>

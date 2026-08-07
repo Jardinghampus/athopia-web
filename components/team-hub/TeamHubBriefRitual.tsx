@@ -54,7 +54,7 @@ export function TeamHubBriefRitual({
               <span className="text-xs text-muted-foreground">{dateLabel(pulse.pulse_date)}</span>
             </div>
 
-            <h2 className="text-xl sm:text-2xl font-bold leading-snug text-foreground">{pulse.headline}</h2>
+            <h2 className="text-xl sm:text-2xl font-bold leading-snug text-foreground text-balance">{pulse.headline}</h2>
             {pulse.dek && (
               <p className="mt-2 text-sm font-medium text-muted-foreground">{pulse.dek}</p>
             )}

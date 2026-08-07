@@ -26,12 +26,12 @@ export async function TeamPushPopups() {
               <BellRing className="h-3.5 w-3.5" />
               Viktig lagnotis
             </span>
-            <span className="tabular-nums text-muted-foreground">
+            <span className="font-mono tabular-nums text-muted-foreground">
               {formatScore(item.feedScore ?? item.importanceScore)}
             </span>
           </div>
           <h3
-            className="line-clamp-2 text-[15px] font-semibold leading-snug text-foreground"
+            className="line-clamp-2 text-[15px] font-semibold leading-snug text-foreground text-balance"
             style={{ fontFamily: "system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif" }}
           >
             {item.title}

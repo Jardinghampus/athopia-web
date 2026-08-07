@@ -215,13 +215,13 @@ export function ScoutClient({ pool }: { pool: ScoutPlayer[] }) {
               <ListRow
                 key={`${p.player_id}-${i}`}
                 href={`/spelare/${p.slug ?? p.player_id}`}
-                leading={<span className="text-xs tabular-nums text-muted-foreground">{i + 1}</span>}
+                leading={<span className="text-xs font-mono tabular-nums text-muted-foreground">{i + 1}</span>}
                 title={p.fullname}
                 subtitle={`${p.team_name} · ${p.position?.slice(0, 3) ?? "–"} · ${p.minutes}′`}
                 trailing={
-                  <span className="tabular-nums">
+                  <span className="font-mono tabular-nums">
                     <span className="font-bold text-foreground">{fmtMetric(primaryMetric, p[primaryMetric])}</span>
-                    <span className={`ml-1.5 text-[11px] ${delta >= 0 ? "text-success" : "text-red-400"}`}>
+                    <span className={`ml-1.5 text-xs ${delta >= 0 ? "text-success" : "text-red-400"}`}>
                       {delta >= 0 ? "+" : ""}{fmtMetric(primaryMetric, delta)}
                     </span>
                   </span>

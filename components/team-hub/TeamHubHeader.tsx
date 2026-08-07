@@ -138,7 +138,7 @@ function KeyStat({ label, value, accent, signed }: { label: string; value: numbe
           className={`text-xl ${accent ? "text-pitch-ink" : "text-foreground"}`}
         />
       )}
-      <p className="text-[10px] text-muted-foreground mt-0.5">{label}</p>
+      <p className="text-xs text-muted-foreground mt-0.5">{label}</p>
     </TactileCard>
   );
 }

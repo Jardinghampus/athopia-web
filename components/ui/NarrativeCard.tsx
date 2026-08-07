@@ -47,7 +47,7 @@ export function NarrativeCard({ narrative, compact = false }: NarrativeCardProps
       className="group block rounded-2xl border border-border bg-card p-4 hover:border-pitch/30 transition-colors"
     >
       <div className="flex items-start justify-between gap-3">
-        <h3 className="font-heading text-xl text-foreground leading-tight line-clamp-2">
+        <h3 className="font-heading text-xl text-foreground leading-tight line-clamp-2 text-balance">
           {narrative.topic}
         </h3>
         <TrendIcon trend={narrative.trend} />

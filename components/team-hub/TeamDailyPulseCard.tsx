@@ -33,7 +33,7 @@ export function TeamDailyPulseCard({ pulse }: { pulse: TeamDailyPulse | null }) 
         </div>
 
         <div className="space-y-2">
-          <h2 className="text-lg font-semibold leading-snug text-foreground">{pulse.headline}</h2>
+          <h2 className="text-lg font-semibold leading-snug text-foreground text-balance">{pulse.headline}</h2>
           <p className="text-sm font-medium text-muted-foreground">{pulse.dek}</p>
           <p className="text-sm leading-relaxed text-muted-foreground">{pulse.body}</p>
         </div>

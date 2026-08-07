@@ -64,7 +64,7 @@ export function MatchForum({ fixtureId, homeName, awayName }: {
     <section className="flex flex-col gap-3">
       <div className="flex items-center gap-2">
         <MessageSquare className="h-4 w-4 text-muted-foreground" />
-        <h2 className="text-sm font-semibold text-foreground">
+        <h2 className="text-sm font-semibold text-foreground text-balance">
           Diskussion · {homeName} vs {awayName}
         </h2>
         <span className="text-xs text-muted-foreground ml-auto">{posts.length} inlägg</span>
@@ -113,7 +113,7 @@ export function MatchForum({ fixtureId, homeName, awayName }: {
                 <img src={p.author_avatar} alt="" className="w-5 h-5 rounded-full" />
               )}
               <span className="text-xs font-semibold text-foreground">{p.author_name}</span>
-              <span className="text-[10px] text-muted-foreground ml-auto">{fmt(p.created_at)}</span>
+              <span className="text-xs text-muted-foreground ml-auto">{fmt(p.created_at)}</span>
             </div>
             <p className="text-sm text-foreground/90 leading-snug">{p.content}</p>
           </div>

@@ -57,7 +57,7 @@ export function CompactChatPanel({
       <section className="rounded-xl border border-border bg-card p-4">
         <div className="flex items-center gap-2 mb-2">
           <Bot className="h-4 w-4 text-pitch-ink" />
-          <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+          <h3 className="text-sm font-semibold text-foreground text-balance">{title}</h3>
         </div>
         <p className="text-sm text-muted-foreground">
           {subtitle ?? 'Ställ frågor om matchen med AI — kräver PRO.'}{' '}
@@ -82,7 +82,7 @@ export function CompactChatPanel({
             <Bot className="h-4 w-4 text-white" />
           </div>
           <div className="min-w-0">
-            <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+            <h3 className="text-sm font-semibold text-foreground text-balance">{title}</h3>
             {subtitle && !open && (
               <p className="text-xs text-muted-foreground truncate">{subtitle}</p>
             )}
@@ -194,7 +194,7 @@ export function CompactChatPanel({
             <button
               type="button"
               onClick={() => setMessages([])}
-              className="mt-2 text-[11px] text-muted-foreground hover:text-foreground"
+              className="mt-2 text-xs text-muted-foreground hover:text-foreground"
             >
               Rensa konversation
             </button>

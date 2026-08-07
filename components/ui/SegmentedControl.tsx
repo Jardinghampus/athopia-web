@@ -53,7 +53,7 @@ export function SegmentedControl<T extends string>({
             className={cn(
               // min-h-11 = 44px touchmål på mobil; kompaktare med pekdon på sm+
               "relative min-w-0 flex-1 basis-0 rounded-lg px-1.5 sm:px-3 py-1.5 min-h-11 sm:min-h-9",
-              "text-[11px] sm:text-sm font-medium leading-tight whitespace-nowrap",
+              "text-xs sm:text-sm font-medium leading-tight whitespace-nowrap",
               "transition-colors duration-200 select-none touch-manipulation outline-none focus-visible:ring-2 focus-visible:ring-ring",
               active ? "text-foreground" : "text-muted-foreground hover:text-foreground"
             )}

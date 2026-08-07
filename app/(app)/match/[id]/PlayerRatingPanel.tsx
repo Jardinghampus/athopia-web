@@ -47,7 +47,7 @@ export function PlayerRatingPanel({ fixtureId, players }: { fixtureId: number; p
   return (
     <div className="bg-card border border-border rounded-xl p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Betygsätt insatsen</h3>
+        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide text-balance">Betygsätt insatsen</h3>
         {!isSignedIn && (
           <SignInButton mode="modal">
             <button className="text-xs text-pitch-ink hover:underline">Logga in för att rösta</button>
@@ -63,7 +63,7 @@ export function PlayerRatingPanel({ fixtureId, players }: { fixtureId: number; p
                 <div className="flex items-center gap-2 text-sm">
                   <span className="flex-1 text-foreground/80 truncate">{p.name}</span>
                   {p.avg != null && (
-                    <span className="text-xs tabular-nums text-muted-foreground">
+                    <span className="text-xs font-mono tabular-nums text-muted-foreground">
                       {p.avg.toFixed(1)} ({p.votes})
                     </span>
                   )}

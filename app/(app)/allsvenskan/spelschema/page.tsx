@@ -43,7 +43,7 @@ export default async function AllsvenskanSpelschemePage() {
         />
       </div>
 
-      <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2">ALLSVENSKAN SPELSCHEMA 2026</h1>
+      <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2 text-balance">ALLSVENSKAN SPELSCHEMA 2026</h1>
       <p className="text-muted-foreground mb-8">Nästa omgångar i Allsvenskan 2026.</p>
 
       {upcoming.length === 0 ? (

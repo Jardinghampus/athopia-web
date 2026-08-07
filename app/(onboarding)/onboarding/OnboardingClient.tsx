@@ -194,7 +194,7 @@ export function OnboardingClient() {
               transition={{ duration: 0.28 }}
               className="absolute inset-0 flex flex-col px-5 pb-8 overflow-y-auto"
             >
-              <h1 className="font-heading text-3xl text-foreground mt-2 mb-2">Välj ditt lag</h1>
+              <h1 className="font-heading text-3xl text-foreground mt-2 mb-2 text-balance">Välj ditt lag</h1>
               <p className="text-sm text-muted-foreground mb-6">
                 Du får brief, matchdag och forum för just dem.
               </p>
@@ -241,7 +241,7 @@ export function OnboardingClient() {
               transition={{ duration: 0.28 }}
               className="absolute inset-0 flex flex-col px-5 pb-8 overflow-y-auto"
             >
-              <h1 className="font-heading text-3xl text-foreground mt-2 mb-2">
+              <h1 className="font-heading text-3xl text-foreground mt-2 mb-2 text-balance">
                 Så här ser {preview?.team.name ?? teamObj?.name ?? "ditt lag"} ut
               </h1>
               <p className="text-sm text-muted-foreground mb-6">
@@ -259,7 +259,7 @@ export function OnboardingClient() {
                   {preview.position != null ? (
                     <div className="rounded-2xl border border-border bg-card px-4 py-3">
                       <p className="text-xs uppercase tracking-wide text-muted-foreground">Tabell</p>
-                      <p className="text-2xl font-semibold tabular-nums mt-1">
+                      <p className="text-2xl font-semibold font-mono tabular-nums mt-1">
                         {preview.position}
                         <span className="text-sm font-normal text-muted-foreground"> / 16</span>
                       </p>
@@ -271,7 +271,7 @@ export function OnboardingClient() {
                       <p className="font-semibold mt-1">
                         {preview.nextMatch.home} – {preview.nextMatch.away}
                       </p>
-                      <p className="text-sm text-muted-foreground tabular-nums mt-0.5">
+                      <p className="text-sm text-muted-foreground font-mono tabular-nums mt-0.5">
                         {formatKickoff(preview.nextMatch.kickoffAt)}
                       </p>
                     </div>
@@ -318,7 +318,7 @@ export function OnboardingClient() {
               transition={{ duration: 0.28 }}
               className="absolute inset-0 flex flex-col px-5 pb-8"
             >
-              <h1 className="font-heading text-3xl text-foreground mt-2 mb-2">Notiser</h1>
+              <h1 className="font-heading text-3xl text-foreground mt-2 mb-2 text-balance">Notiser</h1>
               <p className="text-sm text-muted-foreground mb-8">
                 Valfritt. Få push när ditt lag har breaking news eller matchdag.
               </p>

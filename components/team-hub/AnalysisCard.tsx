@@ -56,14 +56,14 @@ export function AnalysisCard({
     >
       <div className="flex flex-wrap items-center gap-2 mb-3">
         <span
-          className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${sev.cls}`}
+          className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${sev.cls}`}
         >
           {sev.label}
         </span>
-        <span className="text-[11px] text-muted-foreground">
+        <span className="text-xs text-muted-foreground">
           {TYPE_LABEL[insight.insightType] ?? "Analys"}
         </span>
-        <span className="text-[11px] text-muted-foreground inline-flex items-center gap-1">
+        <span className="text-xs text-muted-foreground inline-flex items-center gap-1">
           <Clock className="h-3 w-3" aria-hidden />
           <time dateTime={insight.generatedAt}>{relativeTime(insight.generatedAt)}</time>
         </span>
@@ -86,7 +86,7 @@ export function AnalysisCard({
 
       {sources.length > 0 && (
         <div className="mt-4 border-t border-border pt-3">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-2 inline-flex items-center gap-1.5">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2 inline-flex items-center gap-1.5">
             <Layers className="h-3 w-3" aria-hidden />
             Underlag · {sources.length} {sources.length === 1 ? "källa" : "källor"}
           </p>

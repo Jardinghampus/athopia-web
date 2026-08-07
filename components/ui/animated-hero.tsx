@@ -52,7 +52,7 @@ export function AnimatedHero({
 
           <div className="flex gap-4 flex-col w-full">
             <h1
-              className="font-heading max-w-6xl w-full text-center mx-auto px-2"
+              className="font-heading max-w-6xl w-full text-center mx-auto px-2 text-balance"
               style={{ fontSize: "clamp(2.5rem, 1.3rem + 5vw, 6.5rem)", lineHeight: 1.08, letterSpacing: "-0.015em" }}
             >
               <span className="text-white">{lead}</span>

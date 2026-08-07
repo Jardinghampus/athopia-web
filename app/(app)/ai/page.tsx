@@ -283,7 +283,7 @@ function EmptyState({ onAsk }: { onAsk: (q: string) => void }) {
       </motion.div>
 
       <div className="text-center">
-        <h2 className="text-xl font-semibold text-foreground">Vad vill du veta?</h2>
+        <h2 className="text-xl font-semibold text-foreground text-balance">Vad vill du veta?</h2>
         <p className="mt-1 text-sm text-muted-foreground">Fråga om Allsvenskan — statistik, matcher, nyheter</p>
       </div>
 

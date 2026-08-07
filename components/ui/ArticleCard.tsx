@@ -63,7 +63,7 @@ function CardLink({
 
 function SourceBadge({ sourceName }: { sourceName: string }) {
   return (
-    <Badge variant="secondary" className="text-[11px] px-2 py-0.5 bg-foreground/5 text-foreground/70 border border-border">
+    <Badge variant="secondary" className="text-xs px-2 py-0.5 bg-foreground/5 text-foreground/70 border border-border">
       {sourceName}
     </Badge>
   );
@@ -112,7 +112,7 @@ export function ArticleCard({ article, size = "md", priority = false, commentCou
         className={cn(base, "p-4")}
       >
         <div className="flex items-start justify-between gap-3">
-          <h3 className={cn("font-heading leading-tight text-foreground group-hover:text-pitch-ink transition-colors", titleClass)}>
+          <h3 className={cn("font-heading leading-tight text-foreground text-balance group-hover:text-pitch-ink transition-colors", titleClass)}>
             {truncate(article.title, 90)}
           </h3>
           <SourceBadge sourceName={article.sourceName} />
@@ -160,7 +160,7 @@ export function ArticleCard({ article, size = "md", priority = false, commentCou
             <span className="text-xs text-muted-foreground">{readTime}</span>
           </div>
           {typeof commentCount === "number" && commentCount > 0 && (
-            <span className="flex items-center gap-1 text-xs text-muted-foreground tabular-nums shrink-0">
+            <span className="flex items-center gap-1 text-xs text-muted-foreground font-mono tabular-nums shrink-0">
               <MessageSquare className="w-3.5 h-3.5" />
               {commentCount}
             </span>
@@ -181,7 +181,7 @@ export function ArticleCard({ article, size = "md", priority = false, commentCou
         </div>
 
         {/* Rubrik */}
-        <h3 className={cn("font-heading leading-tight text-foreground group-hover:text-pitch-ink transition-colors", titleClass)}>
+        <h3 className={cn("font-heading leading-tight text-foreground text-balance group-hover:text-pitch-ink transition-colors", titleClass)}>
           {article.title}
         </h3>
 

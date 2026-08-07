@@ -122,7 +122,7 @@ export default async function JamforPage({ searchParams }: PageProps) {
       {/* Header */}
       <div>
         <h1
-          className="text-4xl font-bold text-foreground mb-1"
+          className="text-4xl font-bold text-foreground mb-1 text-balance"
           style={{ fontFamily: "var(--font-display)" }}
         >
           STATISTIKJÄMFÖRELSE
@@ -175,7 +175,7 @@ export default async function JamforPage({ searchParams }: PageProps) {
 
           {/* Nyckeltal */}
           <div className="bg-card border border-border rounded-xl p-4">
-            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3 text-balance">
               Nyckeltal
             </h2>
             <StatRow label="Poäng" a={statsA.points} b={statsB.points} />

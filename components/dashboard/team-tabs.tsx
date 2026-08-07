@@ -23,7 +23,7 @@ export function TeamTabs({ teams, active }: { teams: DashTeam[]; active: string 
           <TabsTrigger key={t.slug} value={t.slug} className="gap-2">
             <Avatar className="h-5 w-5">
               <AvatarImage src={t.logo_url ?? undefined} alt={t.name} />
-              <AvatarFallback className="text-[10px]">
+              <AvatarFallback className="text-xs">
                 {t.name.slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>

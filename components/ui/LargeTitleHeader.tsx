@@ -69,7 +69,7 @@ export function LargeTitleHeader({
       {/* Stor titel som scrollar med */}
       <div ref={sentinelRef} className="px-4 pb-3 pt-1">
         {titleContent ?? (
-          <h1 className="text-[34px] font-bold tracking-tight">{title}</h1>
+          <h1 className="text-[34px] font-bold tracking-tight text-balance">{title}</h1>
         )}
         {subtitle && (
           <div className="mt-1 text-sm text-muted-foreground">{subtitle}</div>

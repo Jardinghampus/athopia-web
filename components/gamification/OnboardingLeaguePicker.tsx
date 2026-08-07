@@ -56,7 +56,7 @@ export function OnboardingLeaguePicker({ onComplete }: { onComplete: () => void 
     <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-6">
       <div className="max-w-md w-full space-y-6">
         <div>
-          <h2 className="text-2xl font-black text-white">Välj ditt lag</h2>
+          <h2 className="text-2xl font-black text-white text-balance">Välj ditt lag</h2>
           <p className="text-white/50 text-sm mt-1">
             Du tävlar mot andra fans av samma lag. Välj klokt.
           </p>

@@ -119,7 +119,7 @@ export default function NotificationBell({ teamSlug }: { teamSlug: string }) {
                       )}
                       <div className={!n.read ? "" : "ml-4"}>
                         <p className="text-xs text-foreground leading-snug">{notifText(n)}</p>
-                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                        <p className="text-xs text-muted-foreground mt-0.5">
                           {timeAgo(n.created_at)}
                         </p>
                       </div>

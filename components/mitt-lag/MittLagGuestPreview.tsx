@@ -71,7 +71,7 @@ export function MittLagGuestPreview() {
           <Star className="h-7 w-7 text-pitch-ink" />
         </div>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Mitt lag</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground text-balance">Mitt lag</h1>
           <p className="text-muted-foreground text-sm mt-2">
             Välj favoritlag för en ärlig förhandsvisning — utan konto.
           </p>
@@ -119,7 +119,7 @@ export function MittLagGuestPreview() {
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Förhandsvisning · {preview.team.name}
         </p>
-        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground mt-1">
+        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground mt-1 text-balance">
           {preview.team.name}
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
@@ -170,7 +170,7 @@ export function MittLagGuestPreview() {
           <p className="mt-2 text-lg font-semibold">
             {preview.nextMatch.home} – {preview.nextMatch.away}
           </p>
-          <p className="text-sm text-muted-foreground mt-1 tabular-nums">
+          <p className="text-sm text-muted-foreground mt-1 font-mono tabular-nums">
             {formatKickoff(preview.nextMatch.kickoffAt)}
           </p>
         </Link>

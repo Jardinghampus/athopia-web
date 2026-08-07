@@ -34,7 +34,7 @@ export function AppBreadcrumbs({
 
   return (
     <Breadcrumb className={className}>
-      <BreadcrumbList className="gap-1 text-[11px] sm:text-xs tracking-wide">
+      <BreadcrumbList className="gap-1 text-xs sm:text-xs tracking-wide">
         {items.map((item, i) => {
           const last = i === items.length - 1;
           const label = truncate(item.label, last ? 42 : 28);

@@ -41,7 +41,7 @@ export function MatchXgChart({
 
   return (
     <div className="bg-card border border-border rounded-xl p-4 space-y-3">
-      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide text-balance">
         Mål mot förväntan (xG)
       </h3>
       <ResponsiveContainer width="100%" height={200}>
@@ -64,7 +64,7 @@ export function MatchXgChart({
         {data.map((d) => (
           <p key={d.team} className="text-muted-foreground">
             <span className="font-semibold text-foreground">{d.team}</span> {verdict(d.diff)}{" "}
-            <span className="tabular-nums">({d.diff >= 0 ? "+" : ""}{d.diff.toFixed(2)})</span>
+            <span className="font-mono tabular-nums">({d.diff >= 0 ? "+" : ""}{d.diff.toFixed(2)})</span>
           </p>
         ))}
       </div>

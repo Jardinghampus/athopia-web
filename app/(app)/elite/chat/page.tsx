@@ -53,7 +53,7 @@ export default function EliteChatPage() {
     <div className="mx-auto flex h-[calc(100vh-4rem)] max-w-3xl flex-col px-4 py-6">
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight">AI-assistent</h1>
+          <h1 className="text-xl font-bold tracking-tight text-balance">AI-assistent</h1>
           <p className="text-sm text-zinc-400">Allsvenskan — statistik, nyheter &amp; matcher</p>
         </div>
         {remaining !== null && (
@@ -128,7 +128,7 @@ export default function EliteChatPage() {
         onSubmit={(e) => { e.preventDefault(); submit(input) }}
         className="flex items-end gap-2 rounded-3xl border border-zinc-800 bg-zinc-900 px-3 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]"
       >
-        <span className="mb-1.5 shrink-0 rounded-full bg-zinc-800 px-2 py-1 text-[11px] font-medium text-zinc-400">
+        <span className="mb-1.5 shrink-0 rounded-full bg-zinc-800 px-2 py-1 text-xs font-medium text-zinc-400">
           Athopia AI
         </span>
         <textarea

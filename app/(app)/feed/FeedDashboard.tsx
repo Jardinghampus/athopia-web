@@ -184,7 +184,7 @@ function AIBriefCard({ news }: { news: DashArticle[] }) {
     <Card className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <span className="text-xs font-semibold text-pitch-ink">AI Brief</span>
-        <span className="text-xs text-muted-foreground tabular-nums">{now}</span>
+        <span className="text-xs text-muted-foreground font-mono tabular-nums">{now}</span>
       </div>
 
       {bullets.length > 0 ? (
@@ -241,7 +241,7 @@ function PositionCard({
             {team.name}
           </p>
           {position != null && (
-            <p className="text-4xl font-bold text-foreground tabular-nums leading-none">
+            <p className="text-4xl font-bold text-foreground font-mono tabular-nums leading-none">
               #{position}
             </p>
           )}
@@ -270,7 +270,7 @@ function PositionCard({
               className="flex items-center justify-between py-2 first:pt-0 last:pb-0"
             >
               <span className="text-xs text-muted-foreground">{label}</span>
-              <span className="text-sm font-semibold text-foreground tabular-nums">
+              <span className="text-sm font-semibold text-foreground font-mono tabular-nums">
                 {val}
               </span>
             </div>
@@ -375,7 +375,7 @@ function FormCard({
               style={{ width: maxPts > 0 ? `${(pts / maxPts) * 100}%` : "0%" }}
             />
           </div>
-          <span className="text-xs text-muted-foreground tabular-nums shrink-0">
+          <span className="text-xs text-muted-foreground font-mono tabular-nums shrink-0">
             {pts}/{maxPts} p
           </span>
         </div>
@@ -420,7 +420,7 @@ function ForumCard({
                   {t.title}
                 </span>
               </div>
-              <span className="text-sm font-semibold text-foreground tabular-nums shrink-0">
+              <span className="text-sm font-semibold text-foreground font-mono tabular-nums shrink-0">
                 {t.reply_count}
               </span>
             </Link>
@@ -495,10 +495,10 @@ function PlayerExplorer({
               { label: "Matcher", val: selected.appearances },
             ].map(({ label, val }) => (
               <div key={label} className="flex-1 text-center py-3 rounded-xl bg-secondary">
-                <p className="text-2xl font-bold text-foreground tabular-nums leading-none">
+                <p className="text-2xl font-bold text-foreground font-mono tabular-nums leading-none">
                   {val}
                 </p>
-                <p className="text-[10px] text-muted-foreground font-medium mt-1">
+                <p className="text-xs text-muted-foreground font-medium mt-1">
                   {label}
                 </p>
               </div>
@@ -510,14 +510,14 @@ function PlayerExplorer({
             <div className="flex items-center gap-3">
               <span className="text-xs text-muted-foreground w-10 shrink-0">Mål</span>
               <StatBar value={selected.goals} max={maxGoals} />
-              <span className="text-sm font-semibold text-foreground tabular-nums w-5 text-right">
+              <span className="text-sm font-semibold text-foreground font-mono tabular-nums w-5 text-right">
                 {selected.goals}
               </span>
             </div>
             <div className="flex items-center gap-3">
               <span className="text-xs text-muted-foreground w-10 shrink-0">Assist</span>
               <StatBar value={selected.assists} max={maxAssists} accent />
-              <span className="text-sm font-semibold text-foreground tabular-nums w-5 text-right">
+              <span className="text-sm font-semibold text-foreground font-mono tabular-nums w-5 text-right">
                 {selected.assists}
               </span>
             </div>
@@ -539,14 +539,14 @@ function SkyListCard({ players }: { players: PlayerRow[] }) {
       <div className="flex flex-col gap-2.5">
         {top5.map((p, i) => (
           <div key={p.player_id} className="flex items-center gap-2.5">
-            <span className="text-[10px] font-medium text-muted-foreground/60 w-3 shrink-0 tabular-nums">
+            <span className="text-xs font-medium text-muted-foreground/60 w-3 shrink-0 font-mono tabular-nums">
               {i + 1}
             </span>
             <span className="text-xs text-foreground/80 flex-1 truncate">
               {p.fullname}
             </span>
             <StatBar value={p.goals} max={max} />
-            <span className="text-sm font-bold text-foreground tabular-nums w-4 text-right shrink-0">
+            <span className="text-sm font-bold text-foreground font-mono tabular-nums w-4 text-right shrink-0">
               {p.goals}
             </span>
           </div>
@@ -570,14 +570,14 @@ function AssistListCard({ players }: { players: PlayerRow[] }) {
       <div className="flex flex-col gap-2.5">
         {top5.map((p, i) => (
           <div key={p.player_id} className="flex items-center gap-2.5">
-            <span className="text-[10px] font-medium text-muted-foreground/60 w-3 shrink-0 tabular-nums">
+            <span className="text-xs font-medium text-muted-foreground/60 w-3 shrink-0 font-mono tabular-nums">
               {i + 1}
             </span>
             <span className="text-xs text-foreground/80 flex-1 truncate">
               {p.fullname}
             </span>
             <StatBar value={p.assists} max={max} accent />
-            <span className="text-sm font-bold text-foreground tabular-nums w-4 text-right shrink-0">
+            <span className="text-sm font-bold text-foreground font-mono tabular-nums w-4 text-right shrink-0">
               {p.assists}
             </span>
           </div>
@@ -622,11 +622,11 @@ function RecentMatchesCard({
                 </div>
                 {hasScore && (
                   <div className="text-right shrink-0">
-                    <p className="text-sm font-bold text-foreground tabular-nums leading-tight">
+                    <p className="text-sm font-bold text-foreground font-mono tabular-nums leading-tight">
                       {m.home_score}–{m.away_score}
                     </p>
                     {m.kickoff_at && (
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         {fmtDate(m.kickoff_at)}
                       </p>
                     )}
@@ -680,7 +680,7 @@ function TrendingCard({
               <span className="text-sm text-foreground/80 group-hover:text-foreground truncate transition-colors duration-150">
                 {t.title}
               </span>
-              <span className="text-xs font-semibold text-muted-foreground tabular-nums shrink-0 bg-secondary px-2 py-0.5 rounded-full">
+              <span className="text-xs font-semibold text-muted-foreground font-mono tabular-nums shrink-0 bg-secondary px-2 py-0.5 rounded-full">
                 {t.reply_count}
               </span>
             </Link>
@@ -705,7 +705,7 @@ function TrendingCard({
                 {a.title}
               </span>
               {a.published_at && (
-                <span className="text-xs text-muted-foreground shrink-0 tabular-nums">
+                <span className="text-xs text-muted-foreground shrink-0 font-mono tabular-nums">
                   {timeAgo(a.published_at)}
                 </span>
               )}
@@ -729,7 +729,7 @@ function NoTeamState() {
         <Trophy className="w-8 h-8 text-muted-foreground" />
       </div>
       <div>
-        <h2 className="text-lg font-semibold text-foreground mb-1">Välj ditt lag</h2>
+        <h2 className="text-lg font-semibold text-foreground mb-1 text-balance">Välj ditt lag</h2>
         <p className="text-sm text-muted-foreground">
           Din personaliserade dashboard väntar.
         </p>

@@ -78,7 +78,7 @@ export default async function KronikaPage({ params }: { params: Promise<{ slug: 
       <p className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-pitch-ink">
         <BrandBadge kind="writer" size={14} /> Krönika
       </p>
-      <h1 className="text-3xl sm:text-4xl font-bold leading-tight text-foreground">{column.title}</h1>
+      <h1 className="text-3xl sm:text-4xl font-bold leading-tight text-foreground text-balance">{column.title}</h1>
 
       <div className="mt-5 flex items-center gap-3">
         <span className="relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-card text-sm font-semibold text-muted-foreground ring-1 ring-border">

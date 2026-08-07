@@ -46,7 +46,7 @@ function TickerItem({ fixture }: { fixture: SMFixture }) {
         isLive && "border-pitch/40 bg-pitch/5"
       )}
     >
-      <span className="text-muted-foreground tabular-nums shrink-0">
+      <span className="text-muted-foreground font-mono tabular-nums shrink-0">
         {isLive ? (
           <span className="flex items-center gap-1 text-success font-medium">
             <span className="live-dot" />
@@ -61,7 +61,7 @@ function TickerItem({ fixture }: { fixture: SMFixture }) {
       )}
       <span className="font-medium">{abbr(home?.name)}</span>
       {played ? (
-        <span className="font-heading tabular-nums">
+        <span className="font-heading font-mono tabular-nums">
           {homeGoals}–{awayGoals}
         </span>
       ) : (

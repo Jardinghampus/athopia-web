@@ -29,14 +29,14 @@ export default function OmOssPage() {
       })}} />
 
       <div>
-        <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-4">Om Athopia</h1>
+        <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-4 text-balance">Om Athopia</h1>
         <p className="text-muted-foreground text-lg leading-relaxed">
           Athopia är en oberoende nyhetsplattform för Allsvenskan. Vi samlar signaler från över 40 svenska och internationella fotbollskällor, värderar dem med AI och presenterar det som faktiskt spelar roll — utan brus.
         </p>
       </div>
 
       <section>
-        <h2 className="font-semibold text-2xl text-foreground mb-3">Vår metod</h2>
+        <h2 className="font-semibold text-2xl text-foreground mb-3 text-balance">Vår metod</h2>
         <p className="text-muted-foreground leading-relaxed mb-3">
           Varje nyhet som når oss passerar genom ett signalscoringssystem. Systemet väger källans trovärdighet, nyhetens aktualitet och hur många oberoende källor som rapporterar om samma händelse. Nyheter med hög signalstyrka — till exempel en bekräftad transfer rapporterad av tre eller fler källor — lyfts upp i flödet.
         </p>
@@ -46,7 +46,7 @@ export default function OmOssPage() {
       </section>
 
       <section>
-        <h2 className="font-semibold text-2xl text-foreground mb-3">Datakällor</h2>
+        <h2 className="font-semibold text-2xl text-foreground mb-3 text-balance">Datakällor</h2>
         <ul className="text-muted-foreground leading-relaxed space-y-2 list-disc list-inside">
           <li><strong className="text-foreground">Matchdata:</strong> Sportmonks API — officiell leverantör av Allsvenskan-statistik, resultat och spelartrupper.</li>
           <li><strong className="text-foreground">Nyheter:</strong> RSS-flöden från över 40 svenska fotbollsmedier och officiella klubbkanaler.</li>
@@ -55,7 +55,7 @@ export default function OmOssPage() {
       </section>
 
       <section>
-        <h2 className="font-semibold text-2xl text-foreground mb-3">Kontakt</h2>
+        <h2 className="font-semibold text-2xl text-foreground mb-3 text-balance">Kontakt</h2>
         <p className="text-muted-foreground leading-relaxed">
           Frågor, rättelser eller samarbetsförfrågningar skickas till{" "}
           <a href="mailto:hej@athopia.se" className="text-pitch-ink hover:underline">hej@athopia.se</a>.
@@ -63,7 +63,7 @@ export default function OmOssPage() {
       </section>
 
       <section>
-        <h2 className="font-semibold text-2xl text-foreground mb-3">Integritet</h2>
+        <h2 className="font-semibold text-2xl text-foreground mb-3 text-balance">Integritet</h2>
         <p className="text-muted-foreground leading-relaxed">
           Hur vi hanterar personuppgifter beskrivs i vår{" "}
           <Link href="/integritetspolicy" className="text-pitch-ink hover:underline">integritetspolicy</Link>.

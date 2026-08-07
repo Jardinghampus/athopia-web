@@ -50,7 +50,7 @@ export default function ForumRightSidebar({
 
       {/* Latest news */}
       <div className="rounded-xl border border-border/60 bg-card/50 p-4">
-        <h3 className="text-[13px] font-semibold text-foreground mb-3">Senaste nytt · {teamName}</h3>
+        <h3 className="text-[13px] font-semibold text-foreground mb-3 text-balance">Senaste nytt · {teamName}</h3>
         <div className="space-y-3">
           {news.map((item, i) => (
             <a
@@ -80,7 +80,7 @@ export default function ForumRightSidebar({
       <div className="rounded-xl border border-border/60 bg-card/50 p-4">
         <div className="flex items-center gap-2 mb-3">
           <Trophy className="w-3.5 h-3.5 text-muted-foreground" />
-          <h3 className="text-[13px] font-semibold text-foreground">Senaste matcher</h3>
+          <h3 className="text-[13px] font-semibold text-foreground text-balance">Senaste matcher</h3>
         </div>
         <div className="space-y-2">
           {recentMatches.map((m, i) => (
@@ -89,7 +89,7 @@ export default function ForumRightSidebar({
                 <p className="text-[12px] text-foreground/80 truncate">{m.home} – {m.away}</p>
                 <p className="text-[12px] text-muted-foreground">{m.competition} · {m.date}</p>
               </div>
-              <span className="text-[13px] font-semibold text-foreground ml-2 tabular-nums">{m.score}</span>
+              <span className="text-[13px] font-semibold text-foreground ml-2 font-mono tabular-nums">{m.score}</span>
             </div>
           ))}
         </div>
@@ -100,7 +100,7 @@ export default function ForumRightSidebar({
         <div className="rounded-xl border border-border/60 bg-card/50 p-4">
           <div className="flex items-center gap-2 mb-3">
             <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
-            <h3 className="text-[13px] font-semibold text-foreground">Nästa match</h3>
+            <h3 className="text-[13px] font-semibold text-foreground text-balance">Nästa match</h3>
           </div>
           <p className="text-[14px] font-semibold text-foreground">{teamName} vs {upcomingMatch.opponent}</p>
           <p className="text-[12px] text-muted-foreground mt-0.5">{upcomingMatch.date}</p>
@@ -110,7 +110,7 @@ export default function ForumRightSidebar({
 
       {/* Other teams CTA */}
       <div className="rounded-xl border border-border/60 bg-card/50 p-4">
-        <h3 className="text-[13px] font-semibold text-foreground mb-2">Fler communities</h3>
+        <h3 className="text-[13px] font-semibold text-foreground mb-2 text-balance">Fler communities</h3>
         <div className="flex flex-wrap gap-1.5">
           {["AIK", "Hammarby", "Malmö FF", "IFK Göteborg", "BK Häcken"].map((t) => (
             <Link

@@ -353,7 +353,7 @@ export default async function MatchPage({ params }: PageProps) {
         <div className="flex items-center justify-center gap-6">
           <p className="text-lg font-bold text-right flex-1">{homeName}</p>
           <div className="text-center">
-            <p className="font-bold text-6xl tabular-nums text-foreground">{homeScore}–{awayScore}</p>
+            <p className="font-bold text-6xl font-mono tabular-nums text-foreground">{homeScore}–{awayScore}</p>
             <p className="text-xs text-muted-foreground mt-1">{fix.status as string}</p>
           </div>
           <p className="text-lg font-bold text-left flex-1">{awayName}</p>
@@ -401,7 +401,7 @@ export default async function MatchPage({ params }: PageProps) {
         if (!homeRow && !awayRow && excerpt.length === 0) return null;
         return (
           <div className="bg-card border border-border rounded-xl p-4 space-y-4">
-            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Inför matchen</h3>
+            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide text-balance">Inför matchen</h3>
 
             {(homeRow || awayRow) && (
               <div className="grid grid-cols-2 gap-4">
@@ -451,7 +451,7 @@ export default async function MatchPage({ params }: PageProps) {
           {/* Teamstats */}
           {(homeStat || awayStat) && (
             <div className="bg-card border border-border rounded-xl p-4 space-y-3">
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Matchstatistik</h3>
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide text-balance">Matchstatistik</h3>
               {[
                 hasXg ? { label: "xG", h: homeXg!.toFixed(2), a: awayXg!.toFixed(2), hv: homeXg!, av: awayXg! } : null,
                 { label: "Bollinnehav", suffix: "%", h: homeStat?.possession, a: awayStat?.possession, hv: Number(homeStat?.possession ?? 50), av: Number(awayStat?.possession ?? 50) },
@@ -501,7 +501,7 @@ export default async function MatchPage({ params }: PageProps) {
 
           {/* Händelsetidslinje — rescinded/VAR-korrigerade döljs (B-08) */}
           <div className="bg-card border border-border rounded-xl p-4">
-            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Händelser</h3>
+            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3 text-balance">Händelser</h3>
             {timelineEvents.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 Inga matchhändelser synkade ännu.
@@ -550,7 +550,7 @@ export default async function MatchPage({ params }: PageProps) {
       {/* Relaterade nyheter */}
       {(d?.related?.length ?? 0) > 0 && (
         <div className="bg-card border border-border rounded-xl p-4">
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Relaterade nyheter</h3>
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3 text-balance">Relaterade nyheter</h3>
           <div className="space-y-2">
             {d!.related.map((a) => (
               <Link key={a.id} href={`/artikel/${a.slug}`} className="group flex items-baseline justify-between gap-3 rounded-lg border border-border/60 px-3 py-2.5 hover:border-pitch/50 transition-colors">

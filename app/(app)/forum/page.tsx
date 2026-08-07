@@ -120,7 +120,7 @@ export default async function ForumIndexPage() {
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="font-bold text-3xl text-foreground tracking-tight">Forum</h1>
+          <h1 className="font-bold text-3xl text-foreground tracking-tight text-balance">Forum</h1>
           <p className="text-muted-foreground text-sm mt-1">
             Allsvenskan · Välj ett lag och delta i diskussionen
           </p>
@@ -199,11 +199,11 @@ function TeamCard({
       {/* Activity indicator */}
       <div className="shrink-0">
         {isHot ? (
-          <span className="flex items-center gap-1 text-[10px] font-medium text-orange-400 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded-full">
+          <span className="flex items-center gap-1 text-xs font-medium text-orange-400 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded-full">
             <Flame className="w-2.5 h-2.5" /> Het
           </span>
         ) : isActive ? (
-          <span className="flex items-center gap-1 text-[10px] font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+          <span className="flex items-center gap-1 text-xs font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
             <TrendingUp className="w-2.5 h-2.5" /> Aktiv
           </span>
         ) : (

@@ -127,7 +127,7 @@ export function Hero({
                efter hydrering (uppmätt 9,1s). Statisk markup målas direkt. */}
             {pulse ? <PulseStrip pulse={pulse} /> : <Label>Allsvenskan · Live · AI-analys · Forum</Label>}
 
-            <h1 className="mb-6 mt-4 font-heading text-[clamp(3.75rem,11vw,8.5rem)] leading-[0.92] tracking-wide">
+            <h1 className="mb-6 mt-4 font-heading text-[clamp(3.75rem,11vw,8.5rem)] leading-[0.92] tracking-wide text-balance">
               Din klubb.
               <br />
               <span className="text-pitch-ink">{headlineAccent}</span>

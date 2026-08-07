@@ -38,7 +38,7 @@ export default async function AllsvenskanSkytteligaPage() {
         />
       </div>
 
-      <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2">ALLSVENSKAN SKYTTELIGA 2026</h1>
+      <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2 text-balance">ALLSVENSKAN SKYTTELIGA 2026</h1>
       <p className="text-muted-foreground mb-8">Vem leder skytteligan just nu?</p>
 
       <div className="rounded-2xl border border-border overflow-hidden">
@@ -54,7 +54,7 @@ export default async function AllsvenskanSkytteligaPage() {
           <tbody>
             {scorers.slice(0, 20).map((s, i) => (
               <tr key={s.player_id ?? i} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
-                <td className="py-3 px-4 text-muted-foreground">{i + 1}</td>
+                <td className="py-3 px-4 text-muted-foreground font-mono tabular-nums">{i + 1}</td>
                 <td className="py-3 px-4">
                   <Link href={`/spelare/${s.slug ?? s.player_id}`} className="flex items-center gap-3 hover:text-pitch-ink transition-colors">
                     {s.image && (

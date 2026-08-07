@@ -18,7 +18,7 @@ export default async function PlayerComparePage() {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Spelarjämförelse</h1>
+          <h1 className="text-3xl font-bold text-foreground text-balance">Spelarjämförelse</h1>
           <p className="text-muted-foreground mt-1 text-sm flex items-center gap-1.5">
             <Users className="h-3.5 w-3.5" /> Radarprofil normaliserad mot ligan · Allsvenskan 2026
           </p>

@@ -120,7 +120,7 @@ export function ScreenFeed() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-[10px] font-medium text-zinc-600">Tisdag 10 juni</p>
-            <h3 className="font-sans text-[17px] font-bold tracking-tight text-zinc-900">
+            <h3 className="font-sans text-[17px] font-bold tracking-tight text-zinc-900 text-balance">
               God kväll, Hampus
             </h3>
           </div>
@@ -143,7 +143,7 @@ export function ScreenFeed() {
         </div>
         <div className={`mt-2 overflow-hidden ${card}`}>
           <div className="pitch-gradient flex items-center justify-between px-3.5 py-1.5">
-            <span className="text-[8px] font-bold uppercase tracking-[0.14em] text-white">
+            <span className="text-[8px] font-bold uppercase tracking-[var(--tracking-badge)] text-white">
               Breaking
             </span>
             <span className="text-[8px] font-semibold text-white/80">Signal 0.94</span>
@@ -191,7 +191,7 @@ export function ScreenMatch() {
 
       <div className="flex-1 overflow-hidden px-4 pt-2">
         <div className="flex items-center justify-between">
-          <h3 className="font-sans text-[17px] font-bold tracking-tight text-zinc-900">Matchdag</h3>
+          <h3 className="font-sans text-[17px] font-bold tracking-tight text-zinc-900 text-balance">Matchdag</h3>
           <span className={`px-2.5 py-1 text-[9px] font-semibold text-zinc-600 ${card}`}>
             Omgång 15
           </span>
@@ -290,7 +290,7 @@ export function ScreenExplore() {
       <StatusBar />
 
       <div className="flex-1 overflow-hidden px-4 pt-2">
-        <h3 className="font-sans text-[17px] font-bold tracking-tight text-zinc-900">Utforska</h3>
+        <h3 className="font-sans text-[17px] font-bold tracking-tight text-zinc-900 text-balance">Utforska</h3>
 
         {/* Kategori-pills */}
         <div className="mt-3 flex gap-1.5 overflow-hidden">

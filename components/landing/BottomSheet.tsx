@@ -62,7 +62,7 @@ export function BottomSheet({
               <div className="h-1 w-10 rounded-full bg-white/20" />
             </div>
             <div className="px-5 pb-2">
-              <h2 className="font-heading text-2xl tracking-wider text-white">{title}</h2>
+              <h2 className="font-heading text-2xl tracking-wider text-white text-balance">{title}</h2>
             </div>
             <div className="max-h-[70dvh] overflow-y-auto px-5 pt-2">{children}</div>
           </motion.div>

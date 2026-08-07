@@ -65,7 +65,7 @@ export default async function PodcastIndexPage() {
           <Headphones className="w-5 h-5" />
           <span className="text-xs font-semibold uppercase tracking-wide">Poddintelligens</span>
         </div>
-        <h1 className="text-3xl font-bold text-foreground">Allsvenskan-poddar</h1>
+        <h1 className="text-3xl font-bold text-foreground text-balance">Allsvenskan-poddar</h1>
         <p className="text-sm text-muted-foreground mt-1">
           Allt som sägs i {shows.length > 0 ? `${shows.length} poddar` : "poddarna"} — samlat,
           taggat per lag och sökbart.
@@ -75,7 +75,7 @@ export default async function PodcastIndexPage() {
       <PodcastSearch />
 
       <section className="mt-8">
-        <h2 className="text-sm font-semibold text-foreground mb-3">Senaste avsnitten</h2>
+        <h2 className="text-sm font-semibold text-foreground mb-3 text-balance">Senaste avsnitten</h2>
         {episodes.length === 0 ? (
           <div className="rounded-xl border border-border bg-card px-4 py-10 text-center text-sm text-muted-foreground">
             <Mic className="w-6 h-6 mx-auto mb-2 opacity-60" />

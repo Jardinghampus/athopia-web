@@ -48,9 +48,9 @@ function statRow(label: string, home: number | null, away: number | null, decima
   if (home === null && away === null) return null;
   return (
     <div key={label} className="flex justify-between text-sm py-1.5 border-b border-zinc-800 last:border-0">
-      <span className="font-medium text-white tabular-nums">{home != null ? home.toFixed(decimals) : "—"}</span>
+      <span className="font-medium text-white font-mono tabular-nums">{home != null ? home.toFixed(decimals) : "—"}</span>
       <span className="text-zinc-400">{label}</span>
-      <span className="font-medium text-white tabular-nums">{away != null ? away.toFixed(decimals) : "—"}</span>
+      <span className="font-medium text-white font-mono tabular-nums">{away != null ? away.toFixed(decimals) : "—"}</span>
     </div>
   );
 }
@@ -82,7 +82,7 @@ export default async function AnalysPage({ params }: PageProps) {
           Athopia AI · Matchanalys
         </p>
 
-        <h1 className="font-bold text-3xl sm:text-4xl text-white mb-3 leading-tight">
+        <h1 className="font-bold text-3xl sm:text-4xl text-white mb-3 leading-tight text-balance">
           {analysis.title}
         </h1>
 
@@ -134,7 +134,7 @@ export default async function AnalysPage({ params }: PageProps) {
 
             {(home || away) && (
               <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
-                <h2 className="text-xs font-semibold text-zinc-400 uppercase tracking-wide mb-3">
+                <h2 className="text-xs font-semibold text-zinc-400 uppercase tracking-wide mb-3 text-balance">
                   Jämfört med senaste 3 matcherna
                 </h2>
                 <div className="flex justify-between text-xs text-zinc-500 mb-2">

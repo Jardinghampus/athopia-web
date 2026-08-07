@@ -118,7 +118,7 @@ export function TeamSelectionModal({ forceVisible = false }: TeamSelectionModalP
       <div className="bg-background border border-border rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="p-6 border-b border-border">
-          <h2 id="team-selection-title" className="text-2xl font-bold text-foreground" style={{ fontFamily: "var(--font-display)" }}>
+          <h2 id="team-selection-title" className="text-2xl font-bold text-foreground text-balance" style={{ fontFamily: "var(--font-display)" }}>
             VÄLJ DITT LAG
           </h2>
           <p className="text-muted-foreground text-sm mt-1">
@@ -158,12 +158,12 @@ export function TeamSelectionModal({ forceVisible = false }: TeamSelectionModalP
                     >
                       {getTeamInitials(team.name)}
                     </span>
-                    <span className="text-[10px] mt-0.5 leading-tight line-clamp-2">
+                    <span className="text-xs mt-0.5 leading-tight line-clamp-2">
                       {team.name}
                     </span>
                     {isSelected && (
                       <span
-                        className="absolute top-1 right-1 text-[10px]"
+                        className="absolute top-1 right-1 text-xs"
                         style={{ color }}
                       >
                         ✓

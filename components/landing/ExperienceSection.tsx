@@ -65,7 +65,7 @@ export function ExperienceSection() {
                 </PhoneFrame>
               </div>
               <div className="mt-6 max-w-[260px] text-center">
-                <h3 className="font-sans text-[17px] font-bold text-white">{title}</h3>
+                <h3 className="font-sans text-[17px] font-bold text-white text-balance">{title}</h3>
                 <p className="mt-1.5 text-sm leading-relaxed text-white/55">{text}</p>
               </div>
             </div>

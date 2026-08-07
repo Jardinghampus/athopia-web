@@ -72,7 +72,7 @@ export function Section({
 
 export function Label({ children }: { children: ReactNode }) {
   return (
-    <span className="font-sans text-[11px] font-bold uppercase tracking-[0.18em] text-pitch-ink">
+    <span className="font-sans text-xs font-bold uppercase tracking-[var(--tracking-label)] text-pitch-ink">
       {children}
     </span>
   );
@@ -93,7 +93,7 @@ export function Display({
     md: "text-[clamp(2.25rem,5.5vw,4rem)]",
   };
   return (
-    <h2 className={`font-heading leading-[0.94] tracking-wide ${sizes[size]} ${className}`}>
+    <h2 className={`font-heading leading-[0.94] tracking-wide text-balance ${sizes[size]} ${className}`}>
       {children}
     </h2>
   );

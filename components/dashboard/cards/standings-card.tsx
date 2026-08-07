@@ -71,17 +71,17 @@ export function StandingsCard({
                         : 'text-foreground/80'
                     )}
                   >
-                    <td className="pl-4 py-2 text-muted-foreground text-xs tabular-nums w-6">{r.position}</td>
+                    <td className="pl-4 py-2 text-muted-foreground text-xs font-mono tabular-nums w-6">{r.position}</td>
                     <td className="pl-2 py-2 max-w-0">
                       {/* Full name on ≥sm, abbreviated on mobile */}
                       <span className="hidden sm:inline truncate">{r.team_name}</span>
                       <span className="sm:hidden font-medium">{abbr(r.team_name, r.team_slug)}</span>
                     </td>
-                    <td className="pr-3 py-2 text-right tabular-nums text-muted-foreground text-xs">{r.played}</td>
-                    <td className="pr-3 py-2 text-right tabular-nums text-muted-foreground text-xs">
+                    <td className="pr-3 py-2 text-right font-mono tabular-nums text-muted-foreground text-xs">{r.played}</td>
+                    <td className="pr-3 py-2 text-right font-mono tabular-nums text-muted-foreground text-xs">
                       {r.goal_diff > 0 ? `+${r.goal_diff}` : r.goal_diff}
                     </td>
-                    <td className="pr-4 py-2 text-right tabular-nums font-semibold">{r.points}</td>
+                    <td className="pr-4 py-2 text-right font-mono tabular-nums font-semibold">{r.points}</td>
                   </tr>
                 )
               })}

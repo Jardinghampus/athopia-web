@@ -253,7 +253,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
         event="team_hub_tab_selected"
         props={{ team_slug: slug, tab: "statistik" }}
       />
-      <h1 className="font-bold text-3xl text-foreground">STATISTIK — {teamName.toUpperCase()}</h1>
+      <h1 className="font-bold text-3xl text-foreground text-balance">STATISTIK — {teamName.toUpperCase()}</h1>
 
       {/* Lagstatistiken (xG-form + ligaprofil) låg tidigare i laghubbens egen
           "Statistik"-flik, medan den här sidan hette "Spelarstatistik". Två
@@ -326,7 +326,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
           {projection && (
             <div className="rounded-xl border border-border bg-card p-5 space-y-3">
               <div className="flex items-baseline justify-between">
-                <h3 className="font-semibold text-sm text-foreground">SÄSONGSPROGNOS</h3>
+                <h2 className="font-semibold text-sm text-foreground text-balance">SÄSONGSPROGNOS</h2>
                 {projection.elo != null && (
                   <span className="text-xs text-muted-foreground">Elo {String(projection.elo)}</span>
                 )}
@@ -339,7 +339,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
           )}
           {scheduleForm && (
             <div className="rounded-xl border border-border bg-card p-5 space-y-3">
-              <h3 className="font-semibold text-sm text-foreground">SCHEMAKORRIGERAD FORM</h3>
+              <h2 className="font-semibold text-sm text-foreground text-balance">SCHEMAKORRIGERAD FORM</h2>
               <div className="grid grid-cols-3 gap-3 text-center">
                 <div>
                   <p className="font-bold text-2xl text-foreground">{Number(scheduleForm.actual_points ?? 0)}</p>
@@ -371,7 +371,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
       {/* Mål per 15-minutersblock */}
       {goalTiming.length > 0 && (
         <div className="rounded-xl border border-border bg-card p-5">
-          <h3 className="font-semibold text-sm text-foreground mb-4">MÅL PER PERIOD</h3>
+          <h2 className="font-semibold text-sm text-foreground mb-4 text-balance">MÅL PER PERIOD</h2>
           <div className="flex items-end gap-2 h-24">
             {orderedTiming.map(({ block, count }) => (
               <div key={block} className="flex-1 flex flex-col items-center gap-1">
@@ -380,7 +380,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
                   className="w-full rounded-t bg-pitch/60"
                   style={{ height: `${(count / maxGoals) * 72}px`, minHeight: count > 0 ? "4px" : "0" }}
                 />
-                <span className="text-[10px] text-muted-foreground">{block}′</span>
+                <span className="text-xs text-muted-foreground">{block}′</span>
               </div>
             ))}
           </div>
@@ -391,7 +391,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
       {athopiaRatings.length > 0 && (
         <div className="bg-card border border-border rounded-xl overflow-hidden">
           <div className="px-4 py-3 border-b border-border">
-            <h3 className="font-semibold text-sm text-foreground">ATHOPIA-BETYG</h3>
+            <h2 className="font-semibold text-sm text-foreground text-balance">ATHOPIA-BETYG</h2>
           </div>
           <div className="divide-y divide-border/50">
             {athopiaRatings.map((row, i) => (
@@ -400,7 +400,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
                 href={row.slug ? `/spelare/${row.slug}` : "#"}
                 className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted/40 transition-colors"
               >
-                <span className="text-xs text-muted-foreground w-4">{i + 1}</span>
+                <span className="text-xs text-muted-foreground w-4 font-mono tabular-nums">{i + 1}</span>
                 {row.image ? (
                   <div className="relative w-7 h-7 rounded-full overflow-hidden bg-muted shrink-0">
                     <Image src={row.image} alt="" fill className="object-cover" sizes="28px" />
@@ -414,7 +414,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
                     <span className="block text-xs text-muted-foreground">{row.position}</span>
                   )}
                 </span>
-                <span className="font-bold text-lg text-pitch-ink tabular-nums">{row.athopia_rating.toFixed(1)}</span>
+                <span className="font-bold text-lg text-pitch-ink font-mono tabular-nums">{row.athopia_rating.toFixed(1)}</span>
               </Link>
             ))}
           </div>
@@ -431,7 +431,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
           ].map(({ title, rows, key, label }) => (
             <div key={title} className="bg-card border border-border rounded-xl overflow-hidden">
               <div className="px-4 py-3 border-b border-border">
-                <h3 className="font-semibold text-sm text-foreground">{title}</h3>
+                <h2 className="font-semibold text-sm text-foreground text-balance">{title}</h2>
               </div>
               <div className="divide-y divide-border/50">
                 {rows.map((row, i) => {
@@ -439,7 +439,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
                   const playerSlug = (pl?.slug as string) ?? String(row.player_id ?? "");
                   return (
                     <div key={i} className="flex items-center gap-3 px-4 py-2.5">
-                      <span className="text-xs text-muted-foreground w-4">{i + 1}</span>
+                      <span className="text-xs text-muted-foreground w-4 font-mono tabular-nums">{i + 1}</span>
                       {!!pl?.image && (
                         <div className="relative w-7 h-7 rounded-full overflow-hidden bg-muted shrink-0">
                           <Image src={pl.image as string} alt="" fill className="object-cover" sizes="28px" />
@@ -467,7 +467,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
       {/* Senaste matcher */}
       {fixtures.length > 0 && (
         <div>
-          <h3 className="font-semibold text-xl text-foreground mb-3">SENASTE MATCHER</h3>
+          <h2 className="font-semibold text-xl text-foreground mb-3 text-balance">SENASTE MATCHER</h2>
           <div className="space-y-2">
             {fixtures.map((f) => {
               const isHome = String(f.home_team_id) === String(smId);

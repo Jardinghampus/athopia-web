@@ -17,7 +17,7 @@ export default async function IntressenPage() {
 
   return (
     <div className="mx-auto max-w-lg px-4 py-8 sm:px-6">
-      <h1 className="text-2xl font-bold text-foreground">Mina intressen</h1>
+      <h1 className="text-2xl font-bold text-foreground text-balance">Mina intressen</h1>
       <p className="mt-2 text-sm text-muted-foreground">
         Styr vilka typer av nyheter som filtreras i ditt flöde och på /nyheter.
         Statistik och tabeller påverkar inte nyhetsfiltret — de finns under Statistik.

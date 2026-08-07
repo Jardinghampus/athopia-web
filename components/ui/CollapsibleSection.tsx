@@ -37,7 +37,7 @@ export function CollapsibleSection({
           className="group flex min-w-0 flex-1 items-center gap-2 text-left touch-manipulation"
         >
           {leading}
-          <h2 className="font-semibold text-xl text-foreground truncate">{title}</h2>
+          <h2 className="font-semibold text-xl text-foreground truncate text-balance">{title}</h2>
           <ChevronDown
             className={cn(
               "h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-200",

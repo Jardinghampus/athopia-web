@@ -27,7 +27,7 @@ export default function ForumLeftSidebar({ teams, currentSlug }: Props) {
       <div className="rounded-xl border border-border/60 bg-card/50 p-4">
         <div className="flex items-center gap-2 mb-3">
           <Users className="w-3.5 h-3.5 text-muted-foreground" />
-          <h3 className="text-[13px] font-semibold text-foreground">Allsvenskan</h3>
+          <h3 className="text-[13px] font-semibold text-foreground text-balance">Allsvenskan</h3>
         </div>
         <nav className="space-y-0.5">
           {featured.map((t) => (
@@ -58,7 +58,7 @@ export default function ForumLeftSidebar({ teams, currentSlug }: Props) {
       <div className="rounded-xl border border-border/60 bg-card/50 p-4">
         <div className="flex items-center gap-2 mb-3">
           <TrendingUp className="w-3.5 h-3.5 text-muted-foreground" />
-          <h3 className="text-[13px] font-semibold text-foreground">Trending</h3>
+          <h3 className="text-[13px] font-semibold text-foreground text-balance">Trending</h3>
         </div>
         <div className="space-y-2">
           {TOP_TAGS.map((t) => (
@@ -67,7 +67,7 @@ export default function ForumLeftSidebar({ teams, currentSlug }: Props) {
                 <span className="text-base">{t.emoji}</span>
                 <span className="text-[13px] text-foreground capitalize">{t.label}</span>
               </div>
-              <span className="text-[12px] text-muted-foreground tabular-nums">{t.count}</span>
+              <span className="text-[12px] text-muted-foreground font-mono tabular-nums">{t.count}</span>
             </div>
           ))}
         </div>
@@ -77,7 +77,7 @@ export default function ForumLeftSidebar({ teams, currentSlug }: Props) {
       <div className="rounded-xl border border-border/60 bg-card/50 p-4">
         <div className="flex items-center gap-2 mb-3">
           <Hash className="w-3.5 h-3.5 text-muted-foreground" />
-          <h3 className="text-[13px] font-semibold text-foreground">Utforska</h3>
+          <h3 className="text-[13px] font-semibold text-foreground text-balance">Utforska</h3>
         </div>
         <div className="space-y-1">
           {[

@@ -57,7 +57,7 @@ export function PodcastCard({ podcast }: PodcastCardProps) {
             <p className="text-xs text-pitch-ink font-medium mb-0.5 truncate">
               {podcast.showName}
             </p>
-            <h3 className="font-heading text-lg text-foreground line-clamp-2 group-hover:text-pitch-ink transition-colors leading-tight">
+            <h3 className="font-heading text-lg text-foreground line-clamp-2 group-hover:text-pitch-ink transition-colors leading-tight text-balance">
               {podcast.title}
             </h3>
           </div>

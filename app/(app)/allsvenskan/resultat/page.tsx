@@ -65,7 +65,7 @@ export default async function AllsvenskanResultatPage() {
         <span className="text-foreground">Resultat</span>
       </nav>
 
-      <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2">ALLSVENSKAN RESULTAT 2026</h1>
+      <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2 text-balance">ALLSVENSKAN RESULTAT 2026</h1>
       <p className="text-muted-foreground mb-8">Alla matchresultat — senaste matchen visas först.</p>
 
       {finished.length === 0 ? (
@@ -83,7 +83,7 @@ export default async function AllsvenskanResultatPage() {
                 className="flex items-center justify-between rounded-xl border border-border bg-card p-4 hover:border-pitch/50 transition-colors"
               >
                 <span className="font-medium w-[38%] text-right truncate">{home}</span>
-                <span className="mx-4 font-bold text-lg tabular-nums shrink-0">
+                <span className="mx-4 font-bold text-lg font-mono tabular-nums shrink-0">
                   {score ? `${score.home}–${score.away}` : "—"}
                 </span>
                 <span className="font-medium w-[38%] truncate">{away}</span>

@@ -88,7 +88,7 @@ function MatchQuickview({ fixture, smId, onClose }: { fixture: FixtureRow | null
             <div className="flex items-center justify-center gap-6">
               <span className="flex-1 truncate text-right text-sm font-medium">{f.home_team_name}</span>
               {played || f.status === "LIVE" ? (
-                <span className="flex items-baseline gap-1.5 text-3xl font-bold tabular-nums">
+                <span className="flex items-baseline gap-1.5 text-3xl font-bold font-mono tabular-nums">
                   <StatNumber value={f.home_score ?? 0} />
                   <span className="text-muted-foreground">–</span>
                   <StatNumber value={f.away_score ?? 0} />
@@ -186,7 +186,7 @@ function Oversikt({ hub, plan, insights, onFixture }: { hub: TeamHubPayload; pla
             {hub.news.slice(0, 4).map((a) => (
               <Link key={a.id} href={`/artikel/${a.slug}`} className="group flex items-start justify-between gap-3 rounded-lg border border-border/60 px-3 py-2.5 hover:border-pitch/50 transition-colors active:bg-muted touch-manipulation">
                 <span className="text-sm text-foreground group-hover:text-pitch-ink line-clamp-2">{a.title}</span>
-                <span className="text-[11px] text-muted-foreground whitespace-nowrap shrink-0">{a.published_at ? new Date(a.published_at).toLocaleDateString("sv-SE", { day: "numeric", month: "short" }) : ""}</span>
+                <span className="text-xs text-muted-foreground whitespace-nowrap shrink-0">{a.published_at ? new Date(a.published_at).toLocaleDateString("sv-SE", { day: "numeric", month: "short" }) : ""}</span>
               </Link>
             ))}
           </div>
@@ -300,7 +300,7 @@ function Forum({ hub }: { hub: TeamHubPayload }) {
           {hub.threads.slice(0, 8).map((t) => (
             <Link key={t.id} href={`/lag/${hub.team.slug}/forum/${t.id}`} className="group flex items-center justify-between gap-3 rounded-lg border border-border/60 px-3 py-2.5 hover:border-pitch/50 transition-colors active:bg-muted touch-manipulation">
               <span className="text-sm text-foreground group-hover:text-pitch-ink line-clamp-1">{t.title}</span>
-              <span className="flex items-center gap-1 text-[11px] text-muted-foreground shrink-0"><MessageSquare className="h-3 w-3" /> {t.reply_count ?? 0}</span>
+              <span className="flex items-center gap-1 text-xs text-muted-foreground shrink-0"><MessageSquare className="h-3 w-3" /> {t.reply_count ?? 0}</span>
             </Link>
           ))}
         </div>
@@ -320,9 +320,9 @@ function TeamDailyPulse({ pulse }: { pulse: TeamHubPayload["pulse"] }) {
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
-        <span className="rounded-full bg-pitch/10 border border-pitch/30 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-pitch-ink">Athopia AI · {ctx}</span>
+        <span className="rounded-full bg-pitch/10 border border-pitch/30 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-pitch-ink">Athopia AI · {ctx}</span>
       </div>
-      <h3 className="text-lg font-bold leading-snug text-foreground">{pulse.headline}</h3>
+      <h3 className="text-lg font-bold leading-snug text-foreground text-balance">{pulse.headline}</h3>
       {pulse.dek && <p className="text-sm font-medium text-muted-foreground">{pulse.dek}</p>}
       <p className="text-sm leading-relaxed text-foreground/90 whitespace-pre-line">{pulse.body}</p>
     </div>
@@ -362,7 +362,7 @@ function TeamXgForm({ stats }: { stats: TeamHubPayload["stats"] }) {
           </StatTextRow>
         )}
       </div>
-      <p className="text-[11px] text-muted-foreground">xG = förväntade mål utifrån chansernas kvalitet. Stor avvikelse mot faktiska mål signalerar tur/otur eller form som ofta normaliseras.</p>
+      <p className="text-xs text-muted-foreground">xG = förväntade mål utifrån chansernas kvalitet. Stor avvikelse mot faktiska mål signalerar tur/otur eller form som ofta normaliseras.</p>
     </div>
   );
 }
@@ -379,7 +379,7 @@ function XgStat({ label, value, accent }: { label: string; value: number | null;
           className={`text-xl ${accent ? "text-pitch-ink" : "text-foreground"}`}
         />
       )}
-      <p className="text-[10px] text-muted-foreground mt-0.5">{label}</p>
+      <p className="text-xs text-muted-foreground mt-0.5">{label}</p>
     </TactileCard>
   );
 }
@@ -395,7 +395,7 @@ function RadarOrEmpty({ data }: { data: TeamHubPayload["radar"] }) {
   return (
     <>
       <TeamRadar data={data} />
-      <p className="text-[11px] text-muted-foreground text-center mt-1">Normaliserat (z-score → 0–100). 50 = ligasnitt.</p>
+      <p className="text-xs text-muted-foreground text-center mt-1">Normaliserat (z-score → 0–100). 50 = ligasnitt.</p>
     </>
   );
 }
@@ -443,15 +443,15 @@ function LeaderList({ title, rows, statKey, suffix }: { title: string; rows: Lea
   if (rows.length === 0 || rows.every((r) => r[statKey] === 0)) return null;
   return (
     <div>
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-1.5">{title}</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1.5">{title}</p>
       <div className="space-y-1">
         {rows.slice(0, 3).map((r, i) => (
           <div key={r.player_id} className="flex items-center gap-2.5">
-            <span className="text-xs text-muted-foreground w-3">{i + 1}</span>
+            <span className="text-xs text-muted-foreground w-3 font-mono tabular-nums">{i + 1}</span>
             {r.image && <span className="relative w-6 h-6 rounded-full overflow-hidden bg-muted shrink-0"><Image src={r.image} alt="" fill className="object-cover" sizes="24px" /></span>}
             <Link href={`/spelare/${r.slug ?? r.player_id}`} className="flex-1 text-sm text-foreground hover:text-pitch-ink truncate">{r.fullname}</Link>
-            <span className="text-sm font-bold text-foreground tabular-nums">{r[statKey]}</span>
-            <span className="text-[10px] text-muted-foreground w-6">{suffix}</span>
+            <span className="text-sm font-bold text-foreground font-mono tabular-nums">{r[statKey]}</span>
+            <span className="text-xs text-muted-foreground w-6">{suffix}</span>
           </div>
         ))}
       </div>
@@ -477,14 +477,14 @@ function FixtureListRow({ fixture: f, smId, onSelect, density }: { fixture: Fixt
         played
           ? <span className={`text-xs font-bold ${color}`}>{r}</span>
           : f.status === "LIVE"
-            ? <span className="text-[10px] font-bold text-pitch-ink animate-pulse">LIVE</span>
-            : <span className="text-[10px] font-bold text-muted-foreground">KOMMER</span>
+            ? <span className="text-xs font-bold text-pitch-ink animate-pulse">LIVE</span>
+            : <span className="text-xs font-bold text-muted-foreground">KOMMER</span>
       }
       title={`${isHome ? "H" : "B"} · ${opp}`}
       trailing={
         played
-          ? <span className="text-sm font-semibold tabular-nums text-foreground">{gf}–{ga}</span>
-          : <span className="text-[11px]">{f.kickoff_at ? new Date(f.kickoff_at).toLocaleDateString("sv-SE", { day: "numeric", month: "short" }) : ""}</span>
+          ? <span className="text-sm font-semibold font-mono tabular-nums text-foreground">{gf}–{ga}</span>
+          : <span className="text-xs">{f.kickoff_at ? new Date(f.kickoff_at).toLocaleDateString("sv-SE", { day: "numeric", month: "short" }) : ""}</span>
       }
       chevron
     />

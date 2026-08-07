@@ -101,7 +101,7 @@ export default function ComposePost({
                 key={l.id}
                 type="button"
                 onClick={() => setLabel(label === l.id ? undefined : l.id)}
-                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium border transition-all touch-manipulation ${
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border transition-all touch-manipulation ${
                   label === l.id
                     ? "bg-pitch/15 border-pitch/60 text-pitch-ink"
                     : "border-border/40 text-muted-foreground hover:border-border hover:text-foreground"

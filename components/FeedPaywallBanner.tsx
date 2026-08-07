@@ -37,12 +37,12 @@ export function FeedPaywallBanner() {
       <div className="relative z-10">
         <div className="inline-flex items-center gap-1.5 rounded-full border border-pitch/40 bg-pitch/15 px-2.5 py-1 mb-3">
           <Sparkles className="w-3 h-3 text-pitch-ink" />
-          <span className="text-[11px] font-semibold text-pitch-ink uppercase tracking-wide">
+          <span className="text-xs font-semibold text-pitch-ink uppercase tracking-wide">
             {founder ? "Founder-PRO" : "Athopia PRO"}
           </span>
         </div>
 
-        <h3 className="text-base font-bold text-foreground leading-snug mb-1">
+        <h3 className="text-base font-bold text-foreground leading-snug mb-1 text-balance">
           Du ser gratis-versionen
         </h3>
         <p className="text-sm text-muted-foreground mb-4">
@@ -82,7 +82,7 @@ export function FeedPaywallBanner() {
           </TrackedLink>
         </div>
 
-        <p className="text-[11px] text-muted-foreground/60 text-center mt-3">
+        <p className="text-xs text-muted-foreground/60 text-center mt-3">
           {TRIAL_DAYS} dagar gratis · Avsluta när som helst · Ingen bindningstid
         </p>
       </div>

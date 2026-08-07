@@ -41,7 +41,7 @@ export function MittLagWidgets({
             <p className="text-lg font-semibold text-foreground">
               {next.home_team_name} – {next.away_team_name}
             </p>
-            <p className="text-sm text-muted-foreground mt-1 tabular-nums">
+            <p className="text-sm text-muted-foreground mt-1 font-mono tabular-nums">
               {formatKickoff(next.kickoff_at)}
             </p>
           </Link>
@@ -129,7 +129,7 @@ export function MittLagWidgets({
                   <span className="text-sm font-medium text-foreground hover:text-pitch-ink line-clamp-2">
                     {t.title}
                   </span>
-                  <span className="text-xs text-muted-foreground tabular-nums shrink-0">
+                  <span className="text-xs text-muted-foreground font-mono tabular-nums shrink-0">
                     {t.reply_count}
                   </span>
                 </Link>
