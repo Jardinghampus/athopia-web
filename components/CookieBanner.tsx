@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import {
   getStoredConsent,
@@ -27,6 +28,21 @@ export function CookieBanner() {
   const [analytics, setAnalytics] = useState(false);
   const [marketing, setMarketing] = useState(false);
 
+  const pathname = usePathname();
+  /**
+   * Onboarding är en helskärmstakeover (`fixed inset-0`, z-50) där primärknappen
+   * ligger längst ned. Bannern ligger i rot-layouten på `fixed bottom-4` med
+   * z-[9999] och visas så fort samtycke saknas — vilket per definition ALLTID
+   * gäller en ny användare, alltså exakt den som ser onboarding. Resultatet var
+   * att "Fortsätt" och "Öppna Mitt lag" låg under bannern för varje ny
+   * användare, på de mest konverteringskritiska skärmarna vi har.
+   *
+   * Frågan skjuts därför en skärm framåt: samtycket efterfrågas direkt när
+   * onboardingen lämnats. Inga icke-nödvändiga cookies sätts under tiden —
+   * `applyConsent` körs först när användaren valt.
+   */
+  const onOnboarding = pathname.startsWith("/onboarding");
+
   useEffect(() => {
     if (!getStoredConsent()) setVisible(true);
   }, []);
@@ -40,7 +56,7 @@ export function CookieBanner() {
 
   return (
     <AnimatePresence>
-      {visible && (
+      {visible && !onOnboarding && (
         <motion.div
           role="dialog"
           aria-label="Cookie-inställningar"
