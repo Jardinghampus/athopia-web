@@ -323,7 +323,22 @@ export interface ArticleFilters {
  * Antal forumsvar per artikel (Athletic-kroken i feeden).
  * Returnerar {} innan forum_posts.article_id-migrationen är applicerad.
  */
+/**
+ * Diskussionsräknare per artikel. Cachas 60 s och delas mellan besökare — det
+ * är publik räknedata, inget personligt. Utan cache blev det ett extra
+ * Supabase-anrop per sidladdning av flödet.
+ */
 export async function getDiscussionCounts(articleIds: string[]): Promise<Record<string, number>> {
+  if (!isSupabaseConfigured() || articleIds.length === 0) return {};
+  const nyckel = [...articleIds].sort().join(",");
+  return unstable_cache(
+    () => fetchDiscussionCounts(articleIds),
+    ["discussion-counts", nyckel],
+    { revalidate: 60, tags: ["forum"] },
+  )();
+}
+
+async function fetchDiscussionCounts(articleIds: string[]): Promise<Record<string, number>> {
   if (!isSupabaseConfigured() || articleIds.length === 0) return {};
   try {
     const supabase = createServerClient();

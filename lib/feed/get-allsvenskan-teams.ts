@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 
 export interface FeedTeamOption {
@@ -35,6 +36,13 @@ const TYPE_LABELS: Record<string, string> = {
  * aldrig ad-hoc slugify (se lib/team-names.ts för samma princip).
  */
 export async function getAllsvenskanTeams(): Promise<FeedTeamOption[]> {
+  return unstable_cache(fetchAllsvenskanTeams, ["allsvenskan-teams"], {
+    revalidate: 3600,
+    tags: ["entities"],
+  })();
+}
+
+async function fetchAllsvenskanTeams(): Promise<FeedTeamOption[]> {
   if (!isSupabaseConfigured()) return [];
   try {
     const db = createServerClient();
@@ -65,6 +73,16 @@ export async function getAllsvenskanTeams(): Promise<FeedTeamOption[]> {
  * densamma överallt.
  */
 export async function getFeedFilterOptions(): Promise<FeedFilterOptions> {
+  // Klubbar, typer och källor ändras i praktiken aldrig inom en session och är
+  // identiska för alla besökare. Utan cache blev det ett extra Supabase-anrop
+  // per sidladdning av /nyheter — den tyngsta ytan i produkten.
+  return unstable_cache(fetchFeedFilterOptions, ["feed-filter-options"], {
+    revalidate: 300,
+    tags: ["news"],
+  })();
+}
+
+async function fetchFeedFilterOptions(): Promise<FeedFilterOptions> {
   const teams = await getAllsvenskanTeams();
   if (!isSupabaseConfigured()) return { teams, sources: [], types: [] };
 
