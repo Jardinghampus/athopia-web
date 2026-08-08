@@ -3,6 +3,7 @@ import Link from "next/link";
 import { currentUser } from "@clerk/nextjs/server";
 import { MessageSquare, Flame, TrendingUp } from "lucide-react";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import { ForumSummaryPopupGate } from "@/components/ForumSummaryPopupGate";
 
 export const metadata: Metadata = {
   title: "Forum — Allsvenskan",
@@ -152,6 +153,7 @@ export default async function ForumIndexPage() {
           ))}
         </div>
       </div>
+      <ForumSummaryPopupGate />
     </div>
   );
 }

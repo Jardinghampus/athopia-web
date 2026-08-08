@@ -16,6 +16,7 @@ import ForumRightSidebar from "@/components/forum/ForumRightSidebar";
 import { getUserPlan } from "@/lib/user-plan";
 import { BlurPaywall } from "@/components/BlurPaywall";
 import { canAccess } from "@/lib/access-rules";
+import { ForumSummaryPopupGate } from "@/components/ForumSummaryPopupGate";
 
 export const dynamic = "force-dynamic";
 
@@ -191,6 +192,7 @@ export default async function ForumTeamPage({
 
         </div>
       </div>
+      <ForumSummaryPopupGate />
     </div>
   );
 }
