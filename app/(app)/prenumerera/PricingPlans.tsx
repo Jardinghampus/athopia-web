@@ -9,6 +9,7 @@
  */
 
 import { useState } from "react";
+import type { Plan } from "@/lib/access-rules";
 import { Check, Star } from "lucide-react";
 import { CheckoutButton } from "./CheckoutButton";
 import {
@@ -116,8 +117,19 @@ function FeatureList({ features, paid, hero }: { features: string[]; paid: boole
   );
 }
 
-export function PricingPlans() {
+/**
+ * `currentPlan` kommer från `getUserPlan()` på servern. Kortet för nuvarande
+ * plan var tidigare hårdkodat till GRATIS, så en betalande Elite-kund fick veta
+ * att hen låg på gratisplanen och erbjöds köpa Elite igen.
+ */
+export function PricingPlans({ currentPlan = "free" }: { currentPlan?: Plan }) {
   const [interval, setBilling] = useState<BillingInterval>("month");
+
+  const NuvarandePlan = () => (
+    <div className="h-11 rounded-xl border border-pitch/40 bg-pitch/10 flex items-center justify-center text-sm font-medium text-pitch-ink">
+      Nuvarande plan
+    </div>
+  );
 
   return (
     <>
@@ -156,9 +168,13 @@ export function PricingPlans() {
             <p className="text-xs text-muted-foreground mt-1">Inget kort behövs</p>
           </div>
           <FeatureList features={FREE_FEATURES} paid={false} />
-          <div className="h-11 rounded-xl border border-border flex items-center justify-center text-sm text-muted-foreground">
-            Nuvarande plan
-          </div>
+          {currentPlan === "free" ? (
+            <NuvarandePlan />
+          ) : (
+            <div className="h-11 rounded-xl border border-border flex items-center justify-center text-sm text-muted-foreground">
+              Ingår i din plan
+            </div>
+          )}
         </div>
 
         {/* PRO */}
@@ -170,18 +186,30 @@ export function PricingPlans() {
           </div>
           <ProPriceTag interval={interval} />
           <FeatureList features={PRO_FEATURES} paid hero={3} />
-          <CheckoutButton
-            plan="pro"
-            interval={interval}
-            label={FOUNDER_OFFER.active ? "Bli founder" : "Prova PRO"}
-          />
+          {currentPlan === "pro" ? (
+            <NuvarandePlan />
+          ) : currentPlan === "elite" ? (
+            <div className="h-11 rounded-xl border border-border flex items-center justify-center text-sm text-muted-foreground">
+              Ingår i Elite
+            </div>
+          ) : (
+            <CheckoutButton
+              plan="pro"
+              interval={interval}
+              label={FOUNDER_OFFER.active ? "Bli founder" : "Prova PRO"}
+            />
+          )}
         </div>
 
         {/* Elite */}
         <div className="rounded-2xl border border-border bg-card p-6 flex flex-col">
           <ElitePriceTag interval={interval} />
           <FeatureList features={ELITE_FEATURES} paid />
-          <CheckoutButton plan="elite" interval={interval} label="Välj Elite" variant="outline" />
+          {currentPlan === "elite" ? (
+            <NuvarandePlan />
+          ) : (
+            <CheckoutButton plan="elite" interval={interval} label="Välj Elite" variant="outline" />
+          )}
         </div>
       </div>
     </>

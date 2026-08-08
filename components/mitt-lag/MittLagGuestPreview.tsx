@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Star } from "lucide-react";
 import { useFavoriteTeam } from "@/hooks/useFavoriteTeam";
 import { StatNumber } from "@/components/ui/StatNumber";
+import { formLetter, formLabel } from "@/lib/form-letter";
 
 type Preview = {
   team: { name: string; slug: string };
@@ -143,6 +144,8 @@ export function MittLagGuestPreview() {
               {preview.form.map((r, i) => (
                 <span
                   key={i}
+                  title={formLabel(r)}
+                  aria-label={formLabel(r)}
                   className={`w-6 h-6 rounded-full text-[10px] font-bold flex items-center justify-center ${
                     r === "W"
                       ? "bg-success/20 text-success"
@@ -151,7 +154,7 @@ export function MittLagGuestPreview() {
                         : "bg-muted text-muted-foreground"
                   }`}
                 >
-                  {r === "W" ? "V" : r === "L" ? "F" : "O"}
+                  {formLetter(r)}
                 </span>
               ))}
             </div>

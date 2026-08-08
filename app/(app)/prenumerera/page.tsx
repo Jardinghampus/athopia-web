@@ -11,6 +11,7 @@ import { Zap } from "lucide-react";
 import { FOUNDER_OFFER, TRIAL_DAYS } from "@/lib/pricing";
 import { absoluteUrl } from "@/lib/site-url";
 import { PricingPlans } from "./PricingPlans";
+import { getUserPlan } from "@/lib/user-plan";
 import { jsonLd } from "@/lib/json-ld";
 
 export const dynamic = "force-dynamic";
@@ -53,7 +54,10 @@ function PricingJsonLd() {
   );
 }
 
-export default function PrenumereraPage() {
+export default async function PrenumereraPage() {
+  // Planen läses server-side (CLAUDE.md: aldrig client-side paywall-beslut).
+  const plan = await getUserPlan();
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-20">
       <PricingJsonLd />
@@ -74,7 +78,7 @@ export default function PrenumereraPage() {
         </p>
       </div>
 
-      <PricingPlans />
+      <PricingPlans currentPlan={plan} />
 
       <p className="text-center text-sm text-muted-foreground mt-10 max-w-lg mx-auto">
         Gratis ger dig flödet. PRO ger dig morgonbriefen, poddintelligensen och

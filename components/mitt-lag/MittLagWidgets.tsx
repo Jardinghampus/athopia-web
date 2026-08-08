@@ -48,29 +48,9 @@ export function MittLagWidgets({
         </section>
       ) : null}
 
-      {hub.form.length > 0 ? (
-        <section className="rounded-2xl border border-border bg-card px-5 py-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
-            Form
-          </p>
-          <div className="flex gap-1.5">
-            {hub.form.slice(-5).map((r, i) => (
-              <span
-                key={i}
-                className={`w-8 h-8 rounded-full text-xs font-bold flex items-center justify-center ${
-                  r === "W"
-                    ? "bg-success/20 text-success"
-                    : r === "L"
-                      ? "bg-destructive/20 text-destructive-ink"
-                      : "bg-muted text-muted-foreground"
-                }`}
-              >
-                {r === "W" ? "V" : r === "L" ? "F" : "O"}
-              </span>
-            ))}
-          </div>
-        </section>
-      ) : null}
+      {/* Formprickarna låg både här och i tabellplaceringskortet ovanför —
+          samma fem prickar två gånger på samma skärm. Placeringskortet parar
+          ihop position och form, vilket är den kombination som betyder något. */}
 
       <section className="rounded-2xl border border-border bg-card px-5 py-4">
         <div className="flex items-center justify-between gap-3 mb-3">

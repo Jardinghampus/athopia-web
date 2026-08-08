@@ -135,13 +135,25 @@ async function DailyAuthArea({
           <Sparkles className="mx-auto h-8 w-8 text-pitch-ink mb-3" aria-hidden />
           <h2 className="text-lg font-semibold text-foreground text-balance">Första avsnittet kommer snart</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Athopia Daily publiceras varje morgon efter granskning. Skapa konto så får du briefen direkt i appen.
+            {userId
+              ? "Athopia Daily publiceras varje morgon efter granskning. Du får den här så snart första avsnittet är ute."
+              : "Athopia Daily publiceras varje morgon efter granskning. Skapa konto så får du briefen direkt i appen."}
           </p>
         </section>
       )}
 
       <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
         {!userId ? (
+          <TrackedLink
+            href={DAILY_UPGRADE_URL}
+            event="daily_checkout_click"
+            props={{ placement: "hero_cta", lag: lag ?? "all" }}
+            className={cn(buttonVariants({ size: "lg" }), "w-full sm:w-auto justify-center")}
+          >
+            Lyssna med PRO
+            <ArrowRight className="ml-1 h-4 w-4" />
+          </TrackedLink>
+        ) : plan === "free" ? (
           <TrackedLink
             href={DAILY_UPGRADE_URL}
             event="daily_checkout_click"
@@ -160,14 +172,18 @@ async function DailyAuthArea({
             <ArrowRight className="ml-1 h-4 w-4" />
           </Link>
         )}
-        <TrackedLink
-          href={DAILY_UPGRADE_URL}
-          event="daily_checkout_click"
-          props={{ placement: "footer_cta", lag: lag ?? "all" }}
-          className={cn(buttonVariants({ size: "lg", variant: "secondary" }), "w-full sm:w-auto justify-center")}
-        >
-          Uppgradera till PRO
-        </TrackedLink>
+        {/* Uppgraderingsknappen visades för alla, även Elite-kunder som redan
+            betalar mer än PRO. Erbjud den bara till den som saknar tillgången. */}
+        {plan === "free" ? (
+          <TrackedLink
+            href={DAILY_UPGRADE_URL}
+            event="daily_checkout_click"
+            props={{ placement: "footer_cta", lag: lag ?? "all" }}
+            className={cn(buttonVariants({ size: "lg", variant: "secondary" }), "w-full sm:w-auto justify-center")}
+          >
+            Uppgradera till PRO
+          </TrackedLink>
+        ) : null}
       </div>
     </>
   );

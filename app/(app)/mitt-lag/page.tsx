@@ -24,6 +24,7 @@ import { MittLagGuestPreview } from "@/components/mitt-lag/MittLagGuestPreview";
 import { UtmActivationTracker } from "@/components/growth/UtmActivationTracker";
 import { getHighlights } from "@/lib/highlights/queries";
 import { HighlightRail } from "@/components/highlights/HighlightRail";
+import { formLetter, formLabel } from "@/lib/form-letter";
 
 export const dynamic = "force-dynamic";
 
@@ -111,7 +112,10 @@ export default async function MittLagPage({
   const greeting = homeGreeting(user?.firstName);
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 pb-10 pt-4">
+    // Sidan låg i en 768px-kolumn mitt på skärmen med ~340px tomt på varje sida
+    // vid 1440px. Från xl delas den i två spalter: den dagliga ritualen till
+    // vänster, stödytorna till höger. Under xl är layouten oförändrad.
+    <div className="max-w-3xl xl:max-w-6xl mx-auto px-4 sm:px-6 pb-10 pt-4">
       {user ? (
         <Suspense fallback={null}>
           <UtmActivationTracker enabled />
@@ -138,6 +142,9 @@ export default async function MittLagPage({
         </Link>
       </header>
 
+      <div className="xl:grid xl:grid-cols-[minmax(0,1fr)_22rem] xl:items-start xl:gap-8">
+      <div className="min-w-0">
+
       {hub.position != null && (
         <Link
           href="/allsvenskan/tabell"
@@ -155,11 +162,13 @@ export default async function MittLagPage({
               {hub.form.slice(-5).map((r, i) => (
                 <span
                   key={i}
+                  title={formLabel(r)}
+                  aria-label={formLabel(r)}
                   className={`w-6 h-6 rounded-full text-[10px] font-bold flex items-center justify-center ${
                     r === "W" ? "bg-success/20 text-success" : r === "L" ? "bg-destructive/20 text-destructive-ink" : "bg-muted text-muted-foreground"
                   }`}
                 >
-                  {r === "W" ? "V" : r === "L" ? "F" : "O"}
+                  {formLetter(r)}
                 </span>
               ))}
             </div>
@@ -201,8 +210,11 @@ export default async function MittLagPage({
         </section>
       )}
 
-      <div className="mt-6">
+      </div>
+
+      <aside className="mt-6 xl:mt-0 xl:sticky xl:top-6 min-w-0">
         <MittLagWidgets hub={hub} />
+      </aside>
       </div>
 
       {highlights.length > 0 && (

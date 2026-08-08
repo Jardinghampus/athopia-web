@@ -508,26 +508,73 @@ export default async function MatchPage({ params }: PageProps) {
                 allt eftersom matchen synkas.
               </p>
             ) : (
-              <div className="space-y-2">
-                {timelineEvents.map((e) => {
-                  const isHome = String(e.teamId) === homeTeamId;
-                  const icon = EVENT_ICONS[e.eventType] ?? "•";
-                  const type = e.eventType;
-                  const player = e.playerName ?? eventPlayerName(playerMap, e.playerId);
-                  const related = eventPlayerName(playerMap, e.relatedPlayerId);
-                  const label = type === "SUBSTITUTION"
-                    ? `${related ? `${related} in` : "Inbytt"}${player ? `, ${player} ut` : ""}`
-                    : `${EVENT_LABELS[type] ?? type}${player ? ` · ${player}` : ""}${related && type === "GOAL" ? ` (${related})` : ""}`;
-                  return (
-                    <div key={e.eventId} className={`flex items-center gap-2 text-sm ${isHome ? "flex-row" : "flex-row-reverse"}`}>
-                      <span className="text-xs text-muted-foreground w-8 text-center">{String(e.minute ?? "?")}′</span>
-                      <span>{icon}</span>
-                      <span className="text-foreground/80 flex-1 truncate">
-                        {e.result ? `${e.result} · ` : ""}{label}
+              <div>
+                {/* Tidslinje med minutrännan i mitten. Raderna växlade tidigare
+                    bara mellan flex-row och flex-row-reverse, utan mittlinje
+                    eller lagrubrik — det gick inte att se vilket lag en händelse
+                    tillhörde, det såg bara ut som slumpmässig formatering. */}
+                <div className="mb-2 grid grid-cols-[1fr_2.5rem_1fr] items-center gap-2 border-b border-border/60 pb-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  <span className="truncate text-right">{homeName}</span>
+                  <span aria-hidden />
+                  <span className="truncate">{awayName}</span>
+                </div>
+                <ul className="space-y-1.5">
+                  {timelineEvents.map((e) => {
+                    const isHome = String(e.teamId) === homeTeamId;
+                    const icon = EVENT_ICONS[e.eventType] ?? "•";
+                    const type = e.eventType;
+                    const player = e.playerName ?? eventPlayerName(playerMap, e.playerId);
+                    const related = eventPlayerName(playerMap, e.relatedPlayerId);
+                    const label = type === "SUBSTITUTION"
+                      ? `${related ? `${related} in` : "Inbytt"}${player ? `, ${player} ut` : ""}`
+                      : `${EVENT_LABELS[type] ?? type}${player ? ` · ${player}` : ""}${related && type === "GOAL" ? ` (${related})` : ""}`;
+                    const text = `${e.result ? `${e.result} · ` : ""}${label}`;
+                    // Mål är det tidslinjen finns för — de ska väga tyngst.
+                    const isGoal = type === "GOAL" || type === "OWN_GOAL";
+                    const textClass = isGoal
+                      ? "truncate font-semibold text-foreground"
+                      : "truncate text-foreground/80";
+                    // Hemmalaget speglas så att ikonerna möts vid mittrännan.
+                    const cell = (mirrored: boolean) => (
+                      <span className="flex min-w-0 items-center gap-1.5">
+                        {mirrored ? (
+                          <>
+                            <span className={textClass}>{text}</span>
+                            <span aria-hidden className="shrink-0">{icon}</span>
+                          </>
+                        ) : (
+                          <>
+                            <span aria-hidden className="shrink-0">{icon}</span>
+                            <span className={textClass}>{text}</span>
+                          </>
+                        )}
                       </span>
-                    </div>
-                  );
-                })}
+                    );
+                    return (
+                      <li
+                        key={e.eventId}
+                        className="grid grid-cols-[1fr_2.5rem_1fr] items-center gap-2 text-sm"
+                      >
+                        {isHome ? (
+                          <span className="flex min-w-0 justify-end">{cell(true)}</span>
+                        ) : (
+                          <span aria-hidden />
+                        )}
+                        <span className="rounded-full bg-muted/60 py-0.5 text-center font-mono text-[11px] tabular-nums text-muted-foreground">
+                          {String(e.minute ?? "?")}′
+                        </span>
+                        {isHome ? (
+                          <span aria-hidden />
+                        ) : (
+                          <span className="flex min-w-0">{cell(false)}</span>
+                        )}
+                        <span className="sr-only">
+                          {isHome ? homeName : awayName}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
               </div>
             )}
           </div>
