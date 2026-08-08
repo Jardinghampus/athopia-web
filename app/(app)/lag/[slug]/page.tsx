@@ -219,14 +219,12 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
           dagliga vanan; laghubben är lagets permanenta uppslagsverk och ska inte
           vara ett andra hem för samma innehåll (produktbrief, problem 1). */}
 
-      <div className="mx-4 sm:mx-6 mb-5">
-        <PodcastSignalsPanel
-          signals={podcastClips}
-          plan={plan}
-          teamSlug={hub.team.slug}
-          title={`Podcast om ${hub.team.name}`}
-        />
-      </div>
+      {/* Poddarna låg tidigare här, direkt efter matchbannern — före lagets egen
+          trend, transferradar och nyheter. Ett laghubb ska leda med matchen och
+          lagets eget innehåll; poddar är en stödmodul och har dessutom en egen
+          flik. De ligger nu sist. */}
+
+      <TeamSection section="oversikt" hub={hub} plan={plan} insights={insights} />
 
       <PositionTrend teamSlug={hub.team.slug} />
 
@@ -238,7 +236,14 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
         </div>
       )}
 
-      <TeamSection section="oversikt" hub={hub} plan={plan} insights={insights} />
+      <div className="mx-4 sm:mx-6 mt-6">
+        <PodcastSignalsPanel
+          signals={podcastClips}
+          plan={plan}
+          teamSlug={hub.team.slug}
+          title={`Podcast om ${hub.team.name}`}
+        />
+      </div>
     </div>
   );
 }

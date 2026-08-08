@@ -104,16 +104,17 @@ export function TeamHubHeader({
       />
 
       {stats && (
-        <div className="px-4 sm:px-6 pt-1 space-y-2">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        // Sex tal låg tidigare i sex stora kort över två rader — samma
+        // information som en enda tabellrad, på ~200px höjd. Nu en rad som
+        // ryms i ett svep och lämnar plats åt lagets faktiska innehåll.
+        <div className="px-4 sm:px-6 pt-1">
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
             <KeyStat label="Poäng" value={stats.points} accent />
             <KeyStat label="Spelade" value={stats.played} />
+            <KeyStat label="Vinster" value={stats.wins} />
             <KeyStat label="Gjorda" value={stats.goals_for} />
             <KeyStat label="Insläppta" value={stats.goals_against} />
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <KeyStat label="Mål­skillnad" value={stats.goal_diff} signed />
-            <KeyStat label="Vinster" value={stats.wins} />
+            <KeyStat label="Målskillnad" value={stats.goal_diff} signed />
           </div>
         </div>
       )}

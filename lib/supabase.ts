@@ -970,9 +970,12 @@ async function fetchTeamEntityInsights(teamEntityId: string, limit = 3): Promise
       .eq("sport", "football")
       .order("confidence", { ascending: false, nullsFirst: false })
       .order("generated_at", { ascending: false })
-      .limit(limit);
+      // Se dedupeInsightsByTitle: generatorn skriver identiska rader dagligen.
+      // Med confidence som primär sortering hamnade tre exemplar av samma
+      // analys (0.950) överst, och laghubben renderade samma kort två gånger.
+      .limit(Math.max(limit * 4, 12));
 
-    return (data ?? []).map(mapEntityInsight);
+    return dedupeInsightsByTitle((data ?? []).map(mapEntityInsight)).slice(0, limit);
   } catch (e) { captureDbError(e);
     return [];
   }
@@ -1000,13 +1003,33 @@ async function fetchTeamAnalysis(teamEntityId: string, limit: number): Promise<E
       // confidence. Analysytan är en tidslinje — "senaste analyserna" måste vara
       // senaste, annars ligger en gammal högkonfidensanalys kvar i toppen.
       .order("generated_at", { ascending: false })
-      .limit(limit);
+      // Generatorn i athopia-os skriver en ny rad varje dygn även när slutsatsen
+      // är oförändrad — Djurgården hade tre identiska rader med samma rubrik och
+      // samma konfidens. Utan dedup renderades samma analys två gånger på
+      // laghubben. Hämta med marginal och vaska fram de unika.
+      .limit(Math.max(limit * 4, 12));
 
-    return (data ?? []).map(mapEntityInsight);
+    return dedupeInsightsByTitle((data ?? []).map(mapEntityInsight)).slice(0, limit);
   } catch (e) {
     captureDbError(e);
     return [];
   }
+}
+
+/**
+ * Behåller den senaste av varje rubrik. Raderna kommer redan sorterade
+ * kronologiskt, så första förekomsten är den färskaste.
+ */
+function dedupeInsightsByTitle(insights: EntityInsight[]): EntityInsight[] {
+  const sedda = new Set<string>();
+  const unika: EntityInsight[] = [];
+  for (const i of insights) {
+    const nyckel = (i.title ?? "").trim().toLowerCase();
+    if (!nyckel || sedda.has(nyckel)) continue;
+    sedda.add(nyckel);
+    unika.push(i);
+  }
+  return unika;
 }
 
 /** Hela analyshistoriken för ett lag, senaste först. Driver /lag/[slug]/analys. */

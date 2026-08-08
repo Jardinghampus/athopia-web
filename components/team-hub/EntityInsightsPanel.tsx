@@ -2,11 +2,22 @@ import Link from "next/link";
 import { Brain, Newspaper, ShieldCheck, TrendingUp } from "lucide-react";
 import type { EntityInsight } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formLetter } from "@/lib/form-letter";
 
 function formatMetric(value: unknown, suffix = "") {
   if (typeof value === "number") return `${value > 0 && suffix === "p" ? "+" : ""}${value}${suffix}`;
   if (typeof value === "string" && value.trim()) return value;
   return "n/a";
+}
+
+/** Formsträngen kommer engelsk från datalagret ("LWWDW"). Produkten är svensk. */
+function formatForm(value: unknown): string {
+  if (typeof value !== "string" || !value.trim()) return "n/a";
+  return value
+    .trim()
+    .split("")
+    .map((c) => formLetter(c.toUpperCase()))
+    .join("");
 }
 
 function confidenceLabel(value: number) {
@@ -84,7 +95,7 @@ export function EntityInsightsPanel({
                   <div className="flex items-center gap-1 text-xs uppercase tracking-wide text-muted-foreground">
                     <TrendingUp className="h-3 w-3" /> Form
                   </div>
-                  <p className="mt-1 text-sm font-semibold text-foreground">{formatMetric(metrics.form)}</p>
+                  <p className="mt-1 font-mono text-sm font-semibold tracking-wider text-foreground">{formatForm(metrics.form)}</p>
                 </div>
                 <div className="rounded-md border border-border/60 bg-background/50 p-2">
                   <div className="flex items-center gap-1 text-xs uppercase tracking-wide text-muted-foreground">
