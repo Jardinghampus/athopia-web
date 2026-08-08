@@ -314,6 +314,37 @@ Kvar är brödsmulor och "Läs mer"-länkar, som är inline-text.
 inte ur web. Densiteten på `/mitt-lag` och `/lag/[slug]` är en layoutomgörning,
 inte polish — den ligger kvar på listan.
 
+### Tredje omgången — resten av listan
+
+- **`/prenumerera` hade "Nuvarande plan" hårdkodat på gratiskortet.** En
+  betalande Elite-kund fick veta att hen låg på gratisplanen och erbjöds köpa
+  Elite igen. Planen läses nu server-side via `getUserPlan()`; PRO visas som
+  "Ingår i Elite" för Elite-kunder.
+- **`/daily` talade till fel användare.** "Skapa konto" visades för inloggade
+  och "Uppgradera till PRO" för alla, inklusive Elite. Båda är plankänsliga nu.
+- **Matchens händelselista gick inte att läsa.** Raderna växlade bara mellan
+  `flex-row` och `flex-row-reverse` utan mittlinje eller lagrubriker. Nu en
+  riktig tidslinje: lagnamn som kolumnrubriker, minuten i en central ränna,
+  hemmalaget speglat så ikonerna möts vid mitten, mål i halvfet stil, och
+  lagtillhörighet som `sr-only`-text för skärmläsare.
+- **Formprickarna på `/mitt-lag` renderades två gånger** på samma skärm — i
+  placeringskortet och i en egen Form-sektion strax under. Den fristående är
+  borta; placeringskortet parar ihop position och form.
+- **`/mitt-lag` låg i en 768px-kolumn** med ~340px tomt på varje sida vid
+  1440px. Från `xl` två spalter: daglig ritual till vänster, stödytor till
+  höger. Under `xl` oförändrad.
+- **Laghubben visade samma analys två gånger.** Generatorn i `athopia-os`
+  skriver en ny rad varje dygn även när slutsatsen är oförändrad — tre rader
+  med identisk rubrik och identisk konfidens (0.950). Eftersom urvalet sorterar
+  på confidence först hamnade tre exemplar överst. Web dedupar nu på rubrik.
+- **Sex sifferkort blev en rad** på laghubben, och **poddarna flyttades sist** —
+  de låg tredje, före lagets egen trend, transferradar och nyheter.
+- **En fjärde plats med engelska formbokstäver**: Brain-kortets `LWWDW` läser
+  nu `FVVOV`.
+
+**Verifierat efter varje steg:** 150 e2e-tester gröna, 465 interna länkar utan
+en enda trasig.
+
 ## Ordning jag skulle ta det i
 
 1. ~~LIVE-vakten~~ och ~~tom matchstatistik~~ — **avvaktar Sportmonks-aktiveringen**
