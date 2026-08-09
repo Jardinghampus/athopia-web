@@ -89,7 +89,10 @@ export default async function AllsvenskanTabellPage() {
         ))}
       </nav>
 
-      <div className="rounded-2xl border border-border overflow-hidden">
+      {/* overflow-x-auto, inte overflow-hidden: kortet rundar fortfarande hörnen,
+          men på 390px är tabellen 468px bred och hidden klippte bort F, +/- och
+          P — poängkolumnen gick inte att nå på mobil. */}
+      <div className="rounded-2xl border border-border overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border bg-muted/30 text-muted-foreground">

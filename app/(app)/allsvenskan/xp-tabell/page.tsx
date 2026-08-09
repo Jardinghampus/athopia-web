@@ -131,7 +131,8 @@ export default async function XpTabellPage() {
         poäng än chanserna motiverar, rött = färre. Athopias beräkning på synkad matchdata.
       </p>
 
-      <div className="rounded-2xl border border-border overflow-hidden">
+      {/* Se /allsvenskan/tabell: hidden klippte bort P−xP, sidans hela poäng. */}
+      <div className="rounded-2xl border border-border overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border bg-muted/30 text-muted-foreground">
