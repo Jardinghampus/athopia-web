@@ -899,68 +899,10 @@ export async function getAgentLogs(limit = 100): Promise<AgentLog[]> {
   }
 }
 
-// ── NewsStream (läser från articles — Echo skriver dit, ej content_queue) ────────
-
-function mapImportanceTierFromScore(score: number | null): NewsSignal["importance_tier"] {
-  return mapImportanceTier(score);
-}
-
-export const getNewsStream = unstable_cache(
-  async (opts: {
-    sport?: string;
-    limit?: number;
-    orderBy?: "signal_score" | "published_at";
-  }): Promise<NewsSignal[]> => {
-    if (!isSupabaseConfigured()) return [];
-    const { sport = "football", limit = 20, orderBy = "published_at" } = opts;
-    try {
-      const supabase = createServerClient();
-      let q = supabase
-        .from("news_feed_clustered")
-        .select("id, source_name, url, importance_score, feed_score, push_priority, title, summary, published_at, source_count, story_cluster_id")
-        .eq("sport", sport)
-        .not("importance_score", "is", null)
-        .limit(limit);
-
-      q = orderBy === "signal_score"
-        ? q.order("feed_score", { ascending: false, nullsFirst: false })
-        : q.order("published_at", { ascending: false, nullsFirst: false });
-
-      const { data } = await q;
-      const rows = dedupeByStoryCluster(
-        data ?? [],
-        (row: any) => ({
-          clusterId: row.story_cluster_id ?? null,
-          title: row.title ?? null,
-          publishedAt: row.published_at ?? null,
-        }),
-        (row: any) => Number(row.feed_score ?? row.importance_score ?? 0)
-      );
-      return rows.map((row: any) => ({
-        id: String(row.id),
-        source_name: row.source_name ?? null,
-        source_url: row.url ?? null,
-        signal_score: row.feed_score ?? row.importance_score ?? null,
-        importance_tier: row.push_priority === "breaking"
-          ? "breaking"
-          : mapImportanceTierFromScore(row.importance_score ?? null),
-        source_count: row.source_count ?? null,
-        story_cluster_id: row.story_cluster_id ?? null,
-        content: {
-          title: row.title ?? "",
-          link: row.url ?? "",
-          published_at: row.published_at ?? null,
-          snippet: row.summary ?? null,
-        },
-        created_at: row.published_at ?? "",
-      }));
-    } catch (e) { captureDbError(e);
-      return [];
-    }
-  },
-  ["news-stream"],
-  { revalidate: 60, tags: ["news"] }
-);
+// NewsStream/NewsItem och getNewsStream togs bort 2026-08-09: inget importerade
+// dem, och NewsItem renderade källans `summary` som teaser utan att gå via
+// rättighetsgrinden (canPublishBody) som den levande flödesvägen använder.
+// Levande väg: lib/feed/build-feed-modules.ts.
 
 export async function getTeamPushPopups(teamEntityIds: string[], limit = 5): Promise<TeamPushPopup[]> {
   if (!isSupabaseConfigured()) return [];
