@@ -70,7 +70,7 @@ export default async function AnalysListPage() {
                   <>
                     {a.matchName && <span>·</span>}
                     <time dateTime={a.playedAt}>
-                      {new Date(a.playedAt).toLocaleDateString("sv-SE", {
+                      {new Date(a.playedAt).toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm",
                         day: "numeric",
                         month: "short",
                       })}

@@ -20,7 +20,7 @@ export interface PublicProfile {
 function memberSince(iso: string): string {
   try {
     const d = new Date(iso);
-    return d.toLocaleDateString("sv-SE", { month: "long", year: "numeric" });
+    return d.toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm", month: "long", year: "numeric" });
   } catch {
     return "—";
   }

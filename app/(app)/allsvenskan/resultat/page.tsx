@@ -87,7 +87,7 @@ export default async function AllsvenskanResultatPage() {
                 </span>
                 <span className="font-medium w-[38%] truncate">{away}</span>
                 <span className="text-xs text-muted-foreground ml-4 shrink-0 hidden sm:block">
-                  {new Date(f.starting_at).toLocaleDateString("sv-SE", { day: "numeric", month: "short" })}
+                  {new Date(f.starting_at).toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm", day: "numeric", month: "short" })}
                 </span>
               </Link>
             );

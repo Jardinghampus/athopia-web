@@ -7,7 +7,7 @@ import type { FeedModule } from "@/lib/feed/build-feed-modules";
 function formatKickoffShort(iso: string): string | null {
   const t = Date.parse(iso);
   if (!Number.isFinite(t)) return null;
-  return new Intl.DateTimeFormat("sv-SE", {
+  return new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Stockholm",
     weekday: "short",
     hour: "2-digit",
     minute: "2-digit",

@@ -27,7 +27,7 @@ const DAILY_UPGRADE_URL = "/prenumerera?utm_source=daily&utm_medium=player&utm_c
 
 function episodeDescription(title: string, episodeDate: string) {
   const when = episodeDate
-    ? new Date(`${episodeDate}T12:00:00`).toLocaleDateString("sv-SE", {
+    ? new Date(`${episodeDate}T12:00:00`).toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm",
         weekday: "long",
         day: "numeric",
         month: "long",

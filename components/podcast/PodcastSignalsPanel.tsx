@@ -85,7 +85,7 @@ function SignalCard({
 }) {
   const context = formatPodcastContextLine(signal.topics, signal.mentionedTeams)
   const date = signal.publishedAt
-    ? new Date(signal.publishedAt).toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' })
+    ? new Date(signal.publishedAt).toLocaleDateString('sv-SE', { timeZone: "Europe/Stockholm", day: 'numeric', month: 'short' })
     : null
 
   return (

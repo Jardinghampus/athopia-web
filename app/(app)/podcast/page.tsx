@@ -52,7 +52,7 @@ function relTime(iso: string | null): string {
   if (d <= 0) return "idag";
   if (d === 1) return "igår";
   if (d < 30) return `${d} dagar sedan`;
-  return new Date(iso).toLocaleDateString("sv-SE");
+  return new Date(iso).toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm" });
 }
 
 export default async function PodcastIndexPage() {

@@ -94,7 +94,7 @@ export function PodcastSearch() {
                 <p className="text-xs text-muted-foreground mt-1">
                   — {c.showName ?? "Podd"}: {c.episodeTitle}
                   {ts(c.startSeconds)}
-                  {c.publishedAt && ` · ${new Date(c.publishedAt).toLocaleDateString("sv-SE")}`}
+                  {c.publishedAt && ` · ${new Date(c.publishedAt).toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm" })}`}
                 </p>
               </Link>
             ))}
@@ -124,7 +124,7 @@ export function PodcastSearch() {
                 <p className="text-sm font-medium text-foreground line-clamp-1">{ep.title}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {ep.showName}
-                  {ep.publishedAt && ` · ${new Date(ep.publishedAt).toLocaleDateString("sv-SE")}`}
+                  {ep.publishedAt && ` · ${new Date(ep.publishedAt).toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm" })}`}
                   {ep.mentionedTeams.length > 0 && ` · ${ep.mentionedTeams.slice(0, 3).join(", ")}`}
                 </p>
               </Link>

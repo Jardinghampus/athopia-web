@@ -145,7 +145,7 @@ export function H2HSearch({ fixtures }: Props) {
                 className="flex items-center gap-2 bg-card border border-border rounded-xl px-4 py-3 text-sm"
               >
                 <span className="text-muted-foreground w-16 shrink-0 text-xs">
-                  {new Date(f.date).toLocaleDateString("sv-SE", {
+                  {new Date(f.date).toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm",
                     month: "short",
                     day: "numeric",
                   })}

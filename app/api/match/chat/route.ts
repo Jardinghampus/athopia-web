@@ -100,7 +100,7 @@ Svara utifrån denna match först — använd verktyg för tabell/nyheter vid be
   const result = streamText({
     model,
     maxOutputTokens: 600,
-    system: `Du är Athopias AI-assistent för Allsvenskan. Idag är det ${new Date().toLocaleDateString('sv-SE', { year: 'numeric', month: 'long', day: 'numeric' })}.${matchContext}
+    system: `Du är Athopias AI-assistent för Allsvenskan. Idag är det ${new Date().toLocaleDateString('sv-SE', { timeZone: "Europe/Stockholm", year: 'numeric', month: 'long', day: 'numeric' })}.${matchContext}
 
 ## Hur du svarar
 - Kort och objektivt — 2–4 meningar eller punktlista

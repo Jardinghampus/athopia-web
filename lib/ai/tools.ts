@@ -46,7 +46,7 @@ export const tools: Record<string, Tool> = {
           if (!fallback?.length) return { news: [], message: 'Inga nyheter hittades.' }
           return { news: fallback }
         }
-        return { news: data, today: new Date().toLocaleDateString('sv-SE') }
+        return { news: data, today: new Date().toLocaleDateString('sv-SE', { timeZone: "Europe/Stockholm" }) }
       } catch (e) {
         return { error: String(e) }
       }

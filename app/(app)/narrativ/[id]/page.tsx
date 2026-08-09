@@ -141,7 +141,7 @@ export default async function NarrativePage({
                   {s.source_name && <span>{s.source_name}</span>}
                   {s.published_at && (
                     <time dateTime={s.published_at}>
-                      {new Date(s.published_at).toLocaleDateString("sv-SE", { day: "numeric", month: "short" })}
+                      {new Date(s.published_at).toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm", day: "numeric", month: "short" })}
                     </time>
                   )}
                 </div>

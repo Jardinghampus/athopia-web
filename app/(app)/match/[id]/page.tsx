@@ -345,7 +345,7 @@ export default async function MatchPage({ params }: PageProps) {
       {/* Resultat-header */}
       <div className="bg-card border border-border rounded-2xl p-6">
         <p className="text-xs text-muted-foreground text-center mb-3">
-          Allsvenskan {kickoff ? new Date(kickoff).toLocaleDateString("sv-SE", { weekday: "long", day: "numeric", month: "long" }) : ""}
+          Allsvenskan {kickoff ? new Date(kickoff).toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm", weekday: "long", day: "numeric", month: "long" }) : ""}
           {/* text-red-500 matte 3.81:1 pa vit yta — destructive-ink ar den
               kontrastmatta valoren per tema (globals.css). Ett live-marke som
               ar svarlast ar illa i en sportprodukt. */}

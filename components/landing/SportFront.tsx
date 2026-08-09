@@ -22,7 +22,7 @@ function relTime(iso: string): string {
   if (diffMin < 60) return `${Math.max(diffMin, 1)} min sedan`;
   const h = Math.round(diffMin / 60);
   if (h < 24) return `${h} tim sedan`;
-  return new Date(iso).toLocaleDateString("sv-SE", { day: "numeric", month: "short" });
+  return new Date(iso).toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm", day: "numeric", month: "short" });
 }
 
 function SectionHeading({ title, href, linkLabel }: { title: string; href: string; linkLabel: string }) {

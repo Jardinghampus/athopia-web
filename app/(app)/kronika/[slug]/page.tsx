@@ -96,7 +96,7 @@ export default async function KronikaPage({ params }: { params: Promise<{ slug: 
           </span>
           {column.published_at && (
             <span className="ml-2 text-muted-foreground">
-              {new Date(column.published_at).toLocaleDateString("sv-SE", { day: "numeric", month: "long", year: "numeric" })}
+              {new Date(column.published_at).toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm", day: "numeric", month: "long", year: "numeric" })}
             </span>
           )}
         </div>

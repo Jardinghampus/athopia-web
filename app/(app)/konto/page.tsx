@@ -65,7 +65,7 @@ export default async function KontoPage({
   const { checkout } = await searchParams;
 
   const periodEndFormatted = privateMeta.subscription?.currentPeriodEnd
-    ? new Date(privateMeta.subscription.currentPeriodEnd).toLocaleDateString("sv-SE", {
+    ? new Date(privateMeta.subscription.currentPeriodEnd).toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm",
         day: "numeric",
         month: "long",
         year: "numeric",

@@ -7,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export function formatDate(date: string | number | Date): string {
   const d = date instanceof Date ? date : new Date(date);
-  return d.toLocaleDateString("sv-SE", {
+  return d.toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm",
     day: "numeric",
     month: "long",
     year: "numeric",

@@ -131,7 +131,7 @@ export default async function PodcastEpisodePage({
 
         <p className="text-sm text-muted-foreground mb-8">
           {episode.published_at
-            ? new Date(episode.published_at).toLocaleDateString("sv-SE", {
+            ? new Date(episode.published_at).toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm",
                 day: "numeric",
                 month: "long",
                 year: "numeric",

@@ -145,7 +145,7 @@ export default async function NyhetPage({
         {domain ? <span className="tabular-nums">{domain}</span> : null}
         {article.published_at ? (
           <time dateTime={article.published_at}>
-            {new Date(article.published_at).toLocaleDateString("sv-SE", {
+            {new Date(article.published_at).toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm",
               day: "numeric",
               month: "long",
               year: "numeric",

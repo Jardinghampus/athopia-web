@@ -487,7 +487,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
                   </span>
                   <span className="font-semibold text-lg text-foreground">{hs}–{as_}</span>
                   <span className="text-xs text-muted-foreground">
-                    {f.kickoff_at ? new Date(f.kickoff_at as string).toLocaleDateString("sv-SE", { day: "numeric", month: "short" }) : ""}
+                    {f.kickoff_at ? new Date(f.kickoff_at as string).toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm", day: "numeric", month: "short" }) : ""}
                   </span>
                 </Link>
               );

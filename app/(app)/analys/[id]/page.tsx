@@ -92,7 +92,7 @@ export default async function AnalysPage({ params }: PageProps) {
             <>
               {" · "}
               <time dateTime={analysis.playedAt}>
-                {new Date(analysis.playedAt).toLocaleDateString("sv-SE", {
+                {new Date(analysis.playedAt).toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm",
                   day: "numeric",
                   month: "long",
                   year: "numeric",

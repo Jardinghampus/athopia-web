@@ -166,7 +166,7 @@ function MatchList({ fixtures }: { fixtures: Awaited<ReturnType<typeof fetchH2HF
               <span className={`px-3 py-1 rounded-lg text-sm font-bold font-mono tabular-nums ${played ? "bg-muted text-foreground" : "text-muted-foreground"}`}>
                 {played && hg != null && ag != null
                   ? `${hg} – ${ag}`
-                  : new Date(f.starting_at).toLocaleDateString("sv-SE", { day: "numeric", month: "short" })}
+                  : new Date(f.starting_at).toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm", day: "numeric", month: "short" })}
               </span>
               <span className="flex-1 font-medium text-foreground truncate">{away?.name}</span>
             </Link>

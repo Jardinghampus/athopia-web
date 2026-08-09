@@ -79,7 +79,7 @@ function MatchQuickview({ fixture, smId, onClose }: { fixture: FixtureRow | null
               <SheetTitle>{f.home_team_name} – {f.away_team_name}</SheetTitle>
               <SheetDescription>
                 {f.kickoff_at
-                  ? new Date(f.kickoff_at).toLocaleDateString("sv-SE", { weekday: "long", day: "numeric", month: "long" })
+                  ? new Date(f.kickoff_at).toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm", weekday: "long", day: "numeric", month: "long" })
                   : "Datum ej satt"}
                 {isLiveNow(f.status, f.kickoff_at) && " · LIVE"}
               </SheetDescription>
@@ -187,7 +187,7 @@ function Oversikt({ hub, plan, insights, onFixture }: { hub: TeamHubPayload; pla
             {hub.news.slice(0, 4).map((a) => (
               <Link key={a.id} href={`/artikel/${a.slug}`} className="group flex items-start justify-between gap-3 rounded-lg border border-border/60 px-3 py-2.5 hover:border-pitch/50 transition-colors active:bg-muted touch-manipulation">
                 <span className="text-sm text-foreground group-hover:text-pitch-ink line-clamp-2">{a.title}</span>
-                <span className="text-xs text-muted-foreground whitespace-nowrap shrink-0">{a.published_at ? new Date(a.published_at).toLocaleDateString("sv-SE", { day: "numeric", month: "short" }) : ""}</span>
+                <span className="text-xs text-muted-foreground whitespace-nowrap shrink-0">{a.published_at ? new Date(a.published_at).toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm", day: "numeric", month: "short" }) : ""}</span>
               </Link>
             ))}
           </div>
@@ -491,7 +491,7 @@ function FixtureListRow({ fixture: f, smId, onSelect, density }: { fixture: Fixt
       trailing={
         played
           ? <span className="text-sm font-semibold font-mono tabular-nums text-foreground">{gf}–{ga}</span>
-          : <span className="text-xs">{f.kickoff_at ? new Date(f.kickoff_at).toLocaleDateString("sv-SE", { day: "numeric", month: "short" }) : ""}</span>
+          : <span className="text-xs">{f.kickoff_at ? new Date(f.kickoff_at).toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm", day: "numeric", month: "short" }) : ""}</span>
       }
       chevron
     />

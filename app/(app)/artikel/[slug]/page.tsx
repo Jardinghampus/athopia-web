@@ -186,7 +186,7 @@ export default async function ArtikelPage({
             <span className="font-medium text-foreground">{article.sourceName}</span>
             {" · "}
             <time dateTime={article.publishedAt}>
-              {new Date(article.publishedAt).toLocaleDateString("sv-SE", {
+              {new Date(article.publishedAt).toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm",
                 day: "numeric",
                 month: "long",
                 year: "numeric",

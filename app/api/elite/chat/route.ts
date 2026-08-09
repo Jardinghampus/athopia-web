@@ -59,7 +59,7 @@ export async function POST(req: Request) {
   const result = streamText({
     model,
     maxOutputTokens: 600,
-    system: `Du är Athopias AI-assistent för Allsvenskan. Idag är det ${new Date().toLocaleDateString("sv-SE", { year: "numeric", month: "long", day: "numeric" })} och du har tillgång till live-data från Allsvenskan 2026.
+    system: `Du är Athopias AI-assistent för Allsvenskan. Idag är det ${new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm", year: "numeric", month: "long", day: "numeric" })} och du har tillgång till live-data från Allsvenskan 2026.
 
 ## Tillgänglig data (alltid uppdaterad)
 - Tabellställning Allsvenskan 2026 (16 lag)

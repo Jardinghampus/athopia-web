@@ -26,7 +26,7 @@ function formatTime(sec: number) {
 
 function dateLabel(value: string) {
   if (!value) return "Idag";
-  return new Date(`${value}T12:00:00`).toLocaleDateString("sv-SE", {
+  return new Date(`${value}T12:00:00`).toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm",
     day: "numeric",
     month: "short",
   });
