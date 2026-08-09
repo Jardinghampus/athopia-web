@@ -20,12 +20,18 @@ export default defineConfig({
     video: 'retain-on-failure',
     trace: 'on-first-retry',
   },
-  webServer: {
-    command: 'pnpm dev',
-    url: 'http://localhost:3000',
-    reuseExistingServer: true,
-    timeout: 60000,
-  },
+  // Pekar TEST_URL på en riktig miljö ska ingen dev-server startas. Utan detta
+  // bootade varje prodkörning en lokal server som testerna sedan aldrig använde
+  // — körningen hängde i stället för att köra. Prod är dessutom enda stället där
+  // vissa fel syns alls: länkkontrollen gav 0 trasiga lokalt när prod hade 2.
+  webServer: process.env.TEST_URL
+    ? undefined
+    : {
+        command: 'pnpm dev',
+        url: 'http://localhost:3000',
+        reuseExistingServer: true,
+        timeout: 60000,
+      },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
     { name: 'mobile',   use: { ...devices['iPhone 15'] } },
