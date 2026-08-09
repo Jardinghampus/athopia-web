@@ -30,18 +30,25 @@ export function CookieBanner() {
 
   const pathname = usePathname();
   /**
-   * Onboarding är en helskärmstakeover (`fixed inset-0`, z-50) där primärknappen
-   * ligger längst ned. Bannern ligger i rot-layouten på `fixed bottom-4` med
-   * z-[9999] och visas så fort samtycke saknas — vilket per definition ALLTID
-   * gäller en ny användare, alltså exakt den som ser onboarding. Resultatet var
-   * att "Fortsätt" och "Öppna Mitt lag" låg under bannern för varje ny
-   * användare, på de mest konverteringskritiska skärmarna vi har.
+   * Onboarding är en helskärmstakeover (`fixed inset-0`, z-50) där varje stegs
+   * primärknapp ligger sist i det scrollande innehållet — alltså alltid mot
+   * nederkanten. Bannern ligger i rot-layouten på `fixed bottom-*` med z-[9999]
+   * och visas så fort samtycke saknas, vilket per definition ALLTID gäller en ny
+   * användare — exakt den som ser onboarding. Följden var att "Fortsätt" och
+   * "Öppna Mitt lag" låg under bannern på de mest konverteringskritiska
+   * skärmarna vi har.
    *
-   * Frågan skjuts därför en skärm framåt: samtycket efterfrågas direkt när
-   * onboardingen lämnats. Inga icke-nödvändiga cookies sätts under tiden —
-   * `applyConsent` körs först när användaren valt.
+   * Lösningen är att byta kant, inte att dölja frågan: på onboarding förankras
+   * bannern upptill, strax under stegraden. Då kan den aldrig täcka en
+   * primärknapp, och samtycket efterfrågas ändå på första skärmen.
+   * `applyConsent` körs först när användaren valt, så inget sätts dessförinnan.
    */
   const onOnboarding = pathname.startsWith("/onboarding");
+
+  // Stegraden är safe-area + 1.5rem padding + 44px knapphöjd + 1rem botten.
+  const position = onOnboarding
+    ? "top-[calc(env(safe-area-inset-top)+5.75rem)]"
+    : "bottom-[calc(env(safe-area-inset-bottom)+1rem+var(--dock-inset,0rem))]";
 
   useEffect(() => {
     if (!getStoredConsent()) setVisible(true);
@@ -56,21 +63,21 @@ export function CookieBanner() {
 
   return (
     <AnimatePresence>
-      {visible && !onOnboarding && (
+      {visible && (
         <motion.div
           role="dialog"
           aria-label="Cookie-inställningar"
           aria-modal="false"
-          initial={{ y: "110%", opacity: 0 }}
+          initial={{ y: onOnboarding ? "-110%" : "110%", opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          exit={{ y: "110%", opacity: 0 }}
+          exit={{ y: onOnboarding ? "-110%" : "110%", opacity: 0 }}
           transition={{ type: "spring", stiffness: 320, damping: 38, mass: 0.9 }}
           // Ovanför bottendocken, inte ovanpå den. På bottom-4 låg bannern rakt
           // över alla fem flikarna i GlassNav, så en ny besökare kunde inte
           // navigera alls förrän den hanterats — trots aria-modal="false".
           // `--dock-inset` sätts av GlassNav och är 0 där docken inte finns, så
           // bannern hamnar inte högt upp i tomma luften på landningssidan.
-          className="fixed bottom-[calc(env(safe-area-inset-bottom)+1rem+var(--dock-inset,0rem))] left-1/2 z-[9999] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 rounded-2xl border border-zinc-800 bg-zinc-950/95 p-5 shadow-2xl backdrop-blur-md"
+          className={`fixed ${position} left-1/2 z-[9999] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 rounded-2xl border border-zinc-800 bg-zinc-950/95 p-5 shadow-2xl backdrop-blur-md`}
         >
           <p className="text-sm font-semibold text-white">Vi använder cookies</p>
           <p className="mt-1 text-xs leading-relaxed text-zinc-400">

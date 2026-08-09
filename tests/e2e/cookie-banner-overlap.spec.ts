@@ -10,6 +10,12 @@ import { test, expect } from '@playwright/test'
  * onboardingens primärknapp.
  *
  * Bannern positioneras nu mot `--dock-inset`, som GlassNav publicerar.
+ *
+ * OBS: onboarding-fallet täcks INTE av detta test. Där förankras bannern
+ * upptill i stället (se CookieBanner), men `/onboarding` kräver en inloggad
+ * session och kan inte nås av en färsk kontext. Verifiera den skärmen manuellt
+ * vid genomklick som inloggad — en vakt som bara låtsas mäta är sämre än
+ * ingen alls.
  */
 
 const ROUTES = ['/nyheter', '/allsvenskan', '/mitt-lag']
