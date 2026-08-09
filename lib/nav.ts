@@ -43,12 +43,15 @@ export const BOTTOM_NAV_ITEMS: NavItem[] = [
 /**
  * Desktop-sidobar — bottenflikar + genvägar som tidigare låg bakom Mer.
  * Håll den kort; konto/prenumeration ligger kvar under Mer.
+ *
+ * Ordningen speglar hur stark ytan faktiskt är, inte hur ny den är. Statistik
+ * (tio flikar + Scout Mode) står först. Daily låg här trots att den aldrig
+ * publicerat ett avsnitt och nås nu via Mer tills den gör det.
  */
 export const SIDEBAR_NAV_ITEMS: NavItem[] = [
   ...BOTTOM_NAV_ITEMS,
-  { href: "/forum", label: "Forum", icon: MessageSquare, iosSymbol: "bubble.left.and.bubble.right.fill" },
   { href: "/statistik", label: "Statistik", icon: BarChart3, iosSymbol: "chart.bar.fill" },
-  { href: "/daily", label: "Daily", icon: Headphones, iosSymbol: "headphones" },
+  { href: "/forum", label: "Forum", icon: MessageSquare, iosSymbol: "bubble.left.and.bubble.right.fill" },
   { href: "/analys", label: "Analys", icon: FileSearch, iosSymbol: "doc.text.magnifyingglass" },
 ];
 
@@ -61,8 +64,8 @@ export const SIDEBAR_NAV_ITEMS: NavItem[] = [
  * GlassNav-tummen tona ut (den gör det redan vid activeIndex === -1).
  */
 export const SECONDARY_NAV_ITEMS: NavItem[] = [
-  { href: "/forum", label: "Forum", icon: MessageSquare, iosSymbol: "bubble.left.and.bubble.right.fill" },
   { href: "/statistik", label: "Statistik", icon: BarChart3, iosSymbol: "chart.bar.fill" },
+  { href: "/forum", label: "Forum", icon: MessageSquare, iosSymbol: "bubble.left.and.bubble.right.fill" },
   { href: "/analys", label: "Matchanalyser", icon: FileSearch, iosSymbol: "doc.text.magnifyingglass" },
   { href: "/daily", label: "Athopia Daily", icon: Headphones, iosSymbol: "headphones" },
   { href: "/podcast", label: "Poddar", icon: Headphones, iosSymbol: "waveform" },

@@ -40,16 +40,16 @@
   ],
   "secondary": [
     {
-      "id": "forum",
-      "route": "/forum",
-      "label": "Forum",
-      "iosSymbol": "bubble.left.and.bubble.right.fill"
-    },
-    {
       "id": "statistik",
       "route": "/statistik",
       "label": "Statistik",
       "iosSymbol": "chart.bar.fill"
+    },
+    {
+      "id": "forum",
+      "route": "/forum",
+      "label": "Forum",
+      "iosSymbol": "bubble.left.and.bubble.right.fill"
     },
     {
       "id": "analys",
@@ -86,12 +86,6 @@
       "route": "/om-oss",
       "label": "Om Athopia",
       "iosSymbol": "info.circle"
-    },
-    {
-      "id": "mer",
-      "route": "/mer",
-      "label": "Mer",
-      "iosSymbol": "ellipsis"
     }
   ],
   "deepLinks": [

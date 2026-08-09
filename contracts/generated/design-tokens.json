@@ -7,7 +7,7 @@
     "logoOnDark": "#F4F4F2",
     "green": "#2D5349",
     "greenOnDark": "#5FA98C",
-    "successLight": "#12805F",
+    "successLight": "#0B5C43",
     "successDark": "#25C48F",
     "destructive": "#D61F1F"
   },
@@ -31,7 +31,7 @@
     "accent": "#EAF0ED",
     "accentForeground": "#111111",
     "destructive": "#D61F1F",
-    "success": "#12805F",
+    "success": "#0B5C43",
     "warning": "#D59B00",
     "border": "#E2E0DC",
     "input": "#E2E0DC",
