@@ -2,13 +2,14 @@ import Link from "next/link";
 import { Clock, Radio } from "lucide-react";
 import { formatKickoff } from "@/lib/matchday/helpers";
 import { getFavoriteTeamMatchToday } from "@/lib/matchday/getFavoriteTeamMatchToday";
+import { isLiveNow } from "@/lib/match/live";
 
 export async function FeedMatchHero() {
   const data = await getFavoriteTeamMatchToday();
   if (!data) return null;
 
   const { teamName, match } = data;
-  const isLive = match.status === "LIVE";
+  const isLive = isLiveNow(match.status, match.kickoff_at);
   const isFinished = match.status === "FT";
   const score =
     match.home_score != null && match.away_score != null

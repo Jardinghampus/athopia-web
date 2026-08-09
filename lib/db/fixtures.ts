@@ -11,6 +11,7 @@
 import { unstable_cache } from "next/cache";
 import * as Sentry from "@sentry/nextjs";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import { displayStatus, isLiveStatus } from "@/lib/match/live";
 
 // ─── Typer ────────────────────────────────────────────────────────────────────
 
@@ -138,13 +139,20 @@ function fixtureToSMFixture(row: any, slugMap: Record<number, string> = {}): SMF
   const homeTeam = row.home_team ?? { sportmonks_id: 0, name: "Hemmalag", short_code: null, logo: "" };
   const awayTeam = row.away_team ?? { sportmonks_id: 0, name: "Bortalag", short_code: null, logo: "" };
 
-  const stateStr = row.status ?? "NS";
-  const isLive = stateStr === "LIVE" || stateStr === "inprogress";
+  const kickoff = row.kickoff ?? row.starting_at ?? null;
+  // Gamla LIVE-flaggor nedgraderas här så att ingen SMFixture-konsument kan
+  // visa en match som pågående dagar efter avspark. Se lib/match/live.ts.
+  const stateStr = displayStatus(
+    row.status ?? "NS",
+    kickoff,
+    row.home_score != null && row.away_score != null
+  );
+  const isLive = isLiveStatus(stateStr);
 
   return {
     id: Number(row.sportmonks_id ?? row.id ?? 0),
     name: `${homeTeam.name} vs ${awayTeam.name}`,
-    starting_at: row.kickoff ?? row.starting_at ?? new Date().toISOString(),
+    starting_at: kickoff ?? new Date().toISOString(),
     state: {
       id: isLive ? 3 : stateStr === "FT" ? 5 : 1,
       state: isLive ? "inprogress" : stateStr === "FT" ? "FT" : "NS",
@@ -209,7 +217,11 @@ export const fetchLiveScores = unstable_cache(
           .order("kickoff", { ascending: true }),
         getTeamSlugMap(),
       ]);
-      return (data ?? []).map((row) => fixtureToSMFixture(row, slugMap));
+      // status="LIVE" i databasen räcker inte — en tystnad i sync fryser raden.
+      // fixtureToSMFixture nedgraderar den; här faller den ur listan helt.
+      return (data ?? [])
+        .map((row) => fixtureToSMFixture(row, slugMap))
+        .filter((f) => isLiveStatus(f.state?.short_name));
     } catch (e) {
       Sentry.captureException(e);
       return [];

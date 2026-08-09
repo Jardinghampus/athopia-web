@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Clock, Radio } from "lucide-react";
 import type { FixtureRow } from "@/lib/team-hub/queries";
 import { formatKickoff, pickTodaysMatch } from "@/lib/matchday/helpers";
+import { isLiveNow } from "@/lib/match/live";
 
 export function MatchdayBanner({
   teamName,
@@ -15,7 +16,7 @@ export function MatchdayBanner({
   const match = pickTodaysMatch(recent, upcoming);
   if (!match) return null;
 
-  const isLive = match.status === "LIVE";
+  const isLive = isLiveNow(match.status, match.kickoff_at);
   const isFinished = match.status === "FT";
   const score =
     match.home_score != null && match.away_score != null

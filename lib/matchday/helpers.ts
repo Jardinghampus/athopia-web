@@ -1,4 +1,5 @@
 import type { FixtureRow } from "@/lib/team-hub/queries";
+import { isLiveNow } from "@/lib/match/live";
 
 const STOCKHOLM_DATE = new Intl.DateTimeFormat("sv-SE", {
   year: "numeric",
@@ -23,8 +24,13 @@ export function formatKickoff(kickoffAt: string | null): string {
 
 export function pickTodaysMatch(recent: FixtureRow[], upcoming: FixtureRow[]): FixtureRow | null {
   const today = [...upcoming, ...recent].filter(
-    (f) => isKickoffToday(f.kickoff_at) || f.status === "LIVE"
+    (f) => isKickoffToday(f.kickoff_at) || isLiveNow(f.status, f.kickoff_at)
   );
   if (today.length === 0) return null;
-  return today.find((f) => f.status === "LIVE") ?? today.find((f) => f.status === "NS") ?? today[0] ?? null;
+  return (
+    today.find((f) => isLiveNow(f.status, f.kickoff_at)) ??
+    today.find((f) => f.status === "NS") ??
+    today[0] ??
+    null
+  );
 }

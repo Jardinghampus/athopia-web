@@ -6,6 +6,7 @@ import { MatchXgChart } from "./MatchXgChart";
 import { MatchForum } from "./MatchForum";
 import { PlayerRatingPanel, type RatablePlayer } from "./PlayerRatingPanel";
 import { ProductEventTracker } from "@/components/analytics/ProductEventTracker";
+import { isLiveNow } from "@/lib/match/live";
 import { MatchLineups } from "@/components/match/MatchLineups";
 import { MatchAskPanel } from "@/components/match/MatchAskPanel";
 import { PodcastSignalsPanel } from "@/components/podcast/PodcastSignalsPanel";
@@ -290,8 +291,8 @@ export default async function MatchPage({ params }: PageProps) {
   const awayName = fix.away_team_name as string;
   const homeScore = (fix.home_score as number) ?? 0;
   const awayScore = (fix.away_score as number) ?? 0;
-  const isLive = fix.status === "LIVE";
   const kickoff = fix.kickoff_at as string | null;
+  const isLive = isLiveNow(fix.status as string, kickoff);
 
   const tms = (d?.tms ?? []) as Record<string, unknown>[];
   // Matcha hem/borta via home_team_id

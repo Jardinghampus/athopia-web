@@ -9,6 +9,7 @@ import {
 import dynamic from "next/dynamic";
 import type { TeamHubPayload, LeaderRow, FixtureRow } from "@/lib/team-hub/queries";
 import type { EntityInsight } from "@/lib/types";
+import { isLiveNow } from "@/lib/match/live";
 import { type Plan, canAccess } from "@/lib/access-rules";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { EntityInsightsPanel } from "@/components/team-hub/EntityInsightsPanel";
@@ -80,13 +81,13 @@ function MatchQuickview({ fixture, smId, onClose }: { fixture: FixtureRow | null
                 {f.kickoff_at
                   ? new Date(f.kickoff_at).toLocaleDateString("sv-SE", { weekday: "long", day: "numeric", month: "long" })
                   : "Datum ej satt"}
-                {f.status === "LIVE" && " · LIVE"}
+                {isLiveNow(f.status, f.kickoff_at) && " · LIVE"}
               </SheetDescription>
             </div>
 
             <div className="flex items-center justify-center gap-6">
               <span className="flex-1 truncate text-right text-sm font-medium">{f.home_team_name}</span>
-              {played || f.status === "LIVE" ? (
+              {played || isLiveNow(f.status, f.kickoff_at) ? (
                 <span className="flex items-baseline gap-1.5 text-3xl font-bold font-mono tabular-nums">
                   <StatNumber value={f.home_score ?? 0} />
                   <span className="text-muted-foreground">–</span>
@@ -482,7 +483,7 @@ function FixtureListRow({ fixture: f, smId, onSelect, density }: { fixture: Fixt
       leading={
         played
           ? <span className={`text-xs font-bold ${color}`}>{r}</span>
-          : f.status === "LIVE"
+          : isLiveNow(f.status, f.kickoff_at)
             ? <span className="text-xs font-bold text-pitch-ink animate-pulse">LIVE</span>
             : <span className="text-xs font-bold text-muted-foreground">KOMMER</span>
       }
