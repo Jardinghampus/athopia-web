@@ -27,7 +27,9 @@ const TEAMS_REVALIDATE = 3600;
 
 export interface StandingRow {
   position: number;
-  team: { id: number; name: string; image_path: string | null };
+  /** `slug` är entities.slug — aldrig slugify() av namnet. Driver
+   *  radmarkeringen av användarens lag, som kräver exakt matchning. */
+  team: { id: number; name: string; image_path: string | null; slug: string | null };
   played: number;
   wins: number;
   draws: number;
@@ -140,9 +142,12 @@ const cachedTeams = unstable_cache(
 );
 
 async function getTeamMap() {
-  const teams = await cachedTeams();
+  const [teams, slugMap] = await Promise.all([cachedTeams(), getTeamSlugMap()]);
   return new Map(
-    teams.map((t) => [t.id, { name: t.name || `Lag ${t.id}`, image_path: t.logo_path }])
+    teams.map((t) => [
+      t.id,
+      { name: t.name || `Lag ${t.id}`, image_path: t.logo_path, slug: slugMap[t.id] ?? null },
+    ])
   );
 }
 
@@ -214,7 +219,7 @@ export async function getStandingsFromDb(seasonId: string): Promise<StandingRow[
           const goalsAgainst = Number(r.goals_against ?? 0);
           return {
             position: 0,
-            team: { id, name: t?.name ?? `Lag ${id}`, image_path: t?.image_path ?? null },
+            team: { id, name: t?.name ?? `Lag ${id}`, image_path: t?.image_path ?? null, slug: t?.slug ?? null },
             played: Number(r.played ?? 0),
             wins: Number(r.wins ?? 0),
             draws: Number(r.draws ?? 0),
@@ -248,7 +253,7 @@ export async function getStandingsFromDb(seasonId: string): Promise<StandingRow[
         const t = teamMap.get(id);
         row = {
           position: 0,
-          team: { id, name: t?.name ?? `Lag ${id}`, image_path: t?.image_path ?? null },
+          team: { id, name: t?.name ?? `Lag ${id}`, image_path: t?.image_path ?? null, slug: t?.slug ?? null },
           played: 0, wins: 0, draws: 0, losses: 0,
           goals_for: 0, goals_against: 0, goal_diff: 0, points: 0,
           form: [],

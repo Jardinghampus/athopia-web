@@ -4,8 +4,17 @@ import { useEffect } from "react";
 import { useFavoriteTeam } from "@/hooks/useFavoriteTeam";
 
 /**
- * Monteras i statistik-sidan och highlightar lagvald rad i tabellen.
- * Använder DOM query (matchning på lag-namn) eftersom tabellen är server-renderad.
+ * Monteras i statistik-sidan och highlightar användarens lag i tabellen.
+ * DOM-query eftersom tabellen är serverrenderad.
+ *
+ * Matchningen är exakt. Den var tidigare suddig — slugen delades på bindestreck
+ * och varje ord jämfördes med `includes()`. Följden: valde du Elfsborg
+ * ("if-elfsborg") matchade ordet "if" även Djurgårdens IF och IFK Göteborg, så
+ * tre rader markerades och sidan scrollade till fel lag. Radens slug kom
+ * dessutom från en ad hoc-slugify av namnet och behöll å/ä/ö, så den exakta
+ * jämförelsen kunde aldrig träffa Djurgården — bara den suddiga.
+ *
+ * Raden bär nu `entities.slug`, samma sträng som `useFavoriteTeam` returnerar.
  */
 export function FavoriteTeamHighlight() {
   const { slug, isLoaded } = useFavoriteTeam();
@@ -13,15 +22,9 @@ export function FavoriteTeamHighlight() {
   useEffect(() => {
     if (!isLoaded || !slug) return;
 
-    // Normalisera slug → namn-fragment för jämförelse
-    const slugWords = slug.replace(/-/g, " ").toLowerCase().split(" ");
-
     const rows = document.querySelectorAll<HTMLTableRowElement>("tbody tr[data-team-slug]");
     rows.forEach((row) => {
-      const rowSlug = row.dataset["teamSlug"] ?? "";
-      const match = rowSlug === slug || slugWords.some((w) => rowSlug.includes(w));
-
-      if (match) {
+      if (row.dataset["teamSlug"] === slug) {
         row.style.setProperty("background-color", "rgba(45,83,73,0.08)");
         row.style.setProperty("box-shadow", `inset 2px 0 0 var(--color-pitch)`);
         // Scrolla till raden om den inte är synlig
