@@ -227,6 +227,9 @@ export function OnboardingClient() {
 
   const pushDenied = pushStatus === "denied";
   const pushUnsupported = pushStatus === "unsupported";
+  // Serverns VAPID-nyckel saknas — inget användaren kan göra åt, och inte
+  // samma sak som ett nekande. Utan egen text blev de två omöjliga att skilja.
+  const pushUnconfigured = pushStatus === "unconfigured";
 
   const heading = (text: string) => (
     <h1
@@ -455,7 +458,13 @@ export function OnboardingClient() {
                       inställningar om du ändrar dig.
                     </p>
                   ) : null}
-                  {!isSubscribed && pushFailed && !pushDenied && !pushUnsupported ? (
+                  {!isSubscribed && pushUnconfigured ? (
+                    <p className="mt-3 text-xs text-muted-foreground">
+                      Notiser är inte påslagna på Athopias sida än. Det ligger på oss —
+                      du behöver inte göra något.
+                    </p>
+                  ) : null}
+                  {!isSubscribed && pushFailed && !pushDenied && !pushUnsupported && !pushUnconfigured ? (
                     <p className="mt-3 text-xs text-muted-foreground">
                       Notiserna kunde inte aktiveras just nu. Du kan slå på dem under Konto.
                     </p>
@@ -464,7 +473,7 @@ export function OnboardingClient() {
               </div>
 
               <div className="mt-auto space-y-2">
-                {!isSubscribed && !pushDenied && !pushUnsupported ? (
+                {!isSubscribed && !pushDenied && !pushUnsupported && !pushUnconfigured ? (
                   <button
                     type="button"
                     disabled={pushPending}

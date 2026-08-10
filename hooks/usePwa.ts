@@ -43,14 +43,24 @@ export function useVisitCount(): number {
 
 // ── Push permission ───────────────────────────────────────────────────────────
 
+/**
+ * `unconfigured` = NEXT_PUBLIC_VAPID_PUBLIC_KEY saknas i miljön.
+ *
+ * Utan den kan `pushManager.subscribe` aldrig köras, men felet såg tidigare ut
+ * precis som ett nekande: hooken returnerade `false` innan behörigheten ens
+ * efterfrågades, och användaren fick "Försök igen" i all evighet. Det är
+ * skillnaden mellan en miljövariabel som ska sättas och ett fel i koden — och
+ * den skillnaden ska synas, inte gissas. Databasen har noll prenumerationer
+ * sedan starten, så det här är precis den diagnos som saknats.
+ */
 export interface PushPermissionState {
-  status: NotificationPermission | "unsupported";
+  status: NotificationPermission | "unsupported" | "unconfigured";
   isSubscribed: boolean;
   requestPermission: (teamIds?: string[]) => Promise<boolean>;
 }
 
 export function usePushPermission(): PushPermissionState {
-  const [status, setStatus] = useState<NotificationPermission | "unsupported">("default");
+  const [status, setStatus] = useState<NotificationPermission | "unsupported" | "unconfigured">("default");
   const [isSubscribed, setIsSubscribed] = useState(false);
 
   useEffect(() => {
@@ -68,7 +78,12 @@ export function usePushPermission(): PushPermissionState {
     if (!("serviceWorker" in navigator)) return false;
 
     const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-    if (!vapidKey) return false;
+    if (!vapidKey) {
+      // Tyst retur här gjorde ett konfigurationsfel omöjligt att skilja från
+      // ett nekande. Nu säger UI:t vad som faktiskt är fel.
+      setStatus("unconfigured");
+      return false;
+    }
 
     try {
       const permission = await Notification.requestPermission();
