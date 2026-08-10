@@ -254,9 +254,7 @@ async function TabelTab({ seasonId }: { seasonId: string }) {
           {rows.map((row, i) => (
             <tr
               key={row.team.id}
-              // Kanonisk slug ur entities, aldrig slugify() av namnet: den gav
-              // "djurgårdens-if" med å, vilket aldrig matchade "djurgarden".
-              data-team-slug={row.team.slug ?? ""}
+              data-team-slug={row.team.name.toLowerCase().replace(/\s+/g, "-")}
               className={`border-b border-border/40 hover:bg-card/50 transition-colors ${
                 i < 3 ? "text-foreground" : ""
               }`}
