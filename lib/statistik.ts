@@ -27,7 +27,9 @@ const TEAMS_REVALIDATE = 3600;
 
 export interface StandingRow {
   position: number;
-  team: { id: number; name: string; image_path: string | null };
+  /** `slug` är entities.slug — aldrig slugify() av namnet. Driver markeringen
+   *  av användarens lag, som kräver exakt matchning. */
+  team: { id: number; name: string; image_path: string | null; slug: string | null };
   played: number;
   wins: number;
   draws: number;
@@ -76,7 +78,7 @@ interface FixtureLite {
   kickoff_at: string | null;
 }
 
-type TeamLite = { id: number; name: string | null; logo_path: string | null };
+type TeamLite = { id: number; name: string | null; logo_path: string | null; slug: string | null };
 type TeamSeasonLite = {
   team_id: number | string;
   played: number | null;
@@ -129,20 +131,23 @@ const cachedTeams = unstable_cache(
     try {
       const db = createServerClient();
       const nameMap = await getTeamNameMap(db);
-      return Array.from(nameMap.entries()).map(([id, t]) => ({ id, name: t.name || null, logo_path: t.logo }));
+      return Array.from(nameMap.entries()).map(([id, t]) => ({ id, name: t.name || null, logo_path: t.logo, slug: t.slug }));
     } catch (e) {
       Sentry.captureException(e);
       return [];
     }
   },
-  ["statistik:teams"],
+  // -v2: posten fick fältet `slug`. Vercels datacache överlever deployer, så en
+  // oförändrad nyckel hade serverat det gamla formatet utan slug i upp till en
+  // timme — raderna renderades då utan slug och markeringen slutade fungera.
+  ["statistik:teams-v2"],
   { revalidate: TEAMS_REVALIDATE, tags: ["statistik"] }
 );
 
 async function getTeamMap() {
   const teams = await cachedTeams();
   return new Map(
-    teams.map((t) => [t.id, { name: t.name || `Lag ${t.id}`, image_path: t.logo_path }])
+    teams.map((t) => [t.id, { name: t.name || `Lag ${t.id}`, image_path: t.logo_path, slug: t.slug }])
   );
 }
 
@@ -214,7 +219,7 @@ export async function getStandingsFromDb(seasonId: string): Promise<StandingRow[
           const goalsAgainst = Number(r.goals_against ?? 0);
           return {
             position: 0,
-            team: { id, name: t?.name ?? `Lag ${id}`, image_path: t?.image_path ?? null },
+            team: { id, name: t?.name ?? `Lag ${id}`, image_path: t?.image_path ?? null, slug: t?.slug ?? null },
             played: Number(r.played ?? 0),
             wins: Number(r.wins ?? 0),
             draws: Number(r.draws ?? 0),
@@ -248,7 +253,7 @@ export async function getStandingsFromDb(seasonId: string): Promise<StandingRow[
         const t = teamMap.get(id);
         row = {
           position: 0,
-          team: { id, name: t?.name ?? `Lag ${id}`, image_path: t?.image_path ?? null },
+          team: { id, name: t?.name ?? `Lag ${id}`, image_path: t?.image_path ?? null, slug: t?.slug ?? null },
           played: 0, wins: 0, draws: 0, losses: 0,
           goals_for: 0, goals_against: 0, goal_diff: 0, points: 0,
           form: [],

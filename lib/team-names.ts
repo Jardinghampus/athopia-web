@@ -14,13 +14,16 @@ import { createServerClient } from "@/lib/supabase";
 export interface TeamNameEntry {
   name: string;
   logo: string | null;
+  /** entities.slug — kanonisk. Slugifiera aldrig namnet: "Djurgårdens IF" ger
+   *  "djurgardens-if", medan den riktiga slugen är "djurgarden". */
+  slug: string | null;
 }
 
 export async function getTeamNameMap(
   db: ReturnType<typeof createServerClient>,
   sportmonksIds?: number[]
 ): Promise<Map<number, TeamNameEntry>> {
-  const entBuilder = db.from("entities").select("sportmonks_id,name,metadata").eq("type", "team");
+  const entBuilder = db.from("entities").select("sportmonks_id,name,metadata,slug").eq("type", "team");
   const teamsBuilder = db.from("teams").select("sportmonks_id,name,logo");
 
   const [{ data: ents }, { data: teams }] = await Promise.all([
@@ -37,6 +40,7 @@ export async function getTeamNameMap(
     map.set(Number(e.sportmonks_id), {
       name: String(e.name ?? ""),
       logo: (meta.logo_url as string | null) ?? null,
+      slug: (e.slug as string | null) ?? null,
     });
   }
 
@@ -48,6 +52,8 @@ export async function getTeamNameMap(
     map.set(id, {
       name: existing?.name || String(t.name ?? ""),
       logo: existing?.logo ?? (t.logo as string | null) ?? null,
+      // `teams` har ingen slug — bara entities är kanonisk källa.
+      slug: existing?.slug ?? null,
     });
   }
 

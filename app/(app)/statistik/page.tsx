@@ -254,7 +254,7 @@ async function TabelTab({ seasonId }: { seasonId: string }) {
           {rows.map((row, i) => (
             <tr
               key={row.team.id}
-              data-team-slug={row.team.name.toLowerCase().replace(/\s+/g, "-")}
+              data-team-slug={row.team.slug ?? ""}
               className={`border-b border-border/40 hover:bg-card/50 transition-colors ${
                 i < 3 ? "text-foreground" : ""
               }`}
