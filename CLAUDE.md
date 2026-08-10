@@ -70,6 +70,12 @@ Ny kod läggs i befintlig feature-mapp. Skapa inte parallella mönster —
   `0.00 xG`, aldrig påhittad xA — dölj fältet i stället.
 - **Publicera aldrig tredjeparts brödtext/teaser ordagrant.** Endast titel +
   källnamn + länk + egenskriven text (upphovsrätt).
+- **All tid visas i `Europe/Stockholm`, alltid explicit.** Lagring är UTC, servern
+  kör UTC, foundern sitter i Dubaitid — "lokal tid" är därför aldrig ett svar.
+  Varje `toLocaleDateString`/`toLocaleTimeString`/`Intl.DateTimeFormat` med `sv-SE`
+  måste ange `timeZone: "Europe/Stockholm"`. Utan den blir server- och klienttext
+  olika (React #418 på `/nyheter`) och avspark 20:00 renderas 18:00. Vakt:
+  `lib/timezone-guard.test.ts` via `pnpm test:parity`.
 - **ISR:** `revalidate: 30` nyhetsflöde, `60` matcher/standings/artiklar, `3600` statisk spelardata.
 - Server components som default; `"use client"` bara när det behövs.
 - `generateMetadata()` på alla sidor; alla bilder via `next/image`.
