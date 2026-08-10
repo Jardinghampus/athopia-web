@@ -9,6 +9,7 @@ import {
   applyConsent,
   type CookieConsent,
 } from "@/lib/cookieConsent";
+import { bannerPosition, bannerSlideY } from "@/lib/cookie-banner-position";
 
 async function persistToServer(consent: CookieConsent) {
   try {
@@ -29,26 +30,11 @@ export function CookieBanner() {
   const [marketing, setMarketing] = useState(false);
 
   const pathname = usePathname();
-  /**
-   * Onboarding är en helskärmstakeover (`fixed inset-0`, z-50) där varje stegs
-   * primärknapp ligger sist i det scrollande innehållet — alltså alltid mot
-   * nederkanten. Bannern ligger i rot-layouten på `fixed bottom-*` med z-[9999]
-   * och visas så fort samtycke saknas, vilket per definition ALLTID gäller en ny
-   * användare — exakt den som ser onboarding. Följden var att "Fortsätt" och
-   * "Öppna Mitt lag" låg under bannern på de mest konverteringskritiska
-   * skärmarna vi har.
-   *
-   * Lösningen är att byta kant, inte att dölja frågan: på onboarding förankras
-   * bannern upptill, strax under stegraden. Då kan den aldrig täcka en
-   * primärknapp, och samtycket efterfrågas ändå på första skärmen.
-   * `applyConsent` körs först när användaren valt, så inget sätts dessförinnan.
-   */
-  const onOnboarding = pathname.startsWith("/onboarding");
-
-  // Stegraden är safe-area + 1.5rem padding + 44px knapphöjd + 1rem botten.
-  const position = onOnboarding
-    ? "top-[calc(env(safe-area-inset-top)+5.75rem)]"
-    : "bottom-[calc(env(safe-area-inset-bottom)+1rem+var(--dock-inset,0rem))]";
+  // Förankringen ligger i lib/cookie-banner-position.ts, med motiveringen och
+  // en vakt. Kort version: bottenförankrad täckte onboardingens primärknapp för
+  // varje ny användare, så bannern byter kant där i stället för att döljas.
+  const position = bannerPosition(pathname);
+  const slideY = bannerSlideY(pathname);
 
   useEffect(() => {
     if (!getStoredConsent()) setVisible(true);
@@ -68,9 +54,9 @@ export function CookieBanner() {
           role="dialog"
           aria-label="Cookie-inställningar"
           aria-modal="false"
-          initial={{ y: onOnboarding ? "-110%" : "110%", opacity: 0 }}
+          initial={{ y: slideY, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          exit={{ y: onOnboarding ? "-110%" : "110%", opacity: 0 }}
+          exit={{ y: slideY, opacity: 0 }}
           transition={{ type: "spring", stiffness: 320, damping: 38, mass: 0.9 }}
           // Ovanför bottendocken, inte ovanpå den. På bottom-4 låg bannern rakt
           // över alla fem flikarna i GlassNav, så en ny besökare kunde inte
