@@ -4,6 +4,7 @@ import { z } from "zod";
 import { createServiceClient } from "@/lib/supabase";
 import { enforceRateLimit } from "@/lib/ratelimit";
 import { FUNNEL_EVENTS, PRODUCT_EVENTS } from "@/lib/funnel";
+import { visitorIdFrom } from "@/lib/visitor";
 
 const ALLOWED = new Set([
   "feed_open",
@@ -40,6 +41,9 @@ export async function POST(req: Request) {
   const payload = {
     ...(parsed.props ?? {}),
     clerk_user_id: userId ?? "anon",
+    // Additivt: clerk_user_id behålls oförändrat så befintliga queries inte bryts.
+    // visitor_id är det fält som faktiskt går att räkna unika besökare på.
+    visitor_id: visitorIdFrom(req, userId),
   };
 
   try {
