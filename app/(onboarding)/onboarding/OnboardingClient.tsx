@@ -13,6 +13,7 @@ import { ArrowLeft, ArrowRight, Bell, Check, Loader2, RotateCw } from "lucide-re
 import { useFavoriteTeam } from "@/hooks/useFavoriteTeam";
 import { usePushPermission, useServiceWorker } from "@/hooks/usePwa";
 import { createClient } from "@/lib/supabase-browser";
+import { trackEvent } from "@/lib/track";
 
 interface Team {
   id: string;
@@ -187,6 +188,11 @@ export function OnboardingClient() {
   }, []);
 
   async function chooseTeam(slug: string, team: Team) {
+    // Aktiveringssteget. ICP:n pekar ut "favoritlag valt + push på inom 24 h" som
+    // produktens viktigaste mätpunkt, men eventet fanns bara som namn i
+    // FUNNEL_EVENTS och skickades ingenstans — aktiveringsgraden gick inte att mäta.
+    trackEvent("onboarding_team_selected", { team_slug: slug, team_id: team.id });
+
     setSelectedTeam(slug);
     setSaving(true);
     goTo(1);
@@ -216,6 +222,14 @@ export function OnboardingClient() {
   }
 
   async function finish() {
+    // Skickas före router.push. trackEvent använder keepalive, så eventet
+    // överlever navigeringen — utan det tappas just det mest värdefulla steget.
+    trackEvent("onboarding_complete", {
+      team_slug: selectedTeam ?? null,
+      skipped_team: selectedTeam ? false : true,
+      push_status: pushStatus ?? "unknown",
+    });
+
     setSaving(true);
     try {
       if (!selectedTeam) markOnboardingDone();

@@ -35,16 +35,31 @@ test('varje event som skickas finns i analytics-allowlistan', () => {
         if (name !== 'node_modules' && name !== '.next') walk(p)
         continue
       }
-      if (!/\.tsx$/.test(name)) continue
-      readFileSync(p, 'utf8')
+      if (!/\.tsx?$/.test(name)) continue
+      const content = readFileSync(p, 'utf8')
+      // `{ event: "..." }` är för trubbigt i sig: /api/utm/milestone använder samma
+      // form med en HELT annan vokabulär (visit, activated, trial_start). Den
+      // formen räknas därför bara i filer som faktiskt postar till analytics.
+      const postsToAnalytics = content.includes('/api/analytics/event')
+      content
         .split('\n')
         .forEach((line, i) => {
-          const m = line.match(/\bevent="([a-z0-9_]+)"/)
-          if (m && !sent.has(m[1])) sent.set(m[1], `${p}:${i + 1}`)
+          // Två sändningsformer: <TrackedLink event="..."> i JSX och det direkta
+          // trackEvent("...")-anropet. Vakten läste bara den första, så allt som
+          // skickas från en handler var oskyddat — inklusive hela betal- och
+          // onboardingtratten. Bara .tsx skannades också, vilket missade hooks.
+          for (const re of [
+            /\bevent="([a-z0-9_]+)"/,
+            /\btrackEvent\(\s*"([a-z0-9_]+)"/,
+            ...(postsToAnalytics ? [/\bevent:\s*"([a-z0-9_]+)"/] : []),
+          ]) {
+            const m = line.match(re)
+            if (m && !sent.has(m[1])) sent.set(m[1], `${p}:${i + 1}`)
+          }
         })
     }
   }
-  for (const root of ['app', 'components']) walk(root)
+  for (const root of ['app', 'components', 'hooks']) walk(root)
 
   const missing = [...sent.entries()]
     .filter(([e]) => !allowed.has(e))

@@ -5,29 +5,13 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import { Loader2 } from "lucide-react";
 import type { PaidPlan, BillingInterval } from "@/lib/pricing";
+import { trackEvent } from "@/lib/track";
 
 interface Props {
   plan: PaidPlan;
   interval: BillingInterval;
   label: string;
   variant?: "primary" | "outline";
-}
-
-/**
- * Skickar ett trattevent utan att kunna störa köpflödet.
- * `keepalive` gör att anropet överlever navigeringen till Stripe.
- */
-function track(event: string, props: Record<string, string>) {
-  try {
-    void fetch("/api/analytics/event", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ event, props }),
-      keepalive: true,
-    }).catch(() => {});
-  } catch {
-    // Telemetri får aldrig blockera ett köp.
-  }
 }
 
 export function CheckoutButton({ plan, interval, label, variant = "primary" }: Props) {
@@ -40,7 +24,7 @@ export function CheckoutButton({ plan, interval, label, variant = "primary" }: P
     // Detta var produktens enda helt oinstrumenterade betal-CTA. UpgradePrompt och
     // FeedPaywallBanner loggar via TrackedLink, men huvudknappen på /prenumerera
     // loggade ingenting — konverteringen gick inte att skilja från utebliven trafik.
-    track("paywall_cta_click", { plan, interval, surface: "prenumerera" });
+    trackEvent("paywall_cta_click", { plan, interval, surface: "prenumerera" });
 
     if (!isSignedIn) {
       router.push("/sign-up?redirect_url=/onboarding");

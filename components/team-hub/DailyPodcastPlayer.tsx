@@ -7,15 +7,9 @@ import { canAccess, type Plan } from "@/lib/access-rules";
 import type { DailyEpisode } from "@/lib/team-hub/queries";
 import { TrackedLink } from "@/components/analytics/TrackedLink";
 
-const DAILY_UPGRADE_URL = "/prenumerera?utm_source=daily&utm_medium=player&utm_campaign=daily_pro";
+import { trackEvent } from "@/lib/track";
 
-function trackEvent(event: string, props?: Record<string, string | number | boolean | null>) {
-  void fetch("/api/analytics/event", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ event, props }),
-  }).catch(() => {});
-}
+const DAILY_UPGRADE_URL = "/prenumerera?utm_source=daily&utm_medium=player&utm_campaign=daily_pro";
 
 function formatTime(sec: number) {
   if (!Number.isFinite(sec) || sec < 0) return "0:00";
