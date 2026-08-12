@@ -1,21 +1,29 @@
 #!/usr/bin/env node
 /**
- * Hittar env-variabler som finns men är TOMMA i Vercel.
+ * Kontrollerar att kritiska env-variabler FINNS i Vercel.
  *
- * Felklassen är redan dokumenterad i repots CLAUDE.md ("tom sträng i Vercel env:
- * `??` faller inte tillbaka på `""`") men ingenting letade efter den. Mätt
- * 2026-08-12 var 21 produktionsvariabler satta till tom sträng, bland dem:
+ * VIKTIG BEGRÄNSNING — läs innan du tolkar utdata:
+ * Vercel gör env-variabler **sensitive by default på Production**. En sensitive
+ * variabel kan inte läsas tillbaka; `vercel env pull` skriver den som tom sträng.
+ * Tom i pull betyder alltså INTE tom i Vercel.
  *
- *   CLERK_WEBHOOK_SECRET     → user.created verifieras aldrig, signup_complete = 0
- *   UPSTASH_REDIS_REST_URL   → rate limiting tyst ur funktion
- *   VAPID_* (fyra st)        → push kan inte fungera, push_opt_in = 0
- *   åtta feature-flaggor     → hela AI Company Program mörklagt trots "✅ satt"
+ * Verifierat 2026-08-12 med två probe-variabler i produktion:
+ *   vercel env add PROBE production --value=OPPEN123 --no-sensitive  → pull ger "OPPEN123"
+ *   vercel env add PROBE production --value=HEMLIG123                → pull ger ""
  *
- * En tom variabel är värre än en saknad: koden ser att nyckeln finns, `??`
- * hoppar över defaulten, och felet blir tyst i stället för högljutt.
+ * En tidigare version av detta skript tolkade den tomheten som "21 variabler är
+ * tomma i produktion" och pekade ut CLERK_WEBHOOK_SECRET, UPSTASH och VAPID som
+ * trasiga. Det var fel. Skriptet kan bara verifiera VÄRDET på icke-sensitive
+ * variabler; för resten kan det bara verifiera att namnet existerar.
+ *
+ * Den ursprungliga felklassen finns fortfarande på riktigt (CLAUDE.md: "tom
+ * sträng i Vercel env — `??` faller inte tillbaka på `''`", vilket sänkte
+ * ATHOPIA_OS_URL i admin). Men den kan inte upptäckas med `env pull` för
+ * sensitive variabler. Enda pålitliga vägen är runtime: logga vid uppstart när
+ * en obligatorisk variabel är tom, där koden faktiskt läser den.
  *
  * Kör:  node scripts/check-env.mjs [production|preview]
- * Kräver att `vercel` CLI är inloggad. Exit 1 om något kritiskt är tomt.
+ * Exit 1 om en kritisk variabel SAKNAS, eller om en icke-sensitive variabel är tom.
  */
 
 import { execFileSync } from 'node:child_process';
@@ -25,38 +33,40 @@ import { join } from 'node:path';
 
 const ENVIRONMENT = process.argv[2] ?? 'production';
 
-/** Fylls av Vercel vid build, inte av oss. Tomma lokalt är korrekt. */
+/** Fylls av Vercel vid build. Tomma lokalt är korrekt. */
 const BUILD_TIME = /^(VERCEL_URL$|VERCEL_GIT_)/;
 
-/**
- * Tom här betyder trasig funktion i produktion. Listan är medvetet explicit:
- * en ny hemlighet ska läggas till här samtidigt som den läggs till i Vercel,
- * annars upptäcks den saknade konfigurationen först av en användare.
- */
-const CRITICAL = [
+/** Måste finnas, annars är en funktion trasig i produktion. */
+const REQUIRED = [
+  'CLERK_SECRET_KEY',
   'CLERK_WEBHOOK_SECRET',
+  'NEXT_PUBLIC_SUPABASE_URL',
+  'SUPABASE_SERVICE_ROLE_KEY',
+  'STRIPE_SECRET_KEY',
+  'STRIPE_WEBHOOK_SECRET',
   'UPSTASH_REDIS_REST_URL',
   'UPSTASH_REDIS_REST_TOKEN',
   'VAPID_PUBLIC_KEY',
   'VAPID_PRIVATE_KEY',
   'VAPID_SUBJECT',
   'NEXT_PUBLIC_VAPID_PUBLIC_KEY',
-  'STRIPE_SECRET_KEY',
-  'STRIPE_WEBHOOK_SECRET',
-  'CLERK_SECRET_KEY',
-  'NEXT_PUBLIC_SUPABASE_URL',
-  'SUPABASE_SERVICE_ROLE_KEY',
 ];
+
+/**
+ * Publika till sin natur, alltså meningslösa att göra sensitive — och därför de
+ * enda vars VÄRDE går att kontrollera härifrån. Sätt dem med `--no-sensitive`.
+ */
+const MUST_BE_READABLE = ['NEXT_PUBLIC_SUPABASE_URL', 'NEXT_PUBLIC_VAPID_PUBLIC_KEY'];
 
 const tmp = join(tmpdir(), `athopia-env-${Date.now()}.env`);
 try {
-  execFileSync('npx', ['--yes', 'vercel', 'env', 'pull', tmp, `--environment=${ENVIRONMENT}`, '--yes'], {
-    stdio: 'pipe',
-    shell: process.platform === 'win32',
-  });
+  execFileSync(
+    'npx',
+    ['--yes', 'vercel', 'env', 'pull', tmp, `--environment=${ENVIRONMENT}`, '--yes'],
+    { stdio: 'pipe', shell: process.platform === 'win32' },
+  );
 } catch (err) {
   console.error(`Kunde inte hämta env från Vercel: ${err.message}`);
-  console.error('Är `vercel` inloggad? Kör `npx vercel login`.');
   process.exit(2);
 }
 
@@ -67,42 +77,42 @@ try {
   try {
     unlinkSync(tmp);
   } catch {
-    /* filen kan redan vara borta */
+    /* redan borta */
   }
 }
 
-const empty = [];
-const set = new Set();
+const values = new Map();
 for (const line of raw.split('\n')) {
   const m = line.match(/^([A-Z0-9_]+)=(.*)$/);
-  if (!m) continue;
-  const [, key, value] = m;
-  set.add(key);
-  const bare = value.replace(/^"|"$/g, '').trim();
-  if (bare === '' && !BUILD_TIME.test(key)) empty.push(key);
+  if (m) values.set(m[1], m[2].replace(/^"|"$/g, '').trim());
 }
 
-const criticalEmpty = empty.filter((k) => CRITICAL.includes(k));
-const criticalMissing = CRITICAL.filter((k) => !set.has(k));
-const otherEmpty = empty.filter((k) => !CRITICAL.includes(k));
+const missing = REQUIRED.filter((k) => !values.has(k));
+const readableButEmpty = MUST_BE_READABLE.filter((k) => values.has(k) && values.get(k) === '');
+const unverifiable = REQUIRED.filter(
+  (k) => values.has(k) && values.get(k) === '' && !MUST_BE_READABLE.includes(k),
+);
+const otherPresent = [...values.keys()].filter(
+  (k) => !REQUIRED.includes(k) && !BUILD_TIME.test(k) && values.get(k) === '',
+);
 
-console.log(`Miljö: ${ENVIRONMENT} — ${set.size} variabler\n`);
+console.log(`Miljö: ${ENVIRONMENT} — ${values.size} variabler\n`);
 
-if (criticalEmpty.length || criticalMissing.length) {
-  console.log('KRITISKT — funktioner är trasiga i produktion:');
-  for (const k of criticalEmpty) console.log(`  ${k}  (satt men TOM)`);
-  for (const k of criticalMissing) console.log(`  ${k}  (saknas helt)`);
+if (missing.length) {
+  console.log('SAKNAS HELT — funktionen är trasig:');
+  for (const k of missing) console.log(`  ${k}`);
   console.log('');
 }
 
-if (otherEmpty.length) {
-  console.log('Tomma (kontrollera om de ska ha värde — feature-flaggor räknas hit):');
-  for (const k of otherEmpty) console.log(`  ${k}`);
+if (readableButEmpty.length) {
+  console.log('TOM trots att den ska vara läsbar (NEXT_PUBLIC_*, sätt med --no-sensitive):');
+  for (const k of readableButEmpty) console.log(`  ${k}`);
   console.log('');
 }
 
-if (!criticalEmpty.length && !criticalMissing.length) {
-  console.log('Inga kritiska variabler saknar värde.');
-  process.exit(0);
-}
-process.exit(1);
+console.log(`Finns men går inte att verifiera härifrån (sensitive): ${unverifiable.length}`);
+console.log(`Övriga sensitive/tomma: ${otherPresent.length}`);
+console.log('\nSensitive-värden kan bara verifieras i runtime, inte via `env pull`.');
+
+if (missing.length || readableButEmpty.length) process.exit(1);
+process.exit(0);
