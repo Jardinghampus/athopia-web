@@ -18,7 +18,8 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
     "test:all": "pnpm typecheck && pnpm contracts:check && pnpm test:parity && pnpm test:e2e",
-    "embed:articles": "tsx scripts/embed-articles.ts"
+    "embed:articles": "tsx scripts/embed-articles.ts",
+    "env:check": "node scripts/check-env.mjs production"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.0",
