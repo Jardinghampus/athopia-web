@@ -1,23 +1,23 @@
 /**
  * app/artikel/[slug]/page.tsx — Artikeldetaljsida (owned/licensed only)
  * Link-only redirects to /nyhet/[slug] (LAUNCH-01 provenance).
+ *
+ * Inga tredjepartsbilder. Typografi, luft och korta stycken bär sidan
+ * (mobil/tablet/desktop).
  */
 
 import type { Metadata } from "next";
 import { ShareButton } from "@/components/ui/ShareButton";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ExternalLink, MessageSquare, Sparkles } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
-import { ArticleCard } from "@/components/ui/ArticleCard";
-import { EntityChip } from "@/components/ui/EntityChip";
+import { MessageSquare } from "lucide-react";
 import type { Article } from "@/lib/types";
 import { ArticleScrollTracker } from "@/components/gamification/ArticleScrollTracker";
 import { getUserPlan } from "@/lib/user-plan";
 import { canAccess } from "@/lib/access-rules";
 import { BlurPaywall } from "@/components/BlurPaywall";
 import {
+  articlePublicPath,
   canPublishBody,
   resolveRightsStatus,
   sanitizeArticleForPublic,
@@ -29,6 +29,8 @@ import {
 import { getSiteUrl } from "@/lib/site-url";
 import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
 import { jsonLd } from "@/lib/json-ld";
+import { ArticleBody } from "@/components/news/ArticleBody";
+import { calculateReadTime, formatDateRelative } from "@/lib/utils";
 
 export const revalidate = 3600;
 
@@ -75,11 +77,8 @@ export async function generateMetadata({
       description: article.summary,
       url: `${getSiteUrl()}/artikel/${slug}`,
       publishedTime: article.publishedAt,
-      images: article.imageUrl
-        ? [{ url: article.imageUrl, width: 1200, height: 630 }]
-        : [],
     },
-    twitter: { card: "summary_large_image", title: article.title },
+    twitter: { card: "summary", title: article.title },
   };
 }
 
@@ -100,7 +99,6 @@ function ArticleJsonLd({ article }: { article: Article }) {
       name: "Athopia",
       url: getSiteUrl(),
     },
-    image: article.imageUrl ?? undefined,
     url: `${getSiteUrl()}/artikel/${article.slug}`,
   };
 
@@ -110,6 +108,12 @@ function ArticleJsonLd({ article }: { article: Article }) {
       dangerouslySetInnerHTML={{ __html: jsonLd(data) }}
     />
   );
+}
+
+function byline(article: Article): string {
+  if (article.isAthopiaGenerated) return "Athopia";
+  if (article.sourceName === "Athopia AI") return "Athopia";
+  return article.sourceName;
 }
 
 export default async function ArtikelPage({
@@ -138,14 +142,16 @@ export default async function ArtikelPage({
     : "/forum";
   const unlockedAi = canAccess("aiSummaries", plan);
   const teamName = teamEntity?.name;
+  const readTime = calculateReadTime(article.content ?? article.summary);
+  const source = byline(article);
 
   return (
     <>
       <ArticleJsonLd article={article} />
       <ArticleScrollTracker articleType="match_report" />
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
-        <div className="mb-5">
+      <article className="mx-auto w-full max-w-[40rem] px-5 sm:px-6 pt-6 sm:pt-10 pb-28">
+        <div className="mb-6">
           <AppBreadcrumbs
             items={[
               { label: "Flöde", href: "/nyheter" },
@@ -156,192 +162,90 @@ export default async function ArtikelPage({
             ]}
           />
         </div>
-        {article.imageUrl && (
-          <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden mb-8">
-            <Image
-              src={article.imageUrl}
-              alt={article.title}
-              fill
-              priority
-              className="object-cover"
-              sizes="(max-width: 896px) 100vw, 896px"
-            />
-          </div>
-        )}
 
-        {article.entities?.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-4">
-            {article.entities.map((e) => (
-              <EntityChip key={e.id} entity={e} />
-            ))}
-          </div>
-        )}
-
-        <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-3 leading-tight text-balance">
+        <h1 className="font-heading font-bold text-[1.75rem] leading-[1.22] tracking-display text-foreground text-balance sm:text-4xl sm:leading-[1.15] lg:text-[2.5rem]">
           {article.title}
         </h1>
 
-        <div className="flex items-center justify-between gap-3 mb-8">
-          <p className="text-sm text-muted-foreground">
-            <span className="font-medium text-foreground">{article.sourceName}</span>
-            {" · "}
+        <div className="mt-4 mb-8 flex items-center justify-between gap-3">
+          <p className="text-[13px] leading-5 tracking-ui text-muted-foreground">
+            <span className="font-medium text-foreground">{source}</span>
+            <span aria-hidden="true"> · </span>
             <time dateTime={article.publishedAt}>
-              {new Date(article.publishedAt).toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm",
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-              })}
+              {formatDateRelative(article.publishedAt)}
             </time>
+            <span aria-hidden="true"> · </span>
+            <span>{readTime}</span>
           </p>
           <ShareButton
             title={article.title}
             url={`${getSiteUrl()}/artikel/${article.slug}`}
+            variant="icon"
           />
         </div>
 
-        {article.summary && (
-          <BlurPaywall
-            feature="aiSummaries"
-            plan={plan}
-            teamName={teamName}
-            className="mb-8"
-            maxHeight="5.5rem"
-            tease="AI-sammanfattning — så du slipper läsa hela källan."
-            preview={
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-pitch-ink" />
-                  <span className="text-sm font-medium uppercase tracking-wider text-pitch-ink">
-                    AI-sammanfattning
-                  </span>
-                </div>
-                <p className="leading-relaxed text-foreground/90 line-clamp-3">
-                  {article.summary.slice(0, 160)}
-                  {article.summary.length > 160 ? "…" : ""}
-                </p>
-              </div>
-            }
-          >
-            <div
-              className="rounded-xl border border-pitch/30 p-5"
-              style={{ backgroundColor: "rgba(45, 83, 73, 0.10)" }}
-            >
-              <div className="mb-3 flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-pitch-ink" />
-                <span className="text-sm font-medium uppercase tracking-wider text-pitch-ink">
-                  AI-sammanfattning
-                </span>
-              </div>
-              <p className="leading-relaxed text-foreground/90">{article.summary}</p>
-            </div>
-          </BlurPaywall>
-        )}
-
-        <Separator className="mb-8" />
-
         {article.content && unlockedAi ? (
-          <div
-            className="prose-athopia max-w-none"
-            dangerouslySetInnerHTML={{ __html: article.content }}
-          />
+          <ArticleBody content={article.content} title={article.title} />
         ) : article.content && !unlockedAi ? (
           <BlurPaywall
             feature="aiSummaries"
             plan={plan}
             teamName={teamName}
             className="mb-8"
-            maxHeight="6rem"
+            maxHeight="7rem"
             tease="Full Athopia-analys bakom PRO."
             preview={
-              <p className="text-sm leading-relaxed text-foreground/80">
-                {(article.summary ?? article.title).slice(0, 140)}…
+              <p className="text-[1.0625rem] leading-7 text-foreground/90">
+                {(article.summary ?? article.title).slice(0, 180)}…
               </p>
             }
           >
             {null}
           </BlurPaywall>
-        ) : (
-          <div className="flex flex-col items-center gap-4 py-12 text-center">
-            <p className="text-muted-foreground">
-              Läs hela artikeln på källsidan.
-            </p>
-            <a
-              href={article.sourceUrl ?? "#"}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full pitch-gradient px-5 py-2.5 font-medium text-white transition-opacity hover:opacity-90"
-            >
-              Läs på {article.sourceName}
-              <ExternalLink className="h-4 w-4" />
-            </a>
-          </div>
-        )}
-
-        {article.content && !unlockedAi && article.sourceUrl && (
-          <p className="mb-8 text-center text-xs text-muted-foreground">
-            Eller läs originalet på{" "}
-            <a
-              href={article.sourceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-pitch-ink hover:underline"
-            >
-              {article.sourceName}
-            </a>
-          </p>
-        )}
-
-        <section className="mt-12">
-          <Separator className="mb-8" />
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <MessageSquare className="w-5 h-5 text-pitch-ink" />
-              <h2 className="font-bold text-xl text-foreground text-balance">
-                Diskussion
-                {discussionCount > 0 && (
-                  <span className="ml-2 text-muted-foreground font-normal font-mono tabular-nums">
-                    {discussionCount} inlägg
-                  </span>
-                )}
-              </h2>
-            </div>
-            <Link
-              href={forumHref}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full pitch-gradient text-white text-sm font-medium hover:opacity-90 transition-opacity shrink-0"
-            >
-              {discussionCount > 0 ? "Gå med i diskussionen" : "Starta diskussionen"}
-            </Link>
-          </div>
-          {discussionCount === 0 && (
-            <p className="mt-2 text-sm text-muted-foreground">
-              Vad tycker du{teamEntity ? ` — diskutera med andra ${teamEntity.name}-supportrar` : ""}?
-            </p>
-          )}
-        </section>
+        ) : null}
 
         {relatedArticles.length > 0 && (
-          <section className="mt-16">
-            <Separator className="mb-8" />
-            <h2 className="font-bold text-3xl text-foreground mb-6 text-balance">
-              RELATERADE ARTIKLAR
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {relatedArticles.slice(0, 3).map((ra) => (
-                <ArticleCard key={ra.id} article={ra} />
-              ))}
-            </div>
-          </section>
+          <aside className="mt-12 space-y-3" aria-label="Läs också">
+            {relatedArticles.slice(0, 3).map((related) => (
+              <Link
+                key={related.id}
+                href={articlePublicPath(related)}
+                className="block border-l-2 border-pitch pl-4 py-2 hover:border-pitch-ink transition-colors"
+              >
+                <p className="text-[11px] font-semibold uppercase tracking-eyebrow text-pitch-ink">
+                  Läs också
+                </p>
+                <p className="mt-1 text-[15px] leading-snug text-muted-foreground italic text-balance">
+                  {related.title}
+                </p>
+              </Link>
+            ))}
+          </aside>
         )}
 
-        <div className="mt-12">
+        <section className="mt-12 pt-8 border-t border-border">
+          <Link
+            href={forumHref}
+            className="flex items-center gap-3 min-h-11 text-foreground hover:text-pitch-ink transition-colors"
+          >
+            <MessageSquare className="size-[1em] text-pitch-ink" />
+            <span className="text-sm font-medium">
+              {discussionCount > 0
+                ? `Diskussion · ${discussionCount}`
+                : "Starta en diskussion"}
+            </span>
+          </Link>
+        </section>
+
+        <p className="mt-10">
           <Link
             href="/nyheter"
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             ← Tillbaka till nyheterna
           </Link>
-        </div>
-      </div>
+        </p>
+      </article>
     </>
   );
 }

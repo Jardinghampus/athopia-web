@@ -11,6 +11,7 @@ import { canPublishBody, resolveRightsStatus } from "@/lib/provenance";
 import { getUserPlan } from "@/lib/user-plan";
 import { jsonContract } from "@/lib/api-contract";
 import { ArticleDetailResponseSchema } from "@/lib/api-schemas";
+import { formatArticleBodyHtml } from "@/lib/articles/article-body";
 
 export const dynamic = "force-dynamic";
 
@@ -50,7 +51,10 @@ export async function GET(
       summaryPreview: article.summary
         ? `${article.summary.slice(0, 160)}${article.summary.length > 160 ? "…" : ""}`
         : null,
-      content: publishable && unlocked ? article.content : null,
+      content:
+        publishable && unlocked && article.content
+          ? formatArticleBodyHtml(article.content, article.title)
+          : null,
       hasProtectedContent: publishable && Boolean(article.content),
       discussionCount,
     },

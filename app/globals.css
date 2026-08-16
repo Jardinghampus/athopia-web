@@ -454,30 +454,74 @@
   color: inherit;
 }
 
-/* ── Prose ────────────────────────────────────────────────────────────────── */
+/* ── Prose — artikelbrödtext (nyhetssajt, ingen bildyta) ─────────────────── */
 .prose-athopia {
-  @apply text-foreground/90 leading-relaxed;
+  font-size: var(--text-body-fluid);
+  line-height: 1.72;
+  letter-spacing: var(--tracking-body);
+  color: var(--foreground);
 }
-.prose-athopia h1,
-.prose-athopia h2,
-.prose-athopia h3 {
-  @apply text-foreground;
+.prose-athopia > p.lead {
+  font-size: clamp(1.0625rem, 0.98rem + 0.35vw, 1.1875rem);
+  line-height: 1.55;
+  letter-spacing: var(--tracking-body);
+  color: var(--foreground);
+  margin: 0 0 1.75em;
+}
+.prose-athopia > p {
+  margin: 0 0 1.15em;
+  color: color-mix(in oklab, var(--foreground) 88%, transparent);
+}
+.prose-athopia > h2 {
+  font-size: clamp(1.125rem, 1.05rem + 0.4vw, 1.3125rem);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: var(--tracking-heading);
+  color: var(--foreground);
+  margin: 1.75em 0 0.5em;
+  text-wrap: balance;
+}
+.prose-athopia > h3 {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: var(--tracking-heading);
+  color: var(--foreground);
+  margin: 1.5em 0 0.4em;
+}
+.prose-athopia > h2 + p,
+.prose-athopia > h3 + p {
+  margin-top: 0;
 }
 .prose-athopia a {
-  @apply text-pitch underline underline-offset-4;
+  color: var(--pitch-ink);
+  text-underline-offset: 4px;
+  text-decoration: underline;
   transition: color 150ms ease;
 }
 .prose-athopia a:hover {
-  @apply text-pitch-light;
-}
-.prose-athopia p {
-  @apply text-foreground/85;
+  color: var(--color-pitch-light);
 }
 .prose-athopia blockquote {
-  @apply border-l-2 border-pitch/40 pl-4 text-foreground/75;
+  border-left: 2px solid color-mix(in oklab, var(--color-pitch) 40%, transparent);
+  padding-left: 1rem;
+  color: color-mix(in oklab, var(--foreground) 75%, transparent);
+  margin: 1.5em 0;
 }
-.prose-athopia ul { @apply list-disc pl-5; }
-.prose-athopia ol { @apply list-decimal pl-5; }
+.prose-athopia ul,
+.prose-athopia ol {
+  margin: 0 0 1.25em;
+  padding-left: 1.25rem;
+}
+.prose-athopia ul { list-style: disc; }
+.prose-athopia ol { list-style: decimal; }
+.prose-athopia li {
+  margin: 0 0 0.4em;
+  padding-left: 0.25rem;
+}
+.prose-athopia li::marker {
+  color: var(--pitch-ink);
+}
 .prose-athopia code {
   @apply rounded bg-muted px-1.5 py-0.5 text-xs font-mono;
 }
