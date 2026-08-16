@@ -16,6 +16,8 @@ import { getTeamEntityInsights } from "@/lib/supabase";
 import { AnalysisCard } from "@/components/team-hub/AnalysisCard";
 import { getUserPlan } from "@/lib/user-plan";
 import { TeamHubBriefRitual } from "@/components/team-hub/TeamHubBriefRitual";
+import { TeamBriefHome } from "@/components/mitt-lag/TeamBriefHome";
+import { getLatestTeamBrief } from "@/lib/newsletter/team-brief";
 import { MatchdayBanner } from "@/components/team-hub/MatchdayBanner";
 import { FeedMatchHero } from "@/components/feed/FeedMatchHero";
 import { StatNumber } from "@/components/ui/StatNumber";
@@ -89,11 +91,12 @@ export default async function MittLagPage({
     return <MittLagGuestPreview />;
   }
 
-  const [plan, hub, teamHighlights, latestInsights] = await Promise.all([
-    getUserPlan(),
+  const plan = await getUserPlan();
+  const [hub, teamHighlights, latestInsights, teamBrief] = await Promise.all([
     getTeamHub(primaryTeam.slug),
     getHighlights({ teamEntityId: primaryTeam.id, limit: 8 }),
     getTeamEntityInsights(primaryTeam.id, 1),
+    getLatestTeamBrief(primaryTeam.slug, plan),
   ]);
 
   if (!hub) {
@@ -130,7 +133,7 @@ export default async function MittLagPage({
             {greeting}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Det här behöver du veta om {hub.team.name} idag.
+            Det här behöver du veta om Allsvenskan och {hub.team.name} idag.
           </p>
         </div>
         <Link
@@ -176,7 +179,11 @@ export default async function MittLagPage({
         </Link>
       )}
 
-      <TeamHubBriefRitual pulse={hub.pulse} dailyEpisode={hub.dailyEpisode} plan={plan} />
+      {teamBrief ? (
+        <TeamBriefHome brief={teamBrief} teamName={hub.team.name} />
+      ) : null}
+
+      <TeamHubBriefRitual pulse={null} dailyEpisode={hub.dailyEpisode} plan={plan} />
 
       <div className="mb-5">
         <MatchdayBanner

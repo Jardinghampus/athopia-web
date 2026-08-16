@@ -18,7 +18,7 @@ function dateLabel(value: string) {
   });
 }
 
-/** Dagens AI-brief + Athopia Daily podcast — synlig direkt på lag-hubben. */
+/** Daily-podcast på hemmet. Lagläget kommer från TeamBriefArtifact, inte pulse. */
 export function TeamHubBriefRitual({
   pulse,
   dailyEpisode,
