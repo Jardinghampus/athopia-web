@@ -1,7 +1,7 @@
 import { requiredPlanFor, type AccessFeature } from "@/lib/access-rules";
 import { ProductEventTracker } from "@/components/analytics/ProductEventTracker";
 import { TrackedLink } from "@/components/analytics/TrackedLink";
-import { FOUNDER_OFFER, TRIAL_DAYS, proPriceLabel, listMonthlyKr } from "@/lib/pricing";
+import { TRIAL_DAYS, proPriceLabel, listMonthlyKr } from "@/lib/pricing";
 
 const FEATURE_LABELS: Record<AccessFeature, string> = {
   basicFilter:        "grundfilter",
@@ -23,15 +23,25 @@ const FEATURE_LABELS: Record<AccessFeature, string> = {
 export function UpgradePrompt({
   feature,
   teamName,
+  founderPublic = false,
 }: {
   feature: AccessFeature;
   /** Lag-kontext gör CTA:n personlig: "Missa inget om AIK" istället för generisk copy. */
   teamName?: string;
+  /**
+   * Får Founder nämnas? Kommer från potten via en server parent.
+   *
+   * Default `false` med flit: komponenten renderas från klientkomponenter som
+   * inte kan läsa potten. Utan Founder-raden visas ordinarie 89 kr — alltid
+   * sant. Med fel default hade vi lovat 69 kr långt efter att potten tagit
+   * slut, vilket är ett prislöfte vi inte får bryta.
+   */
+  founderPublic?: boolean;
 }) {
   const label = FEATURE_LABELS[feature] ?? feature;
   const requiredPlan = requiredPlanFor(feature);
-  const price = proPriceLabel();
-  const founder = FOUNDER_OFFER.active;
+  const founder = founderPublic;
+  const price = proPriceLabel(founder);
 
   // Tokens, inte zinc-skalan: komponenten var hardkodad for morkt tema
   // (text-white + text-zinc-400/500) och matte 1.03:1 i ljust lage — pa en

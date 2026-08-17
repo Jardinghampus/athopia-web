@@ -105,3 +105,14 @@ test('useModalA11y anropas aldrig efter en tidig return', () => {
     `flytta useModalA11y-anropet ovanför den tidiga returen — annars kastar React #310 när modalen öppnas:\n${offenders.join('\n')}`,
   ).toEqual([])
 })
+
+/**
+ * Waitlist-eventen skickas från en server component (`/vaenta/bekrafta`) och en
+ * route handler — inga av dem passerar klientvakten ovan. De behöver därför en
+ * egen rad, annars kan de tappas ur `FUNNEL_EVENTS` utan att något failar.
+ */
+test('waitlist-eventen finns i allowlistan', () => {
+  const allowed = allowlistFromSource()
+  expect(allowed.has('waitlist_submit')).toBe(true)
+  expect(allowed.has('waitlist_confirmed')).toBe(true)
+})

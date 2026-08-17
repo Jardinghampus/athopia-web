@@ -9,6 +9,20 @@
  *   behövs i dashboarden).
  * - clerkUserId + plan + interval sparas i metadata → webhooken sätter rätt plan.
  * - success_url → /konto?checkout=success, cancel_url → /prenumerera.
+ *
+ * Founder-grinden är den viktiga delen. Tidigare läste den `FOUNDER_OFFER.active`
+ * — en hårdkodad `true` — och gav alltså 69 kr/mån för alltid till varje
+ * PRO-köpare, i evighet, oavsett hur många av de 500 platserna som fanns kvar.
+ * Nu avgör potten och en atomär reservation av en betald plats:
+ *
+ *   - waitlist-kohort `founder` → 69 kr, även när potten är slut (låst avtal)
+ *   - walk-in medan potten är öppen OCH waitlist-läget är av → 69 kr, tar en pott-plats
+ *   - WAITLIST_MODE: walk-in får aldrig Founder (befintliga konton ska inte äta kön)
+ *   - alla andra, och alla över taket 500 betalda → 89 kr, tyst
+ *
+ * `metadata.founder` MÅSTE alltid spegla `unit_amount` — Stripe-webhooken sätter
+ * Founder-märket på den strängen, och en badge utan rabatt (eller tvärtom) är
+ * omöjlig att reda ut i efterhand.
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
@@ -18,7 +32,7 @@ import { NextResponse } from "next/server";
 import { enforceRateLimit } from "@/lib/ratelimit";
 import { logFunnelEvent } from "@/lib/funnel";
 import {
-  FOUNDER_OFFER,
+  ANNUAL_DISCOUNT,
   PRICING,
   TRIAL_DAYS,
   amountFor,
@@ -27,6 +41,15 @@ import {
   type PaidPlan,
   type BillingInterval,
 } from "@/lib/pricing";
+import { isFounderOfferPublic } from "@/lib/founder-offer";
+import { isWaitlistMode } from "@/lib/waitlist/mode";
+import {
+  claimsPotSeat,
+  isEntitledToFounder,
+  loadWaitlistByClerkUser,
+  releaseFounderSeat,
+  reserveFounderSeat,
+} from "@/lib/waitlist/cohort";
 import { getSiteUrl } from "@/lib/site-url";
 
 export async function POST(req: Request & { headers: Headers }) {
@@ -60,6 +83,36 @@ export async function POST(req: Request & { headers: Headers }) {
 
   const planMeta = PRICING[plan];
 
+  // ── Founder-grind ─────────────────────────────────────────────────────────
+  // Elite är aldrig Founder. För PRO: eget avtal (waitlist-kohort) eller
+  // walk-in medan potten är öppen — och i båda fallen bara om en betald plats
+  // faktiskt gick att reservera.
+  let founder = false;
+  let claimedPot = false;
+  if (plan === "pro") {
+    const [waitlist, publicFounder] = await Promise.all([
+      loadWaitlistByClerkUser(userId),
+      isFounderOfferPublic(),
+    ]);
+    if (
+      isEntitledToFounder({
+        plan,
+        waitlist,
+        founderOfferPublic: publicFounder,
+        waitlistMode: isWaitlistMode(),
+      })
+    ) {
+      // Walk-in tar en pott-plats; waitlist-founder har redan sin.
+      claimedPot = claimsPotSeat(waitlist);
+      founder = await reserveFounderSeat(claimedPot);
+      if (!founder) claimedPot = false;
+    }
+  }
+
+  const unitAmount = amountFor(plan, interval, { founder });
+  const founderFlag = String(founder);
+  const discountPct = Math.round(ANNUAL_DISCOUNT * 100);
+
   const base = getSiteUrl();
 
   try {
@@ -74,29 +127,31 @@ export async function POST(req: Request & { headers: Headers }) {
               name: `Athopia ${planMeta.label}`,
               description:
                 interval === "year"
-                  ? `${planMeta.label}-prenumeration, årsvis (25 % rabatt)`
+                  ? `${planMeta.label}-prenumeration, årsvis (${discountPct} % rabatt)`
                   : `${planMeta.label}-prenumeration, månadsvis`,
             },
-            unit_amount: amountFor(plan, interval),
+            unit_amount: unitAmount,
             recurring: { interval },
           },
           quantity: 1,
         },
       ],
       client_reference_id: userId,
-      metadata: { clerkUserId: userId, plan, interval, founder: String(plan === "pro" && FOUNDER_OFFER.active) },
+      metadata: { clerkUserId: userId, plan, interval, founder: founderFlag, founderClaimedPot: String(claimedPot) },
       success_url: `${base}/konto?checkout=success`,
       cancel_url: `${base}/prenumerera`,
       subscription_data: {
         trial_period_days: TRIAL_DAYS,
-        metadata: { clerkUserId: userId, plan, interval, founder: String(plan === "pro" && FOUNDER_OFFER.active) },
+        metadata: { clerkUserId: userId, plan, interval, founder: founderFlag, founderClaimedPot: String(claimedPot) },
       },
     });
 
-    await logFunnelEvent("checkout_start", userId, { plan, interval });
+    await logFunnelEvent("checkout_start", userId, { plan, interval, founder });
 
     return NextResponse.json({ url: session.url });
   } catch (err) {
+    // Sessionen blev aldrig till — då får platsen inte ligga kvar reserverad.
+    if (founder) await releaseFounderSeat(claimedPot);
     const msg = err instanceof Error ? err.message : String(err);
     console.error("[create-checkout] STRIPE ERROR:", msg);
     return NextResponse.json(

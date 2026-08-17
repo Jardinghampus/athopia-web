@@ -3,9 +3,24 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Container, Label, Reveal, Section } from "./primitives";
+import { FOUNDER_OFFER, PRICING, TRIAL_DAYS } from "@/lib/pricing";
+import { primaryCtaHref } from "@/lib/waitlist/mode";
 
-/** Open product CTAs — no client-side beta gate. */
-export function FinalCta() {
+/**
+ * Open product CTAs — no client-side beta gate.
+ *
+ * `founderPublic` kommer från servern. När potten är slut nämns Founder inte
+ * alls här: ingen överstruken 69, ingen "full men klicka ändå". Då är PRO 89
+ * det enda som finns.
+ */
+export function FinalCta({
+  founderPublic = false,
+  waitlistMode = false,
+}: {
+  founderPublic?: boolean;
+  waitlistMode?: boolean;
+} = {}) {
+  const ctaHref = primaryCtaHref(waitlistMode);
   return (
     <Section>
       <Container>
@@ -45,18 +60,21 @@ export function FinalCta() {
 
             <Reveal delay={0.16}>
               <p className="mx-auto mb-10 mt-6 max-w-[400px] text-[17px] leading-[1.65] text-white/55">
-                Gratis flöde utan kort. Vill du ha briefen och signalerna —
-                PRO med 7 dagar gratis, founder-pris 69 kr för de första 500.
-                Avsluta när du vill.
+                Gratis flöde utan kort. Vill du ha briefen och signalerna — PRO
+                med {TRIAL_DAYS} dagar gratis
+                {founderPublic
+                  ? `, founder-pris ${FOUNDER_OFFER.pricing.monthly / 100} kr för de första ${FOUNDER_OFFER.cap}`
+                  : `, ${PRICING.pro.monthly / 100} kr/mån`}
+                . Avsluta när du vill.
               </p>
             </Reveal>
 
             <Reveal delay={0.24}>
               <Link
-                href="/onboarding"
+                href={ctaHref}
                 className="inline-flex h-16 items-center justify-center gap-2 rounded-2xl bg-pitch px-10 text-lg font-bold text-white transition-transform duration-200 hover:scale-[1.02] active:scale-[0.97]"
               >
-                Välj ditt lag <ArrowRight className="h-5 w-5" />
+                {waitlistMode ? "Håll platsen" : "Välj ditt lag"} <ArrowRight className="h-5 w-5" />
               </Link>
               <p className="mt-6 text-xs text-white/55">
                 Allsvenskan 2026 · Tidig version · Uppdateras varje omgång

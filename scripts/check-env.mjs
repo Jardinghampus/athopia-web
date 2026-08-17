@@ -24,6 +24,7 @@
  *
  * Kör:  node scripts/check-env.mjs [production|preview]
  * Exit 1 om en kritisk variabel SAKNAS, eller om en icke-sensitive variabel är tom.
+ * LAUNCH_REQUIRED varnar men failar ALDRIG — se nedan.
  */
 
 import { execFileSync } from 'node:child_process';
@@ -51,6 +52,21 @@ const REQUIRED = [
   'VAPID_SUBJECT',
   'NEXT_PUBLIC_VAPID_PUBLIC_KEY',
 ];
+
+/**
+ * Behövs för att slå PÅ waitlisten — men inte för att deploya produkten.
+ *
+ * Skillnaden är hela poängen: saknas de här är kön avstängd, och en avstängd kö
+ * är ett giltigt tillstånd (det är tillståndet i dag). Att låta dem blockera
+ * bygget hade gjort det omöjligt att deploya något annat innan Hampus skaffat
+ * ett Resend-konto.
+ *
+ * WAITLIST_MODE saknas  = kön är av. Korrekt i dag.
+ * RESEND_API_KEY saknas = inget bekräftelsemejl går ut. `lib/waitlist/email.ts`
+ *                         svarar 503 i stället för att låtsas att mejlet skickades,
+ *                         så raden ligger kvar som pending_confirm med giltig token.
+ */
+const LAUNCH_REQUIRED = ['RESEND_API_KEY', 'WAITLIST_EMAIL_FROM', 'WAITLIST_MODE'];
 
 /**
  * Publika till sin natur, alltså meningslösa att göra sensitive — och därför de
@@ -88,6 +104,7 @@ for (const line of raw.split('\n')) {
 }
 
 const missing = REQUIRED.filter((k) => !values.has(k));
+const launchMissing = LAUNCH_REQUIRED.filter((k) => !values.has(k));
 const readableButEmpty = MUST_BE_READABLE.filter((k) => values.has(k) && values.get(k) === '');
 const unverifiable = REQUIRED.filter(
   (k) => values.has(k) && values.get(k) === '' && !MUST_BE_READABLE.includes(k),
@@ -101,6 +118,14 @@ console.log(`Miljö: ${ENVIRONMENT} — ${values.size} variabler\n`);
 if (missing.length) {
   console.log('SAKNAS HELT — funktionen är trasig:');
   for (const k of missing) console.log(`  ${k}`);
+  console.log('');
+}
+
+if (launchMissing.length) {
+  console.log('VARNING — saknas, men blockerar inte deploy (waitlisten är av tills de finns):');
+  for (const k of launchMissing) console.log(`  ${k}`);
+  console.log('  → Utan RESEND_API_KEY skickas inget bekräftelsemejl (route svarar 503).');
+  console.log('  → Utan WAITLIST_MODE är kön avstängd. Det är korrekt tills Hampus slår på den.');
   console.log('');
 }
 

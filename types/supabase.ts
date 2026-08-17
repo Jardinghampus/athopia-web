@@ -44,6 +44,42 @@ export type Database = {
         }
         Relationships: []
       }
+      agent_activity_events: {
+        Row: {
+          agent_log_id: string | null
+          agent_name: string
+          category: string
+          created_at: string
+          href: string | null
+          id: string
+          message: string
+          metadata: Json
+          sport: string
+        }
+        Insert: {
+          agent_log_id?: string | null
+          agent_name: string
+          category: string
+          created_at?: string
+          href?: string | null
+          id?: string
+          message: string
+          metadata?: Json
+          sport?: string
+        }
+        Update: {
+          agent_log_id?: string | null
+          agent_name?: string
+          category?: string
+          created_at?: string
+          href?: string | null
+          id?: string
+          message?: string
+          metadata?: Json
+          sport?: string
+        }
+        Relationships: []
+      }
       agent_configs: {
         Row: {
           agent_id: string
@@ -80,6 +116,30 @@ export type Database = {
           sport?: string
           system_prompt?: string | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      agent_health: {
+        Row: {
+          agent_name: string
+          checked_at: string
+          detail: Json
+          id: string
+          verdict: string
+        }
+        Insert: {
+          agent_name: string
+          checked_at?: string
+          detail?: Json
+          id?: string
+          verdict: string
+        }
+        Update: {
+          agent_name?: string
+          checked_at?: string
+          detail?: Json
+          id?: string
+          verdict?: string
         }
         Relationships: []
       }
@@ -409,197 +469,28 @@ export type Database = {
           },
         ]
       }
-      articles: {
-        Row: {
-          approval_reason: string | null
-          author: string | null
-          content: string | null
-          created_at: string
-          duplicate_sources: string[]
-          entity_ids: string[]
-          event_type: string | null
-          feed_reasons: string[]
-          feed_score: number
-          fingerprint: string | null
-          generated_kind: string | null
-          id: string
-          importance_score: number | null
-          is_athopia_generated: boolean
-          is_processed: boolean
-          is_style_template: boolean | null
-          language: string
-          manually_reviewed: boolean | null
-          metadata: Json | null
-          news_tag: string | null
-          primary_article_id: string | null
-          published_at: string | null
-          push_priority: string
-          relevance_reason: string | null
-          relevance_status: string | null
-          requires_admin_approval: boolean
-          rights_status: string | null
-          content_origin: string | null
-          scrape_error: string | null
-          scrape_status: string | null
-          sentiment: string | null
-          slug: string | null
-          source_count: number
-          source_id: string | null
-          source_name: string | null
-          sport: string | null
-          status: string
-          story_cluster_id: string | null
-          style_tags: string[] | null
-          summary: string | null
-          team_tags: string[] | null
-          template_rating: number | null
-          title: string
-          updated_at: string
-          url: string
-          url_hash: string
-        }
-        Insert: {
-          approval_reason?: string | null
-          author?: string | null
-          content?: string | null
-          content_origin?: string | null
-          created_at?: string
-          duplicate_sources?: string[]
-          entity_ids?: string[]
-          event_type?: string | null
-          feed_reasons?: string[]
-          feed_score?: number
-          fingerprint?: string | null
-          generated_kind?: string | null
-          id?: string
-          importance_score?: number | null
-          is_athopia_generated?: boolean
-          is_processed?: boolean
-          is_style_template?: boolean | null
-          language?: string
-          manually_reviewed?: boolean | null
-          metadata?: Json | null
-          news_tag?: string | null
-          primary_article_id?: string | null
-          published_at?: string | null
-          push_priority?: string
-          relevance_reason?: string | null
-          relevance_status?: string | null
-          requires_admin_approval?: boolean
-          rights_status?: string | null
-          scrape_error?: string | null
-          scrape_status?: string | null
-          sentiment?: string | null
-          slug?: string | null
-          source_count?: number
-          source_id?: string | null
-          source_name?: string | null
-          sport?: string | null
-          status?: string
-          story_cluster_id?: string | null
-          style_tags?: string[] | null
-          summary?: string | null
-          team_tags?: string[] | null
-          template_rating?: number | null
-          title: string
-          updated_at?: string
-          url: string
-          url_hash: string
-        }
-        Update: {
-          approval_reason?: string | null
-          author?: string | null
-          content?: string | null
-          content_origin?: string | null
-          created_at?: string
-          duplicate_sources?: string[]
-          entity_ids?: string[]
-          event_type?: string | null
-          feed_reasons?: string[]
-          feed_score?: number
-          fingerprint?: string | null
-          generated_kind?: string | null
-          id?: string
-          importance_score?: number | null
-          is_athopia_generated?: boolean
-          is_processed?: boolean
-          is_style_template?: boolean | null
-          language?: string
-          manually_reviewed?: boolean | null
-          metadata?: Json | null
-          news_tag?: string | null
-          primary_article_id?: string | null
-          published_at?: string | null
-          push_priority?: string
-          relevance_reason?: string | null
-          relevance_status?: string | null
-          requires_admin_approval?: boolean
-          rights_status?: string | null
-          scrape_error?: string | null
-          scrape_status?: string | null
-          sentiment?: string | null
-          slug?: string | null
-          source_count?: number
-          source_id?: string | null
-          source_name?: string | null
-          sport?: string | null
-          status?: string
-          story_cluster_id?: string | null
-          style_tags?: string[] | null
-          summary?: string | null
-          team_tags?: string[] | null
-          template_rating?: number | null
-          title?: string
-          updated_at?: string
-          url?: string
-          url_hash?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "articles_primary_article_id_fkey"
-            columns: ["primary_article_id"]
-            isOneToOne: false
-            referencedRelation: "articles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "articles_primary_article_id_fkey"
-            columns: ["primary_article_id"]
-            isOneToOne: false
-            referencedRelation: "news_feed"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "articles_source_id_fkey"
-            columns: ["source_id"]
-            isOneToOne: false
-            referencedRelation: "rss_sources"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       article_research: {
         Row: {
           article_id: string
           full_text: string
-          scraped_at: string
           scrape_status: string | null
+          scraped_at: string
           source_url: string | null
           updated_at: string
         }
         Insert: {
           article_id: string
           full_text: string
-          scraped_at?: string
           scrape_status?: string | null
+          scraped_at?: string
           source_url?: string | null
           updated_at?: string
         }
         Update: {
           article_id?: string
           full_text?: string
-          scraped_at?: string
           scrape_status?: string | null
+          scraped_at?: string
           source_url?: string | null
           updated_at?: string
         }
@@ -609,6 +500,20 @@ export type Database = {
             columns: ["article_id"]
             isOneToOne: true
             referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "article_research_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: true
+            referencedRelation: "news_feed"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "article_research_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: true
+            referencedRelation: "news_feed_clustered"
             referencedColumns: ["id"]
           },
         ]
@@ -650,6 +555,253 @@ export type Database = {
             columns: ["article_id"]
             isOneToOne: false
             referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "article_sources_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "news_feed"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "article_sources_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "news_feed_clustered"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      article_status_backup_20260801: {
+        Row: {
+          id: string | null
+          relevance_reason: string | null
+          relevance_status: string | null
+          status: string | null
+          taken_at: string | null
+        }
+        Insert: {
+          id?: string | null
+          relevance_reason?: string | null
+          relevance_status?: string | null
+          status?: string | null
+          taken_at?: string | null
+        }
+        Update: {
+          id?: string | null
+          relevance_reason?: string | null
+          relevance_status?: string | null
+          status?: string | null
+          taken_at?: string | null
+        }
+        Relationships: []
+      }
+      article_status_backup_20260802: {
+        Row: {
+          content_origin: string | null
+          id: string | null
+          is_athopia_generated: boolean | null
+          published_at: string | null
+          snapshot_at: string | null
+          status: string | null
+        }
+        Insert: {
+          content_origin?: string | null
+          id?: string | null
+          is_athopia_generated?: boolean | null
+          published_at?: string | null
+          snapshot_at?: string | null
+          status?: string | null
+        }
+        Update: {
+          content_origin?: string | null
+          id?: string | null
+          is_athopia_generated?: boolean | null
+          published_at?: string | null
+          snapshot_at?: string | null
+          status?: string | null
+        }
+        Relationships: []
+      }
+      articles: {
+        Row: {
+          approval_reason: string | null
+          author: string | null
+          content: string | null
+          content_origin: string | null
+          created_at: string
+          duplicate_sources: string[]
+          entity_ids: string[]
+          event_type: string | null
+          feed_reasons: string[]
+          feed_score: number
+          fingerprint: string | null
+          generated_kind: string | null
+          id: string
+          importance_score: number | null
+          is_athopia_generated: boolean
+          is_processed: boolean
+          is_style_template: boolean | null
+          language: string
+          manually_reviewed: boolean | null
+          metadata: Json | null
+          news_tag: string | null
+          primary_article_id: string | null
+          published_at: string | null
+          push_priority: string
+          quality_score: number | null
+          relevance_reason: string | null
+          relevance_status: string | null
+          requires_admin_approval: boolean
+          rights_status: string | null
+          scrape_error: string | null
+          scrape_status: string | null
+          sentiment: string | null
+          slug: string | null
+          source_count: number
+          source_id: string | null
+          source_name: string | null
+          sport: string | null
+          status: string
+          story_cluster_id: string | null
+          style_tags: string[] | null
+          summary: string | null
+          team_tags: string[] | null
+          template_rating: number | null
+          title: string
+          transfer_confidence: number | null
+          updated_at: string
+          url: string
+          url_hash: string
+        }
+        Insert: {
+          approval_reason?: string | null
+          author?: string | null
+          content?: string | null
+          content_origin?: string | null
+          created_at?: string
+          duplicate_sources?: string[]
+          entity_ids?: string[]
+          event_type?: string | null
+          feed_reasons?: string[]
+          feed_score?: number
+          fingerprint?: string | null
+          generated_kind?: string | null
+          id?: string
+          importance_score?: number | null
+          is_athopia_generated?: boolean
+          is_processed?: boolean
+          is_style_template?: boolean | null
+          language?: string
+          manually_reviewed?: boolean | null
+          metadata?: Json | null
+          news_tag?: string | null
+          primary_article_id?: string | null
+          published_at?: string | null
+          push_priority?: string
+          quality_score?: number | null
+          relevance_reason?: string | null
+          relevance_status?: string | null
+          requires_admin_approval?: boolean
+          rights_status?: string | null
+          scrape_error?: string | null
+          scrape_status?: string | null
+          sentiment?: string | null
+          slug?: string | null
+          source_count?: number
+          source_id?: string | null
+          source_name?: string | null
+          sport?: string | null
+          status?: string
+          story_cluster_id?: string | null
+          style_tags?: string[] | null
+          summary?: string | null
+          team_tags?: string[] | null
+          template_rating?: number | null
+          title: string
+          transfer_confidence?: number | null
+          updated_at?: string
+          url: string
+          url_hash: string
+        }
+        Update: {
+          approval_reason?: string | null
+          author?: string | null
+          content?: string | null
+          content_origin?: string | null
+          created_at?: string
+          duplicate_sources?: string[]
+          entity_ids?: string[]
+          event_type?: string | null
+          feed_reasons?: string[]
+          feed_score?: number
+          fingerprint?: string | null
+          generated_kind?: string | null
+          id?: string
+          importance_score?: number | null
+          is_athopia_generated?: boolean
+          is_processed?: boolean
+          is_style_template?: boolean | null
+          language?: string
+          manually_reviewed?: boolean | null
+          metadata?: Json | null
+          news_tag?: string | null
+          primary_article_id?: string | null
+          published_at?: string | null
+          push_priority?: string
+          quality_score?: number | null
+          relevance_reason?: string | null
+          relevance_status?: string | null
+          requires_admin_approval?: boolean
+          rights_status?: string | null
+          scrape_error?: string | null
+          scrape_status?: string | null
+          sentiment?: string | null
+          slug?: string | null
+          source_count?: number
+          source_id?: string | null
+          source_name?: string | null
+          sport?: string | null
+          status?: string
+          story_cluster_id?: string | null
+          style_tags?: string[] | null
+          summary?: string | null
+          team_tags?: string[] | null
+          template_rating?: number | null
+          title?: string
+          transfer_confidence?: number | null
+          updated_at?: string
+          url?: string
+          url_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "articles_primary_article_id_fkey"
+            columns: ["primary_article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "articles_primary_article_id_fkey"
+            columns: ["primary_article_id"]
+            isOneToOne: false
+            referencedRelation: "news_feed"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "articles_primary_article_id_fkey"
+            columns: ["primary_article_id"]
+            isOneToOne: false
+            referencedRelation: "news_feed_clustered"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "articles_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "rss_sources"
             referencedColumns: ["id"]
           },
         ]
@@ -901,6 +1053,189 @@ export type Database = {
         }
         Relationships: []
       }
+      columns: {
+        Row: {
+          author_clerk_user_id: string
+          content: Json
+          content_html: string
+          created_at: string
+          excerpt: string | null
+          id: string
+          published_at: string | null
+          slug: string | null
+          sport: string
+          status: string
+          team_entity_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_clerk_user_id: string
+          content?: Json
+          content_html?: string
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          published_at?: string | null
+          slug?: string | null
+          sport?: string
+          status?: string
+          team_entity_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          author_clerk_user_id?: string
+          content?: Json
+          content_html?: string
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          published_at?: string | null
+          slug?: string | null
+          sport?: string
+          status?: string
+          team_entity_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "columns_team_entity_id_fkey"
+            columns: ["team_entity_id"]
+            isOneToOne: false
+            referencedRelation: "entities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "columns_team_entity_id_fkey"
+            columns: ["team_entity_id"]
+            isOneToOne: false
+            referencedRelation: "team_coverage_dashboard"
+            referencedColumns: ["team_entity_id"]
+          },
+        ]
+      }
+      content_nuggets: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          confidence: number
+          created_at: string
+          dek: string
+          entity_ids: string[]
+          expires_at: string | null
+          generated_at: string
+          generated_by: string
+          headline: string
+          id: string
+          long_angle: string
+          novelty_score: number
+          nugget_date: string
+          nugget_key: string
+          nugget_type: string
+          published_at: string | null
+          rank_score: number
+          short_hook: string | null
+          short_script: string | null
+          source_refs: Json
+          sport: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          confidence?: number
+          created_at?: string
+          dek: string
+          entity_ids?: string[]
+          expires_at?: string | null
+          generated_at?: string
+          generated_by?: string
+          headline: string
+          id?: string
+          long_angle: string
+          novelty_score?: number
+          nugget_date: string
+          nugget_key: string
+          nugget_type: string
+          published_at?: string | null
+          rank_score?: number
+          short_hook?: string | null
+          short_script?: string | null
+          source_refs?: Json
+          sport?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          confidence?: number
+          created_at?: string
+          dek?: string
+          entity_ids?: string[]
+          expires_at?: string | null
+          generated_at?: string
+          generated_by?: string
+          headline?: string
+          id?: string
+          long_angle?: string
+          novelty_score?: number
+          nugget_date?: string
+          nugget_key?: string
+          nugget_type?: string
+          published_at?: string | null
+          rank_score?: number
+          short_hook?: string | null
+          short_script?: string | null
+          source_refs?: Json
+          sport?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      content_pipeline_items: {
+        Row: {
+          content_queue_id: string | null
+          created_at: string
+          href: string | null
+          id: string
+          owner: string
+          priority: number | null
+          sport: string
+          stage: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content_queue_id?: string | null
+          created_at?: string
+          href?: string | null
+          id?: string
+          owner?: string
+          priority?: number | null
+          sport?: string
+          stage: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content_queue_id?: string | null
+          created_at?: string
+          href?: string | null
+          id?: string
+          owner?: string
+          priority?: number | null
+          sport?: string
+          stage?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       content_queue: {
         Row: {
           agent_source: string
@@ -1041,6 +1376,42 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_goals: {
+        Row: {
+          generated_at: string
+          goal_date: string
+          goals: string[]
+          id: string
+          model: string | null
+          north_star: string | null
+          source: string
+          sport: string
+          strategy_note: string | null
+        }
+        Insert: {
+          generated_at?: string
+          goal_date: string
+          goals?: string[]
+          id?: string
+          model?: string | null
+          north_star?: string | null
+          source?: string
+          sport?: string
+          strategy_note?: string | null
+        }
+        Update: {
+          generated_at?: string
+          goal_date?: string
+          goals?: string[]
+          id?: string
+          model?: string | null
+          north_star?: string | null
+          source?: string
+          sport?: string
+          strategy_note?: string | null
+        }
+        Relationships: []
+      }
       data_version: {
         Row: {
           sport: string
@@ -1125,6 +1496,7 @@ export type Database = {
           metadata: Json | null
           name: string
           slug: string | null
+          sport: string
           sportmonks_id: number | null
           sportsmonks_id: number | null
           type: string
@@ -1138,6 +1510,7 @@ export type Database = {
           metadata?: Json | null
           name: string
           slug?: string | null
+          sport?: string
           sportmonks_id?: number | null
           sportsmonks_id?: number | null
           type: string
@@ -1151,6 +1524,7 @@ export type Database = {
           metadata?: Json | null
           name?: string
           slug?: string | null
+          sport?: string
           sportmonks_id?: number | null
           sportsmonks_id?: number | null
           type?: string
@@ -1250,6 +1624,13 @@ export type Database = {
             referencedRelation: "entities"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "entity_insights_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "team_coverage_dashboard"
+            referencedColumns: ["team_entity_id"]
+          },
         ]
       }
       events: {
@@ -1318,6 +1699,66 @@ export type Database = {
           team_color?: string
           team_name?: string
           team_slug?: string
+        }
+        Relationships: []
+      }
+      feed_interactions: {
+        Row: {
+          clerk_user_id: string
+          event_key: string
+          event_type: string
+          factors: Json
+          id: string
+          item_id: string | null
+          metadata: Json
+          module_key: string | null
+          occurred_at: string
+          position: number | null
+          ranker_version: string | null
+          received_at: string
+          schema_version: string
+          score: number | null
+          sport: string
+          story_id: string | null
+          surface: string
+        }
+        Insert: {
+          clerk_user_id: string
+          event_key: string
+          event_type: string
+          factors?: Json
+          id?: string
+          item_id?: string | null
+          metadata?: Json
+          module_key?: string | null
+          occurred_at?: string
+          position?: number | null
+          ranker_version?: string | null
+          received_at?: string
+          schema_version?: string
+          score?: number | null
+          sport?: string
+          story_id?: string | null
+          surface: string
+        }
+        Update: {
+          clerk_user_id?: string
+          event_key?: string
+          event_type?: string
+          factors?: Json
+          id?: string
+          item_id?: string | null
+          metadata?: Json
+          module_key?: string | null
+          occurred_at?: string
+          position?: number | null
+          ranker_version?: string | null
+          received_at?: string
+          schema_version?: string
+          score?: number | null
+          sport?: string
+          story_id?: string | null
+          surface?: string
         }
         Relationships: []
       }
@@ -1506,6 +1947,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "fixtures_away_entity_id_fkey"
+            columns: ["away_entity_id"]
+            isOneToOne: false
+            referencedRelation: "team_coverage_dashboard"
+            referencedColumns: ["team_entity_id"]
+          },
+          {
             foreignKeyName: "fixtures_away_team_id_fkey"
             columns: ["away_team_id"]
             isOneToOne: false
@@ -1518,6 +1966,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "entities"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixtures_home_entity_id_fkey"
+            columns: ["home_entity_id"]
+            isOneToOne: false
+            referencedRelation: "team_coverage_dashboard"
+            referencedColumns: ["team_entity_id"]
           },
           {
             foreignKeyName: "fixtures_home_team_id_fkey"
@@ -1579,9 +2034,12 @@ export type Database = {
         Row: {
           ai_summary: string | null
           ai_summary_updated_at: string | null
+          article_id: string | null
           author_avatar: string | null
           author_id: string
           author_name: string
+          author_role: string | null
+          author_team: string | null
           content: string
           created_at: string | null
           depth: number | null
@@ -1604,9 +2062,12 @@ export type Database = {
         Insert: {
           ai_summary?: string | null
           ai_summary_updated_at?: string | null
+          article_id?: string | null
           author_avatar?: string | null
           author_id: string
           author_name: string
+          author_role?: string | null
+          author_team?: string | null
           content: string
           created_at?: string | null
           depth?: number | null
@@ -1629,9 +2090,12 @@ export type Database = {
         Update: {
           ai_summary?: string | null
           ai_summary_updated_at?: string | null
+          article_id?: string | null
           author_avatar?: string | null
           author_id?: string
           author_name?: string
+          author_role?: string | null
+          author_team?: string | null
           content?: string
           created_at?: string | null
           depth?: number | null
@@ -1652,6 +2116,27 @@ export type Database = {
           view_count?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "forum_posts_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "forum_posts_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "news_feed"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "forum_posts_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "news_feed_clustered"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "forum_posts_parent_id_fkey"
             columns: ["parent_id"]
@@ -1712,6 +2197,38 @@ export type Database = {
             columns: ["thread_id"]
             isOneToOne: false
             referencedRelation: "forum_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      forum_reports: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          reporter_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          reporter_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          reporter_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forum_reports_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "forum_posts"
             referencedColumns: ["id"]
           },
         ]
@@ -1796,7 +2313,89 @@ export type Database = {
             referencedRelation: "entities"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "forum_threads_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "team_coverage_dashboard"
+            referencedColumns: ["team_entity_id"]
+          },
         ]
+      }
+      founder_briefings: {
+        Row: {
+          biggest_opportunity: string | null
+          biggest_risk: string | null
+          briefing_date: string
+          content_today: string | null
+          full_brief: string | null
+          generated_at: string
+          id: string
+          model: string | null
+          product_today: string | null
+          recommended_action: string | null
+          revenue_experiment: string | null
+          source: string
+          sport: string
+          summary: string[]
+        }
+        Insert: {
+          biggest_opportunity?: string | null
+          biggest_risk?: string | null
+          briefing_date: string
+          content_today?: string | null
+          full_brief?: string | null
+          generated_at?: string
+          id?: string
+          model?: string | null
+          product_today?: string | null
+          recommended_action?: string | null
+          revenue_experiment?: string | null
+          source?: string
+          sport?: string
+          summary?: string[]
+        }
+        Update: {
+          biggest_opportunity?: string | null
+          biggest_risk?: string | null
+          briefing_date?: string
+          content_today?: string | null
+          full_brief?: string | null
+          generated_at?: string
+          id?: string
+          model?: string | null
+          product_today?: string | null
+          recommended_action?: string | null
+          revenue_experiment?: string | null
+          source?: string
+          sport?: string
+          summary?: string[]
+        }
+        Relationships: []
+      }
+      founder_offer_state: {
+        Row: {
+          cap: number
+          claimed: number
+          paid: number
+          id: boolean
+          updated_at: string
+        }
+        Insert: {
+          cap?: number
+          claimed?: number
+          paid?: number
+          id?: boolean
+          updated_at?: string
+        }
+        Update: {
+          cap?: number
+          claimed?: number
+          paid?: number
+          id?: boolean
+          updated_at?: string
+        }
+        Relationships: []
       }
       founder_todos: {
         Row: {
@@ -1805,11 +2404,18 @@ export type Database = {
           completed_at: string | null
           created_at: string | null
           done: boolean | null
+          due_at: string | null
+          entity_id: string | null
+          entity_type: string | null
           id: string
+          owner: string
           priority: number | null
           source: string | null
+          status: string
           summary: string | null
           title: string
+          unicorn_track: string | null
+          updated_at: string
         }
         Insert: {
           auto_generated?: boolean | null
@@ -1817,11 +2423,18 @@ export type Database = {
           completed_at?: string | null
           created_at?: string | null
           done?: boolean | null
+          due_at?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
           id?: string
+          owner?: string
           priority?: number | null
           source?: string | null
+          status?: string
           summary?: string | null
           title: string
+          unicorn_track?: string | null
+          updated_at?: string
         }
         Update: {
           auto_generated?: boolean | null
@@ -1829,13 +2442,122 @@ export type Database = {
           completed_at?: string | null
           created_at?: string | null
           done?: boolean | null
+          due_at?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
           id?: string
+          owner?: string
           priority?: number | null
           source?: string | null
+          status?: string
           summary?: string | null
           title?: string
+          unicorn_track?: string | null
+          updated_at?: string
         }
         Relationships: []
+      }
+      generated_episodes: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          audio_storage_path: string | null
+          audio_url: string | null
+          chapter_markers: Json
+          created_at: string
+          duration_sec: number | null
+          duration_target_min: number
+          elevenlabs_meta: Json
+          entity_id: string | null
+          episode_date: string
+          episode_type: string
+          error_message: string | null
+          facts_snapshot: Json
+          generated_at: string
+          generated_by: string
+          id: string
+          published_at: string | null
+          script_json: Json
+          script_markdown: string | null
+          slug: string
+          source_nugget_ids: string[]
+          sport: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          audio_storage_path?: string | null
+          audio_url?: string | null
+          chapter_markers?: Json
+          created_at?: string
+          duration_sec?: number | null
+          duration_target_min?: number
+          elevenlabs_meta?: Json
+          entity_id?: string | null
+          episode_date: string
+          episode_type: string
+          error_message?: string | null
+          facts_snapshot?: Json
+          generated_at?: string
+          generated_by?: string
+          id?: string
+          published_at?: string | null
+          script_json?: Json
+          script_markdown?: string | null
+          slug: string
+          source_nugget_ids?: string[]
+          sport?: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          audio_storage_path?: string | null
+          audio_url?: string | null
+          chapter_markers?: Json
+          created_at?: string
+          duration_sec?: number | null
+          duration_target_min?: number
+          elevenlabs_meta?: Json
+          entity_id?: string | null
+          episode_date?: string
+          episode_type?: string
+          error_message?: string | null
+          facts_snapshot?: Json
+          generated_at?: string
+          generated_by?: string
+          id?: string
+          published_at?: string | null
+          script_json?: Json
+          script_markdown?: string | null
+          slug?: string
+          source_nugget_ids?: string[]
+          sport?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generated_episodes_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "entities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generated_episodes_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "team_coverage_dashboard"
+            referencedColumns: ["team_entity_id"]
+          },
+        ]
       }
       golf_players: {
         Row: {
@@ -1975,6 +2697,57 @@ export type Database = {
         }
         Relationships: []
       }
+      growth_experiments: {
+        Row: {
+          channel: string
+          created_at: string
+          ended_at: string | null
+          hypothesis: string
+          id: string
+          metadata: Json
+          north_star_link: string | null
+          sport: string
+          started_at: string | null
+          status: string
+          updated_at: string
+          utm_campaign: string | null
+          variant_a: string
+          variant_b: string | null
+        }
+        Insert: {
+          channel: string
+          created_at?: string
+          ended_at?: string | null
+          hypothesis: string
+          id?: string
+          metadata?: Json
+          north_star_link?: string | null
+          sport?: string
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          utm_campaign?: string | null
+          variant_a: string
+          variant_b?: string | null
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          ended_at?: string | null
+          hypothesis?: string
+          id?: string
+          metadata?: Json
+          north_star_link?: string | null
+          sport?: string
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          utm_campaign?: string | null
+          variant_a?: string
+          variant_b?: string | null
+        }
+        Relationships: []
+      }
       inspiration_items: {
         Row: {
           angle: string | null
@@ -2047,6 +2820,39 @@ export type Database = {
         }
         Relationships: []
       }
+      landing_copy: {
+        Row: {
+          body: string | null
+          cta_label: string | null
+          headline_accent: string | null
+          source: string
+          source_experiment_id: string | null
+          sport: string
+          updated_at: string
+          utm_campaign: string | null
+        }
+        Insert: {
+          body?: string | null
+          cta_label?: string | null
+          headline_accent?: string | null
+          source?: string
+          source_experiment_id?: string | null
+          sport?: string
+          updated_at?: string
+          utm_campaign?: string | null
+        }
+        Update: {
+          body?: string | null
+          cta_label?: string | null
+          headline_accent?: string | null
+          source?: string
+          source_experiment_id?: string | null
+          sport?: string
+          updated_at?: string
+          utm_campaign?: string | null
+        }
+        Relationships: []
+      }
       leagues: {
         Row: {
           country: string | null
@@ -2101,6 +2907,54 @@ export type Database = {
           minute?: number | null
           sport?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      marketing_learnings: {
+        Row: {
+          action: string
+          channel: string | null
+          created_at: string
+          hook_variant: string | null
+          id: string
+          metric_snapshot: Json
+          pillar: string | null
+          reason: string
+          subject_id: string
+          subject_type: string
+          updated_at: string
+          utm_campaign: string | null
+          week_start: string
+        }
+        Insert: {
+          action: string
+          channel?: string | null
+          created_at?: string
+          hook_variant?: string | null
+          id?: string
+          metric_snapshot?: Json
+          pillar?: string | null
+          reason: string
+          subject_id: string
+          subject_type: string
+          updated_at?: string
+          utm_campaign?: string | null
+          week_start: string
+        }
+        Update: {
+          action?: string
+          channel?: string | null
+          created_at?: string
+          hook_variant?: string | null
+          id?: string
+          metric_snapshot?: Json
+          pillar?: string | null
+          reason?: string
+          subject_id?: string
+          subject_type?: string
+          updated_at?: string
+          utm_campaign?: string | null
+          week_start?: string
         }
         Relationships: []
       }
@@ -2445,6 +3299,314 @@ export type Database = {
         }
         Relationships: []
       }
+      newsletter_consent_events: {
+        Row: {
+          created_at: string
+          email_hash: string | null
+          event_type: string
+          id: string
+          metadata: Json
+          policy_version: string | null
+          request_fingerprint: string | null
+          source: string
+          subscriber_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email_hash?: string | null
+          event_type: string
+          id?: string
+          metadata?: Json
+          policy_version?: string | null
+          request_fingerprint?: string | null
+          source: string
+          subscriber_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email_hash?: string | null
+          event_type?: string
+          id?: string
+          metadata?: Json
+          policy_version?: string | null
+          request_fingerprint?: string | null
+          source?: string
+          subscriber_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "newsletter_consent_events_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "newsletter_subscribers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      newsletter_deliveries: {
+        Row: {
+          attempt_count: number
+          beehiiv_list_id: string | null
+          beehiiv_post_id: string | null
+          beehiiv_segment_id: string | null
+          briefing_id: string
+          cohort_key: string
+          complaints: number | null
+          created_at: string
+          delivered: number | null
+          edition_plan: string
+          id: string
+          last_error: string | null
+          local_expected_recipients: number | null
+          metrics: Json
+          metrics_synced_at: string | null
+          next_metrics_sync_at: string | null
+          payload_hash: string | null
+          provider_created_at: string | null
+          provider_expected_recipients: number | null
+          provider_scheduled_at: string | null
+          provider_sent_at: string | null
+          recipients: number | null
+          scheduled_for: string | null
+          state: string
+          unique_clicks: number | null
+          unique_opens: number | null
+          unsubscribes: number | null
+          updated_at: string
+          verified_clicks: number | null
+        }
+        Insert: {
+          attempt_count?: number
+          beehiiv_list_id?: string | null
+          beehiiv_post_id?: string | null
+          beehiiv_segment_id?: string | null
+          briefing_id: string
+          cohort_key: string
+          complaints?: number | null
+          created_at?: string
+          delivered?: number | null
+          edition_plan: string
+          id?: string
+          last_error?: string | null
+          local_expected_recipients?: number | null
+          metrics?: Json
+          metrics_synced_at?: string | null
+          next_metrics_sync_at?: string | null
+          payload_hash?: string | null
+          provider_created_at?: string | null
+          provider_expected_recipients?: number | null
+          provider_scheduled_at?: string | null
+          provider_sent_at?: string | null
+          recipients?: number | null
+          scheduled_for?: string | null
+          state?: string
+          unique_clicks?: number | null
+          unique_opens?: number | null
+          unsubscribes?: number | null
+          updated_at?: string
+          verified_clicks?: number | null
+        }
+        Update: {
+          attempt_count?: number
+          beehiiv_list_id?: string | null
+          beehiiv_post_id?: string | null
+          beehiiv_segment_id?: string | null
+          briefing_id?: string
+          cohort_key?: string
+          complaints?: number | null
+          created_at?: string
+          delivered?: number | null
+          edition_plan?: string
+          id?: string
+          last_error?: string | null
+          local_expected_recipients?: number | null
+          metrics?: Json
+          metrics_synced_at?: string | null
+          next_metrics_sync_at?: string | null
+          payload_hash?: string | null
+          provider_created_at?: string | null
+          provider_expected_recipients?: number | null
+          provider_scheduled_at?: string | null
+          provider_sent_at?: string | null
+          recipients?: number | null
+          scheduled_for?: string | null
+          state?: string
+          unique_clicks?: number | null
+          unique_opens?: number | null
+          unsubscribes?: number | null
+          updated_at?: string
+          verified_clicks?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "newsletter_deliveries_briefing_id_fkey"
+            columns: ["briefing_id"]
+            isOneToOne: false
+            referencedRelation: "team_briefings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      newsletter_preferences: {
+        Row: {
+          cadence: string
+          created_at: string
+          edition: string
+          enabled: boolean
+          follow_profile_team: boolean
+          id: string
+          is_primary: boolean
+          sport: string
+          subscriber_id: string
+          team_entity_id: string
+          updated_at: string
+        }
+        Insert: {
+          cadence?: string
+          created_at?: string
+          edition?: string
+          enabled?: boolean
+          follow_profile_team?: boolean
+          id?: string
+          is_primary?: boolean
+          sport?: string
+          subscriber_id: string
+          team_entity_id: string
+          updated_at?: string
+        }
+        Update: {
+          cadence?: string
+          created_at?: string
+          edition?: string
+          enabled?: boolean
+          follow_profile_team?: boolean
+          id?: string
+          is_primary?: boolean
+          sport?: string
+          subscriber_id?: string
+          team_entity_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "newsletter_preferences_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "newsletter_subscribers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "newsletter_preferences_team_entity_id_fkey"
+            columns: ["team_entity_id"]
+            isOneToOne: false
+            referencedRelation: "entities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "newsletter_preferences_team_entity_id_fkey"
+            columns: ["team_entity_id"]
+            isOneToOne: false
+            referencedRelation: "team_coverage_dashboard"
+            referencedColumns: ["team_entity_id"]
+          },
+        ]
+      }
+      newsletter_subscribers: {
+        Row: {
+          beehiiv_subscription_id: string | null
+          clerk_user_id: string | null
+          confirmed_at: string | null
+          consent_at: string
+          consent_policy_version: string
+          consent_source: string
+          created_at: string
+          email: string
+          id: string
+          last_sync_error: string | null
+          last_synced_at: string | null
+          plan_snapshot: string
+          status: string
+          sync_attempts: number
+          sync_status: string
+          unsubscribed_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          beehiiv_subscription_id?: string | null
+          clerk_user_id?: string | null
+          confirmed_at?: string | null
+          consent_at: string
+          consent_policy_version: string
+          consent_source: string
+          created_at?: string
+          email: string
+          id?: string
+          last_sync_error?: string | null
+          last_synced_at?: string | null
+          plan_snapshot?: string
+          status?: string
+          sync_attempts?: number
+          sync_status?: string
+          unsubscribed_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          beehiiv_subscription_id?: string | null
+          clerk_user_id?: string | null
+          confirmed_at?: string | null
+          consent_at?: string
+          consent_policy_version?: string
+          consent_source?: string
+          created_at?: string
+          email?: string
+          id?: string
+          last_sync_error?: string | null
+          last_synced_at?: string | null
+          plan_snapshot?: string
+          status?: string
+          sync_attempts?: number
+          sync_status?: string
+          unsubscribed_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      newsletter_webhook_events: {
+        Row: {
+          error: string | null
+          event_type: string
+          id: string
+          payload: Json
+          processed_at: string | null
+          provider_event_id: string
+          provider_object_id: string | null
+          received_at: string
+          status: string
+        }
+        Insert: {
+          error?: string | null
+          event_type: string
+          id?: string
+          payload?: Json
+          processed_at?: string | null
+          provider_event_id: string
+          provider_object_id?: string | null
+          received_at?: string
+          status?: string
+        }
+        Update: {
+          error?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json
+          processed_at?: string | null
+          provider_event_id?: string
+          provider_object_id?: string | null
+          received_at?: string
+          status?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           actor_id: string
@@ -2597,6 +3759,33 @@ export type Database = {
           xg?: number | null
           xgot?: number | null
           yellow_cards?: number
+        }
+        Relationships: []
+      }
+      player_ratings: {
+        Row: {
+          clerk_user_id: string
+          created_at: string
+          fixture_id: number
+          id: string
+          player_id: number
+          rating: number
+        }
+        Insert: {
+          clerk_user_id: string
+          created_at?: string
+          fixture_id: number
+          id?: string
+          player_id: number
+          rating: number
+        }
+        Update: {
+          clerk_user_id?: string
+          created_at?: string
+          fixture_id?: number
+          id?: string
+          player_id?: number
+          rating?: number
         }
         Relationships: []
       }
@@ -2924,6 +4113,78 @@ export type Database = {
           },
         ]
       }
+      product_anomalies: {
+        Row: {
+          created_at: string
+          detail: Json
+          id: string
+          kind: string
+          resolved: boolean
+          severity: string
+          source: string
+          sport: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          detail?: Json
+          id?: string
+          kind: string
+          resolved?: boolean
+          severity?: string
+          source: string
+          sport?: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          detail?: Json
+          id?: string
+          kind?: string
+          resolved?: boolean
+          severity?: string
+          source?: string
+          sport?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      product_recommendations: {
+        Row: {
+          created_at: string
+          horizon: string
+          id: string
+          owner: string
+          sort_order: number
+          sport: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          horizon: string
+          id?: string
+          owner?: string
+          sort_order?: number
+          sport?: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          horizon?: string
+          id?: string
+          owner?: string
+          sort_order?: number
+          sport?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -2935,6 +4196,7 @@ export type Database = {
           feed_team_filter: string[] | null
           id: string
           nickname: string | null
+          role: string
           updated_at: string
           verified: boolean
         }
@@ -2948,6 +4210,7 @@ export type Database = {
           feed_team_filter?: string[] | null
           id?: string
           nickname?: string | null
+          role?: string
           updated_at?: string
           verified?: boolean
         }
@@ -2961,6 +4224,7 @@ export type Database = {
           feed_team_filter?: string[] | null
           id?: string
           nickname?: string | null
+          role?: string
           updated_at?: string
           verified?: boolean
         }
@@ -3046,11 +4310,25 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "push_candidates_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "news_feed_clustered"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "push_candidates_team_entity_id_fkey"
             columns: ["team_entity_id"]
             isOneToOne: false
             referencedRelation: "entities"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "push_candidates_team_entity_id_fkey"
+            columns: ["team_entity_id"]
+            isOneToOne: false
+            referencedRelation: "team_coverage_dashboard"
+            referencedColumns: ["team_entity_id"]
           },
         ]
       }
@@ -3302,6 +4580,30 @@ export type Database = {
           },
         ]
       }
+      revenue_snapshots: {
+        Row: {
+          created_at: string | null
+          id: string
+          payload: Json
+          snapshot_date: string
+          sport: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          payload?: Json
+          snapshot_date: string
+          sport?: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          payload?: Json
+          snapshot_date?: string
+          sport?: string
+        }
+        Relationships: []
+      }
       round_ring_progress: {
         Row: {
           clerk_user_id: string
@@ -3357,6 +4659,7 @@ export type Database = {
           name: string
           purpose: string
           sport: string | null
+          transcribe: boolean
           trust_score: number
           updated_at: string
           url: string
@@ -3374,6 +4677,7 @@ export type Database = {
           name: string
           purpose?: string
           sport?: string | null
+          transcribe?: boolean
           trust_score?: number
           updated_at?: string
           url: string
@@ -3391,6 +4695,7 @@ export type Database = {
           name?: string
           purpose?: string
           sport?: string | null
+          transcribe?: boolean
           trust_score?: number
           updated_at?: string
           url?: string
@@ -3543,6 +4848,54 @@ export type Database = {
             referencedRelation: "content_queue"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "social_posts_content_queue_id_fkey"
+            columns: ["content_queue_id"]
+            isOneToOne: false
+            referencedRelation: "highlights"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_teaser_review_events: {
+        Row: {
+          action: string
+          actor_id: string
+          created_at: string
+          from_status: string | null
+          id: string
+          metadata: Json
+          teaser_id: string
+          to_status: string | null
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          metadata?: Json
+          teaser_id: string
+          to_status?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          metadata?: Json
+          teaser_id?: string
+          to_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_teaser_review_events_teaser_id_fkey"
+            columns: ["teaser_id"]
+            isOneToOne: false
+            referencedRelation: "social_teasers"
+            referencedColumns: ["id"]
+          },
         ]
       }
       social_teaser_sources: {
@@ -3592,7 +4945,67 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "social_teaser_sources_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "news_feed_clustered"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "social_teaser_sources_teaser_id_fkey"
+            columns: ["teaser_id"]
+            isOneToOne: false
+            referencedRelation: "social_teasers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_teaser_versions: {
+        Row: {
+          alt_text: string
+          caption: string
+          change_note: string | null
+          created_at: string
+          created_by: string
+          hook: string
+          id: string
+          seo_description: string
+          slide_json: Json
+          teaser_id: string
+          title: string
+          version: number
+        }
+        Insert: {
+          alt_text: string
+          caption: string
+          change_note?: string | null
+          created_at?: string
+          created_by: string
+          hook: string
+          id?: string
+          seo_description: string
+          slide_json: Json
+          teaser_id: string
+          title: string
+          version: number
+        }
+        Update: {
+          alt_text?: string
+          caption?: string
+          change_note?: string | null
+          created_at?: string
+          created_by?: string
+          hook?: string
+          id?: string
+          seo_description?: string
+          slide_json?: Json
+          teaser_id?: string
+          title?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_teaser_versions_teaser_id_fkey"
             columns: ["teaser_id"]
             isOneToOne: false
             referencedRelation: "social_teasers"
@@ -3607,18 +5020,29 @@ export type Database = {
           comment_keyword: string
           confidence_level: string
           created_at: string
+          current_version: number
           design_preset: string
+          editorial_slot: string
+          fixture_sportmonks_id: number | null
           generation_notes: string | null
           hook: string
           id: string
+          last_edited_at: string | null
+          last_edited_by: string | null
           mp4_urls: string[]
           png_urls: string[]
           post_date: string
           posted_at: string | null
           posted_url: string | null
           preview_urls: string[]
+          publish_error: string | null
+          publish_job_id: string | null
+          publish_provider: string | null
           quality_score: number | null
           ready_at: string | null
+          recap_tier: string | null
+          round_number: number | null
+          season_id: number | null
           seo_description: string
           slide_json: Json
           source_article_ids: string[]
@@ -3634,18 +5058,29 @@ export type Database = {
           comment_keyword?: string
           confidence_level?: string
           created_at?: string
+          current_version?: number
           design_preset?: string
+          editorial_slot?: string
+          fixture_sportmonks_id?: number | null
           generation_notes?: string | null
           hook: string
           id?: string
+          last_edited_at?: string | null
+          last_edited_by?: string | null
           mp4_urls?: string[]
           png_urls?: string[]
           post_date: string
           posted_at?: string | null
           posted_url?: string | null
           preview_urls?: string[]
+          publish_error?: string | null
+          publish_job_id?: string | null
+          publish_provider?: string | null
           quality_score?: number | null
           ready_at?: string | null
+          recap_tier?: string | null
+          round_number?: number | null
+          season_id?: number | null
           seo_description: string
           slide_json: Json
           source_article_ids?: string[]
@@ -3661,18 +5096,29 @@ export type Database = {
           comment_keyword?: string
           confidence_level?: string
           created_at?: string
+          current_version?: number
           design_preset?: string
+          editorial_slot?: string
+          fixture_sportmonks_id?: number | null
           generation_notes?: string | null
           hook?: string
           id?: string
+          last_edited_at?: string | null
+          last_edited_by?: string | null
           mp4_urls?: string[]
           png_urls?: string[]
           post_date?: string
           posted_at?: string | null
           posted_url?: string | null
           preview_urls?: string[]
+          publish_error?: string | null
+          publish_job_id?: string | null
+          publish_provider?: string | null
           quality_score?: number | null
           ready_at?: string | null
+          recap_tier?: string | null
+          round_number?: number | null
+          season_id?: number | null
           seo_description?: string
           slide_json?: Json
           source_article_ids?: string[]
@@ -3681,6 +5127,72 @@ export type Database = {
           title?: string
           type?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      source_clicks: {
+        Row: {
+          clicked_at: string
+          id: number
+          kind: string
+          source_name: string
+          sport: string
+          url: string | null
+        }
+        Insert: {
+          clicked_at?: string
+          id?: never
+          kind?: string
+          source_name: string
+          sport?: string
+          url?: string | null
+        }
+        Update: {
+          clicked_at?: string
+          id?: never
+          kind?: string
+          source_name?: string
+          sport?: string
+          url?: string | null
+        }
+        Relationships: []
+      }
+      standings_snapshots: {
+        Row: {
+          created_at: string
+          goal_diff: number
+          id: string
+          played: number
+          points: number
+          position: number
+          season_id: number
+          snapshot_date: string
+          sport: string
+          team_id: number
+        }
+        Insert: {
+          created_at?: string
+          goal_diff?: number
+          id?: string
+          played?: number
+          points?: number
+          position: number
+          season_id: number
+          snapshot_date?: string
+          sport?: string
+          team_id: number
+        }
+        Update: {
+          created_at?: string
+          goal_diff?: number
+          id?: string
+          played?: number
+          points?: number
+          position?: number
+          season_id?: number
+          snapshot_date?: string
+          sport?: string
+          team_id?: number
         }
         Relationships: []
       }
@@ -3918,8 +5430,30 @@ export type Database = {
         }
         Relationships: []
       }
+      story_cluster_backup_20260801: {
+        Row: {
+          article_id: string
+          old_source_count: number | null
+          old_story_cluster_id: string | null
+          taken_at: string | null
+        }
+        Insert: {
+          article_id: string
+          old_source_count?: number | null
+          old_story_cluster_id?: string | null
+          taken_at?: string | null
+        }
+        Update: {
+          article_id?: string
+          old_source_count?: number | null
+          old_story_cluster_id?: string | null
+          taken_at?: string | null
+        }
+        Relationships: []
+      }
       story_clusters: {
         Row: {
+          evidence_pack: Json | null
           first_seen_at: string | null
           headline: string | null
           id: string
@@ -3930,6 +5464,7 @@ export type Database = {
           status: string | null
         }
         Insert: {
+          evidence_pack?: Json | null
           first_seen_at?: string | null
           headline?: string | null
           id?: string
@@ -3940,6 +5475,7 @@ export type Database = {
           status?: string | null
         }
         Update: {
+          evidence_pack?: Json | null
           first_seen_at?: string | null
           headline?: string | null
           id?: string
@@ -3968,6 +5504,86 @@ export type Database = {
           id?: string
         }
         Relationships: []
+      }
+      supporter_crm: {
+        Row: {
+          activated_at: string | null
+          churn_reason: string | null
+          churn_risk: string
+          clerk_user_id: string
+          created_at: string
+          has_push: boolean
+          id: string
+          last_seen_at: string | null
+          metadata: Json
+          paying_at: string | null
+          plan: string
+          profile_id: string | null
+          session_count_approx: number
+          signup_at: string | null
+          stage: string
+          synced_at: string
+          team_id: string | null
+          team_selected_at: string | null
+          trial_at: string | null
+          updated_at: string
+          utm_first: string | null
+        }
+        Insert: {
+          activated_at?: string | null
+          churn_reason?: string | null
+          churn_risk?: string
+          clerk_user_id: string
+          created_at?: string
+          has_push?: boolean
+          id?: string
+          last_seen_at?: string | null
+          metadata?: Json
+          paying_at?: string | null
+          plan?: string
+          profile_id?: string | null
+          session_count_approx?: number
+          signup_at?: string | null
+          stage?: string
+          synced_at?: string
+          team_id?: string | null
+          team_selected_at?: string | null
+          trial_at?: string | null
+          updated_at?: string
+          utm_first?: string | null
+        }
+        Update: {
+          activated_at?: string | null
+          churn_reason?: string | null
+          churn_risk?: string
+          clerk_user_id?: string
+          created_at?: string
+          has_push?: boolean
+          id?: string
+          last_seen_at?: string | null
+          metadata?: Json
+          paying_at?: string | null
+          plan?: string
+          profile_id?: string | null
+          session_count_approx?: number
+          signup_at?: string | null
+          stage?: string
+          synced_at?: string
+          team_id?: string | null
+          team_selected_at?: string | null
+          trial_at?: string | null
+          updated_at?: string
+          utm_first?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supporter_crm_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       system_config: {
         Row: {
@@ -4049,6 +5665,167 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      team_briefing_sources: {
+        Row: {
+          briefing_id: string
+          created_at: string
+          freshness_at: string | null
+          id: string
+          metadata: Json
+          rank: number
+          reason: string
+          role: string
+          score: number
+          source_id: string
+          source_type: string
+        }
+        Insert: {
+          briefing_id: string
+          created_at?: string
+          freshness_at?: string | null
+          id?: string
+          metadata?: Json
+          rank: number
+          reason: string
+          role: string
+          score: number
+          source_id: string
+          source_type: string
+        }
+        Update: {
+          briefing_id?: string
+          created_at?: string
+          freshness_at?: string | null
+          id?: string
+          metadata?: Json
+          rank?: number
+          reason?: string
+          role?: string
+          score?: number
+          source_id?: string
+          source_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_briefing_sources_briefing_id_fkey"
+            columns: ["briefing_id"]
+            isOneToOne: false
+            referencedRelation: "team_briefings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_briefings: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          brief_date: string
+          created_at: string
+          expires_at: string | null
+          fact_pack: Json
+          free_edition: Json
+          generated_at: string | null
+          generated_by: string
+          id: string
+          input_fingerprint: string
+          issue_key: string
+          moment: string
+          no_send_reason: string | null
+          pro_edition: Json
+          quality_report: Json
+          scheduled_for: string | null
+          schema_version: number
+          sent_at: string | null
+          source_article_ids: string[]
+          source_fixture_ids: number[]
+          source_insight_ids: string[]
+          source_pulse_ids: string[]
+          sport: string
+          status: string
+          team_entity_id: string
+          team_slug: string
+          template_version: string
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          brief_date: string
+          created_at?: string
+          expires_at?: string | null
+          fact_pack?: Json
+          free_edition?: Json
+          generated_at?: string | null
+          generated_by?: string
+          id?: string
+          input_fingerprint: string
+          issue_key: string
+          moment: string
+          no_send_reason?: string | null
+          pro_edition?: Json
+          quality_report?: Json
+          scheduled_for?: string | null
+          schema_version?: number
+          sent_at?: string | null
+          source_article_ids?: string[]
+          source_fixture_ids?: number[]
+          source_insight_ids?: string[]
+          source_pulse_ids?: string[]
+          sport?: string
+          status?: string
+          team_entity_id: string
+          team_slug: string
+          template_version: string
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          brief_date?: string
+          created_at?: string
+          expires_at?: string | null
+          fact_pack?: Json
+          free_edition?: Json
+          generated_at?: string | null
+          generated_by?: string
+          id?: string
+          input_fingerprint?: string
+          issue_key?: string
+          moment?: string
+          no_send_reason?: string | null
+          pro_edition?: Json
+          quality_report?: Json
+          scheduled_for?: string | null
+          schema_version?: number
+          sent_at?: string | null
+          source_article_ids?: string[]
+          source_fixture_ids?: number[]
+          source_insight_ids?: string[]
+          source_pulse_ids?: string[]
+          sport?: string
+          status?: string
+          team_entity_id?: string
+          team_slug?: string
+          template_version?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_briefings_team_entity_id_fkey"
+            columns: ["team_entity_id"]
+            isOneToOne: false
+            referencedRelation: "entities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_briefings_team_entity_id_fkey"
+            columns: ["team_entity_id"]
+            isOneToOne: false
+            referencedRelation: "team_coverage_dashboard"
+            referencedColumns: ["team_entity_id"]
+          },
+        ]
       }
       team_daily_pulses: {
         Row: {
@@ -4142,6 +5919,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "entities"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_daily_pulses_team_entity_id_fkey"
+            columns: ["team_entity_id"]
+            isOneToOne: false
+            referencedRelation: "team_coverage_dashboard"
+            referencedColumns: ["team_entity_id"]
           },
         ]
       }
@@ -4396,6 +6180,7 @@ export type Database = {
           id: string
           importance_tier_min: string | null
           injury_severity_filter: string[] | null
+          personalization_enabled: boolean
           sport: string
           transfer_confidence_min: number | null
           updated_at: string | null
@@ -4410,6 +6195,7 @@ export type Database = {
           id?: string
           importance_tier_min?: string | null
           injury_severity_filter?: string[] | null
+          personalization_enabled?: boolean
           sport?: string
           transfer_confidence_min?: number | null
           updated_at?: string | null
@@ -4424,6 +6210,7 @@ export type Database = {
           id?: string
           importance_tier_min?: string | null
           injury_severity_filter?: string[] | null
+          personalization_enabled?: boolean
           sport?: string
           transfer_confidence_min?: number | null
           updated_at?: string | null
@@ -4478,6 +6265,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "entities"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_follows_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "team_coverage_dashboard"
+            referencedColumns: ["team_entity_id"]
           },
         ]
       }
@@ -4591,6 +6385,50 @@ export type Database = {
         }
         Relationships: []
       }
+      utm_events: {
+        Row: {
+          campaign: string
+          clerk_user_id: string | null
+          created_at: string | null
+          event: string
+          id: string
+          path: string | null
+          properties: Json
+          session_id: string | null
+          source_teaser_id: string | null
+        }
+        Insert: {
+          campaign: string
+          clerk_user_id?: string | null
+          created_at?: string | null
+          event?: string
+          id?: string
+          path?: string | null
+          properties?: Json
+          session_id?: string | null
+          source_teaser_id?: string | null
+        }
+        Update: {
+          campaign?: string
+          clerk_user_id?: string | null
+          created_at?: string | null
+          event?: string
+          id?: string
+          path?: string | null
+          properties?: Json
+          session_id?: string | null
+          source_teaser_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "utm_events_source_teaser_id_fkey"
+            columns: ["source_teaser_id"]
+            isOneToOne: false
+            referencedRelation: "social_teasers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       venues: {
         Row: {
           capacity: number | null
@@ -4617,30 +6455,177 @@ export type Database = {
       }
       waitlist: {
         Row: {
+          clerk_user_id: string | null
+          clerk_waitlist_id: string | null
+          cohort: string | null
+          confirm_expires_at: string | null
+          confirm_sent_at: string | null
+          confirm_token_hash: string | null
+          confirmed_at: string | null
+          consent_at: string | null
           created_at: string | null
           email: string
           favorite_team: string | null
           id: string
-          name: string
+          invited_at: string | null
+          name: string | null
+          policy_version: string | null
+          referral_credits_granted: number
+          referred_by: string | null
+          status: string
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
         }
         Insert: {
+          clerk_user_id?: string | null
+          clerk_waitlist_id?: string | null
+          cohort?: string | null
+          confirm_expires_at?: string | null
+          confirm_sent_at?: string | null
+          confirm_token_hash?: string | null
+          confirmed_at?: string | null
+          consent_at?: string | null
           created_at?: string | null
           email: string
           favorite_team?: string | null
           id?: string
-          name: string
+          invited_at?: string | null
+          name?: string | null
+          policy_version?: string | null
+          referral_credits_granted?: number
+          referred_by?: string | null
+          status?: string
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
         }
         Update: {
+          clerk_user_id?: string | null
+          clerk_waitlist_id?: string | null
+          cohort?: string | null
+          confirm_expires_at?: string | null
+          confirm_sent_at?: string | null
+          confirm_token_hash?: string | null
+          confirmed_at?: string | null
+          consent_at?: string | null
           created_at?: string | null
           email?: string
           favorite_team?: string | null
           id?: string
-          name?: string
+          invited_at?: string | null
+          name?: string | null
+          policy_version?: string | null
+          referral_credits_granted?: number
+          referred_by?: string | null
+          status?: string
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "waitlist_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "waitlist"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      weekly_audit_reports: {
+        Row: {
+          autonomy_snapshot: Json | null
+          epics: Json
+          executive_summary: string[]
+          generated_at: string
+          id: string
+          inputs_snapshot: Json | null
+          model: string | null
+          raw_markdown: string | null
+          source: string
+          sport: string
+          week_start: string
+        }
+        Insert: {
+          autonomy_snapshot?: Json | null
+          epics?: Json
+          executive_summary?: string[]
+          generated_at?: string
+          id?: string
+          inputs_snapshot?: Json | null
+          model?: string | null
+          raw_markdown?: string | null
+          source?: string
+          sport?: string
+          week_start: string
+        }
+        Update: {
+          autonomy_snapshot?: Json | null
+          epics?: Json
+          executive_summary?: string[]
+          generated_at?: string
+          id?: string
+          inputs_snapshot?: Json | null
+          model?: string | null
+          raw_markdown?: string | null
+          source?: string
+          sport?: string
+          week_start?: string
         }
         Relationships: []
       }
     }
     Views: {
+      agent_supervision: {
+        Row: {
+          agent_name: string | null
+          error_pct_6h: number | null
+          error_pct_7d: number | null
+          errors_6h: number | null
+          expected_gap_minutes: number | null
+          last_seen: string | null
+          logs_6h: number | null
+          logs_7d: number | null
+          minutes_since_last: number | null
+          provider_refusals_1h: number | null
+          verdict: string | null
+        }
+        Relationships: []
+      }
+      highlights: {
+        Row: {
+          created_at: string | null
+          entity_ids: string[] | null
+          id: string | null
+          published_at: string | null
+          source_url: string | null
+          sport: string | null
+          thumbnail_url: string | null
+          title: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          entity_ids?: string[] | null
+          id?: string | null
+          published_at?: never
+          source_url?: string | null
+          sport?: string | null
+          thumbnail_url?: never
+          title?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          entity_ids?: string[] | null
+          id?: string | null
+          published_at?: never
+          source_url?: string | null
+          sport?: string | null
+          thumbnail_url?: never
+          title?: string | null
+        }
+        Relationships: []
+      }
       news_feed: {
         Row: {
           created_at: string | null
@@ -4707,6 +6692,31 @@ export type Database = {
           title?: string | null
           updated_at?: string | null
           url?: string | null
+        }
+        Relationships: []
+      }
+      news_feed_clustered: {
+        Row: {
+          created_at: string | null
+          duplicate_sources: string[] | null
+          entity_ids: string[] | null
+          event_type: string | null
+          feed_reasons: string[] | null
+          feed_score: number | null
+          id: string | null
+          importance_score: number | null
+          news_tag: string | null
+          published_at: string | null
+          push_priority: string | null
+          sentiment: string | null
+          source_count: number | null
+          source_name: string | null
+          sport: string | null
+          story_cluster_id: string | null
+          summary: string | null
+          title: string | null
+          updated_at: string | null
+          url: string | null
         }
         Relationships: []
       }
@@ -4781,6 +6791,13 @@ export type Database = {
             referencedRelation: "entities"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "entity_insights_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "team_coverage_dashboard"
+            referencedColumns: ["team_entity_id"]
+          },
         ]
       }
       published_team_daily_pulses: {
@@ -4816,6 +6833,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "entities"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_daily_pulses_team_entity_id_fkey"
+            columns: ["team_entity_id"]
+            isOneToOne: false
+            referencedRelation: "team_coverage_dashboard"
+            referencedColumns: ["team_entity_id"]
           },
         ]
       }
@@ -4858,6 +6882,24 @@ export type Database = {
           last_activity: string | null
           rows: number | null
           subsystem: string | null
+        }
+        Relationships: []
+      }
+      team_coverage_dashboard: {
+        Row: {
+          article_stale_hours: number | null
+          articles_36h: number | null
+          articles_7d: number | null
+          is_stale_36h: boolean | null
+          last_article_at: string | null
+          last_pulse_date: string | null
+          last_signal_at: string | null
+          name: string | null
+          signal_stale_hours: number | null
+          signals_36h: number | null
+          slug: string | null
+          sportmonks_id: number | null
+          team_entity_id: string | null
         }
         Relationships: []
       }
@@ -4932,11 +6974,25 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "push_candidates_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "news_feed_clustered"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "push_candidates_team_entity_id_fkey"
             columns: ["team_entity_id"]
             isOneToOne: false
             referencedRelation: "entities"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "push_candidates_team_entity_id_fkey"
+            columns: ["team_entity_id"]
+            isOneToOne: false
+            referencedRelation: "team_coverage_dashboard"
+            referencedColumns: ["team_entity_id"]
           },
         ]
       }
@@ -4946,11 +7002,16 @@ export type Database = {
         Args: { article_id: string; source: string }
         Returns: undefined
       }
+      athopia_slugify: { Args: { txt: string }; Returns: string }
       bump_chat_usage: {
         Args: { p_tokens_in: number; p_tokens_out: number; p_user_id: string }
         Returns: number
       }
       bump_data_version: { Args: { p_sport: string }; Returns: undefined }
+      claim_waitlist_cohort: { Args: { p_id: string }; Returns: string }
+      reserve_founder_seat: { Args: { p_claim_pot: boolean }; Returns: boolean }
+      release_founder_seat: { Args: { p_release_pot: boolean }; Returns: undefined }
+      cleanup_agent_telemetry: { Args: never; Returns: undefined }
       cleanup_expired_agent_memory: { Args: never; Returns: number }
       cleanup_old_data: { Args: never; Returns: undefined }
       delete_user_account: {
@@ -5003,6 +7064,31 @@ export type Database = {
         Returns: undefined
       }
       increment_reply_count: { Args: { row_id: string }; Returns: undefined }
+      llm_model_ranking: {
+        Args: { p_days?: number }
+        Returns: {
+          approval_rate: number
+          approved: number
+          avg_cost_per_draft_usd: number
+          drafts: number
+          model: string
+          pending: number
+          rejected: number
+          value_score: number
+        }[]
+      }
+      llm_spend_daily: {
+        Args: { p_days?: number }
+        Returns: {
+          cache_read_tokens: number
+          calls: number
+          cost_usd: number
+          day: string
+          model: string
+          tokens_in: number
+          tokens_out: number
+        }[]
+      }
       match_articles: {
         Args: {
           match_count?: number
@@ -5039,8 +7125,6 @@ export type Database = {
           similarity: number
         }[]
       }
-      show_limit: { Args: never; Returns: number }
-      show_trgm: { Args: { "": string }; Returns: string[] }
       toggle_like: {
         Args: { p_post_id: string; p_user_id: string }
         Returns: boolean

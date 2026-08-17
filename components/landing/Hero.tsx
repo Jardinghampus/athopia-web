@@ -7,6 +7,8 @@ import { ArrowRight, ChevronDown } from "lucide-react";
 import { motion, useScroll, useTransform, useReducedMotion } from "motion/react";
 import { Container, Label, Reveal } from "./primitives";
 import { getTeamAccent } from "@/lib/team-colors";
+import { primaryCtaHref, primaryCtaLabel } from "@/lib/waitlist/mode";
+import { useFavoriteTeam } from "@/hooks/useFavoriteTeam";
 
 /* Telefon-mockup är dekorativ (aria-hidden) och INTE LCP-elementet (det är h1
    ovan, statisk sen runda 2) — laddas som egen chunk efter hydrering av
@@ -86,10 +88,13 @@ export function Hero({
   pulse,
   clubs = [],
   copy,
+  waitlistMode = false,
 }: {
   pulse?: HeroPulse;
   clubs?: ClubChip[];
   copy?: LandingHeroCopy;
+  /** WAITLIST_MODE läses på servern (app/page.tsx) — env finns inte i bundlen. */
+  waitlistMode?: boolean;
 }) {
   const ref = useRef<HTMLElement>(null);
   const reduced = useReducedMotion();
@@ -103,7 +108,10 @@ export function Hero({
   const body =
     copy?.body ??
     "Nyheter, rykten, siffror och snack om din klubb — vi läser hundratals svenska källor varje dygn, sorterar bort bruset och sammanfattar det som betyder något. 60 sekunder om dagen, så vet du allt.";
-  const ctaLabel = copy?.ctaLabel ?? "Välj din klubb — gratis";
+  // Redaktionell copy vinner när den finns; annars styr läget etiketten.
+  const ctaLabel = copy?.ctaLabel ?? primaryCtaLabel(waitlistMode);
+  const ctaHref = primaryCtaHref(waitlistMode);
+  const { setFavoriteTeam } = useFavoriteTeam();
 
   return (
     <section ref={ref} className="relative overflow-hidden pb-16 pt-28 md:pb-24 md:pt-40">
@@ -140,7 +148,7 @@ export function Hero({
             <Reveal delay={0.24}>
               <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
                 <Link
-                  href="/onboarding"
+                  href={ctaHref}
                   className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl bg-pitch px-8 text-[17px] font-bold text-white transition-transform duration-200 hover:scale-[1.02] active:scale-[0.97]"
                 >
                   {ctaLabel} <ArrowRight className="h-5 w-5" />
@@ -161,6 +169,9 @@ export function Hero({
                     <Link
                       key={c.slug}
                       href={`/lag/${c.slug}`}
+                      onClick={() => {
+                        void setFavoriteTeam(c.slug);
+                      }}
                       className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-white/12 bg-white/[0.03] px-4 text-[13px] font-semibold text-white/75 transition-all duration-200 hover:-translate-y-0.5 hover:border-white/30 hover:text-white motion-reduce:hover:translate-y-0"
                     >
                       <span

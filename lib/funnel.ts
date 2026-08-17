@@ -17,6 +17,16 @@ export const FUNNEL_EVENTS = [
   "checkout_start",
   "checkout_success",
   "push_opt_in",
+  "newsletter_landing_view",
+  "newsletter_signup_started",
+  "newsletter_signup_pending",
+  "newsletter_confirmed",
+  "newsletter_click_to_product",
+  "newsletter_to_account",
+  "newsletter_preference_changed",
+  "newsletter_to_pro",
+  "waitlist_submit",
+  "waitlist_confirmed",
 ] as const;
 
 export type FunnelEvent = (typeof FUNNEL_EVENTS)[number];

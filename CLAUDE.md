@@ -45,8 +45,8 @@ lib/supabase.ts           — createServerClient (service role, server-only) +
                             createBrowserClient (anon key); typer i types/supabase
 lib/access-rules.ts       — Plan + ACCESS-map (single source för feature-gating)
 lib/user-plan.ts          — getUserPlan() — ALLTID server-side
-lib/nav.ts                — EN nav-config för de 5 flikarna (Mitt lag/Flöde/Allsvenskan/
-                            Matcher/AI); se WEB-IA-STRUKTUR.md
+lib/nav.ts                — EN nav-config för de 4 flikarna (Mitt lag/Flöde/Matcher/
+                            Tabellen); `/ai` ligger under Mer. Se WEB-IA-STRUKTUR.md
 components/               — feature-mappar (feed, match, team-hub, news, landing, ui …)
                             PaywallGate.tsx + UpgradePrompt.tsx för gating-UI
 ```
@@ -81,7 +81,11 @@ Ny kod läggs i befintlig feature-mapp. Skapa inte parallella mönster —
 - `generateMetadata()` på alla sidor; alla bilder via `next/image`.
 - Ingen auth-läsning i render-vägen som tvingar routes dynamic i onödan
   (LCP-regressioner har fixats för detta — se commits 46dc3a8, 97e8cb6).
-- Priser: Free 0 / PRO 89 kr/mån / Elite 169 kr/mån, 25% rabatt årsvis.
+- Priser: Free 0 / PRO 89 kr/mån / Elite 169 kr/mån, **20 % rabatt årsvis** (659/849/1619).
+  Veckopris (`formatWeeklyKr`) är alltid andra rad och muted — hero är det Stripe drar.
+- **Founder är en pott, aldrig en boolean.** `isFounderOfferPublic()` i `lib/founder-offer.ts`
+  läser `founder_offer_state` (cache 30 s). Klientkomponenter tar `founderPublic` som prop från
+  en server parent — de får aldrig gissa. Är potten slut försvinner Founder ur ALL publik UI.
 
 ### Regler ur korrigeringshistorik (detaljer i workspace-rotens LESSONS.md)
 

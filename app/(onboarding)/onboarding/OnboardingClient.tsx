@@ -92,17 +92,21 @@ function FormDots({ form }: { form: ("W" | "D" | "L")[] }) {
   );
 }
 
-export function OnboardingClient() {
+/**
+ * `presetTeam` kommer från waitlist-speglingen i `user.created`. Finns det ett
+ * lag startar wizarden på steg 2 — lagsteget är redan besvarat.
+ */
+export function OnboardingClient({ presetTeam = null }: { presetTeam?: string | null } = {}) {
   const router = useRouter();
   const { setFavoriteTeam, markOnboardingDone } = useFavoriteTeam();
   // Service workern måste vara registrerad innan pushManager.subscribe kan köra.
   useServiceWorker();
   const { status: pushStatus, isSubscribed, requestPermission } = usePushPermission();
 
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(presetTeam ? 1 : 0);
   const [dir, setDir] = useState(1);
   const [teams, setTeams] = useState<Team[]>([]);
-  const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
+  const [selectedTeam, setSelectedTeam] = useState<string | null>(presetTeam);
   const [loadFailed, setLoadFailed] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [saving, setSaving] = useState(false);

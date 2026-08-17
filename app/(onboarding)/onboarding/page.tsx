@@ -26,11 +26,24 @@ async function recordUtmSignupIfNeeded(clerkUserId: string): Promise<void> {
 }
 
 export default async function OnboardingPage() {
+  let presetTeam: string | null = null;
+
   const user = await currentUser();
   if (user) {
     await recordUtmSignupIfNeeded(user.id);
     const meta = user.unsafeMetadata as Record<string, unknown> | undefined;
-    if (meta?.["favoriteTeam"] || meta?.["onboardingDone"] === true) redirect("/feed");
+
+    // Klar onboarding = ingen onboarding.
+    if (meta?.["onboardingDone"] === true) redirect("/feed");
+
+    // Kom hen via waitlisten är laget redan valt (speglat i user.created-
+    // webhooken). Då hoppar vi lagsteget — men INTE hela onboardingen: hen har
+    // aldrig sett push-frågan, och att tysta bort den vore mer överraskande än
+    // att visa den. Tidigare redirectade den här raden på `favoriteTeam` och
+    // gjorde just det.
+    const team = meta?.["favoriteTeam"];
+    if (typeof team === "string" && team.length > 0) presetTeam = team;
   }
-  return <OnboardingClient />;
+
+  return <OnboardingClient presetTeam={presetTeam} />;
 }

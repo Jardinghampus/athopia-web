@@ -5,25 +5,39 @@ import { Check, ArrowRight } from "lucide-react";
 import { Container, Label, Display, Reveal, Section } from "./primitives";
 import {
   FOUNDER_OFFER,
+  PRICING,
   TRIAL_DAYS,
+  formatWeeklyKr,
   listMonthlyKr,
   proOfferMonthlyKr,
 } from "@/lib/pricing";
 
-export function Pricing() {
-  const founder = FOUNDER_OFFER.active;
-  const proPrice = proOfferMonthlyKr();
+interface PricingProps {
+  /** Får Founder visas? Kommer från potten via server parent — aldrig gissat här. */
+  founderPublic: boolean;
+  /** Waitlist-läge → CTA pekar på /vaenta i stället för /onboarding. */
+  waitlistMode?: boolean;
+}
+
+export function Pricing({ founderPublic, waitlistMode = false }: PricingProps) {
+  const founder = founderPublic;
+  const proPrice = proOfferMonthlyKr(founder);
   const proList = listMonthlyKr("pro");
   const elitePrice = listMonthlyKr("elite");
+  const paidHref = waitlistMode ? "/vaenta" : "/prenumerera";
+  const freeHref = waitlistMode ? "/vaenta" : "/onboarding";
+  const proWeekly = formatWeeklyKr(founder ? FOUNDER_OFFER.pricing.monthly : PRICING.pro.monthly);
+  const eliteWeekly = formatWeeklyKr(PRICING.elite.monthly);
 
   const plans = [
     {
       name: "Gratis",
       price: "0",
       priceNote: null as string | null,
+      weekly: null as string | null,
       tagline: "Bygg vanan — utan kort.",
-      cta: "Välj ditt lag",
-      href: "/onboarding",
+      cta: waitlistMode ? "Håll platsen" : "Välj ditt lag",
+      href: freeHref,
       highlighted: false,
       badge: null as string | null,
       features: [
@@ -37,11 +51,12 @@ export function Pricing() {
       name: "PRO",
       price: String(proPrice),
       priceNote: founder ? `ordinarie ${proList} kr` : null,
+      weekly: proWeekly,
       tagline: founder
         ? `Founder-pris för alltid · ${TRIAL_DAYS} dagar gratis`
         : `${TRIAL_DAYS} dagar gratis · avbryt när som helst`,
-      cta: founder ? "Bli founder" : "Prova PRO gratis",
-      href: "/prenumerera",
+      cta: waitlistMode ? "Håll platsen" : founder ? "Bli founder" : "Prova PRO gratis",
+      href: paidHref,
       highlighted: true,
       badge: founder ? `Founder — först till ${FOUNDER_OFFER.cap}` : "Populärast",
       features: [
@@ -56,9 +71,10 @@ export function Pricing() {
       name: "Elite",
       price: String(elitePrice),
       priceNote: null,
+      weekly: eliteWeekly,
       tagline: "För dig som vill se signalen först.",
-      cta: "Skaffa Elite",
-      href: "/prenumerera",
+      cta: waitlistMode ? "Håll platsen" : "Skaffa Elite",
+      href: paidHref,
       highlighted: false,
       badge: null,
       features: [
@@ -90,13 +106,14 @@ export function Pricing() {
               forum-läget och transfer-radar — så du är först utan att scrolla.{" "}
               {TRIAL_DAYS} dagar gratis, sedan{" "}
               {founder ? `${proPrice} kr/mån för alltid (ordinarie ${proList})` : `${proList} kr/mån`}.
-              Avbryt när du vill.
+              Avbryt när du vill.{" "}
+              <span className="text-white/40">Årsvis: 20 % rabatt.</span>
             </p>
           </Reveal>
         </div>
 
         <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-3 md:gap-5">
-          {plans.map(({ name, price, priceNote, tagline, cta, href, highlighted, badge, features }, i) => (
+          {plans.map(({ name, price, priceNote, weekly, tagline, cta, href, highlighted, badge, features }, i) => (
             <Reveal key={name} delay={0.06 + i * 0.08}>
               <div
                 className={`relative flex h-full flex-col rounded-3xl border p-6 md:p-8 ${
@@ -119,6 +136,8 @@ export function Pricing() {
                     <span className="ml-1 text-sm text-white/55 line-through">{priceNote}</span>
                   )}
                 </div>
+                {/* Andra rad, muted. Aldrig hero — Stripe drar månadspriset. */}
+                {weekly && <p className="mt-1 text-sm text-white/40">{weekly}</p>}
                 <p className="mt-2 text-sm text-white/50">{tagline}</p>
 
                 <ul className="mt-6 flex flex-1 flex-col gap-3 border-t border-white/[0.06] pt-6">

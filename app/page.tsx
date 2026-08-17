@@ -6,6 +6,7 @@ import { getLandingCopy } from "@/lib/landing-copy";
 import { ProductEventTracker } from "@/components/analytics/ProductEventTracker";
 import { absoluteUrl, getSiteUrl } from "@/lib/site-url";
 import { jsonLd } from "@/lib/json-ld";
+import { isWaitlistMode } from "@/lib/waitlist/mode";
 
 // ISR: servera cachad HTML direkt (snabb laddning), regenerera i bakgrunden.
 // Tidigare 'force-dynamic' gjorde att varje besök blockerade på en Supabase-query
@@ -107,12 +108,15 @@ export default async function LandingPage() {
   // Inloggad-redirect hanteras i proxy.ts (edge, ingen currentUser()-call här)
   // så denna route förblir statisk/ISR-cachebar (revalidate=120) för alla
   // utloggade besökare — se LCP-utredning i proxy.ts.
+  // Potten läses inte här: ISR 120 s skulle visa Founder efter att platserna
+  // tagit slut. AthopiaLanding hämtar /api/pricing/state (30 s, fail-closed).
   const [articles, pulse, clubs, heroCopy] = await Promise.all([
     getLatestArticles(),
     getHeroPulse(),
     getClubChips(),
     getLandingCopy(),
   ]);
+  const waitlistMode = isWaitlistMode();
   return (
     <>
       <LandingJsonLd />
@@ -122,6 +126,7 @@ export default async function LandingPage() {
         pulse={pulse}
         clubs={clubs}
         heroCopy={heroCopy}
+        waitlistMode={waitlistMode}
         sportSlot={<SportFront articles={articles} />}
       />
     </>

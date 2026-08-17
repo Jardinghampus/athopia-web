@@ -123,5 +123,5 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   );
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return clerkEnabled ? <ClerkProvider localization={svSE as any}>{content}</ClerkProvider> : content;
+  return clerkEnabled ? <ClerkProvider localization={svSE as any} waitlistUrl="/vaenta">{content}</ClerkProvider> : content;
 }

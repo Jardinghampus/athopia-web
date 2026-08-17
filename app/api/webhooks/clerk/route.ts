@@ -5,6 +5,13 @@ import { clerkClient } from "@clerk/nextjs/server";
 import Stripe from "stripe";
 import { createServiceClient } from "@/lib/supabase";
 import { logFunnelEvent } from "@/lib/funnel";
+import { newsletterIdentityFromClerk } from "@/lib/newsletter/schema";
+import { linkNewsletterIdentity } from "@/lib/newsletter/service";
+import {
+  anonymizeWaitlistForUser,
+  linkWaitlistToUser,
+  syncClerkWaitlistEntry,
+} from "@/lib/waitlist/link-user";
 
 export async function POST(req: Request) {
   const webhookSecret = process.env.CLERK_WEBHOOK_SECRET;
@@ -47,6 +54,33 @@ export async function POST(req: Request) {
       { onConflict: "clerk_user_id" }
     );
     if (error) console.error("[clerk-webhook] mirrorProfile fel:", error.message);
+  }
+
+  async function linkNewsletter(data: WebhookEvent["data"]): Promise<void> {
+    const d = data as {
+      id: string;
+      primary_email_address_id?: string | null;
+      email_addresses?: { id?: string; email_address?: string }[];
+      public_metadata?: Record<string, unknown>;
+    };
+    const identity = newsletterIdentityFromClerk({
+      id: d.id,
+      primaryEmailAddressId: d.primary_email_address_id,
+      emailAddresses: d.email_addresses?.map((address) => ({
+        id: address.id,
+        emailAddress: address.email_address,
+      })),
+      publicMetadata: d.public_metadata,
+    });
+    if (!identity) return;
+    try {
+      await linkNewsletterIdentity(identity);
+    } catch (error) {
+      console.error(
+        "[clerk-webhook] newsletter link failed",
+        error instanceof Error ? error.message : "unknown",
+      );
+    }
   }
 
   if (event.type === "user.created") {
@@ -103,6 +137,16 @@ export async function POST(req: Request) {
       { onConflict: "clerk_user_id,date" }
     );
     await mirrorProfile(event.data);
+    await linkNewsletter(event.data);
+
+    // Waitlist → konto: lag, kohort och status speglas hit. Måste ligga EFTER
+    // user_feed_config och profiles, annars uppdaterar den rader som inte finns.
+    try {
+      const clerk = await clerkClient();
+      await linkWaitlistToUser(clerk, clerkUserId, email);
+    } catch (err) {
+      console.error("[clerk-webhook] waitlist-koppling misslyckades:", err);
+    }
 
     await logFunnelEvent("signup_complete", clerkUserId);
 
@@ -111,12 +155,16 @@ export async function POST(req: Request) {
 
   if (event.type === "user.updated") {
     await mirrorProfile(event.data);
+    await linkNewsletter(event.data);
   }
 
   // GDPR: rätt att bli glömd. Radera/anonymisera all PII när kontot tas bort.
   if (event.type === "user.deleted") {
     const clerkUserId = (event.data as { id?: string }).id;
     if (!clerkUserId) return NextResponse.json({ received: true });
+
+    // `delete_user_account` känner inte till waitlist — den tabellen kom efter.
+    await anonymizeWaitlistForUser(clerkUserId);
 
     const supabase = createServiceClient();
     const { error: deletionError } = await supabase.rpc("delete_user_account", {
@@ -151,6 +199,13 @@ export async function POST(req: Request) {
     }
 
     console.log(`[clerk-webhook] GDPR-radering klar för ${clerkUserId}`);
+  }
+
+  // Clerks waitlist-events. Jämförs som sträng: SDK-unionen `WebhookEvent`
+  // känner inte till dem, och att casta bort hela unionen för två events vore
+  // att tappa typskyddet för de sex vi faktiskt typar.
+  if ((event.type as string) === "waitlistEntry.created" || (event.type as string) === "waitlistEntry.updated") {
+    await syncClerkWaitlistEntry(event.data as { id?: string; email_address?: string; status?: string });
   }
 
   return NextResponse.json({ received: true });

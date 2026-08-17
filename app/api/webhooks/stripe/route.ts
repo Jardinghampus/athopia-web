@@ -20,6 +20,15 @@ import { clerkClient } from "@clerk/nextjs/server";
 import { logFunnelEvent } from "@/lib/funnel";
 import { updatePlanSource } from "@/lib/entitlements";
 import { recordUtmMilestone } from "@/lib/utm-attribution";
+import { markNewsletterPlanDirty } from "@/lib/newsletter/service";
+import { createServiceClient } from "@/lib/supabase";
+import { releaseFounderSeat } from "@/lib/waitlist/cohort";
+import { grantReferralCreditsOnFirstPayment } from "@/lib/waitlist/referral";
+import {
+  clerkUserIdFromSubscription,
+  subscriptionFromInvoice,
+  subscriptionIdFrom,
+} from "@/lib/waitlist/invoice-clerk";
 
 // Lazy — initieras i POST() för att undvika build-time env-fel;
 
@@ -49,6 +58,16 @@ export async function POST(req: Request) {
   }
 
   const clerk = await clerkClient();
+  async function markNewsletterPlan(clerkUserId: string, plan: string) {
+    try {
+      await markNewsletterPlanDirty(clerkUserId, plan);
+    } catch (error) {
+      console.error(
+        "[stripe-webhook] newsletter dirty mark failed",
+        error instanceof Error ? error.message : "unknown",
+      );
+    }
+  }
 
   // ─── Hantera events ────────────────────────────────────────────────────────
   switch (event.type) {
@@ -68,13 +87,30 @@ export async function POST(req: Request) {
       }
       const plan = session.metadata?.plan === "elite" ? "elite" : "pro";
 
-      await updatePlanSource(clerkUserId, "stripe", plan);
+      const effectivePlan = await updatePlanSource(clerkUserId, "stripe", plan);
       await clerk.users.updateUserMetadata(clerkUserId, {
         privateMetadata: {
           stripeCustomerId: session.customer as string,
           stripeSubscriptionId: session.subscription as string,
         },
       });
+      await markNewsletterPlan(clerkUserId, effectivePlan);
+
+      // Founder-märket sätts först här: det ska bevisa ett genomfört köp till
+      // Founder-pris, inte en plats i en kö. Platsen är redan reserverad i
+      // create-checkout, så ingen räknare rörs — bara märket.
+      if (session.metadata?.founder === "true") {
+        await clerk.users.updateUserMetadata(clerkUserId, {
+          publicMetadata: { founder: true },
+        });
+        // Waitlist-raden speglar samma sak, så admin ser vem som faktiskt köpte.
+        try {
+          const db = createServiceClient();
+          await db.from("waitlist").update({ status: "completed" }).eq("clerk_user_id", clerkUserId);
+        } catch {
+          // Märket i Clerk är sanningen; spegling är bekvämlighet.
+        }
+      }
 
       await logFunnelEvent("checkout_success", clerkUserId, { plan });
       // trial_start skrivs från subscription.* när status === "trialing"
@@ -100,7 +136,7 @@ export async function POST(req: Request) {
         subscription.status === "unpaid" ||
         subscription.status === "canceled"
       ) {
-        await updatePlanSource(clerkUserId, "stripe", "free");
+        const effectivePlan = await updatePlanSource(clerkUserId, "stripe", "free");
         await clerk.users.updateUserMetadata(clerkUserId, {
           privateMetadata: {
             stripeCustomerId: subscription.customer as string,
@@ -113,9 +149,10 @@ export async function POST(req: Request) {
             },
           },
         });
+        await markNewsletterPlan(clerkUserId, effectivePlan);
       } else if (subscription.status === "active" || subscription.status === "trialing") {
         const plan = subscription.metadata?.plan === "elite" ? "elite" : "pro";
-        await updatePlanSource(clerkUserId, "stripe", plan);
+        const effectivePlan = await updatePlanSource(clerkUserId, "stripe", plan);
         await clerk.users.updateUserMetadata(clerkUserId, {
           privateMetadata: {
             stripeCustomerId: subscription.customer as string,
@@ -129,6 +166,7 @@ export async function POST(req: Request) {
             },
           },
         });
+        await markNewsletterPlan(clerkUserId, effectivePlan);
         if (subscription.status === "trialing") {
           await recordUtmMilestone({
             event: "trial_start",
@@ -156,15 +194,57 @@ export async function POST(req: Request) {
         break;
       }
 
-      await updatePlanSource(clerkUserId, "stripe", "free");
+      const effectivePlan = await updatePlanSource(clerkUserId, "stripe", "free");
       await clerk.users.updateUserMetadata(clerkUserId, {
         privateMetadata: {
           stripeSubscriptionId: null,
           subscription: null,
         },
       });
+      await markNewsletterPlan(clerkUserId, effectivePlan);
 
       console.log(`[stripe-webhook] Prenumeration avbruten för ${clerkUserId}`);
+      break;
+    }
+
+    /**
+     * En Founder-plats reserveras när checkouten SKAPAS, så taket aldrig kan
+     * passeras av samtidiga köp. Priset är att en övergiven checkout håller en
+     * plats — här får den tillbaka.
+     */
+    case "checkout.session.expired": {
+      const session = event.data.object as Stripe.Checkout.Session;
+      if (session.metadata?.founder === "true") {
+        await releaseFounderSeat(session.metadata?.founderClaimedPot === "true");
+        console.log(`[stripe-webhook] Founder-plats släppt (utgången checkout ${session.id})`);
+      }
+      break;
+    }
+
+    /**
+     * Värvningskredit. Trial-fakturan är 0 kr och faller på `amountPaidOre`-
+     * kontrollen inne i granten — den är avsiktligt inte ett filter här, så
+     * regeln bor på ett ställe.
+     */
+    case "invoice.payment_succeeded": {
+      const invoice = event.data.object as Stripe.Invoice;
+      const subRef = subscriptionFromInvoice(invoice);
+      let userId = clerkUserIdFromSubscription(subRef);
+      if (!userId) {
+        const subscriptionId = subscriptionIdFrom(subRef);
+        if (subscriptionId) {
+          const sub = await stripe.subscriptions.retrieve(subscriptionId);
+          userId = sub.metadata?.clerkUserId;
+        }
+      }
+      if (!userId) break;
+
+      await grantReferralCreditsOnFirstPayment({
+        stripe,
+        clerk,
+        clerkUserId: userId,
+        amountPaidOre: invoice.amount_paid ?? 0,
+      });
       break;
     }
 

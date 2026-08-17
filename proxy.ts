@@ -5,7 +5,11 @@
  *
  * Beslut:
  * - Athopia-web har INGEN admin. All admin ligger i athopia-admin (os.athopia.se).
- * - Skyddade routes (/dashboard, /konto, /feed, /onboarding): kräver inloggning.
+ * - Skyddade routes (/dashboard, /konto, /feed): kräver inloggning.
+ * - /onboarding är öppet — gäster ska kunna välja lag utan konto (LAUNCH-05).
+ * - WAITLIST_MODE: /sign-up stängs och pekas om till /vaenta. /sign-in är ORÖRD —
+ *   den som redan blivit inbjuden måste kunna logga in. Inloggade som hamnar på
+ *   /vaenta skickas till /mitt-lag, samma mönster som / redan använder.
  * - Allt annat är öppet (publik nyhetswebb).
  *
  * clerkMiddleware() körs via Vercel Fluid Compute (Node.js runtime).
@@ -14,13 +18,13 @@
 
 import { NextResponse } from "next/server";
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { isWaitlistMode } from "@/lib/waitlist/mode";
 
 // Inloggning krävs
 const isProtectedRoute = createRouteMatcher([
   "/dashboard(.*)",
   "/konto(.*)",
   "/feed(.*)",
-  "/onboarding(.*)",
 ]);
 
 // Polsia 2.0 S2 — growth loop: capture utm_campaign i en cookie (30 dagar).
@@ -28,7 +32,20 @@ const isProtectedRoute = createRouteMatcher([
 // onboarding-flödet. Regex-validering görs igen på serversidan innan insert.
 const UTM_CAMPAIGN_RE = /^[a-z0-9_-]{3,64}$/;
 
+const isSignUpRoute = createRouteMatcher(["/sign-up(.*)"]);
+
 export default clerkMiddleware(async (auth, req) => {
+  const waitlistMode = isWaitlistMode();
+
+  if (waitlistMode && isSignUpRoute(req)) {
+    return NextResponse.redirect(new URL("/vaenta", req.url));
+  }
+
+  if (req.nextUrl.pathname === "/vaenta") {
+    const { userId } = await auth();
+    if (userId) return NextResponse.redirect(new URL("/mitt-lag", req.url));
+  }
+
   if (isProtectedRoute(req)) {
     // Explicit mål i stället för Clerks fallback. Utan `unauthenticatedUrl`
     // härleder Clerk sign-in-adressen ur miljövariabler, och i produktion —

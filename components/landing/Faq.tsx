@@ -11,9 +11,8 @@ import {
   proOfferMonthlyKr,
 } from "@/lib/pricing";
 
-function buildFaqs() {
-  const founder = FOUNDER_OFFER.active;
-  const pro = proOfferMonthlyKr();
+function buildFaqs(founder: boolean) {
+  const pro = proOfferMonthlyKr(founder);
   const listPro = listMonthlyKr("pro");
   const elite = listMonthlyKr("elite");
 
@@ -28,12 +27,17 @@ function buildFaqs() {
       q: "Vad får jag gratis — och vad kräver PRO?",
       a: "Gratis: obegränsat nyhetsflöde, push, live/tabell och forum. PRO: AI-sammanfattningar (artiklar + matcher), forum-läget senaste timmarna, ryktesradar, daglig brief, poddintelligens och AI-chat — så du är uppdaterad utan att scrolla.",
     },
-    {
-      q: "Vad är founder-priset?",
-      a: founder
-        ? `De första ${FOUNDER_OFFER.cap} som tar PRO låser ${pro} kr/mån för alltid — även när ordinarie pris är ${listPro} kr. Priset sparas i din Stripe-prenumeration. När taket är nått gäller ${listPro} kr/mån för nya.`
-        : `Founder-fönstret är stängt. PRO kostar ${listPro} kr/mån (Elite ${elite} kr/mån), med ${TRIAL_DAYS} dagar gratis.`,
-    },
+    // Founder-frågan finns bara när potten gör det. En FAQ-post som säger
+    // "fönstret är stängt" håller erbjudandet vid liv i huvudet på läsaren —
+    // produktkontraktet säger att Founder ska FÖRSVINNA, inte strykas över.
+    ...(founder
+      ? [
+          {
+            q: "Vad är founder-priset?",
+            a: `De första ${FOUNDER_OFFER.cap} som bekräftar sin plats låser ${pro} kr/mån för alltid — även när ordinarie pris är ${listPro} kr. Priset sparas i din Stripe-prenumeration.`,
+          },
+        ]
+      : []),
     {
       q: "Behöver jag kreditkort för att börja?",
       a: `Nej för gratisnivån. När du uppgraderar till PRO/Elite startar ${TRIAL_DAYS} dagars gratisperiod via Stripe — därefter debitering. Avbryt innan trial tar slut om du inte vill fortsätta.`,
@@ -107,9 +111,9 @@ function FaqItem({
   );
 }
 
-export function Faq() {
+export function Faq({ founderPublic }: { founderPublic: boolean }) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
-  const faqs = buildFaqs();
+  const faqs = buildFaqs(founderPublic);
 
   return (
     <Section id="faq">

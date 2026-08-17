@@ -4,7 +4,7 @@ import { Sparkles, Zap, BellRing } from "lucide-react";
 import { motion } from "motion/react";
 import { ProductEventTracker } from "@/components/analytics/ProductEventTracker";
 import { TrackedLink } from "@/components/analytics/TrackedLink";
-import { FOUNDER_OFFER, TRIAL_DAYS, proPriceLabel, listMonthlyKr } from "@/lib/pricing";
+import { TRIAL_DAYS, proPriceLabel, listMonthlyKr } from "@/lib/pricing";
 
 const PERKS = [
   { icon: Sparkles, label: "AI-sammanfattningar — artiklar, matcher, forum" },
@@ -12,9 +12,11 @@ const PERKS = [
   { icon: BellRing, label: "Daglig brief + poddintelligens" },
 ];
 
-export function FeedPaywallBanner() {
-  const founder = FOUNDER_OFFER.active;
-  const price = proPriceLabel();
+export function FeedPaywallBanner({ founderPublic = false }: { founderPublic?: boolean }) {
+  // Fail-closed default, samma skäl som i UpgradePrompt: hellre ordinarie 89 kr
+  // än ett Founder-löfte potten inte kan infria.
+  const founder = founderPublic;
+  const price = proPriceLabel(founder);
 
   return (
     <motion.div

@@ -1,17 +1,21 @@
 /**
  * app/prenumerera/page.tsx — Prissida
  * ─────────────────────────────────────────────────────────────────────────────
- * Free / PRO 89 kr / Elite 169 kr — 25 % rabatt på årsplan.
+ * Free / PRO 89 kr / Elite 169 kr — 20 % rabatt på årsplan.
  * Plan-val + Stripe Checkout sker i PricingPlans (Client Component).
+ *
+ * Founder visas bara när potten har platser kvar. Den boolean kommer härifrån
+ * (server) och skickas ned — klienten gissar aldrig.
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
 import type { Metadata } from "next";
 import { Zap } from "lucide-react";
-import { FOUNDER_OFFER, TRIAL_DAYS } from "@/lib/pricing";
+import { FOUNDER_OFFER, PRICING, TRIAL_DAYS } from "@/lib/pricing";
 import { absoluteUrl } from "@/lib/site-url";
 import { PricingPlans } from "./PricingPlans";
 import { getUserPlan } from "@/lib/user-plan";
+import { isFounderOfferPublic } from "@/lib/founder-offer";
 import { jsonLd } from "@/lib/json-ld";
 
 export const dynamic = "force-dynamic";
@@ -19,7 +23,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Priser & Prenumeration",
   description:
-    "Athopia PRO — daglig AI-brief för ditt lag, poddintelligens och transfer-signaler. Founder-pris 69 kr/mån för alltid för de första 500. 25 % rabatt på årsplan.",
+    "Athopia PRO — daglig AI-brief för ditt lag, poddintelligens och transfer-signaler. 20 % rabatt på årsplan.",
   alternates: { canonical: absoluteUrl("/prenumerera") },
   openGraph: {
     type: "website",
@@ -30,44 +34,62 @@ export const metadata: Metadata = {
   },
 };
 
-function PricingJsonLd() {
+/**
+ * Strukturerad data måste spegla vad kortet faktiskt dras på. PRO låg tidigare
+ * som "69" i JSON-LD medan listpriset var 89 — Google visade alltså ett pris
+ * ingen kunde få när potten var slut. Founder är ett eget erbjudande och finns
+ * bara med när det finns platser kvar.
+ */
+function PricingJsonLd({ founderPublic }: { founderPublic: boolean }) {
+  const kr = (ore: number) => String(ore / 100);
+  const offer = (price: string, name: string, position: number) => ({
+    "@type": "ListItem",
+    position,
+    item: {
+      "@type": "Product",
+      name,
+      offers: {
+        "@type": "Offer",
+        price,
+        priceCurrency: "SEK",
+        availability: "https://schema.org/InStock",
+      },
+    },
+  });
+
+  const items = [
+    offer("0", "Athopia Gratis", 1),
+    ...(founderPublic
+      ? [offer(kr(FOUNDER_OFFER.pricing.monthly), "Athopia PRO Founder", 2)]
+      : []),
+    offer(kr(PRICING.pro.monthly), "Athopia PRO", founderPublic ? 3 : 2),
+    offer(kr(PRICING.elite.monthly), "Athopia Elite", founderPublic ? 4 : 3),
+  ];
+
   return (
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd({
       "@context": "https://schema.org",
       "@type": "ItemList",
       name: "Athopia prenumerationsplaner",
-      itemListElement: [
-        {
-          "@type": "ListItem", position: 1,
-          item: { "@type": "Product", name: "Athopia Gratis", offers: { "@type": "Offer", price: "0", priceCurrency: "SEK", availability: "https://schema.org/InStock" } },
-        },
-        {
-          "@type": "ListItem", position: 2,
-          item: { "@type": "Product", name: "Athopia PRO", offers: { "@type": "Offer", price: "69", priceCurrency: "SEK", availability: "https://schema.org/InStock" } },
-        },
-        {
-          "@type": "ListItem", position: 3,
-          item: { "@type": "Product", name: "Athopia Elite", offers: { "@type": "Offer", price: "169", priceCurrency: "SEK", availability: "https://schema.org/InStock" } },
-        },
-      ],
+      itemListElement: items,
     })}} />
   );
 }
 
 export default async function PrenumereraPage() {
   // Planen läses server-side (CLAUDE.md: aldrig client-side paywall-beslut).
-  const plan = await getUserPlan();
+  const [plan, founderPublic] = await Promise.all([getUserPlan(), isFounderOfferPublic()]);
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-20">
-      <PricingJsonLd />
+      <PricingJsonLd founderPublic={founderPublic} />
       {/* Rubrik */}
       <div className="text-center mb-12">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-pitch/15 border border-pitch/30 text-pitch-ink text-sm font-medium mb-6">
           <Zap className="w-4 h-4" />
-          {FOUNDER_OFFER.active
-            ? `Founder-pris: 69 kr/mån för alltid — först till ${FOUNDER_OFFER.cap}`
-            : `PRO ${TRIAL_DAYS} dagar gratis · sedan 89 kr/mån`}
+          {founderPublic
+            ? `Founder-pris: ${FOUNDER_OFFER.pricing.monthly / 100} kr/mån för alltid — först till ${FOUNDER_OFFER.cap}`
+            : `PRO ${TRIAL_DAYS} dagar gratis · sedan ${PRICING.pro.monthly / 100} kr/mån`}
         </div>
         <h1 className="font-bold text-4xl sm:text-6xl md:text-7xl text-foreground mb-4 text-balance">
           ALLSVENSKANS HEMMAPLAN
@@ -78,7 +100,7 @@ export default async function PrenumereraPage() {
         </p>
       </div>
 
-      <PricingPlans currentPlan={plan} />
+      <PricingPlans currentPlan={plan} founderPublic={founderPublic} />
 
       <p className="text-center text-sm text-muted-foreground mt-10 max-w-lg mx-auto">
         Gratis ger dig flödet. PRO ger dig morgonbriefen, poddintelligensen och

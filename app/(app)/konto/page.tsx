@@ -14,7 +14,17 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { AlertTriangle, Check, CreditCard, User } from "lucide-react";
 import { ListGroup } from "@/components/ui/ListGroup";
 import { ListRow } from "@/components/ui/ListRow";
-import { FOUNDER_OFFER, TRIAL_DAYS, proPriceLabel, listMonthlyKr } from "@/lib/pricing";
+import {
+  ANNUAL_DISCOUNT,
+  TRIAL_DAYS,
+  formatWeeklyKr,
+  listMonthlyKr,
+
+  proPriceLabel,
+  PRICING,
+  FOUNDER_OFFER,
+} from "@/lib/pricing";
+import { isFounderOfferPublic } from "@/lib/founder-offer";
 import { getSiteUrl } from "@/lib/site-url";
 import Stripe from "stripe";
 
@@ -50,7 +60,11 @@ export default async function KontoPage({
 }) {
   const { userId } = await auth();
   const user = await currentUser();
-  const publicMeta = (user?.publicMetadata ?? {}) as { plan?: string };
+  const publicMeta = (user?.publicMetadata ?? {}) as { plan?: string; founder?: boolean };
+  // Märket sitter på ett genomfört Founder-köp och följer med för alltid — även
+  // när potten är slut för alla andra. Potten avgör bara vad vi ERBJUDER.
+  const isFounder = publicMeta.founder === true;
+  const founderPublic = await isFounderOfferPublic();
   const privateMeta = (user?.privateMetadata ?? {}) as {
     stripeCustomerId?: string;
     subscription?: {
@@ -129,6 +143,12 @@ export default async function KontoPage({
             ) : (
               "Gratis"
             )}
+            {/* Tyst textpill. Ingen guldmedalj, ingen konfetti. */}
+            {isFounder && (
+              <span className="rounded-full border border-border px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                Founder
+              </span>
+            )}
           </span>
         </span>
       </Link>
@@ -202,9 +222,9 @@ export default async function KontoPage({
               subtitle={
                 isPaid
                   ? undefined
-                  : FOUNDER_OFFER.active
-                    ? `Founder ${proPriceLabel()} för alltid (ordinarie ${listMonthlyKr("pro")} kr) · ${TRIAL_DAYS} dagar gratis`
-                    : `${proPriceLabel()} · ${TRIAL_DAYS} dagar gratis · 25 % rabatt årsvis`
+                  : founderPublic
+                    ? `Founder ${proPriceLabel(true)} för alltid (ordinarie ${listMonthlyKr("pro")} kr) · ${formatWeeklyKr(FOUNDER_OFFER.pricing.monthly)} · ${TRIAL_DAYS} dagar gratis`
+                    : `${proPriceLabel(false)} · ${formatWeeklyKr(PRICING.pro.monthly)} · ${TRIAL_DAYS} dagar gratis · ${Math.round(ANNUAL_DISCOUNT * 100)} % rabatt årsvis`
               }
               trailing={<Check className="w-4 h-4 text-pitch-ink" />}
             />

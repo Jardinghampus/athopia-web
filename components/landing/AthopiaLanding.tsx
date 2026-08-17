@@ -6,6 +6,7 @@
    Touch: alla interaktiva element ≥44px, primär-CTA i tumzonen via MobileDock. */
 
 import dynamic from "next/dynamic";
+import { useEffect, useState } from "react";
 import { LandingNav } from "./LandingNav";
 import { Hero, type HeroPulse, type ClubChip, type LandingHeroCopy } from "./Hero";
 import { LandingFooter } from "./LandingFooter";
@@ -41,6 +42,7 @@ export default function AthopiaLanding({
   pulse,
   clubs,
   heroCopy,
+  waitlistMode = false,
 }: {
   articles?: LandingArticle[];
   /** Server-renderad sportsektion (matchcenter/tabell/nyheter) — sport före marketing. */
@@ -48,7 +50,24 @@ export default function AthopiaLanding({
   pulse?: HeroPulse;
   clubs?: ClubChip[];
   heroCopy?: LandingHeroCopy;
+  waitlistMode?: boolean;
 } = {}) {
+  // Fail-closed: visa inte Founder förrän potten svarat. ISR får inte baka in 69.
+  const [founderPublic, setFounderPublic] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/pricing/state")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { founderPublic?: unknown } | null) => {
+        if (!cancelled && data?.founderPublic === true) setFounderPublic(true);
+      })
+      .catch(() => {
+        /* stängd pott är det säkra antagandet */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   return (
     // `dark` på roten: landningssidan är alltid svart oavsett användarens tema,
     // så tokens måste lösas till sina mörka valörer. Utan detta blev accenten
@@ -58,13 +77,13 @@ export default function AthopiaLanding({
     <div className="dark min-h-screen overflow-x-clip bg-black font-sans text-white">
       <LandingNav />
       <main id="main" tabIndex={-1} className="focus:outline-none">
-        <Hero pulse={pulse} clubs={clubs} copy={heroCopy} />
+        <Hero pulse={pulse} clubs={clubs} copy={heroCopy} waitlistMode={waitlistMode} />
         {sportSlot}
         <DemoVignettes />
         <ExperienceSection />
-        <Pricing />
-        <Faq />
-        <FinalCta />
+        <Pricing founderPublic={founderPublic} waitlistMode={waitlistMode} />
+        <Faq founderPublic={founderPublic} />
+        <FinalCta founderPublic={founderPublic} waitlistMode={waitlistMode} />
       </main>
       <LandingFooter />
       <MobileDock />

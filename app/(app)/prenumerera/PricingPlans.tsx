@@ -18,9 +18,9 @@ import {
   TRIAL_DAYS,
   amountFor,
   formatKr,
+  formatWeeklyKr,
   monthlyEquivalent,
   type BillingInterval,
-  type PaidPlan,
 } from "@/lib/pricing";
 
 const FREE_FEATURES = [
@@ -46,10 +46,17 @@ const ELITE_FEATURES = [
   "Trend detection (eskalerande rykten)",
 ];
 
-function ProPriceTag({ interval }: { interval: BillingInterval }) {
-  const amount = amountFor("pro", interval);
+/**
+ * Veckopriset är ALLTID andra rad och alltid muted. Hero är det Stripe faktiskt
+ * drar. Marknadsföringslagen: vi får inte skylta "från 16 kr" när kortet dras 69.
+ */
+function WeeklyLine({ ore, interval }: { ore: number; interval: BillingInterval }) {
+  return <p className="text-xs text-muted-foreground mt-1">{formatWeeklyKr(ore, interval)}</p>;
+}
+
+function ProPriceTag({ interval, founder }: { interval: BillingInterval; founder: boolean }) {
+  const amount = amountFor("pro", interval, { founder });
   const ordinary = interval === "year" ? PRICING.pro.yearly : PRICING.pro.monthly;
-  const founder = FOUNDER_OFFER.active;
   return (
     <div className="mb-6">
       <h2 className="font-semibold text-2xl text-pitch-ink mb-1 text-balance">PRO</h2>
@@ -60,15 +67,16 @@ function ProPriceTag({ interval }: { interval: BillingInterval }) {
           <span className="text-sm text-muted-foreground line-through">{ordinary / 100} kr</span>
         )}
       </div>
+      <WeeklyLine ore={amount} interval={interval} />
       {founder ? (
         <p className="text-xs text-pitch-ink mt-1 font-medium">
           Founder-pris för alltid — först till {FOUNDER_OFFER.cap}
-          {interval === "year" && <> · motsvarar {formatKr(Math.round(amountFor("pro", "year") / 12))}/mån</>}
+          {interval === "year" && <> · motsvarar {formatKr(Math.round(amount / 12))}/mån</>}
           {" · "}{TRIAL_DAYS} dagar gratis
         </p>
       ) : interval === "year" ? (
         <p className="text-xs text-pitch-ink mt-1">
-          Motsvarar {formatKr(monthlyEquivalent("pro"))}/mån · spara 25 % · {TRIAL_DAYS} dagar gratis
+          Motsvarar {formatKr(monthlyEquivalent("pro"))}/mån · spara 20 % · {TRIAL_DAYS} dagar gratis
         </p>
       ) : (
         <p className="text-xs text-muted-foreground mt-1">{TRIAL_DAYS} dagar gratis · avbryt när som helst</p>
@@ -86,9 +94,10 @@ function ElitePriceTag({ interval }: { interval: BillingInterval }) {
         <span className="text-4xl font-bold text-foreground">{amount / 100}</span>
         <span className="text-muted-foreground text-sm">kr / {interval === "year" ? "år" : "mån"}</span>
       </div>
+      <WeeklyLine ore={amount} interval={interval} />
       {interval === "year" ? (
         <p className="text-xs text-pitch-ink mt-1">
-          Motsvarar {formatKr(monthlyEquivalent("elite"))}/mån · spara 25 %
+          Motsvarar {formatKr(monthlyEquivalent("elite"))}/mån · spara 20 %
         </p>
       ) : (
         <p className="text-xs text-muted-foreground mt-1">Avbryt när som helst</p>
@@ -121,8 +130,18 @@ function FeatureList({ features, paid, hero }: { features: string[]; paid: boole
  * `currentPlan` kommer från `getUserPlan()` på servern. Kortet för nuvarande
  * plan var tidigare hårdkodat till GRATIS, så en betalande Elite-kund fick veta
  * att hen låg på gratisplanen och erbjöds köpa Elite igen.
+ *
+ * `founderPublic` kommer från `isFounderOfferPublic()` i server-parenten. Den
+ * här komponenten får ALDRIG gissa potten: en klient som antar att Founder är
+ * öppet visar 69 kr för plats 501 och lovar ett pris checkout sedan vägrar ge.
  */
-export function PricingPlans({ currentPlan = "free" }: { currentPlan?: Plan }) {
+export function PricingPlans({
+  currentPlan = "free",
+  founderPublic = false,
+}: {
+  currentPlan?: Plan;
+  founderPublic?: boolean;
+}) {
   const [interval, setBilling] = useState<BillingInterval>("month");
 
   const NuvarandePlan = () => (
@@ -150,7 +169,7 @@ export function PricingPlans({ currentPlan = "free" }: { currentPlan?: Plan }) {
               interval === "year" ? "pitch-gradient text-white" : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            Årsvis <span className="text-pitch-ink">−25 %</span>
+            Årsvis <span className="text-pitch-ink">−20 %</span>
           </button>
         </div>
       </div>
@@ -181,10 +200,10 @@ export function PricingPlans({ currentPlan = "free" }: { currentPlan?: Plan }) {
         <div className="relative rounded-2xl border border-pitch/40 bg-card p-6 flex flex-col pitch-glow">
           <div className="absolute -top-3 left-6">
             <span className="px-3 py-1 rounded-full pitch-gradient text-white text-xs font-medium">
-              {FOUNDER_OFFER.active ? `Founder — först till ${FOUNDER_OFFER.cap}` : "Populärast"}
+              {founderPublic ? `Founder — först till ${FOUNDER_OFFER.cap}` : "Populärast"}
             </span>
           </div>
-          <ProPriceTag interval={interval} />
+          <ProPriceTag interval={interval} founder={founderPublic} />
           <FeatureList features={PRO_FEATURES} paid hero={3} />
           {currentPlan === "pro" ? (
             <NuvarandePlan />
@@ -196,7 +215,7 @@ export function PricingPlans({ currentPlan = "free" }: { currentPlan?: Plan }) {
             <CheckoutButton
               plan="pro"
               interval={interval}
-              label={FOUNDER_OFFER.active ? "Bli founder" : "Prova PRO"}
+              label={founderPublic ? "Bli founder" : "Prova PRO"}
             />
           )}
         </div>
