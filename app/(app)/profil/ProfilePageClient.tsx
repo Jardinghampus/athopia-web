@@ -13,6 +13,7 @@ import { ListGroup } from "@/components/ui/ListGroup";
 import { ListRow } from "@/components/ui/ListRow";
 import { useFavoriteTeam } from "@/hooks/useFavoriteTeam";
 import { getTeamColors } from "@/lib/team-colors";
+import { NewsletterPreferencesSettings } from "@/components/newsletter/NewsletterPreferencesSettings";
 
 function WelcomePopup({ onClose }: { onClose: () => void }) {
   const router = useRouter();
@@ -100,6 +101,7 @@ export function ProfilePageClient({
     void db
       .from("entities")
       .select("id,name,slug,metadata")
+      .eq("sport", "football")
       .eq("type", "team")
       .order("name")
       .then(({ data }) => {
@@ -181,6 +183,9 @@ export function ProfilePageClient({
     }
   }
 
+  const newsletterTeamSlug =
+    (teams.find((team) => team.id === teamSlug)?.slug ?? teamSlug) || null;
+
   return (
     <>
       <AnimatePresence>
@@ -258,6 +263,18 @@ export function ProfilePageClient({
 
       <section className="space-y-3">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground text-balance">
+          Athopia Lagbrief
+        </h2>
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
+            Det viktigaste om ditt lag i inkorgen, i den takt du väljer.
+          </p>
+          <NewsletterPreferencesSettings profileTeamSlug={newsletterTeamSlug} />
+        </div>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground text-balance">
           Nyhetsintressen
         </h2>
         <Link
@@ -300,7 +317,7 @@ export function ProfilePageClient({
       </section>
 
       {/* Hantera konto */}
-      <AccountManagement clerkUserId={profile.clerk_user_id} />
+      <AccountManagement />
     </div>
     </>
   );
@@ -390,7 +407,7 @@ function ProfileCardEditable({ profile, onPickFile }: { profile: PublicProfile; 
 }
 
 // ── Hantera konto ─────────────────────────────────────────────────────────────
-function AccountManagement({ clerkUserId: _ }: { clerkUserId: string }) {
+function AccountManagement() {
   const { user } = useUser();
   const router = useRouter();
   const [portalLoading, setPortalLoading] = useState(false);

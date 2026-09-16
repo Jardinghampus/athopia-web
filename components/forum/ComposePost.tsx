@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
+import { useDraft } from "@/hooks/useDraft";
 
 type PostLabel = 'transfer' | 'taktik' | 'match' | 'rykte' | 'diskussion';
 
@@ -52,7 +53,13 @@ export default function ComposePost({
   initialContent,
 }: Props) {
   const { user } = useUser();
-  const [content, setContent] = useState(initialContent ?? "");
+  // Autosparat utkast (mobil UX-regel 19). Nyckeln är per lag och per
+  // tråd/svarsnivå — ett påbörjat svar hör inte hemma i en annan tråd, och
+  // ett rotinlägg för Hammarby ska inte dyka upp på AIK:s forum.
+  const [content, setContent, clearDraft] = useDraft(
+    `forum.${teamSlug}.${rootId ?? "new"}.${parentId ?? "root"}`,
+    initialContent ?? "",
+  );
   const [label, setLabel] = useState<PostLabel | undefined>(undefined);
   const [loading, setLoading] = useState(false);
 
@@ -67,7 +74,9 @@ export default function ComposePost({
     setLoading(true);
     try {
       await onPost({ content: content.trim(), label, parentId, rootId, teamSlug, sport });
-      setContent("");
+      // Utkastet rensas först när servern tagit emot texten — failar anropet
+      // ligger den kvar, vilket är hela poängen med att spara den.
+      clearDraft();
       setLabel(undefined);
     } catch {
     } finally {
@@ -101,7 +110,7 @@ export default function ComposePost({
                 key={l.id}
                 type="button"
                 onClick={() => setLabel(label === l.id ? undefined : l.id)}
-                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border transition-all touch-manipulation ${
+                className={`inline-flex min-h-11 items-center gap-1 px-3 rounded-full text-xs font-medium border transition-all touch-manipulation ${
                   label === l.id
                     ? "bg-pitch/15 border-pitch/60 text-pitch-ink"
                     : "border-border/40 text-muted-foreground hover:border-border hover:text-foreground"
@@ -129,7 +138,8 @@ export default function ComposePost({
           <button
             onClick={handlePost}
             disabled={!content.trim() || loading}
-            className="px-4 py-1.5 rounded-full bg-pitch text-white text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:bg-pitch/90 transition-colors"
+            data-cta="primary"
+            className="inline-flex min-h-11 items-center rounded-full bg-pitch px-5 text-sm font-medium text-white transition-colors hover:bg-pitch/90 disabled:cursor-not-allowed disabled:opacity-40"
           >
             {loading ? "Postar…" : "Posta"}
           </button>

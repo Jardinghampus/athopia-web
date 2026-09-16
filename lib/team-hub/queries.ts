@@ -29,7 +29,9 @@ export interface TeamSeasonRow {
   goal_diff: number;
   points: number;
   position: number | null;
-  possession: number | null;
+  /** `team_season_stats` har ingen possession-kolumn — därför optional, inte
+      `number | null`. Typen låg tidigare och påstod att fältet alltid fanns. */
+  possession?: number | null;
   xg_for: number | null;
   xg_against: number | null;
   [k: string]: unknown;
@@ -516,13 +518,24 @@ export async function getTeamHub(
   };
 }
 
-/** z-score-normalisering → 0–100-skala, för radar-profilering mot ligan. */
+/**
+ * z-score-normalisering → 0–100-skala, för radar-profilering mot ligan.
+ *
+ * En metrik vars kolumn ligan saknar helt tas bort ur radarn i stället för att
+ * ritas. `?? 0` nedan gjorde annars varje osyncad metrik till en axel där alla
+ * lag låg på exakt ligasnittet (0 mot ett snitt på 0 → z = 0 → 50) — en
+ * uppdiktad stat. Saknad data döljer fältet, den fyller det inte med nollor.
+ */
 export function normalizeAgainstLeague(
   league: TeamSeasonRow[],
   team: TeamSeasonRow,
   metrics: { key: keyof TeamSeasonRow; label: string; invert?: boolean }[]
 ): { metric: string; value: number; raw: number }[] {
-  return metrics.map(({ key, label, invert }) => {
+  const hasData = (key: keyof TeamSeasonRow) =>
+    league.some((t) => t[key] != null && !Number.isNaN(Number(t[key])));
+
+  return metrics.flatMap(({ key, label, invert }) => {
+    if (!hasData(key) || team[key] == null) return [];
     const vals = league.map((t) => Number(t[key] ?? 0)).filter((v) => !Number.isNaN(v));
     const raw = Number(team[key] ?? 0);
     if (vals.length < 2) return { metric: label, value: 50, raw };

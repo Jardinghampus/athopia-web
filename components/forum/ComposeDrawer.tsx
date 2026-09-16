@@ -1,6 +1,7 @@
 "use client";
 
 import { Drawer } from "vaul";
+import { X } from "lucide-react";
 import ComposePost from "./ComposePost";
 
 type PostLabel = 'transfer' | 'taktik' | 'match' | 'rykte' | 'diskussion';
@@ -41,6 +42,13 @@ export default function ComposeDrawer({
         <Drawer.Overlay className="fixed inset-0 z-50 bg-black/60 backdrop-blur-[2px]" />
         <Drawer.Content className="fixed inset-x-0 bottom-0 z-50 flex flex-col rounded-t-3xl border-t border-border bg-popover outline-none pb-[max(env(safe-area-inset-bottom),1.5rem)]">
           <div aria-hidden className="mx-auto mt-3 mb-1 h-1.5 w-10 shrink-0 rounded-full bg-muted-foreground/30" />
+          {/* X stänger flödet (mobil UX-regel 11). Texten ligger kvar som utkast. */}
+          <Drawer.Close
+            aria-label="Stäng"
+            className="absolute right-2 top-2 inline-flex size-11 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          >
+            <X className="size-4" aria-hidden />
+          </Drawer.Close>
           <Drawer.Title className="sr-only">
             {replyTo ? `Svara ${replyTo}` : "Nytt inlägg"}
           </Drawer.Title>

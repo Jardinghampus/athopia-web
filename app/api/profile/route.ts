@@ -7,6 +7,7 @@ import { sanitizeInline } from "@/lib/sanitize";
 import { parseBody, z } from "@/lib/validation";
 import { jsonContract } from "@/lib/api-contract";
 import { SessionProfileResponseSchema } from "@/lib/api-schemas";
+import { syncNewsletterProfileTeam } from "@/lib/newsletter/service";
 
 const DeleteAccountSchema = z.object({
   confirmation: z.literal("RADERA"),
@@ -190,6 +191,14 @@ export async function PATCH(req: Request) {
       );
     if (feedConfigError) {
       console.error("[profile PATCH] favorite team feed sync:", feedConfigError);
+    }
+    try {
+      await syncNewsletterProfileTeam(userId, favouriteTeam?.id ?? null);
+    } catch (newsletterError) {
+      console.error(
+        "[profile PATCH] newsletter team sync:",
+        newsletterError instanceof Error ? newsletterError.message : "unknown",
+      );
     }
   }
 

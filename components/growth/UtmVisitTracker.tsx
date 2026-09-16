@@ -33,6 +33,18 @@ export function UtmVisitTracker() {
       body: JSON.stringify({ campaign, path: pathname }),
       keepalive: true,
     }).catch(() => {});
+
+    if (searchParams.get("utm_source") === "beehiiv" && searchParams.get("utm_medium") === "email") {
+      void fetch("/api/analytics/event", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          event: "newsletter_click_to_product",
+          props: { campaign, path: pathname },
+        }),
+        keepalive: true,
+      }).catch(() => {});
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, pathname]);
 

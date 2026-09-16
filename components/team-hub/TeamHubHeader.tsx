@@ -12,9 +12,9 @@ import { Card as TactileCard } from "@/components/ui/TactileCard";
 import type { TeamSeasonRow } from "@/lib/team-hub/queries";
 import { formLetter, formLabel } from "@/lib/form-letter";
 
-// Global Header är sticky h-14 (56px) — compact-raden fastnar under den.
-// Global header (56px) + TeamNav (44px) — kompaktraden fastnar under bada.
-const HEADER_OFFSET = 100;
+// Global Header är sticky h-12 (48px). TeamNav är sticky top-12 och ~44px
+// hög — kompaktraden fastnar under båda.
+const HEADER_OFFSET = 92;
 
 /**
  * TeamHubHeader — klientlagret ovanpå den serverrenderade lag-hubben.
@@ -70,7 +70,7 @@ export function TeamHubHeader({
             <button
               onClick={refresh}
               aria-label="Uppdatera lagdata"
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground border border-border rounded-lg px-3 py-2 transition-colors touch-manipulation active:bg-muted"
+              className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 text-xs text-muted-foreground hover:text-foreground border border-border rounded-lg px-3 transition-colors touch-manipulation active:bg-muted"
             >
               <RefreshCw className={`h-3.5 w-3.5 ${pending ? "animate-spin" : ""}`} />
               <span className="hidden sm:inline">Uppdatera</span>

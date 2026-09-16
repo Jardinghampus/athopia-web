@@ -63,15 +63,15 @@ export function CookieBanner() {
           // navigera alls förrän den hanterats — trots aria-modal="false".
           // `--dock-inset` sätts av GlassNav och är 0 där docken inte finns, så
           // bannern hamnar inte högt upp i tomma luften på landningssidan.
-          className={`fixed ${position} left-1/2 z-[9999] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 rounded-2xl border border-zinc-800 bg-zinc-950/95 p-5 shadow-2xl backdrop-blur-md`}
+          className={`glass fixed ${position} left-1/2 z-[9999] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 p-5 text-foreground`}
         >
-          <p className="text-sm font-semibold text-white">Vi använder cookies</p>
-          <p className="mt-1 text-xs leading-relaxed text-zinc-400">
+          <p className="text-sm font-semibold text-foreground">Vi använder cookies</p>
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
             Nödvändiga cookies används alltid. Du kan tillåta analytics och
             marknadsföring nedan.{" "}
             <a
               href="/integritetspolicy"
-              className="underline underline-offset-2 hover:text-white"
+              className="underline underline-offset-2 hover:text-foreground"
             >
               Läs mer
             </a>
@@ -87,7 +87,7 @@ export function CookieBanner() {
                 transition={{ duration: 0.22, ease: "easeInOut" }}
                 className="overflow-hidden"
               >
-                <div className="mt-4 space-y-3 border-t border-zinc-800 pt-4">
+                <div className="mt-4 space-y-3 border-t border-border pt-4">
                   <Toggle
                     id="cc-necessary"
                     label="Nödvändiga"
@@ -118,19 +118,20 @@ export function CookieBanner() {
           <div className="mt-4 flex flex-wrap gap-2">
             <button
               onClick={() => save({ analytics: true, marketing: true })}
+              data-cta="primary"
               className="flex-1 rounded-xl bg-pitch px-4 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-pitch-dark active:scale-[0.97]"
             >
               Godkänn alla
             </button>
             <button
               onClick={() => save({ analytics, marketing })}
-              className="flex-1 rounded-xl border border-zinc-700 px-4 py-3.5 text-sm font-semibold text-zinc-300 transition-colors hover:border-zinc-500 hover:text-white active:scale-[0.97]"
+              className="glass-button flex-1 px-4 py-3.5 text-sm font-semibold text-foreground transition-colors active:scale-[0.97]"
             >
               {showDetails ? "Spara val" : "Avvisa"}
             </button>
             <button
               onClick={() => setShowDetails((v) => !v)}
-              className="w-full rounded-xl px-4 py-3.5 text-xs text-zinc-400 hover:text-zinc-200 min-h-[44px]"
+              className="min-h-11 w-full rounded-xl px-4 py-3.5 text-xs text-muted-foreground hover:text-foreground"
             >
               {showDetails ? "Dölj inställningar ↑" : "Anpassa inställningar ↓"}
             </button>
@@ -159,8 +160,8 @@ function Toggle({
   return (
     <div className="flex items-start justify-between gap-3">
       <div>
-        <p className="text-xs font-medium text-white">{label}</p>
-        <p className="text-xs leading-snug text-zinc-500">{description}</p>
+        <p className="text-xs font-medium text-foreground">{label}</p>
+        <p className="text-xs leading-snug text-muted-foreground">{description}</p>
       </div>
       <button
         id={id}
@@ -170,7 +171,7 @@ function Toggle({
         onClick={() => onChange(!checked)}
         className={[
           "mt-0.5 h-5 w-9 flex-shrink-0 rounded-full transition-colors duration-200",
-          checked ? "bg-pitch" : "bg-zinc-700",
+          checked ? "bg-pitch" : "bg-muted",
           disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer",
         ].join(" ")}
       >

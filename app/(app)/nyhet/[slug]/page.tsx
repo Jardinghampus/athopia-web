@@ -16,6 +16,8 @@ import {
 } from "@/lib/provenance";
 import { getSiteUrl } from "@/lib/site-url";
 import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
+import { getWebsiteSettings } from "@/lib/website-settings.server";
+import { resolveShareMetadata, toNextMetadata } from "@/lib/website-settings";
 
 export const revalidate = 60;
 
@@ -90,18 +92,16 @@ export async function generateMetadata({
   }
 
   const sourceName = article.source_name ?? "källan";
-  return {
-    title: article.title,
-    description: `Signal från ${sourceName}. Läs originalet hos källan.`,
-    robots: { index: false, follow: true },
-    alternates: { canonical: `${getSiteUrl()}/nyhet/${slug}` },
-    openGraph: {
-      type: "article",
+  const settings = await getWebsiteSettings();
+  return toNextMetadata(
+    settings,
+    resolveShareMetadata(settings, {
+      kind: "nyhet",
       title: article.title,
-      description: `Signal från ${sourceName}. Läs originalet hos källan.`,
-      url: `${getSiteUrl()}/nyhet/${slug}`,
-    },
-  };
+      sourceName,
+      path: `/nyhet/${slug}`,
+    }),
+  );
 }
 
 export default async function NyhetPage({

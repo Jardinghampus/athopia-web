@@ -7,6 +7,8 @@ import { ProductEventTracker } from "@/components/analytics/ProductEventTracker"
 import { absoluteUrl, getSiteUrl } from "@/lib/site-url";
 import { jsonLd } from "@/lib/json-ld";
 import { isWaitlistMode } from "@/lib/waitlist/mode";
+import { getWebsiteSettings } from "@/lib/website-settings.server";
+import { resolveShareMetadata, toNextMetadata } from "@/lib/website-settings";
 
 // ISR: servera cachad HTML direkt (snabb laddning), regenerera i bakgrunden.
 // Tidigare 'force-dynamic' gjorde att varje besök blockerade på en Supabase-query
@@ -23,29 +25,14 @@ const SEO_KEYWORDS = [
   "Allsvenskan nyheter", "Allsvenskan matchanalys", "Allsvenskan poängliga", "Allsvenskan statistik",
 ];
 
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE),
-  title: "Allsvenskan 2026 – Tabell, Resultat, Matcher & Statistik | Athopia",
-  description:
-    "Allt om Allsvenskan 2026: live-tabell, resultat, spelschema, skytteliga och djupstatistik för alla 16 lag. Matchanalyser, nyhetsflöde och forum för ditt lag — samlat på ett ställe.",
-  keywords: SEO_KEYWORDS,
-  alternates: { canonical: "/" },
-  openGraph: {
-    type: "website",
-    locale: "sv_SE",
-    url: SITE,
-    siteName: "Athopia",
-    title: "Allsvenskan 2026 – Tabell, Resultat, Matcher & Statistik | Athopia",
-    description:
-      "Live-tabell, resultat, spelschema, skytteliga och djupstatistik för hela Allsvenskan 2026. Matchanalyser och forum för ditt lag.",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Allsvenskan 2026 – Tabell, Resultat & Statistik | Athopia",
-    description:
-      "Live-tabell, resultat, spelschema, skytteliga och djupstatistik för hela Allsvenskan 2026.",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getWebsiteSettings();
+  const resolved = resolveShareMetadata(settings, { kind: "home" });
+  return {
+    ...toNextMetadata(settings, resolved),
+    keywords: SEO_KEYWORDS,
+  };
+}
 
 async function getLatestArticles(): Promise<LandingArticle[]> {
   if (!isSupabaseConfigured()) return [];

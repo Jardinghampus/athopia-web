@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Star } from "lucide-react";
 import { useFavoriteTeam } from "@/hooks/useFavoriteTeam";
+import { PageSkeleton } from "@/components/ui/PageSkeleton";
 import { StatNumber } from "@/components/ui/StatNumber";
 import { formLetter, formLabel } from "@/lib/form-letter";
 
@@ -37,10 +38,13 @@ export function MittLagGuestPreview() {
   const { slug, isLoaded } = useFavoriteTeam();
   const [preview, setPreview] = useState<Preview | null>(null);
   const [error, setError] = useState(false);
+  // Bumpas av "Försök igen" — hem-fliken ska aldrig vara en återvändsgränd.
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     if (!isLoaded || !slug) return;
     let cancelled = false;
+    setError(false);
     fetch(`/api/team/${encodeURIComponent(slug)}/hub`)
       .then(async (res) => {
         if (!res.ok) throw new Error("fail");
@@ -55,14 +59,10 @@ export function MittLagGuestPreview() {
     return () => {
       cancelled = true;
     };
-  }, [isLoaded, slug]);
+  }, [isLoaded, slug, attempt]);
 
   if (!isLoaded) {
-    return (
-      <div className="max-w-3xl mx-auto px-4 py-16 text-center text-sm text-muted-foreground">
-        Laddar…
-      </div>
-    );
+    return <PageSkeleton shape="detail" />;
   }
 
   if (!slug) {
@@ -80,13 +80,14 @@ export function MittLagGuestPreview() {
         <div className="flex flex-col gap-2">
           <Link
             href="/onboarding"
-            className="rounded-lg bg-pitch text-white text-sm font-medium px-4 py-2.5 hover:bg-pitch/90 transition-colors"
+            data-cta="primary"
+            className="inline-flex min-h-11 items-center justify-center rounded-lg bg-pitch px-4 text-sm font-medium text-white transition-colors hover:bg-pitch/90"
           >
             Välj favoritlag
           </Link>
           <Link
             href="/allsvenskan"
-            className="rounded-lg border border-border text-sm text-muted-foreground px-4 py-2.5 hover:text-foreground transition-colors"
+            className="inline-flex min-h-11 items-center justify-center rounded-lg border border-border px-4 text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
             Bläddra bland lag
           </Link>
@@ -97,21 +98,30 @@ export function MittLagGuestPreview() {
 
   if (error) {
     return (
-      <div className="max-w-md mx-auto px-4 py-16 text-center space-y-3">
+      <div className="max-w-md mx-auto px-4 py-16 text-center space-y-5">
         <p className="text-sm text-muted-foreground">Kunde inte ladda laget just nu.</p>
-        <Link href="/onboarding" className="text-sm text-pitch-ink hover:underline">
-          Byt lag
-        </Link>
+        <div className="flex flex-col gap-2">
+          <button
+            type="button"
+            data-cta="primary"
+            onClick={() => setAttempt((n) => n + 1)}
+            className="inline-flex min-h-11 items-center justify-center rounded-lg bg-pitch px-4 text-sm font-medium text-white transition-colors hover:bg-pitch/90"
+          >
+            Försök igen
+          </button>
+          <Link
+            href="/onboarding"
+            className="inline-flex min-h-11 items-center justify-center rounded-lg border border-border px-4 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Byt lag
+          </Link>
+        </div>
       </div>
     );
   }
 
   if (!preview) {
-    return (
-      <div className="max-w-3xl mx-auto px-4 py-16 text-center text-sm text-muted-foreground">
-        Hämtar {slug}…
-      </div>
-    );
+    return <PageSkeleton shape="detail" />;
   }
 
   return (
@@ -227,13 +237,14 @@ export function MittLagGuestPreview() {
       <div className="flex flex-col sm:flex-row gap-2 pt-2">
         <Link
           href="/sign-up"
-          className="rounded-lg bg-pitch text-white text-sm font-medium px-4 py-2.5 text-center hover:bg-pitch/90"
+          data-cta="primary"
+          className="inline-flex min-h-11 items-center justify-center rounded-lg bg-pitch px-4 text-sm font-medium text-white hover:bg-pitch/90"
         >
           Skapa konto
         </Link>
         <Link
           href="/onboarding"
-          className="rounded-lg border border-border text-sm text-muted-foreground px-4 py-2.5 text-center hover:text-foreground"
+          className="inline-flex min-h-11 items-center justify-center rounded-lg border border-border px-4 text-sm text-muted-foreground hover:text-foreground"
         >
           Byt lag
         </Link>

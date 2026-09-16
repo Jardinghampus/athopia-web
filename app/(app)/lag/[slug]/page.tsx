@@ -35,6 +35,8 @@ import { PositionTrend } from "@/components/team-hub/PositionTrend";
 import type { SwitcherTeam } from "@/components/team-hub/TeamSwitcher";
 import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
 import { jsonLd } from "@/lib/json-ld";
+import { getWebsiteSettings } from "@/lib/website-settings.server";
+import { resolveShareMetadata, toNextMetadata } from "@/lib/website-settings";
 
 export const revalidate = 60;
 
@@ -70,18 +72,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const team = await getTeamMeta(slug);
   if (!team) return { title: "Lag hittades inte" };
-  return {
-    title: `${team.name} – Allsvenskan 2026: Nyheter, Statistik & Matcher`,
-    description: `Allt om ${team.name} i Allsvenskan 2026 — senaste nyheter, matchresultat, spelartrupp, statistik och lagforum.`,
-    alternates: { canonical: `https://athopia.se/lag/${slug}` },
-    openGraph: {
-      type: "website",
-      title: `${team.name} | Allsvenskan 2026`,
-      description: `Nyheter, statistik och forum för ${team.name} i Allsvenskan.`,
-      url: `https://athopia.se/lag/${slug}`,
-      images: team.logo_url ? [{ url: team.logo_url, width: 400, height: 400, alt: `${team.name} logotyp` }] : [],
-    },
-  };
+  const settings = await getWebsiteSettings();
+  return toNextMetadata(
+    settings,
+    resolveShareMetadata(settings, {
+      kind: "team",
+      team: team.name,
+      path: `/lag/${slug}`,
+    }),
+  );
 }
 
 /** Alla lag för lagväxlaren (namn/slug/logo). */
@@ -192,7 +191,7 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
         props={{ team_slug: hub.team.slug, team_id: hub.team.id }}
       />
 
-      <div className="px-4 sm:px-6 pt-3 pb-1">
+      <div className="px-4 sm:px-6 pt-1.5 pb-0">
         <AppBreadcrumbs
           items={[
             { label: "Allsvenskan", href: "/allsvenskan" },

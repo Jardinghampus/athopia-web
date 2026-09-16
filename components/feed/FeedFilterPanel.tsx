@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/TactileSheet";
+import { Check, ChevronDown } from "lucide-react";
 import type { FeedFilterOptions } from "@/lib/feed/get-allsvenskan-teams";
+import { cn } from "@/lib/utils";
 
 type FilterKey = "lag" | "typ" | "kalla";
 
@@ -34,57 +35,111 @@ function useApplyFilter() {
   };
 }
 
-function FilterCheckboxGroup({
-  header,
-  options,
+function FilterMenu({
+  label,
   selected,
+  options,
   onToggle,
-  scroll,
 }: {
-  header: string;
-  options: { value: string; label: string }[];
+  label: string;
   selected: string[];
+  options: { value: string; label: string }[];
   onToggle: (value: string) => void;
-  /** Källistan är lång — låt den scrolla i stället för att skjuta ned resten. */
-  scroll?: boolean;
 }) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const menuId = useId();
+
+  useEffect(() => {
+    if (!open) return;
+    function onPointer(event: PointerEvent) {
+      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+    }
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("pointerdown", onPointer);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onPointer);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
   if (options.length === 0) return null;
+
+  const summary =
+    selected.length === 0
+      ? label
+      : selected.length === 1
+        ? (options.find((o) => o.value === selected[0])?.label ?? label)
+        : `${label} · ${selected.length}`;
+
   return (
-    <fieldset>
-      <legend className="mb-2 px-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-        {header}
-      </legend>
-      <div
-        className={`divide-y divide-border overflow-hidden rounded-2xl bg-card ${
-          scroll ? "max-h-72 overflow-y-auto" : ""
-        }`}
+    <div ref={rootRef} className="relative min-w-0">
+      <button
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-controls={menuId}
+        onClick={() => setOpen((v) => !v)}
+        className={cn(
+          "inline-flex min-h-11 max-w-full items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium touch-manipulation outline-none",
+          "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          selected.length > 0
+            ? "border-pitch/40 bg-pitch/10 text-pitch-ink"
+            : "border-border bg-card text-foreground hover:bg-muted",
+        )}
       >
-        {options.map((opt) => {
-          const id = `${header}-${opt.value}`;
-          const checked = selected.includes(opt.value);
-          return (
-            <label
-              key={opt.value}
-              htmlFor={id}
-              className="flex min-h-11 cursor-pointer items-center gap-3 px-4 py-2.5 text-sm text-foreground"
-            >
-              <input
-                id={id}
-                type="checkbox"
-                checked={checked}
-                onChange={() => onToggle(opt.value)}
-                className="h-[18px] w-[18px] shrink-0 rounded border-border accent-pitch"
-              />
-              <span className="truncate">{opt.label}</span>
-            </label>
-          );
-        })}
-      </div>
-    </fieldset>
+        <span className="truncate">{summary}</span>
+        <ChevronDown
+          className={cn("size-4 shrink-0 opacity-60 transition-transform", open && "rotate-180")}
+          aria-hidden
+        />
+      </button>
+      {open ? (
+        <div
+          id={menuId}
+          role="menu"
+          className="absolute left-0 z-40 mt-2 w-[min(18rem,calc(100vw-2rem))] overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-lg"
+        >
+          <ul className="max-h-[min(20rem,70vh)] overflow-y-auto py-1">
+            {options.map((opt) => {
+              const checked = selected.includes(opt.value);
+              return (
+                <li key={opt.value}>
+                  <button
+                    type="button"
+                    role="menuitemcheckbox"
+                    aria-checked={checked}
+                    onClick={() => onToggle(opt.value)}
+                    className="flex min-h-11 w-full items-center gap-2.5 px-3 text-left text-sm text-foreground hover:bg-muted touch-manipulation"
+                  >
+                    <Check
+                      className={cn(
+                        "size-4 shrink-0 text-pitch-ink",
+                        checked ? "opacity-100" : "opacity-0",
+                      )}
+                      aria-hidden
+                    />
+                    <span className="truncate">{opt.label}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ) : null}
+    </div>
   );
 }
 
-function FilterPanelBody({ teams, sources, types }: FeedFilterOptions) {
+/**
+ * Filterrad ovanför flödet — samma dropdowns på mobil, tablet och desktop.
+ * Sidofältets checkbox-listor såg ut som ett adminverktyg; knapparna här är
+ * samma språk som sort-baren och chipen.
+ */
+export function FeedFilterPanel({ teams, sources, types }: FeedFilterOptions) {
   const selected = useFilterState();
   const toggle = useApplyFilter();
   const pathname = usePathname();
@@ -101,84 +156,34 @@ function FilterPanelBody({ teams, sources, types }: FeedFilterOptions) {
   }
 
   return (
-    <div className="space-y-6">
-      <FilterCheckboxGroup
-        header="Nyhetstyp"
-        options={types}
+    <div className="mb-4 flex flex-wrap items-center gap-2">
+      <FilterMenu
+        label="Typ"
         selected={selected.typ}
+        options={types}
         onToggle={(v) => toggle("typ", v)}
       />
-      <FilterCheckboxGroup
-        header="Klubbar"
-        options={teams.map((t) => ({ value: t.name, label: t.name }))}
+      <FilterMenu
+        label="Klubb"
         selected={selected.lag}
+        options={teams.map((t) => ({ value: t.name, label: t.name }))}
         onToggle={(v) => toggle("lag", v)}
-        scroll
       />
-      <FilterCheckboxGroup
-        header="Källor"
-        options={sources.map((s) => ({ value: s, label: s }))}
+      <FilterMenu
+        label="Källa"
         selected={selected.kalla}
+        options={sources.map((s) => ({ value: s, label: s }))}
         onToggle={(v) => toggle("kalla", v)}
-        scroll
       />
-      {activeCount > 0 && (
+      {activeCount > 0 ? (
         <button
           type="button"
           onClick={clearFilters}
-          className="px-1 text-xs text-pitch-ink hover:underline"
+          className="inline-flex min-h-11 items-center px-2 text-sm text-pitch-ink hover:underline touch-manipulation"
         >
-          Rensa filter
+          Rensa
         </button>
-      )}
-    </div>
-  );
-}
-
-/**
- * Klubb-, typ- och källfilter för /nyheter — desktop sticky vänsterfält.
- * Dold under lg (använd `FeedFilterButton` för mobilvyn).
- */
-export function FeedFilterPanel(props: FeedFilterOptions) {
-  return (
-    <aside className="hidden lg:block lg:sticky lg:top-6 lg:self-start lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto">
-      <FilterPanelBody {...props} />
-    </aside>
-  );
-}
-
-/**
- * Mobil "Filter"-knapp (med räknare) som öppnar samma panel i TactileSheet.
- * Placeras bredvid FeedSortBar. Dold på lg+ (desktop använder FeedFilterPanel).
- */
-export function FeedFilterButton(props: FeedFilterOptions) {
-  const selected = useFilterState();
-  const activeCount = KEYS.reduce((n, k) => n + selected[k].length, 0);
-  const [open, setOpen] = useState(false);
-
-  return (
-    <div className="lg:hidden">
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetTrigger asChild>
-          <button
-            type="button"
-            className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-medium text-foreground touch-manipulation"
-          >
-            Filter
-            {activeCount > 0 && (
-              <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-pitch px-1 text-[10px] font-semibold text-white">
-                {activeCount}
-              </span>
-            )}
-          </button>
-        </SheetTrigger>
-        <SheetContent>
-          <SheetTitle className="px-1 pb-2">Filter</SheetTitle>
-          <div className="pb-6">
-            <FilterPanelBody {...props} />
-          </div>
-        </SheetContent>
-      </Sheet>
+      ) : null}
     </div>
   );
 }

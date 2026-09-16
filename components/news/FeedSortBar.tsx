@@ -88,7 +88,9 @@ export function FeedSortBar({
               key={opt.value}
               type="button"
               onClick={() => setParam("visa", opt.value, "all")}
-              className={`inline-flex min-h-11 shrink-0 items-center rounded-full px-3.5 text-xs font-medium transition-colors touch-manipulation ${
+              // min-w-11 också: "AI" är två tecken och blev 39 px brett av
+              // padding allena, trots rätt höjd.
+              className={`inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full px-3.5 text-xs font-medium transition-colors touch-manipulation ${
                 active
                   ? "bg-pitch text-white"
                   : "bg-muted text-muted-foreground hover:text-foreground"

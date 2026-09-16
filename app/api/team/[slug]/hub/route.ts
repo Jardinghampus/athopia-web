@@ -75,7 +75,9 @@ export async function GET(
           goalDiff: hub.stats.goal_diff,
           points: hub.stats.points,
           position: hub.stats.position,
-          possession: hub.stats.possession,
+          // Kolumnen finns inte i team_season_stats; null döljer fältet i
+          // klienten i stället för att bryta kontraktet på varje anrop.
+          possession: hub.stats.possession ?? null,
           xgFor: hub.stats.xg_for,
           xgAgainst: hub.stats.xg_against,
         }

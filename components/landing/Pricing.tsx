@@ -128,9 +128,9 @@ export function Pricing({ founderPublic, waitlistMode = false }: PricingProps) {
                   </span>
                 )}
 
-                <h3 className="font-heading text-2xl tracking-widest text-white text-balance">{name}</h3>
+                <h3 className="font-heading text-2xl text-white text-balance">{name}</h3>
                 <div className="mt-4 flex items-baseline gap-1.5">
-                  <span className="font-heading text-6xl tracking-wide text-white">{price}</span>
+                  <span className="font-heading text-6xl tracking-display text-white">{price}</span>
                   <span className="text-sm text-white/55">kr/mån</span>
                   {priceNote && (
                     <span className="ml-1 text-sm text-white/55 line-through">{priceNote}</span>

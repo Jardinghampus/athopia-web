@@ -75,7 +75,7 @@ export function TeamSwitcher({
           aria-label={isFavorite ? `${team.name} är ditt lag` : `Gör ${team.name} till ditt lag`}
           aria-pressed={isFavorite}
           onClick={() => void setFavoriteTeam(team.slug)}
-          className="shrink-0 rounded-lg p-2 touch-manipulation transition-colors hover:bg-muted"
+          className="inline-flex size-11 shrink-0 items-center justify-center rounded-lg touch-manipulation transition-colors hover:bg-muted"
         >
           <Star className={`h-4 w-4 ${isFavorite ? "fill-pitch text-pitch-ink" : "text-muted-foreground"}`} />
         </button>
@@ -89,7 +89,7 @@ export function TeamSwitcher({
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Byt lag"
-        className="relative inline-flex min-w-0 items-center gap-1.5 rounded-md text-[28px] font-bold tracking-tight text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring touch-manipulation"
+        className="relative inline-flex min-h-11 min-w-0 items-center gap-1.5 rounded-md text-[28px] font-bold tracking-tight text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring touch-manipulation"
       >
         <span className="truncate">{current?.name ?? currentSlug}</span>
         <ChevronDown aria-hidden className="h-5 w-5 shrink-0 text-muted-foreground" />

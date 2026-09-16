@@ -83,7 +83,7 @@ export default function NotificationBell({ teamSlug }: { teamSlug: string }) {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -8, scale: 0.96 }}
               transition={{ duration: 0.15, ease: "easeOut" }}
-              className="absolute right-0 top-full mt-2 z-50 w-80 max-w-[calc(100vw-2rem)] rounded-2xl border border-border/60 bg-popover shadow-lg shadow-black/30 overflow-hidden"
+              className="absolute right-0 top-full mt-2 z-50 origin-top-right w-80 max-w-[calc(100vw-2rem)] rounded-2xl border border-border/60 bg-popover shadow-lg shadow-black/30 overflow-hidden"
             >
               <div className="flex items-center justify-between px-4 py-3 border-b border-border/30">
                 <span className="text-sm font-semibold">Notifikationer</span>

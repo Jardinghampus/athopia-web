@@ -1,12 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useModalA11y } from "@/hooks/useModalA11y";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { teamAbbr } from "@/lib/team-abbr";
 import { useFavoriteTeam } from "@/hooks/useFavoriteTeam";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
+} from "@/components/ui/TactileSheet";
 
 /**
  * Sidor som inte kan visa något meningsfullt utan ett valt lag.
@@ -96,19 +101,6 @@ export function TeamSelectionModal({ forceVisible = false }: TeamSelectionModalP
     setVisible(false);
   };
 
-  // Escape ska göra exakt samma sak som "Hoppa över" — annars stängs modalen
-  // utan att onboarding markeras klar, och den kan dyka upp igen vid nästa
-  // montering.
-  //
-  // Hooken MÅSTE ligga före `if (!visible) return null` nedan. Låg den efter
-  // returen anropades den bara i renders där modalen var synlig, så antalet
-  // hooks växte i samma render som modalen öppnades: React kastade #310 och
-  // trädet dog. Modalen syntes därför aldrig på /feed, /statistik, /spelare,
-  // /match och /profil — exakt de sidor TEAM_REQUIRED_PREFIXES finns för.
-  const dialogRef = useModalA11y<HTMLDivElement>(visible, handleSkip);
-
-  if (!visible) return null;
-
   const handleSave = async () => {
     if (!selected) {
       markOnboardingDone();
@@ -123,110 +115,110 @@ export function TeamSelectionModal({ forceVisible = false }: TeamSelectionModalP
   };
 
   return (
-    <div
-      ref={dialogRef}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="team-selection-title"
-      tabIndex={-1}
-      className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm focus:outline-none"
+    <Sheet
+      open={visible}
+      onOpenChange={(open) => {
+        if (!open) handleSkip();
+        else setVisible(true);
+      }}
     >
-      <div className="bg-background border border-border rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col">
-        {/* Header */}
-        <div className="p-6 border-b border-border">
-          <h2 id="team-selection-title" className="text-2xl font-bold text-foreground text-balance" style={{ fontFamily: "var(--font-display)" }}>
+      <SheetContent
+        className="z-[10001]"
+        overlayClassName="z-[10000]"
+        aria-labelledby="team-selection-title"
+      >
+        <div className="pr-12 pb-4">
+          <SheetTitle
+            id="team-selection-title"
+            className="text-2xl font-bold text-foreground text-balance"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
             VÄLJ DITT LAG
-          </h2>
-          <p className="text-muted-foreground text-sm mt-1">
+          </SheetTitle>
+          <SheetDescription className="text-muted-foreground text-sm mt-1">
             Få personaliserade nyheter, push-notiser och statistik för ditt lag.
-          </p>
+          </SheetDescription>
         </div>
 
-        {/* Team grid */}
-        <div className="flex-1 overflow-y-auto p-4">
-          {teams.length === 0 ? (
-            <div className="grid grid-cols-4 gap-2">
-              {Array.from({ length: 16 }).map((_, i) => (
-                <div key={i} className="h-[72px] rounded-lg bg-muted animate-pulse" />
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-4 gap-2">
-              {teams.map((team) => {
-                const color = getTeamColor(team.metadata);
-                const logo = getTeamLogo(team.metadata);
-                const isSelected = selected === team.slug;
-                return (
-                  <button
-                    key={team.id}
-                    onClick={() => setSelected(isSelected ? null : (team.slug ?? team.id))}
-                    className={cn(
-                      "relative flex flex-col items-center justify-center gap-1 h-[72px] rounded-lg border-2 transition-all text-xs font-medium text-center px-1",
-                      isSelected
-                        ? "border-[var(--team-color)] bg-[var(--team-color)]/10 text-foreground scale-105"
-                        : "border-border bg-muted/30 hover:border-[var(--team-color)] hover:bg-[var(--team-color)]/5 text-muted-foreground",
-                    )}
-                    style={{ "--team-color": color } as React.CSSProperties}
-                    title={team.name}
-                  >
-                    {logo ? (
-                      <span className="relative h-7 w-7 shrink-0">
-                        <Image
-                          src={logo}
-                          alt=""
-                          fill
-                          sizes="28px"
-                          className="object-contain"
-                        />
-                      </span>
-                    ) : (
-                      <span
-                        className="text-base font-bold leading-none"
-                        style={{ color: isSelected ? color : undefined }}
-                      >
-                        {teamAbbr(team.slug, team.name)}
-                      </span>
-                    )}
-                    <span className="text-xs mt-0.5 leading-tight line-clamp-2">
-                      {team.name}
+        {teams.length === 0 ? (
+          <div className="grid grid-cols-4 gap-2">
+            {Array.from({ length: 16 }).map((_, i) => (
+              <div key={i} className="h-[72px] rounded-lg bg-muted animate-pulse" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-4 gap-2">
+            {teams.map((team) => {
+              const color = getTeamColor(team.metadata);
+              const logo = getTeamLogo(team.metadata);
+              const isSelected = selected === team.slug;
+              return (
+                <button
+                  key={team.id}
+                  type="button"
+                  onClick={() => setSelected(isSelected ? null : (team.slug ?? team.id))}
+                  className={cn(
+                    "relative flex min-h-[72px] min-w-11 flex-col items-center justify-center gap-1 rounded-lg border-2 transition-all text-xs font-medium text-center px-1",
+                    isSelected
+                      ? "border-[var(--team-color)] bg-[var(--team-color)]/10 text-foreground scale-105"
+                      : "border-border bg-muted/30 hover:border-[var(--team-color)] hover:bg-[var(--team-color)]/5 text-muted-foreground",
+                  )}
+                  style={{ "--team-color": color } as React.CSSProperties}
+                  title={team.name}
+                >
+                  {logo ? (
+                    <span className="relative h-7 w-7 shrink-0">
+                      <Image
+                        src={logo}
+                        alt=""
+                        fill
+                        sizes="28px"
+                        className="object-contain"
+                      />
                     </span>
-                    {isSelected && (
-                      <span
-                        className="absolute top-1 right-1 text-xs"
-                        style={{ color }}
-                      >
-                        ✓
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
+                  ) : (
+                    <span
+                      className="text-base font-bold leading-none"
+                      style={{ color: isSelected ? color : undefined }}
+                    >
+                      {teamAbbr(team.slug, team.name)}
+                    </span>
+                  )}
+                  <span className="text-xs mt-0.5 leading-tight line-clamp-2">
+                    {team.name}
+                  </span>
+                  {isSelected && (
+                    <span className="absolute top-1 right-1 text-xs" style={{ color }}>
+                      ✓
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
-        {/* Footer */}
-        <div className="p-4 border-t border-border flex gap-3 justify-end">
+        <div className="mt-4 flex gap-3 justify-end border-t border-border pt-4">
           <button
+            type="button"
             onClick={handleSkip}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors px-3 py-2"
+            className="inline-flex min-h-11 min-w-11 items-center px-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             Hoppa över
           </button>
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className={cn(
-              "px-5 py-2 rounded-lg text-sm font-medium transition-all",
-              selected
-                ? "bg-pitch text-white hover:bg-pitch/90"
-                : "bg-muted text-muted-foreground cursor-not-allowed",
-            )}
-          >
-            {saving ? "Sparar..." : selected ? "Välj detta lag" : "Välj ett lag ovan"}
-          </button>
+          {selected ? (
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={saving}
+              data-cta="primary"
+              className="inline-flex min-h-11 items-center px-5 rounded-lg text-sm font-medium bg-pitch text-white hover:bg-pitch/90 transition-all"
+            >
+              {saving ? "Sparar..." : "Välj detta lag"}
+            </button>
+          ) : null}
         </div>
-      </div>
-    </div>
+      </SheetContent>
+    </Sheet>
   );
 }

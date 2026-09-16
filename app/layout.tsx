@@ -8,7 +8,10 @@ import { Providers } from "./providers";
 import { Toaster } from "@/components/ui/sonner";
 import { CookieBanner } from "@/components/CookieBanner";
 import { UtmVisitTracker } from "@/components/growth/UtmVisitTracker";
+import { LiquidGlassFilter } from "@/components/ux/LiquidGlassFilter";
 import { getSiteUrl } from "@/lib/site-url";
+import { getWebsiteSettings } from "@/lib/website-settings.server";
+import { rootMetadataFromSettings } from "@/lib/website-settings";
 import "./globals.css";
 import { jsonLd } from "@/lib/json-ld";
 
@@ -26,33 +29,19 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE),
-  manifest: "/manifest.json",
-  title: {
-    default: "Athopia — Allsvenskan 2026: tabell, resultat & statistik",
-    template: "%s | Athopia",
-  },
-  description:
-    "Allt om Allsvenskan 2026 — live-tabell, resultat, spelschema, skytteliga och djupstatistik för alla 16 lag. Matchanalyser, nyhetsflöde och forum för ditt lag, samlat på ett ställe.",
-  keywords: [
-    "Allsvenskan", "Allsvenskan 2026", "Allsvenskan tabell", "Allsvenskan resultat",
-    "Allsvenskan matcher", "Allsvenskan statistik", "Allsvenskan live", "Allsvenskan spelschema",
-    "Allsvenskan skytteliga", "svensk fotboll", "fotboll Allsvenskan", "Allsvenskan statistik",
-  ],
-  openGraph: {
-    type: "website",
-    locale: "sv_SE",
-    url: SITE,
-    siteName: "Athopia",
-    images: [{ url: "/og-default.png", width: 1200, height: 630 }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    site: "@athopia_se",
-  },
-  robots: { index: true, follow: true },
-};
+const SEO_KEYWORDS = [
+  "Allsvenskan", "Allsvenskan 2026", "Allsvenskan tabell", "Allsvenskan resultat",
+  "Allsvenskan matcher", "Allsvenskan statistik", "Allsvenskan live", "Allsvenskan spelschema",
+  "Allsvenskan skytteliga", "svensk fotboll", "fotboll Allsvenskan", "Allsvenskan statistik",
+];
+
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getWebsiteSettings();
+  return {
+    ...rootMetadataFromSettings(settings, SITE),
+    keywords: SEO_KEYWORDS,
+  };
+}
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -66,15 +55,16 @@ export const viewport: Viewport = {
   ],
 };
 
-function NewsMediaJsonLd() {
+async function NewsMediaJsonLd() {
+  const settings = await getWebsiteSettings();
   return (
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd({
       "@context": "https://schema.org",
       "@type": "NewsMediaOrganization",
-      name: "Athopia",
+      name: settings.identity.siteName,
       url: SITE,
       foundingDate: "2026",
-      contactPoint: { "@type": "ContactPoint", email: "hej@athopia.se", contactType: "editorial" },
+      contactPoint: { "@type": "ContactPoint", email: settings.identity.contactEmail, contactType: "editorial" },
       publishingPrinciples: `${SITE}/om-oss`,
       inLanguage: "sv",
     })}} />
@@ -92,6 +82,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       suppressHydrationWarning
     >
       <body className="min-h-dvh flex flex-col">
+        <LiquidGlassFilter />
         {/*
           WCAG 2.4.1 — hoppa förbi header/sidebar/bottendock till innehållet.
           Inte `hidden`: länken måste vara fokuserbar. Den parkeras ovanför

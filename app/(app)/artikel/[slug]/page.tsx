@@ -31,6 +31,8 @@ import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
 import { jsonLd } from "@/lib/json-ld";
 import { ArticleBody } from "@/components/news/ArticleBody";
 import { calculateReadTime, formatDateRelative } from "@/lib/utils";
+import { getWebsiteSettings } from "@/lib/website-settings.server";
+import { resolveShareMetadata, toNextMetadata } from "@/lib/website-settings";
 
 export const revalidate = 3600;
 
@@ -67,18 +69,21 @@ export async function generateMetadata({
     };
   }
 
-  return {
+  const settings = await getWebsiteSettings();
+  const share = resolveShareMetadata(settings, {
+    kind: "article",
     title: article.title,
-    description: article.summary,
-    alternates: { canonical: `${getSiteUrl()}/artikel/${slug}` },
+    summary: article.summary ?? null,
+    path: `/artikel/${slug}`,
+  });
+  const meta = toNextMetadata(settings, share);
+  return {
+    ...meta,
     openGraph: {
+      ...meta.openGraph,
       type: "article",
-      title: article.title,
-      description: article.summary,
-      url: `${getSiteUrl()}/artikel/${slug}`,
       publishedTime: article.publishedAt,
     },
-    twitter: { card: "summary", title: article.title },
   };
 }
 

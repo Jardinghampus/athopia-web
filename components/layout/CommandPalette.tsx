@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { Search, CornerDownLeft } from "lucide-react";
+import { Search, CornerDownLeft, X } from "lucide-react";
 import { useCommandPalette } from "@/hooks/useCommandPalette";
 import { useModalA11y } from "@/hooks/useModalA11y";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
@@ -86,7 +86,7 @@ export function CommandPalette() {
     >
       <button className="absolute inset-0 bg-black/55" onClick={close} aria-label="Stäng sök" />
       <div className="absolute left-1/2 top-16 -translate-x-1/2 w-[92vw] max-w-2xl">
-        <div className="rounded-2xl overflow-hidden border border-border bg-popover text-popover-foreground shadow-2xl ring-1 ring-black/5 dark:ring-white/10">
+        <div className="glass overflow-hidden text-popover-foreground shadow-2xl">
           <div className="flex items-center gap-3 p-4 border-b border-border">
             <Search className="w-4 h-4 shrink-0 text-muted-foreground" />
             <input
@@ -99,9 +99,21 @@ export function CommandPalette() {
               placeholder="Sök artiklar, lag, spelare, podcasts…"
               className="w-full bg-transparent outline-none text-sm text-foreground placeholder:text-muted-foreground"
             />
-            <span className="text-xs text-muted-foreground flex items-center gap-1 shrink-0">
+            <span className="hidden sm:flex text-xs text-muted-foreground items-center gap-1 shrink-0">
               <CornerDownLeft className="w-3 h-3" /> Enter
             </span>
+            {/* Backdrop + Escape stänger redan, men på telefon finns ingen
+                Escape-tangent och backdropen är bara 64px hög ovanför
+                dialogen. X i hörnet är den enda upptäckbara vägen ut
+                (mobil UX-regel 11). */}
+            <button
+              type="button"
+              onClick={close}
+              aria-label="Stäng"
+              className="glass-button inline-flex size-11 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
+            >
+              <X className="size-4" aria-hidden />
+            </button>
           </div>
 
           <div className="p-4 max-h-[60vh] overflow-auto">

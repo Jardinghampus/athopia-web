@@ -8,8 +8,9 @@ import { FixturesTicker } from "@/components/ui/FixturesTicker";
 import { TeamPushPopups } from "@/components/news/TeamPushPopups";
 import { AthleticFeedHero, AthleticFeedRow } from "@/components/news/AthleticFeed";
 import { FeedSortBar, type FeedSort } from "@/components/news/FeedSortBar";
+import { PrefetchNextPage } from "@/components/news/PrefetchNextPage";
 import { FeedModulesRail } from "@/components/feed/FeedModulesRail";
-import { FeedFilterPanel, FeedFilterButton } from "@/components/feed/FeedFilterPanel";
+import { FeedFilterPanel } from "@/components/feed/FeedFilterPanel";
 import {
   getFilteredArticles,
   getDiscussionCounts,
@@ -61,25 +62,35 @@ function Pagination({ page, total, urlBase }: { page: number; total: number; url
   const prev = page > 1 ? `${urlBase}&page=${page - 1}` : null;
   const next = page < totalPages ? `${urlBase}&page=${page + 1}` : null;
   return (
-    <div className="mt-8 flex items-center justify-between text-sm">
-      {prev ? (
-        <Link href={prev} className="text-pitch-ink hover:underline">
-          Föregående
-        </Link>
-      ) : (
-        <span className="opacity-40">Föregående</span>
-      )}
-      <span className="text-muted-foreground font-mono tabular-nums">
-        {page} / {totalPages}
-      </span>
-      {next ? (
-        <Link href={next} className="text-pitch-ink hover:underline">
-          Nästa
-        </Link>
-      ) : (
-        <span className="opacity-40">Nästa</span>
-      )}
-    </div>
+    <>
+      <PrefetchNextPage href={next} />
+      <div className="mt-8 flex items-center justify-between text-sm">
+        {/* min-h-11: 44px träffyta även om texten är 20px hög (Fitts's Law). */}
+        {prev ? (
+          <Link
+            href={prev}
+            className="inline-flex min-h-11 items-center text-pitch-ink hover:underline"
+          >
+            Föregående
+          </Link>
+        ) : (
+          <span className="inline-flex min-h-11 items-center opacity-40">Föregående</span>
+        )}
+        <span className="text-muted-foreground font-mono tabular-nums">
+          {page} / {totalPages}
+        </span>
+        {next ? (
+          <Link
+            href={next}
+            className="inline-flex min-h-11 items-center text-pitch-ink hover:underline"
+          >
+            Nästa
+          </Link>
+        ) : (
+          <span className="inline-flex min-h-11 items-center opacity-40">Nästa</span>
+        )}
+      </div>
+    </>
   );
 }
 
@@ -287,15 +298,13 @@ export default async function NyheterPage({
       : "För dig";
 
   return (
-    <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 py-6 pb-24 md:pb-10 lg:grid lg:grid-cols-[260px_minmax(0,1fr)_320px] lg:gap-8">
+    <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 py-6 pb-24 md:pb-10 lg:grid lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-8">
       <ProductEventTracker event="nyheter_open" />
-      <div className="-mx-4 sm:-mx-6 -mt-6 mb-4 lg:col-span-3">
+      <div className="-mx-4 sm:-mx-6 -mt-6 mb-4 lg:col-span-2">
         <Suspense fallback={null}>
           <FixturesTicker />
         </Suspense>
       </div>
-
-      <FeedFilterPanel {...filterOptions} />
 
       <div className="min-w-0">
         <div className="mx-auto max-w-2xl">
@@ -330,15 +339,13 @@ export default async function NyheterPage({
             }}
           />
 
+          <FeedFilterPanel {...filterOptions} />
+
           <ActiveFilterChips chips={activeChips} />
 
           <Suspense fallback={null}>
             <TeamPushPopups />
           </Suspense>
-
-          <div className="mb-3 flex items-center gap-2 lg:hidden">
-            <FeedFilterButton {...filterOptions} />
-          </div>
 
           <Suspense fallback={null}>
             <FeedSortBar sort={sort} scope={scope} visa={visa} />

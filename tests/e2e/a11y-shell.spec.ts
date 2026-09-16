@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { readFileSync } from 'node:fs'
 
 /**
  * Regressionsvakt för appskalet (header, skip-link, bottendock).
@@ -7,6 +8,18 @@ import { test, expect } from '@playwright/test'
  */
 
 const SHELL_ROUTES = ['/nyheter', '/allsvenskan/tabell', '/statistik']
+
+/**
+ * Fliketiketterna läses ur det genererade kontraktet, inte ur en lista här.
+ * Hårdkodade etiketter ruttnade tysta: testet krävde fortfarande "Mitt lag"
+ * och "AI" långt efter att docken bytt innehåll. `contracts:check` garanterar
+ * att JSON:en följer `lib/nav.ts`.
+ */
+const PRIMARY = (
+  JSON.parse(readFileSync('contracts/generated/navigation.json', 'utf8')) as {
+    primary: { route: string; label: string }[]
+  }
+).primary
 
 test.describe('skip link (WCAG 2.4.1)', () => {
   test('finns i DOM och är dold tills den får fokus', async ({ page }) => {
@@ -57,16 +70,17 @@ test.describe('bottendock', () => {
     const nav = page.getByRole('navigation', { name: 'Huvudnavigation' })
     await expect(nav).toBeVisible()
 
-    for (const label of ['Mitt lag', 'Flöde', 'Allsvenskan', 'Matcher', 'AI']) {
+    for (const { label } of PRIMARY) {
       await expect(nav.getByText(label, { exact: true })).toBeVisible()
     }
   })
 
   test('aktiv flik är markerad med aria-current', async ({ page }) => {
-    await page.goto('/allsvenskan')
+    const tabell = PRIMARY.find((t) => t.route === '/allsvenskan')!
+    await page.goto(tabell.route)
     const nav = page.getByRole('navigation', { name: 'Huvudnavigation' })
     await expect(nav.locator('[aria-current="page"]')).toHaveCount(1)
-    await expect(nav.locator('[aria-current="page"]')).toContainText('Allsvenskan')
+    await expect(nav.locator('[aria-current="page"]')).toContainText(tabell.label)
   })
 
   test('docken ryms utan horisontell scroll på 320px', async ({ page }) => {

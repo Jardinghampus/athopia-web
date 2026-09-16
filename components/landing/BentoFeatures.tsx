@@ -130,7 +130,7 @@ export function BentoFeatures() {
               <div className="mt-5 flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.03] px-4 py-3">
                 <span className="text-sm font-bold text-white/80">AIK</span>
                 <div className="text-center">
-                  <span className="font-heading text-2xl tracking-wider text-white">2–1</span>
+                  <span className="font-heading text-2xl tracking-heading text-white">2–1</span>
                   <span className="ml-2 inline-flex items-center gap-1 text-xs font-bold text-rose-400">
                     <span className="live-dot !h-1.5 !w-1.5" />
                     73&prime;
@@ -149,7 +149,7 @@ export function BentoFeatures() {
                 title="Push när det smäller"
                 text="Mål, bekräftade transfers, skador i ditt lag. Inget annat — du bestämmer tröskeln."
               />
-              <div className="mt-5 flex items-start gap-3 rounded-xl border border-white/[0.08] bg-white/[0.05] p-3 backdrop-blur">
+              <div className="mt-5 flex items-start gap-3 rounded-xl border border-white/[0.08] bg-white/[0.05] p-3">
                 <div className="pitch-gradient flex h-8 w-8 shrink-0 items-center justify-center rounded-lg font-heading text-sm text-white">
                   A
                 </div>

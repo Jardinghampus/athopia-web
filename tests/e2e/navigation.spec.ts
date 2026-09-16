@@ -1,4 +1,12 @@
 import { test, expect } from "@playwright/test";
+import { readFileSync } from "node:fs";
+
+/** Docken läses ur det genererade kontraktet — aldrig ur en lista här. */
+const PRIMARY = (
+  JSON.parse(readFileSync("contracts/generated/navigation.json", "utf8")) as {
+    primary: { route: string; label: string }[];
+  }
+).primary;
 
 test.describe("Desktop navigation", () => {
   test("Nyheter-sidan laddar korrekt", async ({ page }) => {
@@ -22,21 +30,23 @@ test.describe("Desktop navigation", () => {
 test.describe("GlassNav liquid dock", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test("GlassNav visar fem flikar", async ({ page }) => {
+  test("GlassNav visar kontraktets primära flikar", async ({ page }) => {
     await page.goto("/nyheter");
     const nav = page.locator(".glassnav");
     await expect(nav).toBeVisible({ timeout: 10000 });
-    await expect(nav.getByRole("link", { name: "Mitt lag" })).toBeVisible();
-    await expect(nav.getByRole("link", { name: "Flöde" })).toBeVisible();
-    await expect(nav.getByRole("link", { name: "Allsvenskan" })).toBeVisible();
-    await expect(nav.getByRole("link", { name: "Matcher" })).toBeVisible();
-    await expect(nav.getByRole("link", { name: "AI" })).toBeVisible();
+    await expect(nav.getByRole("link")).toHaveCount(PRIMARY.length);
+    for (const { label } of PRIMARY) {
+      await expect(nav.getByRole("link", { name: label })).toBeVisible();
+    }
+    // /ai är overflow under Mer, inte en flik. AI är infrastruktur.
+    await expect(nav.getByRole("link", { name: "AI" })).toHaveCount(0);
   });
 
-  test("Flöde-flik är aktiv på /nyheter", async ({ page }) => {
-    await page.goto("/nyheter");
+  test("aktiv flik markeras på sin egen route", async ({ page }) => {
+    const flode = PRIMARY.find((t) => t.route === "/nyheter")!;
+    await page.goto(flode.route);
     await expect(
-      page.locator(".glassnav").getByRole("link", { name: "Flöde" }),
+      page.locator(".glassnav").getByRole("link", { name: flode.label }),
     ).toHaveAttribute("aria-current", "page");
   });
 

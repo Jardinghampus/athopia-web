@@ -7,6 +7,9 @@ import { GlassNav } from "@/components/layout/GlassNav";
 import { TeamSelectionModal } from "@/components/ui/TeamSelectionModal";
 import { PwaInstallBanner } from "@/components/PwaInstallBanner";
 import { MobileNav } from "@/components/layout/MobileNav";
+import { PullToRefreshShell } from "@/components/layout/PullToRefreshShell";
+import { EdgeSwipeBack } from "@/components/layout/EdgeSwipeBack";
+import { ScrollRestore } from "@/components/ux/ScrollRestore";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const clerkEnabled =
@@ -14,6 +17,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <>
+      {/* Gester för hela app-shellen — en hanterare per gest, aldrig en per yta. */}
+      <PullToRefreshShell />
+      <EdgeSwipeBack />
+      <Suspense fallback={null}>
+        <ScrollRestore />
+      </Suspense>
       <Header clerkEnabled={clerkEnabled} />
       <div className="flex flex-1 min-h-0">
         <Suspense fallback={null}>

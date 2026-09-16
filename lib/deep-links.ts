@@ -27,6 +27,7 @@ export const DEEP_LINK_ROUTES: DeepLinkRoute[] = [
   { prefix: "statistik",   hasDetail: true,  standalone: true },
   { prefix: "daily",       hasDetail: false, standalone: true },
   { prefix: "nyheter",     hasDetail: false, standalone: true },
+  { prefix: "feed",        hasDetail: true,  standalone: true },
   { prefix: "mitt-lag",    hasDetail: false, standalone: true },
   { prefix: "profil",      hasDetail: false, standalone: true },
   { prefix: "konto",       hasDetail: false, standalone: true },

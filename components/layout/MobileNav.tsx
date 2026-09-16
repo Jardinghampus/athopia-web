@@ -65,7 +65,7 @@ export function MobileNav() {
               <button
                 aria-label="Stäng meny"
                 onClick={() => setOpen(false)}
-                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-card transition-colors text-muted-foreground"
+                className="glass-button inline-flex size-11 items-center justify-center text-muted-foreground"
               >
                 <X className="w-4 h-4" />
               </button>

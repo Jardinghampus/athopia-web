@@ -35,7 +35,7 @@ export function FollowButton({
       onClick={handleClick}
       disabled={pending}
       aria-pressed={following}
-      className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50 ${
+      className={`inline-flex min-h-11 items-center gap-2 rounded-lg px-4 text-sm font-medium transition-colors disabled:opacity-50 ${
         following
           ? 'bg-pitch text-white hover:bg-pitch/80'
           : 'border border-border bg-card text-foreground hover:bg-muted'

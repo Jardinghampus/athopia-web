@@ -25,6 +25,10 @@ const isProtectedRoute = createRouteMatcher([
   "/dashboard(.*)",
   "/konto(.*)",
   "/feed(.*)",
+  // Profil är en primär flik i bottenraden sedan navomläggningen. En utloggad
+  // som trycker på den måste landa på inloggningen — samma 404-risk som
+  // /konto hade innan `unauthenticatedUrl` sattes explicit nedan.
+  "/profil(.*)",
 ]);
 
 // Polsia 2.0 S2 — growth loop: capture utm_campaign i en cookie (30 dagar).

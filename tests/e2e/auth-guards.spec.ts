@@ -4,7 +4,6 @@ import { test, expect } from '@playwright/test'
 const PROTECTED = [
   '/konto',
   '/profil',
-  '/onboarding',
 ]
 
 test.describe('Skyddade routes redirectar anonyma användare', () => {
@@ -27,6 +26,15 @@ test.describe('Skyddade routes redirectar anonyma användare', () => {
       expect(url.includes('sign-in') || url.includes('sign-up') || hasClerkUi > 0).toBe(true)
     })
   }
+
+  test('/onboarding är öppet utan konto', async ({ page }) => {
+    const res = await page.goto('/onboarding')
+    expect(res?.status()).toBeLessThan(400)
+    await expect(page).not.toHaveURL(/sign-in/)
+    await expect(page.getByRole('heading', { name: 'Välj ditt lag' })).toBeVisible({
+      timeout: 12000,
+    })
+  })
 
   test('/mitt-lag renderar utan 500', async ({ page }) => {
     const res = await page.goto('/mitt-lag')
@@ -69,7 +77,7 @@ test.describe('Publika auth-sidor', () => {
  * `TEST_URL=https://… npx playwright test auth-guards`.
  */
 test.describe('Skyddade routes svarar aldrig 404', () => {
-  for (const path of ['/konto', '/onboarding', '/dashboard']) {
+  for (const path of ['/konto', '/dashboard']) {
     test(`${path} omdirigerar anonym besökare`, async ({ request }) => {
       const res = await request.get(path, { maxRedirects: 0 })
       expect(

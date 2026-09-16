@@ -16,7 +16,8 @@ import { useFavoriteTeam } from "@/hooks/useFavoriteTeam";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { FeedPaywallBanner } from "@/components/FeedPaywallBanner";
 import { ProductEventTracker } from "@/components/analytics/ProductEventTracker";
-import { PullToRefresh } from "@/components/ui/PullToRefresh";
+import { usePullRefresh } from "@/hooks/usePullRefresh";
+import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 import { FeedSourceBadge } from "@/components/feed/FeedSourceBadge";
 import type { FeedItem, FeedItemType } from "@/lib/types";
 
@@ -409,15 +410,28 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
   }, []);
 
   // ── Infinite scroll ────────────────────────────────────────────────────────
+  // `rootMargin` är hela poängen: nästa batch hämtas ~1,5 skärmar innan
+  // sentinelen är synlig, så användaren aldrig ser en spinner i botten
+  // (mobil UX-regel 17). Utan den triggar hämtningen först när scrollen
+  // redan tagit slut.
   useEffect(() => {
     if (!bottomRef.current || loadingMore || !hasMore) return;
     const obs = new IntersectionObserver(
       ([entry]) => { if (entry?.isIntersecting) void load(); },
-      { threshold: 0.1 },
+      { rootMargin: "0px 0px 150% 0px", threshold: 0 },
     );
     obs.observe(bottomRef.current);
     return () => obs.disconnect();
   }, [loadingMore, hasMore, load]);
+
+  // Pull-to-refresh går genom app-shellens enda gesthanterare.
+  usePullRefresh(async () => {
+    await load(true);
+    await fetchHero(slug).then(setHero);
+  });
+
+  // Tillbaka till flödet landar på samma rad, inte i toppen (regel 16).
+  useScrollRestoration(`feed:${slug ?? "all"}`, !loading && items.length > 0);
 
   if (!isLoaded) return null;
 
@@ -427,7 +441,7 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
     filter === "all" ? items : items.filter((i) => i.type === filter);
 
   return (
-    <PullToRefresh onRefresh={async () => { await load(true); void fetchHero(slug).then(setHero); }}>
+    <>
       <ProductEventTracker event="feed_open" props={{ team: slug ?? "all" }} />
       <ProductEventTracker event="feed_first_view" props={{ team: slug ?? "all" }} once="feed_first_view" />
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 space-y-5">
@@ -509,6 +523,6 @@ export function FeedClient({ forceTeam }: { forceTeam?: string } = {}) {
           <p className="text-center text-xs text-muted-foreground py-4">Inga fler items</p>
         )}
       </div>
-    </PullToRefresh>
+    </>
   );
 }

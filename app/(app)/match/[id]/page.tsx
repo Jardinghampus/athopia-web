@@ -17,6 +17,8 @@ import type { SMStandingRow } from "@/lib/db/fixtures";
 import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
 import { buildMatchTimeline } from "@/lib/match/events";
 import { jsonLd } from "@/lib/json-ld";
+import { getWebsiteSettings } from "@/lib/website-settings.server";
+import { resolveShareMetadata, toNextMetadata } from "@/lib/website-settings";
 
 export const revalidate = 60;
 
@@ -149,20 +151,42 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const fid = parseInt(id, 10);
   if (isNaN(fid)) return { title: "Match | Athopia" };
   const db = createServerClient();
-  const { data } = await db.from("fixtures").select("home_team_name,away_team_name,home_score,away_score").eq("sportmonks_id", fid).maybeSingle();
+  const { data } = await db
+    .from("fixtures")
+    .select("home_team_name,away_team_name,home_score,away_score,kickoff_at")
+    .eq("sportmonks_id", fid)
+    .maybeSingle();
   if (!data) return { title: "Match" };
-  const title = `${data.home_team_name} ${data.home_score}–${data.away_score} ${data.away_team_name}`;
-  return {
-    title,
-    description: `Matchrapport: ${data.home_team_name} mot ${data.away_team_name} i Allsvenskan 2026 — mål, händelser, statistik och AI-analys.`,
-    alternates: { canonical: `https://athopia.se/match/${fid}` },
-    openGraph: {
-      type: "article",
-      title,
-      description: `${data.home_team_name} ${data.home_score}–${data.away_score} ${data.away_team_name} — Allsvenskan 2026`,
-      url: `https://athopia.se/match/${fid}`,
-    },
-  };
+
+  const score = (value: unknown): number | null =>
+    typeof value === "number" && Number.isFinite(value) ? value : null;
+  const homeScore = score(data.home_score);
+  const awayScore = score(data.away_score);
+  const kickoffRaw = data.kickoff_at as string | null;
+  const when = kickoffRaw
+    ? new Date(kickoffRaw).toLocaleString("sv-SE", {
+        timeZone: "Europe/Stockholm",
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : null;
+
+  const settings = await getWebsiteSettings();
+  return toNextMetadata(
+    settings,
+    resolveShareMetadata(settings, {
+      kind: "match",
+      home: String(data.home_team_name ?? "Hemmalag"),
+      away: String(data.away_team_name ?? "Bortalag"),
+      homeScore,
+      awayScore,
+      when,
+      path: `/match/${fid}`,
+    }),
+  );
 }
 
 const EVENT_ICONS: Record<string, string> = {

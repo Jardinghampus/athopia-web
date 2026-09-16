@@ -50,7 +50,7 @@ export function BentoCard({ item, className }: { item: BentoItem; className?: st
           <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-pitch/10 border border-pitch/15">
             {item.icon}
           </div>
-          <span className="text-xs font-medium px-2 py-1 rounded-lg bg-white/[0.06] text-white/60 backdrop-blur-sm transition-colors duration-300 group-hover:bg-white/[0.1]">
+          <span className="text-xs font-medium px-2 py-1 rounded-lg bg-white/[0.06] text-white/60 transition-colors duration-300 group-hover:bg-white/[0.1]">
             {item.status ?? "Nyhet"}
           </span>
         </div>
@@ -72,7 +72,7 @@ export function BentoCard({ item, className }: { item: BentoItem; className?: st
             {item.tags?.map((tag) => (
               <span
                 key={tag}
-                className="px-2 py-1 rounded-md bg-white/[0.06] backdrop-blur-sm transition-all duration-200 group-hover:bg-white/[0.1]"
+                className="px-2 py-1 rounded-md bg-white/[0.06] transition-all duration-200 group-hover:bg-white/[0.1]"
               >
                 #{tag}
               </span>

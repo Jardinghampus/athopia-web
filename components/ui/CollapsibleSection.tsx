@@ -34,7 +34,7 @@ export function CollapsibleSection({
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
           aria-controls={panelId}
-          className="group flex min-w-0 flex-1 items-center gap-2 text-left touch-manipulation"
+          className="group flex min-h-11 min-w-0 flex-1 items-center gap-2 text-left touch-manipulation"
         >
           {leading}
           <h2 className="font-semibold text-xl text-foreground truncate text-balance">{title}</h2>

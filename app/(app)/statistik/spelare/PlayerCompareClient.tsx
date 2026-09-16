@@ -136,7 +136,12 @@ function PlayerCombobox({ pool, value, onChange, label, color }: {
               key={p.player_id}
               role="option"
               aria-selected={String(p.player_id) === value}
-              onPointerDown={(e) => { e.preventDefault(); select(p); }}
+              // preventDefault på pointerdown håller fokus kvar i fältet (annars
+              // blur:ar listan bort under fingret), men VALET sker på click —
+              // alltså vid uppsläpp. Det ger ångerrätt: drar man bort fingret
+              // från raden uteblir click och inget väljs.
+              onPointerDown={(e) => e.preventDefault()}
+              onClick={() => select(p)}
               className={cn(
                 "flex items-center justify-between px-3 py-2 text-sm cursor-pointer select-none",
                 String(p.player_id) === value

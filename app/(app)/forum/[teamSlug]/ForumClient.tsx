@@ -7,6 +7,8 @@ import { useUser } from "@clerk/nextjs";
 import { toast } from "sonner";
 import PostItem from "@/components/forum/PostItem";
 import ComposeDrawer from "@/components/forum/ComposeDrawer";
+import { usePullRefresh } from "@/hooks/usePullRefresh";
+import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 import type { ForumPost } from "@/lib/types";
 
 interface Props {
@@ -41,6 +43,9 @@ export default function ForumClient({ teamSlug, sport, initialPosts, articlePref
   useEffect(() => {
     setPosts(initialPosts);
   }, [initialPosts]);
+
+  usePullRefresh(refresh);
+  useScrollRestoration(`forum:${teamSlug}`, !loading && posts.length > 0);
 
   async function handlePost(data: {
     content: string;
@@ -83,7 +88,8 @@ export default function ForumClient({ teamSlug, sport, initialPosts, articlePref
         <>
           <button
             onClick={() => setComposeOpen(true)}
-            className="w-full flex items-center gap-3 px-4 py-3.5 border-b border-border/40 hover:bg-card/30 transition-colors text-left touch-manipulation"
+            data-cta="primary"
+            className="w-full flex min-h-11 items-center gap-3 px-4 py-3.5 border-b border-border/40 hover:bg-card/30 transition-colors text-left touch-manipulation"
             aria-label="Skriv ett inlägg"
           >
             <div className="w-9 h-9 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-300 text-[13px] font-semibold shrink-0 overflow-hidden">
@@ -142,7 +148,8 @@ export default function ForumClient({ teamSlug, sport, initialPosts, articlePref
               href="/sign-up"
               // text-black på Racing Green ger 2.5:1 — vit text är normen på
               // bg-pitch i övriga appen och ger 8.9:1.
-              className="inline-flex h-10 items-center gap-2 rounded-xl bg-pitch px-5 text-sm font-bold text-white hover:bg-pitch/90 transition-colors"
+              data-cta="primary"
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-pitch px-5 text-sm font-bold text-white hover:bg-pitch/90 transition-colors"
             >
               Skapa konto för att skriva
             </Link>

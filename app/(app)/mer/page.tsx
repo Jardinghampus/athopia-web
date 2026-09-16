@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   description: "Forum, statistik, poddar, konto och prenumeration.",
 };
 
-/** Overflow utanför bottenraden (Mitt lag · Flöde · Allsvenskan · Matcher · AI). */
+/** Overflow utanför bottenraden (Mitt lag · Flöde · Matcher · Tabellen). */
 export default function MerPage() {
   return (
     <div className="mx-auto max-w-lg px-4 py-6 space-y-6 pb-24">
@@ -59,8 +59,8 @@ export default function MerPage() {
         <ListRow
           href="/ai"
           leading={<Sparkles />}
-          title="AI-chatt"
-          subtitle="Också i bottenraden"
+          title="Fråga"
+          subtitle="Statistik, matcher och nyheter — när du vill gräva"
         />
       </ListGroup>
 

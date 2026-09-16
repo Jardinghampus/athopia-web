@@ -46,7 +46,7 @@ export function GlassNav({ clerkEnabled: _clerkEnabled }: { clerkEnabled?: boole
 
   return (
     // Docken är mobilnavigationen. Från `md` tar AppSidebar över med exakt
-    // samma fem destinationer, och då blev docken ren dubblering som dessutom
+    // samma destinationer, och då blev docken ren dubblering som dessutom
     // låg och skymde innehåll mitt på skärmen (t.ex. PRO-kortets funktionslista
     // på /prenumerera). En navigation per brytpunkt.
     <div className="pointer-events-none fixed inset-x-0 z-50 flex justify-center bottom-[calc(env(safe-area-inset-bottom)+1rem)] md:hidden">
@@ -70,6 +70,19 @@ export function GlassNav({ clerkEnabled: _clerkEnabled }: { clerkEnabled?: boole
               aria-current={active ? "page" : undefined}
               data-active={active}
               className="glassnav__item"
+              onClick={(event) => {
+                // Tryck på den redan aktiva fliken scrollar till toppen i stället
+                // för att navigera till sig själv (mobil UX-regel 5). Utan detta
+                // gör trycket ingenting alls, vilket läses som en trasig flik.
+                if (!active) return;
+                event.preventDefault();
+                window.scrollTo({
+                  top: 0,
+                  behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+                    ? "auto"
+                    : "smooth",
+                });
+              }}
             >
               <Icon strokeWidth={2} aria-hidden />
               <span className="glassnav__label">{label}</span>

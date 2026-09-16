@@ -63,6 +63,9 @@ export function CheckoutButton({ plan, interval, label, variant = "primary" }: P
       <button
         onClick={handleCheckout}
         disabled={loading}
+        // Markerar vyns framhävda handling (mobil UX-regel 4). Elite-kortet
+        // kör variant="outline" och räknas därför inte som en andra primär CTA.
+        data-cta={variant === "primary" ? "primary" : undefined}
         className={`w-full h-11 rounded-xl font-medium text-sm transition-opacity disabled:opacity-60 flex items-center justify-center gap-2 ${styles}`}
         aria-label={`Starta ${plan}-prenumeration`}
       >

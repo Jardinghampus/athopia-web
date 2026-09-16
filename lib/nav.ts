@@ -1,5 +1,5 @@
 import {
-  Shield,
+  House,
   Newspaper,
   MessageSquare,
   Trophy,
@@ -11,15 +11,17 @@ import {
   CreditCard,
   Info,
   FileSearch,
+  Ellipsis,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 /**
  * Enda källan för top-level-navigering.
  *
- * Botten = dagliga vanor (5 flikar).
- * Sidobar = samma + vanliga genvägar (öppet utan Mer).
- * Mer/hamburger = overflow (konto, poddar, analys …).
+ * Botten = dagliga vanor. Hem längst till vänster, Profil längst till höger,
+ * max 5 flikar (`context/mobile_ux_rules.md` regel 3). AI är infrastruktur,
+ * inte en flik. Sidobar = samma fem + Mer.
+ * Mer/hamburger = overflow (forum, statistik, fråga, konto …).
  */
 export interface NavItem {
   href: string;
@@ -31,28 +33,31 @@ export interface NavItem {
   exact?: boolean;
 }
 
-/** Mobil (+ alltid synlig) bottenrad. */
+/**
+ * Mobil (+ alltid synlig) bottenrad. Ordningen är ett krav, inte en smaksak:
+ * Hem först, Profil sist. `/mitt-lag` ÄR hemmet i ett supporter-OS — favoritlagets
+ * dag är startskärmen, så Hem-fliken pekar dit i stället för på en tom aggregatsida.
+ *
+ * Max 5 poster. Behöver en sjätte destination plats hör den under Mer.
+ */
 export const BOTTOM_NAV_ITEMS: NavItem[] = [
-  { href: "/mitt-lag", label: "Mitt lag", icon: Shield, iosSymbol: "shield.fill" },
+  { href: "/mitt-lag", label: "Hem", icon: House, iosSymbol: "house.fill" },
   { href: "/nyheter", label: "Flöde", icon: Newspaper, iosSymbol: "newspaper.fill" },
-  { href: "/allsvenskan", label: "Allsvenskan", icon: Trophy, iosSymbol: "trophy.fill" },
   { href: "/match", label: "Matcher", icon: CalendarDays, iosSymbol: "calendar" },
-  { href: "/ai", label: "AI", icon: Sparkles, iosSymbol: "sparkles" },
+  { href: "/allsvenskan", label: "Tabellen", icon: Trophy, iosSymbol: "trophy.fill" },
+  { href: "/profil", label: "Profil", icon: User, iosSymbol: "person.crop.circle.fill" },
 ];
 
+/** Bottenraden får aldrig växa förbi detta. Låst av `lib/nav.test.ts`. */
+export const MAX_BOTTOM_NAV_ITEMS = 5;
+
 /**
- * Desktop-sidobar — bottenflikar + genvägar som tidigare låg bakom Mer.
- * Håll den kort; konto/prenumeration ligger kvar under Mer.
- *
- * Ordningen speglar hur stark ytan faktiskt är, inte hur ny den är. Statistik
- * (tio flikar + Scout Mode) står först. Daily låg här trots att den aldrig
- * publicerat ett avsnitt och nås nu via Mer tills den gör det.
+ * Desktop-sidobar — bottenflikar + en overflow-ingång.
+ * Forum/statistik/analys ligger under Mer, inte som egna chrome-rader.
  */
 export const SIDEBAR_NAV_ITEMS: NavItem[] = [
   ...BOTTOM_NAV_ITEMS,
-  { href: "/statistik", label: "Statistik", icon: BarChart3, iosSymbol: "chart.bar.fill" },
-  { href: "/forum", label: "Forum", icon: MessageSquare, iosSymbol: "bubble.left.and.bubble.right.fill" },
-  { href: "/analys", label: "Analys", icon: FileSearch, iosSymbol: "doc.text.magnifyingglass" },
+  { href: "/mer", label: "Mer", icon: Ellipsis, iosSymbol: "line.3.horizontal" },
 ];
 
 /**
@@ -69,6 +74,7 @@ export const SECONDARY_NAV_ITEMS: NavItem[] = [
   { href: "/analys", label: "Matchanalyser", icon: FileSearch, iosSymbol: "doc.text.magnifyingglass" },
   { href: "/daily", label: "Athopia Daily", icon: Headphones, iosSymbol: "headphones" },
   { href: "/podcast", label: "Poddar", icon: Headphones, iosSymbol: "waveform" },
+  { href: "/ai", label: "Fråga", icon: Sparkles, iosSymbol: "sparkles" },
   { href: "/konto", label: "Konto", icon: User, iosSymbol: "person.crop.circle" },
   { href: "/prenumerera", label: "Prenumeration", icon: CreditCard, iosSymbol: "creditcard.fill" },
   { href: "/om-oss", label: "Om Athopia", icon: Info, iosSymbol: "info.circle" },

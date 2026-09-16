@@ -185,7 +185,7 @@ export function NewsFilterPanel({ allSources, initialParams, totalCount }: Props
     (filter.visa !== "all" ? 1 : 0) + filter.teams.length + filter.sources.length + filter.events.length;
 
   return (
-    <div className="sticky top-[57px] z-30 bg-background/90 backdrop-blur-sm border-b border-border -mx-4 sm:-mx-6 px-4 sm:px-6 py-3 mb-6">
+    <div className="translucent-chrome sticky top-[57px] z-30 bg-background/90 backdrop-blur-sm border-b border-border -mx-4 sm:-mx-6 px-4 sm:px-6 py-3 mb-6">
       <div className="flex items-center gap-2 flex-wrap">
         {/* Pill-tabs: Visa — riktiga länkar så de fungerar även före hydration */}
         <div className="flex items-center gap-1 bg-card border border-border rounded-lg p-0.5">

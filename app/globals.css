@@ -307,6 +307,43 @@
     line-height: 1.3;
   }
 
+  /* Tryckrespons vid NEDTRYCK, inte vid släpp.
+     Mätt 2026-09-15: 124 av 135 <button> hade bara `hover:` — som aldrig fyrar
+     på en touchskärm. Att trycka "Spara ändringar" gav noll återkoppling tills
+     nätverket svarade. Detta är en basregel i stället för 124 klassändringar;
+     Tailwinds `active:`-utilities ligger i utility-lagret och vinner därför
+     automatiskt där en yta redan valt ett eget uttryck (t.ex. korten som
+     använder active:scale-[0.99]).
+
+     `.no-press` finns för ytor där en skalning ser fel ut — stora kort som
+     redan har egen rörelse, eller knappar som innehåller `position: fixed`-barn
+     (en transform gör föräldern till containing block och bryter dem).
+     Egenskapen är `scale`, INTE `transform: scale()`. Tailwinds
+     `active:scale-*` kompilerar till `scale: .99`, och `transform` och `scale`
+     är skilda egenskaper som KOMPONERAS — hade basregeln satt `transform`
+     hade de elva ytor som redan valt en egen skala fått båda pålagda
+     (0,97 x 0,99). Samma egenskap betyder att utility-lagret rent skriver
+     över base-lagret. */
+  button:not(:disabled):not([aria-disabled="true"]):not(.no-press),
+  [role="button"]:not([aria-disabled="true"]):not(.no-press) {
+    transition: scale 100ms ease-out;
+  }
+
+  button:not(:disabled):not([aria-disabled="true"]):not(.no-press):active,
+  [role="button"]:not([aria-disabled="true"]):not(.no-press):active {
+    scale: 0.97;
+  }
+
+  /* Reducerad rörelse tar bort rörelsen, inte återkopplingen (Apples regel:
+     en gentle, icke-vestibulär motsvarighet — aldrig ingenting alls). */
+  @media (prefers-reduced-motion: reduce) {
+    button:not(:disabled):not([aria-disabled="true"]):not(.no-press):active,
+    [role="button"]:not([aria-disabled="true"]):not(.no-press):active {
+      scale: 1;
+      opacity: 0.68;
+    }
+  }
+
   /* Konsekvent rytm: rubrik tätt mot sin brödtext, luft ovanför nästa block */
   h1 + p, h2 + p, h3 + p {
     margin-top: 0.75em;
@@ -320,12 +357,114 @@
     background: linear-gradient(135deg, #2D5349 0%, #1E3A32 100%);
   }
 
-  /* Glass effect */
+  /*
+   * Liquid glass — refraktion + frost, inte platt blur.
+   *
+   * SVG #lg (LiquidGlassFilter) böjer bakgrundspixlar via feDisplacementMap.
+   * inset 0 1px 0 #ffffff5c är toppkants-höjdpunkten som ger volym.
+   * Primära CTA:er (bg-pitch) ska ALDRIG använda dessa — accent äger handling.
+   */
+  .glass,
+  .glass-card,
+  .glass-pill,
+  .glass-bar,
+  .glass-button {
+    isolation: isolate;
+    background: color-mix(in srgb, var(--background) 52%, transparent);
+    border: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
+    box-shadow:
+      inset 0 1px 0 #ffffff5c,
+      0 10px 28px -14px rgba(0, 0, 0, 0.45);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    backdrop-filter: blur(12px) saturate(180%);
+  }
+
   .glass,
   .glass-card {
-    backdrop-filter: blur(20px);
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+  }
+
+  .glass-pill {
+    border-radius: 999px;
+  }
+
+  .glass-bar {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    box-shadow:
+      inset 0 1px 0 #ffffff5c,
+      0 1px 0 color-mix(in srgb, var(--foreground) 6%, transparent);
+  }
+
+  .glass-button {
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--background) 40%, transparent);
+    box-shadow:
+      inset 0 1px 0 #ffffff5c,
+      0 4px 14px -6px rgba(0, 0, 0, 0.35);
+  }
+
+  .glass-button:hover {
+    background: color-mix(in srgb, var(--background) 58%, transparent);
+  }
+
+  /* Progressive: optisk refraktion där url(#lg) stöds. Annars kvarstår blur. */
+  @supports (backdrop-filter: url(#lg)) {
+    .glass,
+    .glass-card,
+    .glass-pill,
+    .glass-bar,
+    .glass-button {
+      -webkit-backdrop-filter: url(#lg) blur(3px) saturate(180%);
+      backdrop-filter: url(#lg) blur(3px) saturate(180%);
+    }
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    .glass,
+    .glass-card,
+    .glass-pill,
+    .glass-bar,
+    .glass-button {
+      background: var(--background);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      box-shadow: inset 0 1px 0 color-mix(in srgb, var(--foreground) 8%, transparent);
+    }
+  }
+
+  /* Translucent chrome utanför .glass-systemet — sticky headers, sektionsnavar,
+     filterlister. De sätter sin genomskinlighet med Tailwinds `bg-background/NN`
+     + `backdrop-blur`, och låg alltså utanför a11y-media-queries nedan, som
+     bara kände till .glass*. Basfärgen ÄR --background, så att göra ytan solid
+     är rätt åtgärd: att bara ta bort blurren hade lämnat 80 % genomskinlig text
+     ovanpå rullande innehåll, alltså sämre läsbarhet än förut.
+
+     !important behövs för att slå Tailwinds egen bakgrundsutility. */
+  @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+    .translucent-chrome {
+      background: var(--background) !important;
+      -webkit-backdrop-filter: none !important;
+      backdrop-filter: none !important;
+    }
+  }
+
+  /* Tredje signalen vid sidan av reduced-motion/reduced-transparency: hög
+     kontrast. Nästan solid yta med en definierad, kontrasterande kant — en
+     translucent yta har ingen egen kant och försvinner annars i bakgrunden. */
+  @media (prefers-contrast: more) {
+    .glass,
+    .glass-card,
+    .glass-pill,
+    .glass-bar,
+    .glass-button {
+      background: var(--background);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      border: 1px solid var(--foreground);
+    }
   }
 
   /* Pitch glow for live indicators */
@@ -364,10 +503,15 @@
   .stagger-3 { animation-delay: 90ms; }
   .stagger-4 { animation-delay: 120ms; }
 
-  /* Sidövergång: samma fade-up på page-innehåll vid varje navigering
-     (via app/(app)/template.tsx). Kort nog att aldrig kännas som väntan. */
+  /* Sidövergång. Enbart opacity — transform på den här wrappen (template.tsx)
+     skapar containing block och gör TeamNavs sticky top till en svart remsa
+     under headern. fade-up (translateY) får bara användas på innehåll, inte chrome. */
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
   .page-enter {
-    animation: fade-up 240ms cubic-bezier(0.23, 1, 0.32, 1) both;
+    animation: fade-in 240ms cubic-bezier(0.23, 1, 0.32, 1) both;
   }
 
   @media (prefers-reduced-motion: reduce) {

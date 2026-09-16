@@ -28,9 +28,7 @@ export function LandingNav() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
         className={`fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-300 ${
-          scrolled
-            ? "border-b border-white/[0.06] bg-black/80 backdrop-blur-xl"
-            : "border-b border-transparent bg-transparent"
+          scrolled ? "glass-bar" : "border-b border-transparent bg-transparent"
         }`}
       >
         <Container>

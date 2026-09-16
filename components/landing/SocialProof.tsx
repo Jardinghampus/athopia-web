@@ -22,7 +22,7 @@ export function SocialProof() {
           <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
             {STATS.map(({ value, label }) => (
               <div key={label} className="text-center">
-                <div className="font-heading text-4xl tracking-wider text-white md:text-5xl">
+                <div className="font-heading text-4xl tracking-display text-white md:text-5xl">
                   {value}
                 </div>
                 <div className="mt-2 text-sm text-white/55">{label}</div>

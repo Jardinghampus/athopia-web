@@ -56,7 +56,7 @@ export function AppSidebar() {
   const extras = SIDEBAR_NAV_ITEMS.filter((i) => !primaryHrefs.has(i.href));
 
   return (
-    <div className="sticky top-14 h-[calc(100vh-3.5rem)] self-start shrink-0">
+    <div className="sticky top-12 hidden h-[calc(100vh-3rem)] shrink-0 self-start md:block">
       <Sidebar open={open} setOpen={setOpen}>
         <DesktopSidebar className="h-full !bg-background border-r border-border/50 py-4 flex-col gap-0.5">
           {primary.map((item) => (

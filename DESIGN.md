@@ -183,7 +183,7 @@ faktiska filinventeringen, grupperad efter roll.
 | `Pressable` | `Pressable.tsx` |
 | `TactileSheet` | `TactileSheet.tsx` |
 | `StatNumber` | `StatNumber.tsx` (number-flow) |
-| `PullToRefresh` | `PullToRefresh.tsx` |
+| `PullToRefreshShell` | `layout/PullToRefreshShell.tsx` (en gest för hela shellen; hooka på via `usePullRefresh`) |
 | `Carousel` | `Carousel.tsx` (embla) |
 | `ScoreWidget` | `ScoreWidget.tsx` |
 | `ProGate` | `ProGate.tsx` |

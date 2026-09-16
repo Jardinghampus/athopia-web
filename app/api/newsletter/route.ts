@@ -1,37 +1,70 @@
 import { NextResponse } from "next/server";
-import { createServiceClient, isSupabaseConfigured } from "@/lib/supabase";
 import { enforceRateLimit } from "@/lib/ratelimit";
+import { parseBody } from "@/lib/validation";
+import { NewsletterSignupSchema } from "@/lib/newsletter/schema";
+import {
+  getNewsletterTeamBySlug,
+  resolveNewsletterIdentity,
+  subscribeToNewsletter,
+} from "@/lib/newsletter/service";
 
 export async function POST(req: Request) {
-  // Anonym endpoint → rate-limit per IP (skydd mot spam-signups)
   const blocked = await enforceRateLimit("write", req);
   if (blocked) return blocked;
 
-  let email = "";
+  const parsed = await parseBody(req, NewsletterSignupSchema);
+  if (!parsed.ok) return parsed.response;
+  // Bot-fällan får samma generiska svar som en riktig pending-request.
+  if (parsed.data.honeypot) {
+    return NextResponse.json(
+      { ok: true, state: "pending", message: "Kontrollera din inkorg." },
+      { status: 202 },
+    );
+  }
+
+  const identity = await resolveNewsletterIdentity(parsed.data.email);
+  if (!identity) {
+    return NextResponse.json(
+      { message: "E-post krävs när du inte är inloggad.", field: "email" },
+      { status: 400 },
+    );
+  }
+
+  const team = await getNewsletterTeamBySlug(parsed.data.teamSlug);
+  if (!team) {
+    return NextResponse.json(
+      { message: "Laget hittades inte.", field: "teamSlug" },
+      { status: 400 },
+    );
+  }
+
   try {
-    const body = await req.json();
-    email = String(body?.email ?? "").trim().toLowerCase();
-  } catch {
-    // ignore
-  }
-
-  // Enkel men robust e-postvalidering
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || email.length > 254) {
-    return NextResponse.json({ ok: false, error: "Ogiltig e-post" }, { status: 400 });
-  }
-
-  if (!isSupabaseConfigured()) {
-    return NextResponse.json({ ok: true, queued: true });
-  }
-
-  try {
-    const supabase = createServiceClient();
-    await supabase.from("subscribers").insert({ email });
-    return NextResponse.json({ ok: true });
-  } catch (e) {
-    // Tabell kan saknas i dev → behandla som success för att inte blocka UI
-    console.error("[newsletter]", e);
-    return NextResponse.json({ ok: true, queued: true });
+    const result = await subscribeToNewsletter({
+      identity,
+      team,
+      cadence: parsed.data.cadence,
+      request: req,
+    });
+    // Anonyma svar avslöjar aldrig om adressen redan finns. Inloggade får
+    // däremot ett ärligt duplicate-state för sin sessionsägda identitet.
+    const state = identity.clerkUserId ? result.state : "pending";
+    return NextResponse.json(
+      {
+        ok: true,
+        state,
+        message: "Kontrollera din inkorg.",
+      },
+      { status: 202 },
+    );
+  } catch (error) {
+    console.error(
+      "[newsletter] signup failed",
+      error instanceof Error ? error.message : "unknown",
+    );
+    return NextResponse.json(
+      { ok: false, message: "Kunde inte spara din Lagbrief just nu." },
+      { status: 500 },
+    );
   }
 }
 

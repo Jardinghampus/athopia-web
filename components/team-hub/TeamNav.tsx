@@ -58,11 +58,11 @@ export function TeamNav({
     <nav
       aria-label="Lagsektioner"
       className={clsx(
-        "border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80",
-        // z-40 = samma lager som laghubbens kompaktrad, som nu fastnar UNDER
-        // raden (TeamHubHeader HEADER_OFFSET). Utan det lade sig kompaktraden
-        // ovanpa navigationen sa fort man scrollade.
-        sticky && "sticky top-14 z-40",
+        "translucent-chrome border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80",
+        // z-40 = samma lager som laghubbens kompaktrad, som fastnar UNDER
+        // den här raden (TeamHubHeader HEADER_OFFSET). top-12 matchar global
+        // Header (h-12). top-14 lämnade en 8px-svart remsa under headern.
+        sticky && "sticky top-12 z-40",
       )}
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6">

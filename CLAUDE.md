@@ -45,8 +45,8 @@ lib/supabase.ts           — createServerClient (service role, server-only) +
                             createBrowserClient (anon key); typer i types/supabase
 lib/access-rules.ts       — Plan + ACCESS-map (single source för feature-gating)
 lib/user-plan.ts          — getUserPlan() — ALLTID server-side
-lib/nav.ts                — EN nav-config för de 4 flikarna (Mitt lag/Flöde/Matcher/
-                            Tabellen); `/ai` ligger under Mer. Se WEB-IA-STRUKTUR.md
+lib/nav.ts                — EN nav-config för de 5 flikarna (Hem/Flöde/Matcher/
+                            Tabellen/Profil); `/ai` ligger under Mer. Se WEB-IA-STRUKTUR.md
 components/               — feature-mappar (feed, match, team-hub, news, landing, ui …)
                             PaywallGate.tsx + UpgradePrompt.tsx för gating-UI
 ```
@@ -119,6 +119,18 @@ Ny kod läggs i befintlig feature-mapp. Skapa inte parallella mönster —
   ovanpå `bg-destructive/10–20`: `text-destructive-ink`. Klubbfärg som text:
   `getTeamInk()` + `.team-ink`, medan `getTeamAccent()` är ytan.
 - Loading/empty/error-states är obligatoriska på nya datavyer.
+- **Mobil UX-reglerna i `../context/mobile_ux_rules.md` är bindande** och gäller lika för web
+  och iOS. Kortfattat för detta repo: **en** pull-to-refresh-gest för hela shellen
+  (`PullToRefreshShell` + `router.refresh()`; klientytor hakar på via `usePullRefresh`, de
+  bygger aldrig en andra touch-hanterare) · kantsvep tillbaka (`EdgeSwipeBack`, PWA saknar
+  webbläsarens gest) ·
+  bottenraden är Hem…Profil, max 5 flikar, **ändras bara i `lib/nav.ts` + `pnpm
+  contracts:generate`** · exakt en `data-cta="primary"` per vy · 44 px träffytor ·
+  `X` stänger / `←` backar · snabbval i `TactileSheet`, aldrig centrerad dialog ·
+  `loading.tsx` i varje route-segment · `useScrollRestoration` på flöden ·
+  IntersectionObserver med `rootMargin` (prefetch före slutet) · optimistiska
+  gilla/följ/spara **med rollback** · `useDraft` på fritextfält · behörigheter just-in-time.
+  Vakter: `lib/nav.test.ts`, `lib/loading-coverage.test.ts`, `tests/e2e/ux-rules.spec.ts`.
 
 ## 6. AI-agent-arbetsflöde
 

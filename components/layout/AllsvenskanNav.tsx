@@ -7,7 +7,7 @@ export async function AllsvenskanNav() {
   if (teams.length === 0) return null;
 
   return (
-    <div className="border-b border-border/40 bg-background/95 backdrop-blur-sm">
+    <div className="translucent-chrome border-b border-border/40 bg-background/95 backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <AllsvenskanMobileSelect teams={teams.map((team) => ({ slug: team.slug, name: team.name }))} />
         <div className="hidden min-[640px]:flex gap-1.5 overflow-x-auto scrollbar-none py-2">

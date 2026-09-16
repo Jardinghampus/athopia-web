@@ -31,11 +31,20 @@ export const transitions = {
     ease: easeDrawer,
   } satisfies Transition,
 
+  /* Dämpkvoterna nedan är kritiskt dämpade (zeta = 1,0): damping = 2*sqrt(k*m).
+     Apples regel är att översläng bara hör hemma när gesten SJÄLV bar momentum
+     — en snärt, ett kast, ett släpp. Ett knapptryck och en flikindikator gör
+     inte det, så de ska landa utan studs. Tidigare låg press på zeta 0,87 och
+     snappy på 0,80, alltså studs där ingen gest fanns.
+
+     Sheeten i BottomSheet.tsx är det avsiktliga undantaget: den dras och
+     släpps, alltså zeta ~0,8. */
+
   /** Tryckrespons — snabb och stum, som iOS */
   press: {
     type: "spring",
     stiffness: 500,
-    damping: 30,
+    damping: 34.6, // 2*sqrt(500*0.6)
     mass: 0.6,
   } satisfies Transition,
 
@@ -43,14 +52,14 @@ export const transitions = {
   snappy: {
     type: "spring",
     stiffness: 400,
-    damping: 32,
+    damping: 40, // 2*sqrt(400)
   } satisfies Transition,
 
   /** Mjuk spring — pull-to-refresh, större element */
   gentle: {
     type: "spring",
     stiffness: 200,
-    damping: 26,
+    damping: 28.3, // 2*sqrt(200)
   } satisfies Transition,
 } as const;
 
@@ -75,5 +84,5 @@ export const staggerChildren: Variants = {
   visible: { transition: { staggerChildren: 0.06 } },
 };
 
-/** Skala vid nedtryck — används av Pressable m.fl. */
+/** Skala vid nedtryck — Pressable-primitiven (ännu inte inkopplad på några ytor). */
 export const pressScale = 0.97;
