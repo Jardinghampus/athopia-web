@@ -29,6 +29,12 @@ export const ACCESS = {
   /** Global Athopia AI med verktyg över hela Allsvenskan. Founderbeslut D2 2026-07-14: PRO. */
   globalAiChat:       "pro",
   podcastClips:       "pro",
+  /**
+   * Avsnittssammanfattning + "fråga om podden". Samma nivå som global AI-chat
+   * och poddklipp — PRO. Egen nyckel så iOS/web kan gate:a ytan utan att
+   * blanda ihop den med tabell-chatten.
+   */
+  podcastAiChat:      "pro",
   briefAudio:         "pro",
   /** Forum AI-sammanfattning senaste ~4h */
   forumSummary:       "pro",

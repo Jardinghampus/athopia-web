@@ -47,7 +47,6 @@ export function PodcastSearch() {
       return;
     }
     timer.current = setTimeout(() => {
-      setLoading(true);
       void fetch(`/api/podcast-search?q=${encodeURIComponent(query)}`)
         .then((r) => r.json())
         .then((d: { episodes?: EpisodeHit[]; clips?: ClipHit[]; clipsGated?: boolean }) => {
@@ -68,7 +67,13 @@ export function PodcastSearch() {
         <input
           type="search"
           value={q}
-          onChange={(e) => setQ(e.target.value)}
+          onChange={(e) => {
+            setQ(e.target.value);
+            // Laddningen tänds i händelsehanteraren, inte i effekten: det är
+            // NÄTVERKSANROPET som är debouncat, inte återkopplingen. Låg den i
+            // timeouten blev det 300 ms där inget hände och fältet kändes dött.
+            if (e.target.value.trim().length >= 2) setLoading(true);
+          }}
           placeholder="Sök avsnitt, podd eller lag …"
           className="w-full rounded-xl border border-border bg-card pl-9 pr-9 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-pitch/40"
           aria-label="Sök poddavsnitt"

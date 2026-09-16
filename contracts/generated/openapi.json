@@ -5582,6 +5582,115 @@
           }
         }
       }
+    },
+    "/api/elite/podcast-summary": {
+      "get": {
+        "operationId": "PodcastSummaryResponse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "headline": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "bullets": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "teaser": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "unlocked": {
+                      "type": "boolean"
+                    },
+                    "hasSource": {
+                      "type": "boolean"
+                    },
+                    "requiredPlan": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "free",
+                            "pro",
+                            "elite"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "headline",
+                    "bullets",
+                    "teaser",
+                    "unlocked",
+                    "hasSource"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Otillräcklig plan — servern är auktoritativ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string",
+                      "const": "plan_required"
+                    },
+                    "feature": {
+                      "type": "string"
+                    },
+                    "requiredPlan": {
+                      "type": "string",
+                      "enum": [
+                        "free",
+                        "pro",
+                        "elite"
+                      ]
+                    },
+                    "upgradePath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "code",
+                    "feature",
+                    "requiredPlan",
+                    "upgradePath"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

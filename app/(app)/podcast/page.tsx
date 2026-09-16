@@ -68,7 +68,7 @@ export default async function PodcastIndexPage() {
         <h1 className="text-3xl font-bold text-foreground text-balance">Allsvenskan-poddar</h1>
         <p className="text-sm text-muted-foreground mt-1">
           Allt som sägs i {shows.length > 0 ? `${shows.length} poddar` : "poddarna"} — samlat,
-          taggat per lag och sökbart.
+          taggat per lag och sökbart. PRO får sammanfattning och kan fråga om avsnittet.
         </p>
       </header>
 

@@ -827,6 +827,16 @@ export const ForumSummaryResponseSchema = z.object({
   requiredPlan: z.enum(["free", "pro", "elite"]).nullable().optional(),
 });
 
+/** GET/POST /api/elite/podcast-summary — original Athopia-text, aldrig transkript. */
+export const PodcastSummaryResponseSchema = z.object({
+  headline: z.string().nullable(),
+  bullets: z.array(z.string()),
+  teaser: z.string().nullable(),
+  unlocked: z.boolean(),
+  hasSource: z.boolean(),
+  requiredPlan: z.enum(["free", "pro", "elite"]).nullable().optional(),
+});
+
 /** Strukturerad 403 — klienterna renderar paywall ur detta, aldrig ur copy. */
 export const PlanRequiredErrorSchema = z.object({
   error: z.string(),
@@ -883,6 +893,12 @@ export const API_CONTRACTS = [
     path: "/api/forum/summary",
     name: "ForumSummaryResponse",
     schema: ForumSummaryResponseSchema,
+  },
+  {
+    method: "get",
+    path: "/api/elite/podcast-summary",
+    name: "PodcastSummaryResponse",
+    schema: PodcastSummaryResponseSchema,
   },
 ] as const;
 

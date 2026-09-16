@@ -14,6 +14,7 @@ import Link from "next/link";
 import { ExternalLink, Mic } from "lucide-react";
 import { createServerClient } from "@/lib/supabase";
 import { formatPodcastContextLine } from "@/lib/podcast/rights";
+import { PodcastEpisodeIntel } from "@/components/podcast/PodcastEpisodeIntel";
 import {
   listenMetaFromRow,
   spotifyEpisodeEmbedUrl,
@@ -33,6 +34,7 @@ type EpisodeRow = {
   mentioned_teams: string[] | null;
   metadata: Record<string, unknown> | null;
   audio_url: string | null;
+  is_transcribed: boolean;
 };
 
 async function getEpisode(id: string): Promise<EpisodeRow | null> {
@@ -40,7 +42,7 @@ async function getEpisode(id: string): Promise<EpisodeRow | null> {
     const supabase = createServerClient();
     const { data } = await supabase
       .from("podcasts")
-      .select("id, title, show_name, published_at, duration_seconds, mentioned_teams, metadata, audio_url")
+      .select("id, title, show_name, published_at, duration_seconds, mentioned_teams, metadata, audio_url, is_transcribed")
       .eq("id", id)
       .maybeSingle();
     return data as EpisodeRow | null;
@@ -98,10 +100,17 @@ export default async function PodcastEpisodePage({
   const episode = await getEpisode(id);
   if (!episode) notFound();
 
+  const supabase = createServerClient();
+  const { count } = await supabase
+    .from("podcast_chunks")
+    .select("id", { count: "exact", head: true })
+    .eq("podcast_id", episode.id);
+
   const meta = (episode.metadata ?? {}) as Record<string, unknown>;
   const topics = Array.isArray(meta.topics) ? (meta.topics as string[]) : [];
   const listen = listenMetaFromRow(meta, null, episode.audio_url ?? null);
   const context = formatPodcastContextLine(topics, episode.mentioned_teams ?? []);
+  const hasSource = episode.is_transcribed || (count ?? 0) > 0;
 
   return (
     <>
@@ -179,6 +188,13 @@ export default async function PodcastEpisodePage({
             </p>
           )}
         </div>
+
+        <PodcastEpisodeIntel
+          episodeId={episode.id}
+          episodeTitle={episode.title}
+          mentionedTeams={episode.mentioned_teams ?? []}
+          hasSource={hasSource}
+        />
 
         <p className="text-xs text-muted-foreground/80 border-t border-border pt-6">
           Athopia länkar till originalkällan och använder Spotifys officiella spelare när det finns.

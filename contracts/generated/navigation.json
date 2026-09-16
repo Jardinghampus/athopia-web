@@ -5,8 +5,8 @@
     {
       "id": "mitt_lag",
       "route": "/mitt-lag",
-      "label": "Mitt lag",
-      "iosSymbol": "shield.fill",
+      "label": "Hem",
+      "iosSymbol": "house.fill",
       "accessFeature": null
     },
     {
@@ -17,13 +17,6 @@
       "accessFeature": null
     },
     {
-      "id": "allsvenskan",
-      "route": "/allsvenskan",
-      "label": "Allsvenskan",
-      "iosSymbol": "trophy.fill",
-      "accessFeature": null
-    },
-    {
       "id": "match",
       "route": "/match",
       "label": "Matcher",
@@ -31,11 +24,18 @@
       "accessFeature": null
     },
     {
-      "id": "ai",
-      "route": "/ai",
-      "label": "AI",
-      "iosSymbol": "sparkles",
-      "accessFeature": "globalAiChat"
+      "id": "allsvenskan",
+      "route": "/allsvenskan",
+      "label": "Tabellen",
+      "iosSymbol": "trophy.fill",
+      "accessFeature": null
+    },
+    {
+      "id": "profil",
+      "route": "/profil",
+      "label": "Profil",
+      "iosSymbol": "person.crop.circle.fill",
+      "accessFeature": null
     }
   ],
   "secondary": [
@@ -68,6 +68,12 @@
       "route": "/podcast",
       "label": "Poddar",
       "iosSymbol": "waveform"
+    },
+    {
+      "id": "ai",
+      "route": "/ai",
+      "label": "Fråga",
+      "iosSymbol": "sparkles"
     },
     {
       "id": "konto",
@@ -147,6 +153,11 @@
     {
       "prefix": "nyheter",
       "hasDetail": false,
+      "standalone": true
+    },
+    {
+      "prefix": "feed",
+      "hasDetail": true,
       "standalone": true
     },
     {

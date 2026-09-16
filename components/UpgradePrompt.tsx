@@ -15,6 +15,7 @@ const FEATURE_LABELS: Record<AccessFeature, string> = {
   aiChat:             "matchchatten",
   globalAiChat:       "Athopia AI",
   podcastClips:       "podcastkuratering",
+  podcastAiChat:      "poddsammanfattning och frågor",
   briefAudio:         "lyssna på brief",
   forumSummary:       "forum-läget senaste timmarna",
   transferSignals:    "ryktesradar (Rykte/Bekräftad)",
@@ -71,7 +72,7 @@ export function UpgradePrompt({
         href="/prenumerera"
         event="paywall_cta_click"
         props={{ feature, surface: "upgrade_prompt", required_plan: requiredPlan }}
-        className="mt-3 inline-block rounded-lg bg-pitch px-4 py-2 text-sm font-medium text-white hover:opacity-90 transition-opacity"
+        className="mt-3 inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg bg-pitch px-4 py-2 text-sm font-medium text-white hover:opacity-90 transition-opacity"
       >
         {founder ? `Bli founder — ${price}` : `Prova ${TRIAL_DAYS} dagar`}
       </TrackedLink>

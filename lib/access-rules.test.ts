@@ -33,4 +33,5 @@ test("core cross-platform product decisions remain explicit", () => {
   assert.equal(requiredPlanFor("aiChat"), "pro");
   // Founderbeslut D2 2026-07-14: global AI-chat är PRO, inte Elite.
   assert.equal(requiredPlanFor("globalAiChat"), "pro");
+  assert.equal(requiredPlanFor("podcastAiChat"), "pro");
 });

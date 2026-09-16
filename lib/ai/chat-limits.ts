@@ -20,7 +20,6 @@ export async function checkChatLimits(userId: string): Promise<
   | { ok: false; status: number; error: string }
 > {
   const db = getChatDb();
-  const budget = monthlyBudgetUsd();
 
   const { data: usage } = await db
     .from("chat_usage")
@@ -37,6 +36,17 @@ export async function checkChatLimits(userId: string): Promise<
     };
   }
 
+  const month = await checkMonthlyAiBudget(db);
+  if (!month.ok) return month;
+
+  return { ok: true, db };
+}
+
+/** Månadstaket delas av global chat, poddchat och on-demand-sammanfattningar. */
+export async function checkMonthlyAiBudget(
+  db: ReturnType<typeof getChatDb>,
+): Promise<{ ok: true } | { ok: false; status: number; error: string }> {
+  const budget = monthlyBudgetUsd();
   const monthStart = new Date();
   monthStart.setDate(1);
   monthStart.setHours(0, 0, 0, 0);
@@ -60,7 +70,7 @@ export async function checkChatLimits(userId: string): Promise<
     };
   }
 
-  return { ok: true, db };
+  return { ok: true };
 }
 
 export async function bumpChatUsage(
@@ -73,5 +83,42 @@ export async function bumpChatUsage(
     p_user_id: userId,
     p_tokens_in: tokensIn,
     p_tokens_out: tokensOut,
+  });
+}
+
+/** Token-redovisning utan att äta en daglig chat-fråga (on-demand-sammanfattning). */
+export async function addChatTokens(
+  db: ReturnType<typeof getChatDb>,
+  userId: string,
+  tokensIn: number,
+  tokensOut: number,
+) {
+  if (!tokensIn && !tokensOut) return;
+  const day = new Date().toISOString().slice(0, 10);
+  const { data } = await db
+    .from("chat_usage")
+    .select("tokens_in, tokens_out")
+    .eq("user_id", userId)
+    .eq("day", day)
+    .maybeSingle();
+
+  if (data) {
+    await db
+      .from("chat_usage")
+      .update({
+        tokens_in: (data.tokens_in ?? 0) + tokensIn,
+        tokens_out: (data.tokens_out ?? 0) + tokensOut,
+      })
+      .eq("user_id", userId)
+      .eq("day", day);
+    return;
+  }
+
+  await db.from("chat_usage").insert({
+    user_id: userId,
+    day,
+    msg_count: 0,
+    tokens_in: tokensIn,
+    tokens_out: tokensOut,
   });
 }

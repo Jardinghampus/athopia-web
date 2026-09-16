@@ -9,6 +9,12 @@ export default function PodcastEpisodeLoading() {
       <Skeleton className="h-10 w-2/3 mb-4" />
       <Skeleton className="h-4 w-56 mb-8" />
       <Skeleton className="h-[352px] w-full rounded-xl mb-8" />
+      <div className="rounded-xl border border-border p-5 mb-8 space-y-2">
+        <Skeleton className="h-4 w-32" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-5/6" />
+        <Skeleton className="h-11 w-48 mt-2" />
+      </div>
       <Skeleton className="h-4 w-full max-w-md" />
     </div>
   );
