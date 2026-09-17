@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
-import { anthropic } from "@ai-sdk/anthropic";
 import { streamText, stepCountIs } from "ai";
+import { MissingOsLlmConfig, osChatModel, osLlmUnavailable } from "@/lib/ai/provider";
 import { getUserPlan } from "@/lib/user-plan";
 import { tools } from "@/lib/ai/tools";
 import { checkChatLimits, bumpChatUsage } from "@/lib/ai/chat-limits";
@@ -54,7 +54,13 @@ export async function POST(req: Request) {
   const parsed = await parseBody(req, ChatSchema);
   if (!parsed.ok) return parsed.response;
   const { messages } = parsed.data;
-  const model = anthropic(process.env.CHAT_MODEL ?? "claude-haiku-4-5-20251001");
+  let model;
+  try {
+    model = osChatModel();
+  } catch (err) {
+    if (err instanceof MissingOsLlmConfig) return osLlmUnavailable();
+    throw err;
+  }
 
   const result = streamText({
     model,

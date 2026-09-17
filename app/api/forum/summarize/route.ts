@@ -31,8 +31,13 @@ export async function POST(req: NextRequest) {
 
   if (!isSupabaseConfigured()) return NextResponse.json({ error: "DB not configured" }, { status: 503 });
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return NextResponse.json({ error: "ANTHROPIC_API_KEY missing" }, { status: 503 });
+  // Nyckeln ligger i os (founderregel 2026-09-17) — anropet går genom
+  // POST {OS_LLM_BASE_URL}/messages, som håller nyckeln och budgetgrinden.
+  const osLlmBase = process.env.OS_LLM_BASE_URL?.trim();
+  const osSecret = process.env.ATHOPIA_OS_HTTP_SECRET?.trim();
+  if (!osLlmBase || !osSecret) {
+    return NextResponse.json({ error: "OS LLM-proxy inte konfigurerad" }, { status: 503 });
+  }
 
   try {
     const supabase = createServiceClient();
@@ -87,13 +92,12 @@ export async function POST(req: NextRequest) {
       })
       .join("\n");
 
-    // Call Claude Haiku directly via fetch
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    // Haiku genom os-proxyn — aldrig direkt mot Anthropic härifrån.
+    const response = await fetch(`${osLlmBase}/messages`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
+        "x-athopia-os-secret": osSecret,
       },
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",

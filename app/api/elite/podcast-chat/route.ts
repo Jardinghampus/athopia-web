@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
-import { anthropic } from "@ai-sdk/anthropic";
 import { streamText, stepCountIs } from "ai";
+import { MissingOsLlmConfig, osChatModel, osLlmUnavailable } from "@/lib/ai/provider";
 import { getUserPlan } from "@/lib/user-plan";
 import { podcastChatTools } from "@/lib/ai/podcast-tools";
 import { loadPodcastEpisode } from "@/lib/ai/podcast-context";
@@ -67,7 +67,13 @@ export async function POST(req: Request) {
     );
   }
 
-  const model = anthropic(process.env.CHAT_MODEL ?? "claude-haiku-4-5-20251001");
+  let model;
+  try {
+    model = osChatModel();
+  } catch (err) {
+    if (err instanceof MissingOsLlmConfig) return osLlmUnavailable();
+    throw err;
+  }
   const today = new Date().toLocaleDateString("sv-SE", {
     timeZone: "Europe/Stockholm",
     year: "numeric",

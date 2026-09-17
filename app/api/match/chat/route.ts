@@ -1,5 +1,5 @@
 import { auth, currentUser } from '@clerk/nextjs/server'
-import { anthropic } from '@ai-sdk/anthropic'
+import { MissingOsLlmConfig, osChatModel, osLlmUnavailable } from '@/lib/ai/provider'
 import { streamText, stepCountIs } from 'ai'
 import { createClient } from '@supabase/supabase-js'
 import { tools } from '@/lib/ai/tools'
@@ -95,7 +95,13 @@ Fixture-id: ${fixtureId}. Status: ${status ?? 'okänd'}. Resultat: ${score ?? 'e
 Svara utifrån denna match först — använd verktyg för tabell/nyheter vid behov.`
     : ''
 
-  const model = anthropic(process.env.CHAT_MODEL ?? 'claude-haiku-4-5-20251001')
+  let model
+  try {
+    model = osChatModel()
+  } catch (err) {
+    if (err instanceof MissingOsLlmConfig) return osLlmUnavailable()
+    throw err
+  }
 
   const result = streamText({
     model,
