@@ -827,7 +827,7 @@ export const ForumSummaryResponseSchema = z.object({
   requiredPlan: z.enum(["free", "pro", "elite"]).nullable().optional(),
 });
 
-/** GET/POST /api/elite/podcast-summary — original Athopia-text, aldrig transkript. */
+/** GET /api/elite/podcast-summary — läser os-skriven Athopia-text, aldrig transkript. */
 export const PodcastSummaryResponseSchema = z.object({
   headline: z.string().nullable(),
   bullets: z.array(z.string()),

@@ -56,6 +56,14 @@ Ny kod läggs i befintlig feature-mapp. Skapa inte parallella mönster —
 
 ## 4. Hårda regler (bryt aldrig)
 
+- **LLM-nycklar hör hemma i athopia-os, ALDRIG i web** (founderbeslut 2026-09-17).
+  Web får inte generera innehåll — den läser det os skrivit till Supabase. Ny
+  AI-funktion = agent/skript i os som skriver till en tabell eller kolumn, plus en
+  läsväg här. `ANTHROPIC_API_KEY` är tom i alla Vercel-miljöer med flit, så en
+  LLM-route i web är död kod i produktion oavsett hur bra den ser ut lokalt.
+  Kvar att flytta (streamande chattar, kräver en autentiserad os-endpoint):
+  `app/api/elite/chat`, `app/api/elite/podcast-chat`, `app/api/match/chat`,
+  `app/api/forum/summarize`.
 - **INGEN admin i athopia-web.** Admin = athopia-admin (os.athopia.se). Backend
   (RSS, agenter, Sportmonks-sync) = athopia-os. Web = publik visning enbart.
 - **proxy.ts, inte middleware.ts.**

@@ -32,8 +32,7 @@ export function PodcastEpisodeIntel({
 
   useEffect(() => {
     let cancelled = false;
-    // Strict Mode monterar effekten två gånger — avbryt första körningens anrop
-    // så att bara en generering (och en tokenpost) når servern.
+    // Strict Mode monterar effekten två gånger — avbryt första körningens anrop.
     const ac = new AbortController();
     const { signal } = ac;
 
@@ -57,25 +56,8 @@ export function PodcastEpisodeIntel({
           setLoading(false);
           return;
         }
-        if (data.unlocked && data.hasSource) {
-          const postRes = await fetch("/api/elite/podcast-summary", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ episodeId }),
-            signal,
-          });
-          if (cancelled) return;
-          if (postRes.ok) {
-            const generated = (await postRes.json()) as SummaryPayload;
-            if (generated.headline && generated.bullets.length >= 3) {
-              setSummary({
-                headline: generated.headline,
-                bullets: generated.bullets,
-                generatedAt: new Date().toISOString(),
-              });
-            }
-          }
-        }
+        // Ingen generering härifrån: athopia-os skriver sammanfattningen.
+        // Saknas den är avsnittet ännu inte behandlat där.
       } catch {
         if (!cancelled) setUnlocked(false);
       } finally {
@@ -134,7 +116,7 @@ export function PodcastEpisodeIntel({
         </div>
       ) : (
         <p className="mt-3 text-sm text-muted-foreground">
-          Sammanfattningen kunde inte skapas just nu. Du kan fortfarande fråga om avsnittet.
+          Sammanfattningen är inte klar för det här avsnittet ännu. Du kan fortfarande fråga om det.
         </p>
       )}
 

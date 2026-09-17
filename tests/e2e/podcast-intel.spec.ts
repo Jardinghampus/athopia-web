@@ -28,15 +28,18 @@ test("avsnittssidan visar sammanfattningsytan utan transkript eller rå spelare"
   if (typeof json.teaser === "string") expect(json.teaser.length).toBeLessThanOrEqual(200);
 });
 
-test("poddchat och sammanfattnings-POST kräver session", async ({ request }) => {
+test("poddchatten kräver session", async ({ request }) => {
   const id = (await firstEpisodeId(request)) ?? MISSING;
   const chat = await request.post("/api/elite/podcast-chat", {
     data: { episodeId: id, messages: [{ role: "user", content: "hej" }] },
   });
   expect(chat.status()).toBe(401);
+});
 
+test("sammanfattningen kan inte genereras från web — os äger LLM-vägen", async ({ request }) => {
+  const id = (await firstEpisodeId(request)) ?? MISSING;
   const gen = await request.post("/api/elite/podcast-summary", { data: { episodeId: id } });
-  expect(gen.status()).toBe(401);
+  expect(gen.status()).toBe(405);
 });
 
 test("sammanfattnings-GET validerar id och ger 404 för okänt avsnitt", async ({ request }) => {
