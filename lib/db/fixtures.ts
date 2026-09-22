@@ -537,6 +537,36 @@ export const fetchStandingsFull = unstable_cache(
   { revalidate: 3600, tags: ["standings"] }
 );
 
+/**
+ * Sista verklighet tabellen täcker: senaste spelade match i vår egen data.
+ *
+ * `team_season_stats.computed_at` duger INTE som färskhetsmått — jobbet räknar
+ * om varje natt och stämplar dagens datum även när underlaget är veckor gammalt.
+ * Mätt 2026-09-22: computed_at samma dygn, senaste spelade match 2 augusti.
+ */
+export const fetchStandingsCoveredThrough = unstable_cache(
+  async (): Promise<string | null> => {
+    if (!isSupabaseConfigured()) return null;
+    try {
+      const db = createServerClient();
+      const { data } = await db
+        .from("fixtures")
+        .select("kickoff_at")
+        .eq("sport", "football")
+        .not("home_score", "is", null)
+        .order("kickoff_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      return (data as { kickoff_at?: string } | null)?.kickoff_at ?? null;
+    } catch (e) {
+      Sentry.captureException(e);
+      return null;
+    }
+  },
+  ["standings-covered-through"],
+  { revalidate: 3600, tags: ["standings"] }
+);
+
 /** Toppskytt från player_season_stats. ISR 3600s. */
 export const fetchTopScorers = unstable_cache(
   async (_seasonId?: string): Promise<SMTopScorer[]> => {

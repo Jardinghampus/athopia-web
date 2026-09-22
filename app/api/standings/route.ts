@@ -1,12 +1,16 @@
 import { NextResponse } from "next/server";
-import { fetchStandingsFull } from "@/lib/db/fixtures";
+import { fetchStandingsFull, fetchStandingsCoveredThrough } from "@/lib/db/fixtures";
+import { freshnessOf } from "@/lib/data-freshness";
 import { jsonContract } from "@/lib/api-contract";
 import { StandingsResponseSchema } from "@/lib/api-schemas";
 
 export const revalidate = 300;
 
 export async function GET() {
-  const rows = await fetchStandingsFull();
+  const [rows, coveredThrough] = await Promise.all([
+    fetchStandingsFull(),
+    fetchStandingsCoveredThrough(),
+  ]);
   const standings = rows.map((r, i) => ({
     id: String(r.team.id || i),
     position: r.position,
@@ -24,8 +28,11 @@ export async function GET() {
     trend: r.trend,
   }));
 
+  // Konsumenten (web, iOS) ska kunna se hur gammal tabellen är utan att gissa.
+  const freshness = freshnessOf(coveredThrough);
+
   return jsonContract(StandingsResponseSchema,
-    { standings },
+    { standings, coveredThrough: freshness.coveredThrough, stale: freshness.stale },
     { headers: { "Cache-Control": "public, max-age=300, stale-while-revalidate=600" } }
   );
 }

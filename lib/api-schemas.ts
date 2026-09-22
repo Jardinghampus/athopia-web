@@ -262,6 +262,15 @@ export const StandingRowSchema = z.object({
 
 export const StandingsResponseSchema = z.object({
   standings: z.array(StandingRowSchema),
+  /**
+   * Sista spelade match tabellen bygger på (ISO), och om den är för gammal för
+   * att presenteras som aktuell. Konsumenten ska slippa gissa: tabellen räknas
+   * om varje natt även när underlaget är veckor gammalt (Sportmonks-planen
+   * täcker inte Allsvenskan). Valfria så iOS-klienter på äldre kontrakt inte
+   * bryts.
+   */
+  coveredThrough: z.string().nullable().optional(),
+  stale: z.boolean().optional(),
 });
 
 /**

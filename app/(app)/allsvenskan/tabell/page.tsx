@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { fetchStandingsFull } from "@/lib/db/fixtures";
+import { fetchStandingsFull, fetchStandingsCoveredThrough } from "@/lib/db/fixtures";
+import { freshnessOf, stalenessNotice } from "@/lib/data-freshness";
 import type { SMStandingRow } from "@/lib/db/fixtures";
 import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
 import { Target, CalendarDays, Flag, BarChart3, Sparkles } from "lucide-react";
@@ -45,7 +46,15 @@ export const metadata: Metadata = {
 };
 
 export default async function AllsvenskanTabellPage() {
-  const standings = await fetchStandingsFull().catch(() => [] as SMStandingRow[]);
+  const [standings, coveredThrough] = await Promise.all([
+    fetchStandingsFull().catch(() => [] as SMStandingRow[]),
+    fetchStandingsCoveredThrough().catch(() => null),
+  ]);
+  // Tabellen räknas om varje natt, men ur fixtures som inte fått nya resultat
+  // sedan Sportmonks-planen slutade täcka Allsvenskan. Färsk beräkning av
+  // gammal verklighet är fortfarande gammal verklighet — säg det.
+  const freshness = freshnessOf(coveredThrough);
+  const notice = stalenessNotice(freshness);
 
   return (
     <div className="w-full px-4 sm:px-8 py-10 max-w-3xl mx-auto">
@@ -65,7 +74,16 @@ export default async function AllsvenskanTabellPage() {
       })}} />
 
       <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2 text-balance">ALLSVENSKAN TABELL 2026</h1>
-      <p className="text-muted-foreground mb-6">Uppdateras löpande under säsongen.</p>
+      {notice ? (
+        <p
+          data-testid="standings-staleness"
+          className="mb-6 rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm text-foreground"
+        >
+          {notice}
+        </p>
+      ) : (
+        <p className="text-muted-foreground mb-6">Uppdateras löpande under säsongen.</p>
+      )}
 
       <nav aria-label="Allsvenskan-sidor" className="mb-8 flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
         {/* Lucide-ikoner, inte emoji. Emoji renderas i systemets egen stil och
