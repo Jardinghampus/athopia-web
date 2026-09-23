@@ -35,11 +35,11 @@ const ZONE_LABEL: Record<Exclude<Zone, null>, string> = {
 export const metadata: Metadata = {
   title: "Allsvenskan Tabell 2026 – Poängtabell & Ställning",
   description: "Aktuell Allsvenskan-tabell 2026 med poäng, målskillnad och form för alla 16 lag. Uppdateras automatiskt efter varje match.",
-  alternates: { canonical: "https://athopia.se/allsvenskan/tabell" },
+  alternates: { canonical: "https://nanofotboll.se/allsvenskan/tabell" },
   openGraph: {
     type: "website",
     locale: "sv_SE",
-    url: "https://athopia.se/allsvenskan/tabell",
+    url: "https://nanofotboll.se/allsvenskan/tabell",
     title: "Allsvenskan Tabell 2026 – Poängtabell & Ställning",
     description: "Aktuell Allsvenskan-tabell 2026 med poäng, målskillnad och form.",
   },
@@ -69,7 +69,7 @@ export default async function AllsvenskanTabellPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd({
         "@context": "https://schema.org",
         "@type": "Table",
-        about: { "@type": "SportsOrganization", name: "Allsvenskan 2026", sport: "Soccer", url: "https://athopia.se/allsvenskan" },
+        about: { "@type": "SportsOrganization", name: "Allsvenskan 2026", sport: "Soccer", url: "https://nanofotboll.se/allsvenskan" },
         description: standings[0] ? `Allsvenskan-tabell 2026. Ledare: ${standings[0].team.name}` : "Allsvenskan-tabell 2026",
       })}} />
 

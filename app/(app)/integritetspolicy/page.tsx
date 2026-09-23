@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Integritetspolicy | Athopia",
-  description: "Hur Athopia hanterar dina personuppgifter.",
+  title: "Integritetspolicy | Nano Fotboll",
+  description: "Hur Nano Fotboll hanterar dina personuppgifter.",
 };
 
 export default function IntegritetspolicyPage() {
@@ -11,7 +11,7 @@ export default function IntegritetspolicyPage() {
       <h1 className="font-bold text-4xl text-foreground mb-6 text-balance">Integritetspolicy</h1>
       <div className="prose prose-invert max-w-none space-y-6 text-muted-foreground leading-relaxed">
         <p>
-          Athopia (&quot;vi&quot;, &quot;oss&quot;) värnar om din integritet. Denna policy beskriver
+          Nano Fotboll (&quot;vi&quot;, &quot;oss&quot;) värnar om din integritet. Denna policy beskriver
           vilka uppgifter vi samlar in, hur de används och dina rättigheter.
         </p>
 
@@ -37,7 +37,7 @@ export default function IntegritetspolicyPage() {
           <h2 className="font-semibold text-2xl text-foreground mb-3 text-balance">Dina rättigheter</h2>
           <p>
             Du har rätt att begära tillgång till, rättelse eller radering av dina personuppgifter.
-            Kontakta oss på <a href="mailto:hej@athopia.se" className="text-pitch-ink hover:underline">hej@athopia.se</a>.
+            Kontakta oss på <a href="mailto:hej@nanofotboll.se" className="text-pitch-ink hover:underline">hej@nanofotboll.se</a>.
           </p>
         </section>
 

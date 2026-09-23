@@ -61,7 +61,7 @@ export async function generateMetadata({
   const name = await getTeamName(slug);
   return {
     title: `${name} — Podcasts`,
-    description: `Podcast-avsnitt om ${name} på Athopia.`,
+    description: `Podcast-avsnitt om ${name} på Nano Fotboll.`,
   };
 }
 

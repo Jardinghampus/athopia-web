@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import { GamificationHub } from '@/components/gamification/GamificationHub'
 
-export const metadata: Metadata = { title: 'Min statistik | Athopia' }
+export const metadata: Metadata = { title: 'Min statistik | Nano Fotboll' }
 
 export default async function GamificationPage() {
   const { userId } = await auth()

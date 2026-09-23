@@ -23,7 +23,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Priser & Prenumeration",
   description:
-    "Athopia PRO — daglig AI-brief för ditt lag, poddintelligens och transfer-signaler. 20 % rabatt på årsplan.",
+    "Nano Fotboll PRO — daglig AI-brief för ditt lag, poddintelligens och transfer-signaler. 20 % rabatt på årsplan.",
   alternates: { canonical: absoluteUrl("/prenumerera") },
   openGraph: {
     type: "website",
@@ -58,19 +58,19 @@ function PricingJsonLd({ founderPublic }: { founderPublic: boolean }) {
   });
 
   const items = [
-    offer("0", "Athopia Gratis", 1),
+    offer("0", "Nano Fotboll Gratis", 1),
     ...(founderPublic
-      ? [offer(kr(FOUNDER_OFFER.pricing.monthly), "Athopia PRO Founder", 2)]
+      ? [offer(kr(FOUNDER_OFFER.pricing.monthly), "Nano Fotboll PRO Founder", 2)]
       : []),
-    offer(kr(PRICING.pro.monthly), "Athopia PRO", founderPublic ? 3 : 2),
-    offer(kr(PRICING.elite.monthly), "Athopia Elite", founderPublic ? 4 : 3),
+    offer(kr(PRICING.pro.monthly), "Nano Fotboll PRO", founderPublic ? 3 : 2),
+    offer(kr(PRICING.elite.monthly), "Nano Fotboll Elite", founderPublic ? 4 : 3),
   ];
 
   return (
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd({
       "@context": "https://schema.org",
       "@type": "ItemList",
-      name: "Athopia prenumerationsplaner",
+      name: "Nano Fotboll prenumerationsplaner",
       itemListElement: items,
     })}} />
   );

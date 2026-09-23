@@ -47,7 +47,7 @@ export default function MerPage() {
         <ListRow
           href="/daily"
           leading={<Headphones />}
-          title="Athopia Daily"
+          title="Nano Fotboll Daily"
           subtitle="7 min morgonbrief — lyssna här"
         />
         <ListRow
@@ -67,7 +67,7 @@ export default function MerPage() {
       <ListGroup>
         <ListRow href="/konto" leading={<User />} title="Konto" />
         <ListRow href="/prenumerera" leading={<CreditCard />} title="Prenumeration" />
-        <ListRow href="/om-oss" leading={<Info />} title="Om Athopia" />
+        <ListRow href="/om-oss" leading={<Info />} title="Om Nano Fotboll" />
       </ListGroup>
     </div>
   );

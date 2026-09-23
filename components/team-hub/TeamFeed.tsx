@@ -64,7 +64,7 @@ function FeedRow({ item, teamSlug, teamName, plan }: { item: TeamFeedItem; teamS
         <TactileCard className="px-4 py-3.5 space-y-2">
           <div className="flex items-center gap-2">
             <Star className="h-3.5 w-3.5 text-pitch-ink" />
-            <span className="text-xs font-semibold uppercase tracking-wide text-pitch-ink">Athopia AI · {ctx}</span>
+            <span className="text-xs font-semibold uppercase tracking-wide text-pitch-ink">Nano Fotboll AI · {ctx}</span>
           </div>
           <h3 className="text-base font-bold leading-snug text-foreground text-balance">{p.headline}</h3>
           {unlocked ? (

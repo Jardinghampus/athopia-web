@@ -60,7 +60,7 @@
     {
       "id": "daily",
       "route": "/daily",
-      "label": "Athopia Daily",
+      "label": "Nano Fotboll Daily",
       "iosSymbol": "headphones"
     },
     {
@@ -90,7 +90,7 @@
     {
       "id": "om_oss",
       "route": "/om-oss",
-      "label": "Om Athopia",
+      "label": "Om Nano Fotboll",
       "iosSymbol": "info.circle"
     }
   ],

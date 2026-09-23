@@ -1,4 +1,4 @@
-// Athopia Service Worker — PWA + Push Notifications
+// Nano Fotboll Service Worker — PWA + Push Notifications
 const CACHE_NAME = "athopia-v1";
 const OFFLINE_URL = "/";
 

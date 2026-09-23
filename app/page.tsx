@@ -52,7 +52,7 @@ async function getLatestArticles(): Promise<LandingArticle[]> {
         slug: String(row.slug ?? ""),
         title: String(row.title ?? ""),
         summary: String(row.summary ?? row.ai_summary ?? ""),
-        sourceName: String(row.source_name ?? row.sourceName ?? "Athopia"),
+        sourceName: String(row.source_name ?? row.sourceName ?? "Nano Fotboll"),
         publishedAt: String(row.published_at ?? row.publishedAt ?? row.created_at ?? ""),
       }))
       .filter((a) => a.slug && a.title);
@@ -68,7 +68,7 @@ function LandingJsonLd() {
       {
         "@type": "WebSite",
         "@id": `${SITE}/#website`,
-        name: "Athopia",
+        name: "Nano Fotboll",
         url: SITE,
         inLanguage: "sv-SE",
         description:

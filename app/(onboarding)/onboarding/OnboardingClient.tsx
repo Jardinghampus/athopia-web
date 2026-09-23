@@ -472,13 +472,13 @@ export function OnboardingClient({ presetTeam = null }: { presetTeam?: string | 
                   ) : null}
                   {!isSubscribed && pushDenied ? (
                     <p className="mt-3 text-xs text-muted-foreground">
-                      Notiser är blockerade för athopia.se. Slå på dem i webbläsarens
+                      Notiser är blockerade för nanofotboll.se. Slå på dem i webbläsarens
                       inställningar om du ändrar dig.
                     </p>
                   ) : null}
                   {!isSubscribed && pushUnconfigured ? (
                     <p className="mt-3 text-xs text-muted-foreground">
-                      Notiser är inte påslagna på Athopias sida än. Det ligger på oss —
+                      Notiser är inte påslagna på Nano Fotbolls sida än. Det ligger på oss —
                       du behöver inte göra något.
                     </p>
                   ) : null}

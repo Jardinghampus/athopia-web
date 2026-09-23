@@ -59,9 +59,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const column = await getColumn(slug);
   if (!column) return { title: "Krönikan hittades inte" };
   return {
-    title: `${column.title} — Athopia Krönika`,
+    title: `${column.title} — Nano Fotboll Krönika`,
     description: column.excerpt ?? undefined,
-    alternates: { canonical: `https://athopia.se/kronika/${slug}` },
+    alternates: { canonical: `https://nanofotboll.se/kronika/${slug}` },
     openGraph: { type: "article", title: column.title, description: column.excerpt ?? undefined },
   };
 }
@@ -123,7 +123,7 @@ export default async function KronikaPage({ params }: { params: Promise<{ slug: 
       )}
 
       <Link href="/nyheter" className="mt-8 inline-block text-sm text-muted-foreground hover:text-foreground">
-        ← Fler nyheter på Athopia
+        ← Fler nyheter på Nano Fotboll
       </Link>
     </article>
   );

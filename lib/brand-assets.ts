@@ -16,7 +16,7 @@ export const BRAND_ASSETS = {
 export type BrandBadgeKind = keyof typeof BRAND_ASSETS;
 
 export const BRAND_BADGE_LABELS: Record<BrandBadgeKind, string> = {
-  star: "Athopia",
+  star: "Nano Fotboll",
   verified: "Verifierad",
   writer: "Journalist",
 };

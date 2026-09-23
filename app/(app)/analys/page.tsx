@@ -16,14 +16,14 @@ import { getPostMatchAnalyses } from "@/lib/supabase";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Matchanalyser | Athopia",
+  title: "Matchanalyser | Nano Fotboll",
   description: "AI-genererade matchanalyser för Allsvenskan — xG, pressure och form jämfört med senaste matcherna.",
-  alternates: { canonical: "https://athopia.se/analys" },
+  alternates: { canonical: "https://nanofotboll.se/analys" },
   openGraph: {
     type: "website",
     locale: "sv_SE",
-    url: "https://athopia.se/analys",
-    title: "Matchanalyser | Athopia",
+    url: "https://nanofotboll.se/analys",
+    title: "Matchanalyser | Nano Fotboll",
     description: "AI-genererade matchanalyser för Allsvenskan.",
   },
 };
@@ -34,7 +34,7 @@ export default async function AnalysListPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
       <p className="text-xs font-semibold text-amber-500 uppercase tracking-wide mb-3">
-        Athopia AI
+        Nano Fotboll AI
       </p>
       <h1 className="font-bold text-3xl sm:text-4xl text-foreground mb-2 leading-tight text-balance">
         Matchanalyser
@@ -45,7 +45,7 @@ export default async function AnalysListPage() {
 
       {analyses.length === 0 ? (
         <div className="rounded-xl border border-border bg-card py-10 text-center text-sm text-muted-foreground">
-          <p>Inga matchanalyser publicerade ännu — Athopia AI skriver en efter varje match.</p>
+          <p>Inga matchanalyser publicerade ännu — Nano Fotboll AI skriver en efter varje match.</p>
           <Link href="/match" className="mt-2 inline-block text-pitch-ink hover:underline">
             Se kommande matcher →
           </Link>

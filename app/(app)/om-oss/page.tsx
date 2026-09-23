@@ -3,9 +3,9 @@ import Link from "next/link";
 import { jsonLd } from "@/lib/json-ld";
 
 export const metadata: Metadata = {
-  title: "Om Athopia – Svensk fotbollsintelligens för Allsvenskan",
-  description: "Lär dig mer om Athopia — AI-driven nyhetsplattform för Allsvenskan med signalscoring, djupstatistik och lagforum.",
-  alternates: { canonical: "https://athopia.se/om-oss" },
+  title: "Om Nano Fotboll – Svensk fotbollsintelligens för Allsvenskan",
+  description: "Lär dig mer om Nano Fotboll — AI-driven nyhetsplattform för Allsvenskan med signalscoring, djupstatistik och lagforum.",
+  alternates: { canonical: "https://nanofotboll.se/om-oss" },
   robots: { index: true, follow: true },
 };
 
@@ -15,23 +15,23 @@ export default function OmOssPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd({
         "@context": "https://schema.org",
         "@type": "Organization",
-        name: "Athopia",
-        url: "https://athopia.se",
+        name: "Nano Fotboll",
+        url: "https://nanofotboll.se",
         foundingDate: "2026",
         description: "AI-driven nyhetsplattform för Allsvenskan med signalscoring, djupstatistik och lagforum.",
         contactPoint: {
           "@type": "ContactPoint",
-          email: "hej@athopia.se",
+          email: "hej@nanofotboll.se",
           contactType: "editorial",
         },
-        publishingPrinciples: "https://athopia.se/om-oss",
+        publishingPrinciples: "https://nanofotboll.se/om-oss",
         inLanguage: "sv",
       })}} />
 
       <div>
-        <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-4 text-balance">Om Athopia</h1>
+        <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-4 text-balance">Om Nano Fotboll</h1>
         <p className="text-muted-foreground text-lg leading-relaxed">
-          Athopia är en oberoende nyhetsplattform för Allsvenskan. Vi samlar signaler från över 40 svenska och internationella fotbollskällor, värderar dem med AI och presenterar det som faktiskt spelar roll — utan brus.
+          Nano Fotboll är en oberoende nyhetsplattform för Allsvenskan. Vi samlar signaler från över 40 svenska och internationella fotbollskällor, värderar dem med AI och presenterar det som faktiskt spelar roll — utan brus.
         </p>
       </div>
 
@@ -58,7 +58,7 @@ export default function OmOssPage() {
         <h2 className="font-semibold text-2xl text-foreground mb-3 text-balance">Kontakt</h2>
         <p className="text-muted-foreground leading-relaxed">
           Frågor, rättelser eller samarbetsförfrågningar skickas till{" "}
-          <a href="mailto:hej@athopia.se" className="text-pitch-ink hover:underline">hej@athopia.se</a>.
+          <a href="mailto:hej@nanofotboll.se" className="text-pitch-ink hover:underline">hej@nanofotboll.se</a>.
         </p>
       </section>
 

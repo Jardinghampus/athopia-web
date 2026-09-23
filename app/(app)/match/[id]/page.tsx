@@ -149,7 +149,7 @@ async function getData(fixtureId: number) {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
   const fid = parseInt(id, 10);
-  if (isNaN(fid)) return { title: "Match | Athopia" };
+  if (isNaN(fid)) return { title: "Match | Nano Fotboll" };
   const db = createServerClient();
   const { data } = await db
     .from("fixtures")
@@ -343,7 +343,7 @@ export default async function MatchPage({ params }: PageProps) {
     "@type": "SportsEvent",
     name: `${homeName} – ${awayName}`,
     sport: "Soccer",
-    url: `https://athopia.se/match/${fid}`,
+    url: `https://nanofotboll.se/match/${fid}`,
     ...(kickoff ? { startDate: kickoff } : {}),
     homeTeam: { "@type": "SportsTeam", name: homeName },
     awayTeam: { "@type": "SportsTeam", name: awayName },
@@ -396,7 +396,7 @@ export default async function MatchPage({ params }: PageProps) {
           preview={
             <div className="space-y-2">
               <p className="text-xs font-semibold uppercase tracking-wide text-amber-500">
-                Athopia AI · Matchanalys
+                Nano Fotboll AI · Matchanalys
               </p>
               <p className="font-semibold text-foreground line-clamp-2">
                 {summaryTitle ?? `${homeName}–${awayName}`}
@@ -406,7 +406,7 @@ export default async function MatchPage({ params }: PageProps) {
         >
           <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-5">
             <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-amber-500">
-              Athopia AI · Matchanalys
+              Nano Fotboll AI · Matchanalys
             </p>
             {summaryTitle && (
               <p className="mb-2 font-semibold text-foreground">{summaryTitle}</p>

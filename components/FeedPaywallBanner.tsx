@@ -40,7 +40,7 @@ export function FeedPaywallBanner({ founderPublic = false }: { founderPublic?: b
         <div className="inline-flex items-center gap-1.5 rounded-full border border-pitch/40 bg-pitch/15 px-2.5 py-1 mb-3">
           <Sparkles className="w-3 h-3 text-pitch-ink" />
           <span className="text-xs font-semibold text-pitch-ink uppercase tracking-wide">
-            {founder ? "Founder-PRO" : "Athopia PRO"}
+            {founder ? "Founder-PRO" : "Nano Fotboll PRO"}
           </span>
         </div>
 

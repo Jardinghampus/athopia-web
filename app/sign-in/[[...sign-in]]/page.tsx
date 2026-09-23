@@ -4,7 +4,7 @@ import { SignIn } from "@clerk/nextjs";
 
 export const metadata: Metadata = {
   title: "Logga in",
-  description: "Logga in på Athopia — Allsvenskans hemmaplan.",
+  description: "Logga in på Nano Fotboll — Allsvenskans hemmaplan.",
   robots: { index: false, follow: true },
 };
 
@@ -36,7 +36,7 @@ export default function SignInPage() {
           className="underline underline-offset-4 hover:text-foreground hover:no-underline
             focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
-          Tillbaka till Athopia
+          Tillbaka till Nano Fotboll
         </Link>
       </p>
     </main>

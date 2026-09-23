@@ -9,11 +9,11 @@ export const revalidate = 1800;
 export const metadata: Metadata = {
   title: "Allsvenskan Spelschema 2026 – Alla Omgångar & Datum",
   description: "Komplett spelschema för Allsvenskan 2026 med datum och tider. Hitta din lags nästa match.",
-  alternates: { canonical: "https://athopia.se/allsvenskan/spelschema" },
+  alternates: { canonical: "https://nanofotboll.se/allsvenskan/spelschema" },
   openGraph: {
     type: "website",
     locale: "sv_SE",
-    url: "https://athopia.se/allsvenskan/spelschema",
+    url: "https://nanofotboll.se/allsvenskan/spelschema",
     title: "Allsvenskan Spelschema 2026 – Alla Omgångar & Datum",
     description: "Komplett spelschema för Allsvenskan 2026.",
   },

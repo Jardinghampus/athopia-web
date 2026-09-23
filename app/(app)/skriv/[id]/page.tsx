@@ -7,7 +7,7 @@ import { ColumnEditorClient } from "./ColumnEditorClient";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Skriv — Athopia krönikör",
+  title: "Skriv — Nano Fotboll krönikör",
   robots: { index: false, follow: false },
 };
 

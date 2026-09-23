@@ -1,7 +1,7 @@
 /**
  * lib/supabase.ts
  * ─────────────────────────────────────────────────────────────────────────────
- * Supabase-helpers för Athopia.
+ * Supabase-helpers för Nano Fotboll.
  *
  * Beslut: Vi exporterar två klienter:
  *  - `createServerClient` – används i Server Components och Route Handlers med
@@ -627,7 +627,7 @@ function mapPostMatchAnalysis(row: Record<string, unknown>): PostMatchAnalysis {
     title: String(row.title ?? ""),
     summary: String(row.summary ?? ""),
     body: (row.content as string | null) ?? null,
-    sourceName: String(row.source_name ?? "Athopia AI"),
+    sourceName: String(row.source_name ?? "Nano Fotboll AI"),
     publishedAt: String(row.published_at ?? new Date().toISOString()),
     fixtureId: typeof metadata.fixture_id === "number" ? metadata.fixture_id : numOrNull(metadata.fixture_id),
     matchName: typeof metadata.match_name === "string" ? metadata.match_name : null,

@@ -27,7 +27,7 @@ export function TeamDailyPulseCard({ pulse }: { pulse: TeamDailyPulse | null }) 
         <div className="mb-3 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             <Sparkles className="h-3.5 w-3.5 text-pitch-ink" />
-            Athopia idag
+            Nano Fotboll idag
           </div>
           <span className="text-xs text-muted-foreground">{dateLabel(pulse.pulseDate)}</span>
         </div>

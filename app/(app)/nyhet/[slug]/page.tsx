@@ -155,7 +155,7 @@ export default async function NyhetPage({
       </div>
 
       <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
-        Athopia länkar till originalet. Vi publicerar inte tredjeparts brödtext eller
+        Nano Fotboll länkar till originalet. Vi publicerar inte tredjeparts brödtext eller
         teaser — öppna källan för hela artikeln.
       </p>
 

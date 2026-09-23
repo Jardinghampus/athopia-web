@@ -13,7 +13,7 @@ const FEATURE_LABELS: Record<AccessFeature, string> = {
   pushAlerts:         "push-notiser",
   unlimitedFeed:      "obegränsat flöde",
   aiChat:             "matchchatten",
-  globalAiChat:       "Athopia AI",
+  globalAiChat:       "Nano Fotboll AI",
   podcastClips:       "podcastkuratering",
   podcastAiChat:      "poddsammanfattning och frågor",
   briefAudio:         "lyssna på brief",

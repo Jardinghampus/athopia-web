@@ -16,8 +16,8 @@ import { getFounderPot, formatSeatsLabel } from "@/lib/founder-offer";
 import { FOUNDER_OFFER, PRICING, formatWeeklyKr } from "@/lib/pricing";
 
 export const metadata: Metadata = {
-  title: "Håll platsen | Athopia",
-  description: "Din klubb. Varje dag. Skriv upp dig så hör vi av oss när Athopia öppnar.",
+  title: "Håll platsen | Nano Fotboll",
+  description: "Din klubb. Varje dag. Skriv upp dig så hör vi av oss när Nano Fotboll öppnar.",
 };
 
 /** Räknaren ska vara färsk; potten cachas 30 s i lib/founder-offer. */
@@ -49,7 +49,7 @@ export default async function WaitlistPage({
       {founderOpen ? (
         <>
           <p className="mt-4 text-base text-muted-foreground">
-            Athopia öppnar snart. De första {FOUNDER_OFFER.cap} som bekräftar sin plats får
+            Nano Fotboll öppnar snart. De första {FOUNDER_OFFER.cap} som bekräftar sin plats får
             Founder-PRO — och behåller priset så länge de är kvar.
           </p>
           <p className="mt-6 text-sm">

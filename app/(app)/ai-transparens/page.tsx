@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { resolveEditorialResponsibility } from "@/lib/editorial-responsibility";
 
 export const metadata: Metadata = {
-  title: "AI-transparens | Athopia",
+  title: "AI-transparens | Nano Fotboll",
   description:
-    "Hur Athopia använder AI, hur AI-genererat innehåll märks och vem som är ansvarig utgivare.",
+    "Hur Nano Fotboll använder AI, hur AI-genererat innehåll märks och vem som är ansvarig utgivare.",
 };
 
 export default function AiTransparensPage() {
@@ -15,7 +15,7 @@ export default function AiTransparensPage() {
       <h1 className="font-bold text-4xl text-foreground mb-6 text-balance">AI-transparens</h1>
       <div className="prose prose-invert max-w-none space-y-6 text-muted-foreground leading-relaxed">
         <p>
-          Athopia använder artificiell intelligens för att skriva, sammanfatta och analysera
+          Nano Fotboll använder artificiell intelligens för att skriva, sammanfatta och analysera
           innehåll om svensk fotboll. Den här sidan beskriver var AI används, hur innehållet
           märks och vem som ansvarar för det — i enlighet med artikel 50 i EU:s
           AI-förordning (EU) 2024/1689.
@@ -26,15 +26,15 @@ export default function AiTransparensPage() {
           <ul className="list-disc list-inside space-y-1">
             <li>
               <strong>Artiklar och sammanfattningar</strong> — texter märkta
-              &quot;AI-genererad av Athopia&quot; är skrivna av en språkmodell utifrån
+              &quot;AI-genererad av Nano Fotboll&quot; är skrivna av en språkmodell utifrån
               publicerade källor och strukturerad matchdata.
             </li>
             <li>
-              <strong>Athopia Daily</strong> — både manus och uppläsande röst är
+              <strong>Nano Fotboll Daily</strong> — både manus och uppläsande röst är
               AI-genererade. Rösten föreställer ingen verklig person.
             </li>
             <li>
-              <strong>Fråga Athopia</strong> — en AI-assistent. Du interagerar med ett
+              <strong>Fråga Nano Fotboll</strong> — en AI-assistent. Du interagerar med ett
               AI-system, inte med en människa.
             </li>
             <li>
@@ -74,8 +74,8 @@ export default function AiTransparensPage() {
               {editorial.label}
             </span>
             . Kontakt:{" "}
-            <a href="mailto:hej@athopia.se" className="text-pitch-ink hover:underline">
-              hej@athopia.se
+            <a href="mailto:hej@nanofotboll.se" className="text-pitch-ink hover:underline">
+              hej@nanofotboll.se
             </a>
             .
           </p>
@@ -93,7 +93,7 @@ export default function AiTransparensPage() {
         <section>
           <h2 className="font-semibold text-2xl text-foreground mb-3 text-balance">Upphovsrätt</h2>
           <p>
-            Athopia återger aldrig andra publicisters brödtext ordagrant. Externa nyheter
+            Nano Fotboll återger aldrig andra publicisters brödtext ordagrant. Externa nyheter
             visas som rubrik, källnamn och länk till originalet.
           </p>
         </section>

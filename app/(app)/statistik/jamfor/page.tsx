@@ -18,12 +18,12 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
   const { a, b } = await searchParams;
   if (a && b) {
     return {
-      title: `${a} vs ${b} — Statistikjämförelse | Athopia`,
+      title: `${a} vs ${b} — Statistikjämförelse | Nano Fotboll`,
       description: `Form, H2H och nyckelstatistik för ${a} och ${b} i Allsvenskan.`,
     };
   }
   return {
-    title: "Statistikjämförelse | Athopia",
+    title: "Statistikjämförelse | Nano Fotboll",
     description: "Jämför Allsvenskan-lag sida vid sida — form, H2H och nyckeltal.",
   };
 }

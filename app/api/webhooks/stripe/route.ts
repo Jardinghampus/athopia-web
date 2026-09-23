@@ -1,7 +1,7 @@
 /**
  * app/api/webhooks/stripe/route.ts
  * ─────────────────────────────────────────────────────────────────────────────
- * Stripe Webhook-handler för Athopia.
+ * Stripe Webhook-handler för Nano Fotboll.
  *
  * Hanterar:
  *  - checkout.session.completed → sätter Clerk publicMetadata.plan='pro|elite'

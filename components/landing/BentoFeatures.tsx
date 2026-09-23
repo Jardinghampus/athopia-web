@@ -155,7 +155,7 @@ export function BentoFeatures() {
                 </div>
                 <div className="min-w-0">
                   <p className="text-xs font-bold text-white">Mål! Guidetti 2–1 (71&prime;)</p>
-                  <p className="mt-0.5 text-xs text-white/55">Athopia · nu</p>
+                  <p className="mt-0.5 text-xs text-white/55">Nano Fotboll · nu</p>
                 </div>
               </div>
             </CardShell>

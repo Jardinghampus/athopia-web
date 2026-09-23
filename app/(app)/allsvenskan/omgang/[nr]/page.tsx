@@ -22,11 +22,11 @@ export async function generateMetadata({
   return {
     title: `Allsvenskan Omgång ${nr} 2026 – Resultat & Spelschema`,
     description: `Alla matcher i Allsvenskan omgång ${nr} 2026: avsparkstider, resultat och matchdetaljer.`,
-    alternates: { canonical: `https://athopia.se/allsvenskan/omgang/${nr}` },
+    alternates: { canonical: `https://nanofotboll.se/allsvenskan/omgang/${nr}` },
     openGraph: {
       type: "website",
       locale: "sv_SE",
-      url: `https://athopia.se/allsvenskan/omgang/${nr}`,
+      url: `https://nanofotboll.se/allsvenskan/omgang/${nr}`,
       title: `Allsvenskan Omgång ${nr} 2026`,
       description: `Alla matcher i Allsvenskan omgång ${nr} 2026.`,
     },
@@ -58,7 +58,7 @@ export default async function OmgangPage({
               "@type": "SportsEvent",
               name: f.name,
               startDate: f.starting_at,
-              url: `https://athopia.se/match/${f.id}`,
+              url: `https://nanofotboll.se/match/${f.id}`,
             })),
           }),
         }}

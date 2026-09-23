@@ -1,7 +1,7 @@
 /**
  * lib/pricing.ts
  * ─────────────────────────────────────────────────────────────────────────────
- * En sanningskälla för Athopias prismodell. Används av prissidan,
+ * En sanningskälla för Nano Fotbolls prismodell. Används av prissidan,
  * create-checkout och (via metadata) Stripe-webhooken.
  *
  * Free / PRO 89 kr / Elite 169 kr — 20 % rabatt på årsplan (var 25 % till

@@ -71,7 +71,7 @@ export async function generateMetadata({
     title: narrative.topic,
     description: `Vad pratas det om just nu? ${narrative.topic}`,
     openGraph: {
-      title: `${narrative.topic} | Athopia`,
+      title: `${narrative.topic} | Nano Fotboll`,
       description: `Narrativ med score ${Math.round(narrative.score * 100)}%`,
     },
   };

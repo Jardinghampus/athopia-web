@@ -70,7 +70,7 @@ export async function generateMetadata({
   return {
     title: `${name} Nyheter – Allsvenskan 2026`,
     description: `Senaste nyheterna om ${name} i Allsvenskan 2026 — matcher, transferer och matchanalyser.`,
-    alternates: { canonical: `https://athopia.se/lag/${slug}/nyheter` },
+    alternates: { canonical: `https://nanofotboll.se/lag/${slug}/nyheter` },
   };
 }
 

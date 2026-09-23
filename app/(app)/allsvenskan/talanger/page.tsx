@@ -10,11 +10,11 @@ export const metadata: Metadata = {
   title: "Allsvenskans främsta U21-talanger 2026 – speltid & poäng",
   description:
     "De mest tongivande unga spelarna i Allsvenskan 2026: U21-spelare rankade på speltid, mål och assist. Vem är ligans nästa stjärna?",
-  alternates: { canonical: "https://athopia.se/allsvenskan/talanger" },
+  alternates: { canonical: "https://nanofotboll.se/allsvenskan/talanger" },
   openGraph: {
     type: "website",
     locale: "sv_SE",
-    url: "https://athopia.se/allsvenskan/talanger",
+    url: "https://nanofotboll.se/allsvenskan/talanger",
     title: "Allsvenskans främsta U21-talanger 2026",
     description: "Unga spelare rankade på speltid, mål och assist i Allsvenskan 2026.",
   },

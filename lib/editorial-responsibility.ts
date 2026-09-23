@@ -20,7 +20,7 @@
  */
 
 /** Verksamheten som bär det redaktionella ansvaret när ingen person är utsedd. */
-export const EDITORIAL_FALLBACK = 'Athopia';
+export const EDITORIAL_FALLBACK = 'Nano Fotboll';
 
 export type EditorialResponsibility = {
   /** Texten som ska renderas efter "Ansvarig utgivare:". */

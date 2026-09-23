@@ -5,7 +5,7 @@ import { InterestSettingsClient } from "./InterestSettingsClient";
 import { getUserFeedPreferences } from "@/lib/feed/getUserFeedPreferences";
 
 export const metadata: Metadata = {
-  title: "Mina intressen — Athopia",
+  title: "Mina intressen — Nano Fotboll",
   description: "Välj vilka typer av nyheter som ska prioriteras i ditt flöde.",
 };
 

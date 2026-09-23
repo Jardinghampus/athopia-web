@@ -18,7 +18,7 @@ function buildFaqs(founder: boolean) {
 
   return [
     {
-      q: "Vad kostar Athopia?",
+      q: "Vad kostar Nano Fotboll?",
       a: founder
         ? `Gratis att börja — välj lag, följ flödet och läs forumet utan kreditkort. PRO kostar ${pro} kr/mån för founders (ordinarie ${listPro} kr) för de första ${FOUNDER_OFFER.cap}. Elite kostar ${elite} kr/mån. ${TRIAL_DAYS} dagar gratis på betald plan, avbryt när som helst.`
         : `Gratis att börja — välj lag, följ flödet och läs forumet utan kreditkort. PRO kostar ${listPro} kr/mån och Elite ${elite} kr/mån. ${TRIAL_DAYS} dagar gratis på betald plan, avbryt när som helst.`,
@@ -43,12 +43,12 @@ function buildFaqs(founder: boolean) {
       a: `Nej för gratisnivån. När du uppgraderar till PRO/Elite startar ${TRIAL_DAYS} dagars gratisperiod via Stripe — därefter debitering. Avbryt innan trial tar slut om du inte vill fortsätta.`,
     },
     {
-      q: "Jag har redan FotMob / Sportbladet — varför Athopia?",
-      a: "FotMob ger resultat. Sportbladet ger rubriker. Athopia ger bekvämligheten: AI som läser artiklar, forum och poddar åt dig — så du är först på transfers och snacket utan nio flikar. Vi återpublicerar aldrig andras texter.",
+      q: "Jag har redan FotMob / Sportbladet — varför Nano Fotboll?",
+      a: "FotMob ger resultat. Sportbladet ger rubriker. Nano Fotboll ger bekvämligheten: AI som läser artiklar, forum och poddar åt dig — så du är först på transfers och snacket utan nio flikar. Vi återpublicerar aldrig andras texter.",
     },
     {
-      q: "Finns Athopia som app?",
-      a: "Athopia är byggd som en webapp med native-känsla. Lägg till den på hemskärmen från webbläsaren så öppnas den i fullskärm, med push-notiser — precis som en vanlig app, fast utan App Store.",
+      q: "Finns Nano Fotboll som app?",
+      a: "Nano Fotboll är byggd som en webapp med native-känsla. Lägg till den på hemskärmen från webbläsaren så öppnas den i fullskärm, med push-notiser — precis som en vanlig app, fast utan App Store.",
     },
     {
       q: "Vilka ligor och lag täcker ni?",

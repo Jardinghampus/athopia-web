@@ -69,7 +69,7 @@ export function ColumnistDashboardClient({ columns }: { columns: ColumnListItem[
       )}
 
       <Link href="/" className="block text-center text-sm text-muted-foreground hover:text-foreground">
-        ← Tillbaka till Athopia
+        ← Tillbaka till Nano Fotboll
       </Link>
     </div>
   );

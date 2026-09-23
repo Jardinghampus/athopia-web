@@ -70,8 +70,8 @@ function StatistikBreadcrumb() {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Hem", item: "https://athopia.se" },
-        { "@type": "ListItem", position: 2, name: "Statistik", item: "https://athopia.se/statistik" },
+        { "@type": "ListItem", position: 1, name: "Hem", item: "https://nanofotboll.se" },
+        { "@type": "ListItem", position: 2, name: "Statistik", item: "https://nanofotboll.se/statistik" },
       ],
     })}} />
   );

@@ -19,7 +19,7 @@ interface AnimatedHeroProps {
 export function AnimatedHero({
   lead = "Fotboll som",
   titles = ["känns på riktigt.", "gör dig smartare.", "går på djupet.", "berättas rätt."],
-  description = "Athopia är plattformen för dig som vill mer än en tabell och tre rader fakta. Djupanalys. Matchkänsla. Allsvenskan — läst som det förtjänar.",
+  description = "Nano Fotboll är plattformen för dig som vill mer än en tabell och tre rader fakta. Djupanalys. Matchkänsla. Allsvenskan — läst som det förtjänar.",
   primary = { label: "Skapa konto", href: "/sign-up" },
   secondary = { label: "Logga in", href: "/sign-in" },
   badge = { label: "Läs dagens analys", href: "/analys" },

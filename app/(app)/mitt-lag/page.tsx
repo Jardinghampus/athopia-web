@@ -31,7 +31,7 @@ import { formLetter, formLabel } from "@/lib/form-letter";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Hem — Athopia idag",
+  title: "Hem — Nano Fotboll idag",
   description: "Din dagliga brief, matchdag och snabbvägar till laget.",
 };
 
@@ -127,7 +127,7 @@ export default async function MittLagPage({
       <header className="mb-6 flex items-start justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Athopia · {hub.team.name}
+            Nano Fotboll · {hub.team.name}
           </p>
           <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground mt-1 text-balance">
             {greeting}
@@ -196,7 +196,7 @@ export default async function MittLagPage({
       <FeedMatchHero />
 
       {/* Ingång till analysytan — inte hela flödet, bara den senaste insikten.
-          Analysen är Athopias egen text och ska synas i den dagliga ritualen. */}
+          Analysen är Nano Fotbolls egen text och ska synas i den dagliga ritualen. */}
       {latestInsights.length > 0 && (
         <section className="mt-6" aria-labelledby="senaste-analys">
           <div className="mb-2 flex items-baseline justify-between gap-3">
@@ -238,7 +238,7 @@ export default async function MittLagPage({
           href={`/lag/${hub.team.slug}/analys`}
           icon={Sparkles}
           title="Analys"
-          desc={`Athopias egen analys om ${hub.team.name}`}
+          desc={`Nano Fotbolls egen analys om ${hub.team.name}`}
         />
         <QuickLink
           href={`/lag/${hub.team.slug}/nyheter`}

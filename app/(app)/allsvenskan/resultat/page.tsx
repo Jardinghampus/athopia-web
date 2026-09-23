@@ -10,11 +10,11 @@ export const revalidate = 60;
 export const metadata: Metadata = {
   title: "Allsvenskan Resultat 2026 – Alla Matchresultat",
   description: "Samtliga matchresultat från Allsvenskan 2026, omgång för omgång. Live-uppdaterat.",
-  alternates: { canonical: "https://athopia.se/allsvenskan/resultat" },
+  alternates: { canonical: "https://nanofotboll.se/allsvenskan/resultat" },
   openGraph: {
     type: "website",
     locale: "sv_SE",
-    url: "https://athopia.se/allsvenskan/resultat",
+    url: "https://nanofotboll.se/allsvenskan/resultat",
     title: "Allsvenskan Resultat 2026 – Alla Matchresultat",
     description: "Samtliga matchresultat från Allsvenskan 2026.",
   },
@@ -54,8 +54,8 @@ export default async function AllsvenskanResultatPage() {
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
         itemListElement: [
-          { "@type": "ListItem", position: 1, name: "Allsvenskan", item: "https://athopia.se/allsvenskan" },
-          { "@type": "ListItem", position: 2, name: "Resultat", item: "https://athopia.se/allsvenskan/resultat" },
+          { "@type": "ListItem", position: 1, name: "Allsvenskan", item: "https://nanofotboll.se/allsvenskan" },
+          { "@type": "ListItem", position: 2, name: "Resultat", item: "https://nanofotboll.se/allsvenskan/resultat" },
         ],
       })}} />
 

@@ -56,10 +56,10 @@ describe("provenance", () => {
     assert.equal(canPublishBody("owned"), true);
     const owned = sanitizeArticleForPublic({
       rightsStatus: "owned" as const,
-      content: "<p>Athopia original</p>",
+      content: "<p>Nano Fotboll original</p>",
       summary: "Egen analys",
     });
-    assert.equal(owned.content, "<p>Athopia original</p>");
+    assert.equal(owned.content, "<p>Nano Fotboll original</p>");
     assert.equal(owned.summary, "Egen analys");
   });
 

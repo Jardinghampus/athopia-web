@@ -248,7 +248,7 @@ export function ScreenMatch() {
           </div>
           <div className="min-w-0">
             <p className="text-[10.5px] font-bold text-zinc-900">Mål! Guidetti 2–1 (71&prime;)</p>
-            <p className="text-[9px] text-zinc-600">Athopia · nu</p>
+            <p className="text-[9px] text-zinc-600">Nano Fotboll · nu</p>
           </div>
         </div>
 

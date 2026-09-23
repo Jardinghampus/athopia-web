@@ -7,7 +7,7 @@ import { ScoutClient } from "./ScoutClient";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Scout Mode | Athopia",
+  title: "Scout Mode | Nano Fotboll",
   description: "Filtrera spelare mot liga- och positionsmedian — tänk som en fotbollsscout.",
 };
 

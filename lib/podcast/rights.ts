@@ -1,8 +1,8 @@
 /**
- * Podcast public-surface policy (Athopia / AGENTS.md).
+ * Podcast public-surface policy (Nano Fotboll / AGENTS.md).
  *
  * Transcripts and raw enclosure URLs are INTERNAL (os RAG / entity extraction).
- * Public web: title, show name, Athopia topic tags, Spotify embed or outbound listen link.
+ * Public web: title, show name, Nano Fotboll topic tags, Spotify embed or outbound listen link.
  */
 
 /**

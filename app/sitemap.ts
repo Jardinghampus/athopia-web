@@ -51,7 +51,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .eq("status", "published")
       .order("published_at", { ascending: false })
       .limit(1000);
-    // Sitemap only indexes owned/licensed Athopia pages — link_only is noindex /nyhet.
+    // Sitemap only indexes owned/licensed Nano Fotboll pages — link_only is noindex /nyhet.
     articleRoutes = (articles ?? [])
       .filter((a) => {
         const rights = a.rights_status ?? (a.is_athopia_generated ? "owned" : "link_only");

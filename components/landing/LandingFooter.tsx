@@ -12,7 +12,7 @@ export function LandingFooter() {
 
           <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-white/55">
             <a
-              href="mailto:hej@athopia.se"
+              href="mailto:hej@nanofotboll.se"
               className="transition-colors hover:text-white/70"
             >
               Kontakt
@@ -29,7 +29,7 @@ export function LandingFooter() {
             >
               AI-transparens
             </Link>
-            <span className="text-white/55">© 2026 Athopia</span>
+            <span className="text-white/55">© 2026 Nano Fotboll</span>
           </nav>
         </div>
       </Container>

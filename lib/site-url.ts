@@ -4,7 +4,7 @@
  * Never trust client-supplied hosts for redirects.
  */
 
-const FALLBACK = "https://athopia.se";
+const FALLBACK = "https://nanofotboll.se";
 
 function normalize(raw: string): string {
   const trimmed = raw.trim().replace(/\/$/, "");

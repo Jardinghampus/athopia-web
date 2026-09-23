@@ -136,7 +136,7 @@ export function WaitlistForm({ teams, referral }: Props) {
           required
           className="mt-0.5 size-4 rounded border-border accent-pitch"
         />
-        <span className="text-muted-foreground">Jag vill ha mejl när Athopia öppnar.</span>
+        <span className="text-muted-foreground">Jag vill ha mejl när Nano Fotboll öppnar.</span>
       </label>
 
       {state === "error" && message && (

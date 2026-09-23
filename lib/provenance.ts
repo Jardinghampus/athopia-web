@@ -56,7 +56,7 @@ export function resolveContentOrigin(row: {
   return "third_party_signal";
 }
 
-/** Owned/licensed may render Athopia body; link_only is source-first only. */
+/** Owned/licensed may render Nano Fotboll body; link_only is source-first only. */
 export function canPublishBody(rights: RightsStatus): boolean {
   return rights === "owned" || rights === "licensed";
 }

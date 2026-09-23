@@ -72,12 +72,12 @@ export const SECONDARY_NAV_ITEMS: NavItem[] = [
   { href: "/statistik", label: "Statistik", icon: BarChart3, iosSymbol: "chart.bar.fill" },
   { href: "/forum", label: "Forum", icon: MessageSquare, iosSymbol: "bubble.left.and.bubble.right.fill" },
   { href: "/analys", label: "Matchanalyser", icon: FileSearch, iosSymbol: "doc.text.magnifyingglass" },
-  { href: "/daily", label: "Athopia Daily", icon: Headphones, iosSymbol: "headphones" },
+  { href: "/daily", label: "Nano Fotboll Daily", icon: Headphones, iosSymbol: "headphones" },
   { href: "/podcast", label: "Poddar", icon: Headphones, iosSymbol: "waveform" },
   { href: "/ai", label: "Fråga", icon: Sparkles, iosSymbol: "sparkles" },
   { href: "/konto", label: "Konto", icon: User, iosSymbol: "person.crop.circle" },
   { href: "/prenumerera", label: "Prenumeration", icon: CreditCard, iosSymbol: "creditcard.fill" },
-  { href: "/om-oss", label: "Om Athopia", icon: Info, iosSymbol: "info.circle" },
+  { href: "/om-oss", label: "Om Nano Fotboll", icon: Info, iosSymbol: "info.circle" },
 ];
 
 /** @deprecated Använd BOTTOM_NAV_ITEMS — behålls för tillfälliga imports. */

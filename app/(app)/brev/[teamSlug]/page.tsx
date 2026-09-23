@@ -18,8 +18,8 @@ export async function generateMetadata({
   if (!team) return { title: "Lagbrief hittades inte" };
   return {
     title: `${team.name} Lagbrief`,
-    description: `Det viktigaste om ${team.name}, utvalt och förklarat av Athopia.`,
-    alternates: { canonical: `https://athopia.se/brev/${team.slug}` },
+    description: `Det viktigaste om ${team.name}, utvalt och förklarat av Nano Fotboll.`,
+    alternates: { canonical: `https://nanofotboll.se/brev/${team.slug}` },
   };
 }
 
@@ -40,7 +40,7 @@ export default async function TeamNewsletterPage({
       <div className="grid items-start gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14">
         <section className="pt-2">
           <p className="text-sm font-semibold uppercase text-pitch-ink">
-            Athopia Lagbrief
+            Nano Fotboll Lagbrief
           </p>
           <h1 className="mt-3 max-w-2xl text-4xl font-bold leading-tight text-balance sm:text-5xl">
             {team.name}, utan bruset.

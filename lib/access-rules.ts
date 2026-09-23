@@ -26,7 +26,7 @@ export const ACCESS = {
   unlimitedFeed:      "free",
   /** Matchkontext-chatten. */
   aiChat:             "pro",
-  /** Global Athopia AI med verktyg över hela Allsvenskan. Founderbeslut D2 2026-07-14: PRO. */
+  /** Global Nano Fotboll AI med verktyg över hela Allsvenskan. Founderbeslut D2 2026-07-14: PRO. */
   globalAiChat:       "pro",
   podcastClips:       "pro",
   /**

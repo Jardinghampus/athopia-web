@@ -1,5 +1,5 @@
 /**
- * GET /api/elite/podcast-summary — läser Athopias originalsammanfattning.
+ * GET /api/elite/podcast-summary — läser Nano Fotbolls originalsammanfattning.
  *
  * Endast läsning. Sammanfattningen skrivs av athopia-os (podcast-processor +
  * scripts/backfill-podcast-summaries.ts) till metadata.athopia_summary.

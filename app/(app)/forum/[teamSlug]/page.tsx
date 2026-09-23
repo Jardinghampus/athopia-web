@@ -54,8 +54,8 @@ export async function generateMetadata({
   const teams = await getEntities("team");
   const name = teams.find((t) => t.slug === teamSlug)?.name ?? teamSlug;
   return {
-    title: `${name} · Community | Athopia`,
-    description: `Diskutera ${name} med andra supportrar på Athopia.`,
+    title: `${name} · Community | Nano Fotboll`,
+    description: `Diskutera ${name} med andra supportrar på Nano Fotboll.`,
   };
 }
 

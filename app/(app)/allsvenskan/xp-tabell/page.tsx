@@ -11,11 +11,11 @@ export const metadata: Metadata = {
   title: "Allsvenskan xP-tabell 2026 – Förväntade poäng utifrån xG",
   description:
     "Vilka lag över- och underpresterar? xP-tabellen räknar förväntade poäng per match utifrån expected goals (xG) för hela Allsvenskan 2026.",
-  alternates: { canonical: "https://athopia.se/allsvenskan/xp-tabell" },
+  alternates: { canonical: "https://nanofotboll.se/allsvenskan/xp-tabell" },
   openGraph: {
     type: "website",
     locale: "sv_SE",
-    url: "https://athopia.se/allsvenskan/xp-tabell",
+    url: "https://nanofotboll.se/allsvenskan/xp-tabell",
     title: "Allsvenskan xP-tabell 2026 – Förväntade poäng",
     description: "Förväntade poäng per lag utifrån xG — vem över- och underpresterar i Allsvenskan?",
   },
@@ -128,7 +128,7 @@ export default async function XpTabellPage() {
       <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2 text-balance">XP-TABELLEN</h1>
       <p className="text-muted-foreground mb-8 max-w-xl">
         Förväntade poäng utifrån xG per match (Poisson-modell). Grönt = laget har tagit fler
-        poäng än chanserna motiverar, rött = färre. Athopias beräkning på synkad matchdata.
+        poäng än chanserna motiverar, rött = färre. Nano Fotbolls beräkning på synkad matchdata.
       </p>
 
       {/* Se /allsvenskan/tabell: hidden klippte bort P−xP, sidans hela poäng. */}

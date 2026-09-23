@@ -263,7 +263,7 @@ export function ProfilePageClient({
 
       <section className="space-y-3">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground text-balance">
-          Athopia Lagbrief
+          Nano Fotboll Lagbrief
         </h2>
         <div className="rounded-2xl border border-border bg-card p-4">
           <p className="mb-4 text-sm leading-relaxed text-muted-foreground">

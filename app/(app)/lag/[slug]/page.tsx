@@ -149,11 +149,11 @@ export default async function TeamHubPage({ params }: { params: Promise<{ slug: 
     "@type": "SportsTeam",
     name: hub.team.name,
     sport: "Soccer",
-    url: `https://athopia.se/lag/${hub.team.slug}`,
+    url: `https://nanofotboll.se/lag/${hub.team.slug}`,
     memberOf: {
       "@type": "SportsOrganization",
       name: "Allsvenskan",
-      url: "https://athopia.se/allsvenskan",
+      url: "https://nanofotboll.se/allsvenskan",
     },
     ...(hub.team.logo_url ? { logo: hub.team.logo_url, image: hub.team.logo_url } : {}),
   };

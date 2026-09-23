@@ -1,5 +1,5 @@
 /**
- * Website-inställningar — hur Athopia ser ut när någon delar eller googlar.
+ * Website-inställningar — hur Nano Fotboll ser ut när någon delar eller googlar.
  *
  * Kanonisk källa: `system_config.key = 'website'` (JSON). Admin skriver,
  * den här modulen läser. Resolver-logiken speglar athopia-admin/lib/website-settings.ts
@@ -55,7 +55,7 @@ export type WebsiteSettings = {
 };
 
 export const SUGGESTED_HOME_SHARE = {
-  ogTitle: "Athopia — Allsvenskan, varje dag",
+  ogTitle: "Nano Fotboll — Allsvenskan, varje dag",
   ogDescription:
     "Nyheter, matcher och statistik för ditt lag. Varje dag, inte bara på matchdag.",
 } as const;
@@ -63,30 +63,30 @@ export const SUGGESTED_HOME_SHARE = {
 export const DEFAULT_WEBSITE_SETTINGS: WebsiteSettings = {
   version: 1,
   identity: {
-    siteName: "Athopia",
+    siteName: "Nano Fotboll",
     tagline: "Allsvenskan, varje dag.",
-    titleTemplate: "%s | Athopia",
+    titleTemplate: "%s | Nano Fotboll",
     twitterHandle: "@athopia_se",
     locale: "sv_SE",
-    contactEmail: "hej@athopia.se",
+    contactEmail: "hej@nanofotboll.se",
   },
   seo: {
-    defaultTitle: "Athopia — Allsvenskan 2026: tabell, resultat & statistik",
+    defaultTitle: "Nano Fotboll — Allsvenskan 2026: tabell, resultat & statistik",
     defaultDescription:
       "Allt om Allsvenskan 2026 — live-tabell, resultat, spelschema, skytteliga och djupstatistik för alla 16 lag. Matchanalyser, nyhetsflöde och forum för ditt lag, samlat på ett ställe.",
-    homeTitle: "Allsvenskan 2026 – Tabell, Resultat, Matcher & Statistik | Athopia",
+    homeTitle: "Allsvenskan 2026 – Tabell, Resultat, Matcher & Statistik | Nano Fotboll",
     homeDescription:
       "Allt om Allsvenskan 2026: live-tabell, resultat, spelschema, skytteliga och djupstatistik för alla 16 lag. Matchanalyser, nyhetsflöde och forum för ditt lag — samlat på ett ställe.",
   },
   sharing: {
-    homeOgTitle: "Allsvenskan 2026 – Tabell, Resultat, Matcher & Statistik | Athopia",
+    homeOgTitle: "Allsvenskan 2026 – Tabell, Resultat, Matcher & Statistik | Nano Fotboll",
     homeOgDescription:
       "Live-tabell, resultat, spelschema, skytteliga och djupstatistik för hela Allsvenskan 2026. Matchanalyser och forum för ditt lag.",
     ogImageUrl: "/og-default.png",
     twitterCard: "summary_large_image",
     includeBrandInOgTitle: false,
     articleDescriptionFallback: "defaultDescription",
-    nyhetDescriptionTemplate: "Athopia följer händelsen. Originalet hos {source}.",
+    nyhetDescriptionTemplate: "Nano Fotboll följer händelsen. Originalet hos {source}.",
     teamTitleTemplate: "{team} – Allsvenskan 2026: Nyheter, Statistik & Matcher",
     teamDescriptionTemplate:
       "Allt om {team} i Allsvenskan — senaste nyheter, matchresultat, spelartrupp, statistik och lagforum.",
@@ -374,7 +374,7 @@ export function previewHost(siteUrl: string): string {
   try {
     return new URL(siteUrl).host.replace(/^www\./, "");
   } catch {
-    return "athopia.se";
+    return "nanofotboll.se";
   }
 }
 

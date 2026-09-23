@@ -13,9 +13,9 @@ export async function generateMetadata({
   const { slug } = await params;
   const { hub } = await loadTeamSection(slug);
   return {
-    title: `${hub.team.name} — Matcher | Athopia`,
+    title: `${hub.team.name} — Matcher | Nano Fotboll`,
     description: `Spelade och kommande matcher för ${hub.team.name} i Allsvenskan.`,
-    alternates: { canonical: `https://athopia.se/lag/${slug}/matcher` },
+    alternates: { canonical: `https://nanofotboll.se/lag/${slug}/matcher` },
   };
 }
 

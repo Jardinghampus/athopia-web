@@ -116,7 +116,7 @@ export default function ForumClient({ teamSlug, sport, initialPosts, articlePref
             onPost={handlePost}
             initialContent={
               articlePrefill
-                ? `${articlePrefill.title}\nathopia.se/artikel/${articlePrefill.slug}\n\n`
+                ? `${articlePrefill.title}\nnanofotboll.se/artikel/${articlePrefill.slug}\n\n`
                 : undefined
             }
           />

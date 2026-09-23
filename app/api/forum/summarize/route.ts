@@ -5,7 +5,7 @@ import { secretsEqual } from "@/lib/secrets";
 // Called by n8n cron every hour: POST /api/forum/summarize?teamSlug=djurgardens-if&secret=X
 // Reads last 4 hours of posts → Claude Haiku → stores in agent_memory
 
-const PROMPT_TEMPLATE = (teamName: string, posts: string) => `Du är en AI-assistent för Athopia, en svensk fotbollscommunity. Du ska sammanfatta vad supportrar för ${teamName} diskuterar just nu.
+const PROMPT_TEMPLATE = (teamName: string, posts: string) => `Du är en AI-assistent för Nano Fotboll, en svensk fotbollscommunity. Du ska sammanfatta vad supportrar för ${teamName} diskuterar just nu.
 
 Här är inläggen från de senaste 4 timmarna (sorterade efter engagement):
 ---

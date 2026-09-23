@@ -41,7 +41,7 @@ test("nyhet får egen fras med källa — tar inte emot teaser", () => {
     sourceName: "Fotbollskanalen",
     path: "/nyhet/bajen-mittback",
   });
-  assert.equal(resolved.description, "Athopia följer händelsen. Originalet hos Fotbollskanalen.");
+  assert.equal(resolved.description, "Nano Fotboll följer händelsen. Originalet hos Fotbollskanalen.");
   assert.equal(resolved.robots.index, false);
   assert.equal(resolved.ogImageUrl, settings.sharing.ogImageUrl);
 });
@@ -99,15 +99,15 @@ test("og-titel får varumärke bara när toggle är på", () => {
     summary: "Dek.",
     path: "/artikel/x",
   });
-  assert.equal(resolved.ogTitle, "Rubrik utan varumärke | Athopia");
+  assert.equal(resolved.ogTitle, "Rubrik utan varumärke | Nano Fotboll");
 });
 
 test("parse struntar i HTML och ogiltig bild-URL", () => {
   const parsed = parseWebsiteSettings({
-    identity: { siteName: "<script>Athopia</script>" },
+    identity: { siteName: "<script>Nano Fotboll</script>" },
     sharing: { ogImageUrl: "javascript:alert(1)" },
   });
-  assert.equal(parsed.identity.siteName, "Athopia");
+  assert.equal(parsed.identity.siteName, "Nano Fotboll");
   assert.equal(parsed.sharing.ogImageUrl, DEFAULT_WEBSITE_SETTINGS.sharing.ogImageUrl);
 });
 

@@ -187,7 +187,7 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
         }
 
         if (mod.type === "short_post") {
-          const title = String(mod.payload.title ?? "Athopia");
+          const title = String(mod.payload.title ?? "Nano Fotboll");
           const snippet =
             typeof mod.payload.snippet === "string"
               ? mod.payload.snippet
@@ -219,7 +219,7 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
         }
 
         if (mod.type === "audio_briefing") {
-          const title = String(mod.payload.title ?? "Athopia Daily");
+          const title = String(mod.payload.title ?? "Nano Fotboll Daily");
           const href = String(mod.payload.href ?? "/daily");
           const access = (mod.payload.access ?? {}) as Record<string, unknown>;
           const unlocked = Boolean(access.unlocked);

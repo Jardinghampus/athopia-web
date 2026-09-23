@@ -94,7 +94,7 @@ export function LoadingSourcesCard() {
                       />
                     </svg>
                     <span className="relative -top-1 left-3 rounded-3xl bg-pitch px-2 py-1 text-xs font-bold text-white">
-                      Athopia AI
+                      Nano Fotboll AI
                     </span>
                   </div>
                 </div>

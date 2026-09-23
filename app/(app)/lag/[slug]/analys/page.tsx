@@ -1,7 +1,7 @@
 /**
  * app/lag/[slug]/analys — Lagets analysyta.
  *
- * Athopias enda AI-analys som produceras i skala är `entity_insights` (~16/dygn).
+ * Nano Fotbolls enda AI-analys som produceras i skala är `entity_insights` (~16/dygn).
  * Före den här sidan visades två av dem inne i en flik på laghubben; motorn
  * fungerade men produkten dolde den. Ytan ger analysen den plats produktbriefen
  * kräver: dagens viktigaste först, sedan tidslinjen, med synligt underlag.
@@ -32,9 +32,9 @@ export async function generateMetadata({
   const hub = await getTeamHub(slug);
   const name = hub?.team.name ?? slug;
   return {
-    title: `${name} — Analys | Athopia`,
-    description: `Athopias egna analyser om ${name}: form, nyhetsläge och statistik i sammanhang.`,
-    alternates: { canonical: `https://athopia.se/lag/${slug}/analys` },
+    title: `${name} — Analys | Nano Fotboll`,
+    description: `Nano Fotbolls egna analyser om ${name}: form, nyhetsläge och statistik i sammanhang.`,
+    alternates: { canonical: `https://nanofotboll.se/lag/${slug}/analys` },
   };
 }
 
@@ -95,7 +95,7 @@ export default async function LagAnalysPage({
       <header className="mt-3 mb-6">
         <p className="text-xs font-semibold uppercase tracking-wide text-pitch-ink inline-flex items-center gap-1.5">
           <Sparkles className="h-3.5 w-3.5" aria-hidden />
-          Athopias egen analys
+          Nano Fotbolls egen analys
         </p>
         <h1 className="text-3xl font-semibold tracking-tight text-foreground mt-1 text-balance">
           {hub.team.name}
@@ -139,7 +139,7 @@ export default async function LagAnalysPage({
                 id="summary-heading"
                 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2 text-balance"
               >
-                Athopias sammanfattning
+                Nano Fotbolls sammanfattning
               </h2>
               <PaywallGate feature="aiSummaries" plan={plan} teamName={hub.team.name}>
                 <div className="flex flex-col gap-3">

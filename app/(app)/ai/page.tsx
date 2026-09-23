@@ -159,7 +159,7 @@ export default function AiChatPage() {
       {/* Header */}
       <header className="flex w-full max-w-2xl shrink-0 items-center gap-2.5 px-5 py-4">
         <Sparkles size={16} className="text-pitch-ink" aria-hidden />
-        <h1 className="text-sm font-semibold text-foreground">Athopia AI</h1>
+        <h1 className="text-sm font-semibold text-foreground">Nano Fotboll AI</h1>
         <span className="ml-auto flex shrink-0 items-center gap-1.5 rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-amber-500">
           <Sparkles size={9} aria-hidden />
           PRO
@@ -202,7 +202,7 @@ export default function AiChatPage() {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.2 }}
-                    aria-label="Athopia AI tänker"
+                    aria-label="Nano Fotboll AI tänker"
                   >
                     <ThinkingIndicator message={thinkingMsg} />
                   </motion.div>
@@ -229,7 +229,7 @@ export default function AiChatPage() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Fråga Athopia AI om Allsvenskan…"
+              placeholder="Fråga Nano Fotboll AI om Allsvenskan…"
               disabled={loading}
               rows={1}
               aria-label="Fråga"

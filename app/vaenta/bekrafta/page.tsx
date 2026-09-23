@@ -13,7 +13,7 @@ import { parseConfirmOutcome, peekWaitlistToken, type ConfirmOutcome } from "@/l
 import { ConfirmForm } from "@/components/waitlist/ConfirmForm";
 
 export const metadata: Metadata = {
-  title: "Bekräfta din plats | Athopia",
+  title: "Bekräfta din plats | Nano Fotboll",
   robots: { index: false, follow: false },
 };
 

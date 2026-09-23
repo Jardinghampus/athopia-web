@@ -112,8 +112,8 @@ export async function grantReferralCreditsOnFirstPayment(opts: {
     if (subs.data.length === 0) return;
 
     const credit = PRICING.pro.monthly;
-    await creditCustomer(stripe, referrerCustomer, credit, "Athopia — värvning, en månad på oss");
-    await creditCustomer(stripe, referredCustomer, credit, "Athopia — välkommen, en månad på oss");
+    await creditCustomer(stripe, referrerCustomer, credit, "Nano Fotboll — värvning, en månad på oss");
+    await creditCustomer(stripe, referredCustomer, credit, "Nano Fotboll — välkommen, en månad på oss");
 
     await db
       .from("waitlist")

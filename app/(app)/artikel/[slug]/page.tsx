@@ -97,11 +97,11 @@ function ArticleJsonLd({ article }: { article: Article }) {
     ...(article.updatedAt ? { dateModified: article.updatedAt } : {}),
     author: {
       "@type": "Organization",
-      name: "Athopia",
+      name: "Nano Fotboll",
     },
     publisher: {
       "@type": "Organization",
-      name: "Athopia",
+      name: "Nano Fotboll",
       url: getSiteUrl(),
     },
     url: `${getSiteUrl()}/artikel/${article.slug}`,
@@ -116,8 +116,8 @@ function ArticleJsonLd({ article }: { article: Article }) {
 }
 
 function byline(article: Article): string {
-  if (article.isAthopiaGenerated) return "Athopia";
-  if (article.sourceName === "Athopia AI") return "Athopia";
+  if (article.isAthopiaGenerated) return "Nano Fotboll";
+  if (article.sourceName === "Nano Fotboll AI") return "Nano Fotboll";
   return article.sourceName;
 }
 

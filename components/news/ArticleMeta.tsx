@@ -6,7 +6,7 @@ import { formatDateRelative } from "@/lib/utils";
  * Metaraden på ett nyhetskort: lag · händelsetyp · tid · källa.
  *
  * Varför den finns: 96,7 % av artiklarna har lagkoppling och 5 klassificerade
- * händelsetyper, men korten visade bara källa + tid. Utåt såg Athopia därför ut
+ * händelsetyper, men korten visade bara källa + tid. Utåt såg Nano Fotboll därför ut
  * som en rubrikaggregator trots att klassificeringen redan gjort jobbet.
  *
  * Allt här är metadata vi själva härlett — ingen tredjepartstext återges, så

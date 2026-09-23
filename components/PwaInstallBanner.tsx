@@ -24,7 +24,7 @@ export function PwaInstallBanner() {
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-foreground">Lägg till på hemskärmen</p>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Installera Athopia som app för snabbare access och offline-stöd.
+            Installera Nano Fotboll som app för snabbare access och offline-stöd.
           </p>
           <div className="flex gap-2 mt-3">
             <button

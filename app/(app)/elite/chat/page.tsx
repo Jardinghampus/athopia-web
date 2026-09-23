@@ -129,7 +129,7 @@ export default function EliteChatPage() {
         className="flex items-end gap-2 rounded-3xl border border-zinc-800 bg-zinc-900 px-3 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]"
       >
         <span className="mb-1.5 shrink-0 rounded-full bg-zinc-800 px-2 py-1 text-xs font-medium text-zinc-400">
-          Athopia AI
+          Nano Fotboll AI
         </span>
         <textarea
           ref={textareaRef}

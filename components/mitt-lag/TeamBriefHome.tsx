@@ -24,11 +24,11 @@ export function TeamBriefHome({
   teamName: string;
 }) {
   return (
-    <section className="mb-6 rounded-xl border border-border bg-card overflow-hidden" aria-label="Athopia idag">
+    <section className="mb-6 rounded-xl border border-border bg-card overflow-hidden" aria-label="Nano Fotboll idag">
       <div className="px-4 sm:px-5 py-4 sm:py-5">
         <div className="mb-3 flex items-center justify-between gap-3">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Athopia idag
+            Nano Fotboll idag
           </p>
           <span className="text-xs text-muted-foreground">{dateLabel(brief.briefDate)}</span>
         </div>

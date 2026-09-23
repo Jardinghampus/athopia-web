@@ -327,7 +327,7 @@ function TeamDailyPulse({ pulse }: { pulse: TeamHubPayload["pulse"] }) {
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
-        <span className="rounded-full bg-pitch/10 border border-pitch/30 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-pitch-ink">Athopia AI · {ctx}</span>
+        <span className="rounded-full bg-pitch/10 border border-pitch/30 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-pitch-ink">Nano Fotboll AI · {ctx}</span>
       </div>
       <h3 className="text-lg font-bold leading-snug text-foreground text-balance">{pulse.headline}</h3>
       {pulse.dek && <p className="text-sm font-medium text-muted-foreground">{pulse.dek}</p>}

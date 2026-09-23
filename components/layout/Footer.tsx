@@ -83,7 +83,7 @@ export function Footer() {
         </div>
       </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-10 text-xs text-muted-foreground">
-        © {new Date().getFullYear()} Athopia.
+        © {new Date().getFullYear()} Nano Fotboll.
       </div>
     </footer>
   );

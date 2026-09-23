@@ -43,7 +43,7 @@ export function ExperienceSection() {
           <Reveal delay={0.16}>
             <p className="mx-auto mt-6 max-w-[440px] text-[17px] leading-[1.65] text-white/55">
               Ingen nedladdning, inget App Store. Lägg till på hemskärmen och
-              Athopia beter sig som vilken app som helst — fast snabbare.
+              Nano Fotboll beter sig som vilken app som helst — fast snabbare.
             </p>
           </Reveal>
         </div>

@@ -13,9 +13,9 @@ export async function generateMetadata({
   const { slug } = await params;
   const { hub } = await loadTeamSection(slug);
   return {
-    title: `${hub.team.name} — Trupp | Athopia`,
+    title: `${hub.team.name} — Trupp | Nano Fotboll`,
     description: `Spelartrupp och nyckelspelare för ${hub.team.name} i Allsvenskan.`,
-    alternates: { canonical: `https://athopia.se/lag/${slug}/trupp` },
+    alternates: { canonical: `https://nanofotboll.se/lag/${slug}/trupp` },
   };
 }
 

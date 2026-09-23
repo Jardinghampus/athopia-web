@@ -73,7 +73,7 @@ function EpisodeJsonLd({ ep }: { ep: EpisodeRow }) {
     name: ep.title,
     partOfSeries: { "@type": "PodcastSeries", name: ep.show_name ?? "Podcast" },
     datePublished: ep.published_at,
-    url: `https://athopia.se/podcast/${ep.id}`,
+    url: `https://nanofotboll.se/podcast/${ep.id}`,
   };
 
   return (
@@ -197,7 +197,7 @@ export default async function PodcastEpisodePage({
         />
 
         <p className="text-xs text-muted-foreground/80 border-t border-border pt-6">
-          Athopia länkar till originalkällan och använder Spotifys officiella spelare när det finns.
+          Nano Fotboll länkar till originalkällan och använder Spotifys officiella spelare när det finns.
           Vi publicerar inte transkript eller strömmar ljudfiler direkt. Se{" "}
           <Link href="/podcast" className="text-pitch-ink hover:underline">
             alla avsnitt

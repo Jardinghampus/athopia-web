@@ -4,7 +4,7 @@ import { ImageResponse } from "next/og";
  * Statisk OG-fallback för alla sidor utan egen bild — tidigare delades
  * länkar helt utan bild (audit T9). Genereras vid build.
  */
-export const alt = "Athopia — Allsvenskans digitala hemmaplan";
+export const alt = "Nano Fotboll — Allsvenskans digitala hemmaplan";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

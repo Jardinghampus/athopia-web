@@ -82,13 +82,13 @@ export function DailyPodcastPlayer({ episode, plan, className }: DailyPodcastPla
         "rounded-xl border border-pitch/30 bg-gradient-to-br from-pitch/10 via-card to-card overflow-hidden",
         className
       )}
-      aria-label="Athopia Daily podcast"
+      aria-label="Nano Fotboll Daily podcast"
     >
       <div className="px-4 sm:px-5 py-4 sm:py-5">
         <div className="mb-3 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             <Headphones className="h-3.5 w-3.5 text-pitch-ink" aria-hidden />
-            Athopia Daily
+            Nano Fotboll Daily
             {episode.episode_type === "club_daily" && (
               <span className="rounded-full bg-pitch/15 px-2 py-0.5 text-xs text-pitch-ink">Ditt lag</span>
             )}
@@ -112,7 +112,7 @@ export function DailyPodcastPlayer({ episode, plan, className }: DailyPodcastPla
               <Play className="h-5 w-5 ml-0.5" />
             </button>
             <p className="text-sm text-muted-foreground">
-              Lyssna på Athopia Daily kräver PRO.{" "}
+              Lyssna på Nano Fotboll Daily kräver PRO.{" "}
               <TrackedLink
                 href={DAILY_UPGRADE_URL}
                 event="daily_checkout_click"

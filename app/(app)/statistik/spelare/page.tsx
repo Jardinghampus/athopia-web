@@ -7,7 +7,7 @@ import { PlayerCompareClient } from "./PlayerCompareClient";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Spelarjämförelse | Athopia",
+  title: "Spelarjämförelse | Nano Fotboll",
   description: "Jämför spelare sida vid sida med radarprofil normaliserad mot ligan.",
 };
 

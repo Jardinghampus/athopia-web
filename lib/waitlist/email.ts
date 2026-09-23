@@ -17,7 +17,7 @@
 import "server-only";
 import { getSiteUrl } from "@/lib/site-url";
 
-const FROM = process.env.WAITLIST_EMAIL_FROM ?? "Athopia <hej@athopia.se>";
+const FROM = process.env.WAITLIST_EMAIL_FROM ?? "Nano Fotboll <hej@nanofotboll.se>";
 
 export type SendResult =
   | { sent: true }
@@ -31,9 +31,9 @@ function confirmUrl(token: string): string {
 function wrap(bodyHtml: string): string {
   return `<!doctype html><html lang="sv"><body style="margin:0;padding:24px;background:#FAFAF8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;color:#151516;line-height:1.6">
 <div style="max-width:520px;margin:0 auto">
-<p style="font-size:18px;font-weight:600;margin:0 0 24px">Athopia</p>
+<p style="font-size:18px;font-weight:600;margin:0 0 24px">Nano Fotboll</p>
 ${bodyHtml}
-<p style="margin-top:32px;font-size:12px;color:#6b6b6b">Du får det här mejlet för att du skrev upp dig på athopia.se. Om det inte var du kan du ignorera det.</p>
+<p style="margin-top:32px;font-size:12px;color:#6b6b6b">Du får det här mejlet för att du skrev upp dig på nanofotboll.se. Om det inte var du kan du ignorera det.</p>
 </div></body></html>`;
 }
 

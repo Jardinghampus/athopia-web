@@ -72,7 +72,7 @@ function ChatDemo() {
 const NEWS: { tier: string; title: string; source: string }[] = [
   { tier: "breaking", title: "Landslagsmittfältaren klar — presenteras på förmiddagen", source: "3 källor" },
   { tier: "major", title: "Skadeuppdatering inför omgången: två tillbaka i träning", source: "2 källor" },
-  { tier: "normal", title: "Så pressade nykomlingen serieledaren — xG-analysen", source: "Athopia AI" },
+  { tier: "normal", title: "Så pressade nykomlingen serieledaren — xG-analysen", source: "Nano Fotboll AI" },
   { tier: "major", title: "Tränaren om formsvackan: \"Vi vet exakt vad som saknas\"", source: "2 källor" },
 ];
 

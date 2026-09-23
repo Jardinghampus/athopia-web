@@ -53,9 +53,9 @@ export async function generateMetadata({
   const post = await getPost(postId);
   return {
     title: post
-      ? `${post.author_name}: ${post.content.slice(0, 60)}… | Athopia Forum`
-      : `Tråd | Athopia Forum`,
-    description: `${teamSlug} forum på Athopia`,
+      ? `${post.author_name}: ${post.content.slice(0, 60)}… | Nano Fotboll Forum`
+      : `Tråd | Nano Fotboll Forum`,
+    description: `${teamSlug} forum på Nano Fotboll`,
   };
 }
 

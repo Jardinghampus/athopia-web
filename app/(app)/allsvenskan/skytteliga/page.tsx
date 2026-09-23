@@ -9,11 +9,11 @@ export const revalidate = 300;
 export const metadata: Metadata = {
   title: "Allsvenskan Skytteliga 2026 – Toppskytt & Målkung",
   description: "Aktuell skytteliga för Allsvenskan 2026. Se vilken spelare som leder jakten på titeln som toppskytt med flest mål.",
-  alternates: { canonical: "https://athopia.se/allsvenskan/skytteliga" },
+  alternates: { canonical: "https://nanofotboll.se/allsvenskan/skytteliga" },
   openGraph: {
     type: "website",
     locale: "sv_SE",
-    url: "https://athopia.se/allsvenskan/skytteliga",
+    url: "https://nanofotboll.se/allsvenskan/skytteliga",
     title: "Allsvenskan Skytteliga 2026 – Toppskytt & Målkung",
     description: "Vem leder skytteligan i Allsvenskan 2026?",
   },

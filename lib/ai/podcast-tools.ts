@@ -7,7 +7,7 @@ export function podcastChatTools(episodeId: string): Record<string, Tool> {
   return {
     getEpisodeSummary: {
       description:
-        "Hämta Athopias sammanfattning av just detta avsnitt. Använd först vid öppna frågor som 'vad handlade det om'.",
+        "Hämta Nano Fotbolls sammanfattning av just detta avsnitt. Använd först vid öppna frågor som 'vad handlade det om'.",
       inputSchema: z.object({}),
       execute: async () => {
         const episode = await loadPodcastEpisode(episodeId);

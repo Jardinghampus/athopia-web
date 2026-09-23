@@ -27,17 +27,17 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
   const analysis = await getPostMatchAnalysis(id);
-  if (!analysis) return { title: "Matchanalys | Athopia" };
+  if (!analysis) return { title: "Matchanalys | Nano Fotboll" };
 
   return {
     title: analysis.title,
     description: analysis.summary,
-    alternates: { canonical: `https://athopia.se/analys/${analysis.id}` },
+    alternates: { canonical: `https://nanofotboll.se/analys/${analysis.id}` },
     openGraph: {
       type: "article",
       title: analysis.title,
       description: analysis.summary,
-      url: `https://athopia.se/analys/${analysis.id}`,
+      url: `https://nanofotboll.se/analys/${analysis.id}`,
       publishedTime: analysis.publishedAt,
     },
     twitter: { card: "summary", title: analysis.title },
@@ -69,9 +69,9 @@ export default async function AnalysPage({ params }: PageProps) {
     headline: analysis.title,
     description: analysis.summary,
     datePublished: analysis.publishedAt,
-    author: { "@type": "Organization", name: "Athopia AI" },
-    publisher: { "@type": "Organization", name: "Athopia" },
-    url: `https://athopia.se/analys/${analysis.id}`,
+    author: { "@type": "Organization", name: "Nano Fotboll AI" },
+    publisher: { "@type": "Organization", name: "Nano Fotboll" },
+    url: `https://nanofotboll.se/analys/${analysis.id}`,
   };
 
   return (
@@ -79,7 +79,7 @@ export default async function AnalysPage({ params }: PageProps) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(analysisJsonLd) }} />
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
         <p className="text-xs font-semibold text-amber-500 uppercase tracking-wide mb-3">
-          Athopia AI · Matchanalys
+          Nano Fotboll AI · Matchanalys
         </p>
 
         <h1 className="font-bold text-3xl sm:text-4xl text-white mb-3 leading-tight text-balance">

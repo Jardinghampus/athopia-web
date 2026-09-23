@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { visitorIdFrom } from "./visitor.js";
 
 const reqWithIp = (ip?: string) =>
-  new Request("https://athopia.se/api/analytics/event", {
+  new Request("https://nanofotboll.se/api/analytics/event", {
     headers: ip ? { "x-forwarded-for": ip } : {},
   });
 

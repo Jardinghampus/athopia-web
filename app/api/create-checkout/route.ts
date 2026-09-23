@@ -1,7 +1,7 @@
 /**
  * app/api/create-checkout/route.ts
  * ─────────────────────────────────────────────────────────────────────────────
- * Skapar en Stripe Checkout Session för Athopia PRO/Elite.
+ * Skapar en Stripe Checkout Session för Nano Fotboll PRO/Elite.
  *
  * Beslut:
  * - Plan (pro/elite) + intervall (month/year) kommer från request-body, valideras
@@ -124,7 +124,7 @@ export async function POST(req: Request & { headers: Headers }) {
           price_data: {
             currency: "sek",
             product_data: {
-              name: `Athopia ${planMeta.label}`,
+              name: `Nano Fotboll ${planMeta.label}`,
               description:
                 interval === "year"
                   ? `${planMeta.label}-prenumeration, årsvis (${discountPct} % rabatt)`

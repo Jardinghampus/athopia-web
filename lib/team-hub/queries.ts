@@ -193,7 +193,7 @@ export interface DailyEpisodeChapter {
   start_sec: number;
 }
 
-/** Publicerat Athopia Daily-avsnitt — ingen direkt MP3-URL (PRO via /api/daily/audio). */
+/** Publicerat Nano Fotboll Daily-avsnitt — ingen direkt MP3-URL (PRO via /api/daily/audio). */
 export interface DailyEpisode {
   slug: string;
   title: string;
@@ -268,7 +268,7 @@ export async function getDailyEpisodeForTeam(teamEntityId?: string | null): Prom
   }
 }
 
-/** Senaste ligans Athopia Daily (delbar /daily utan lagparameter). */
+/** Senaste ligans Nano Fotboll Daily (delbar /daily utan lagparameter). */
 export async function getLeagueDailyEpisode(): Promise<DailyEpisode | null> {
   if (!isSupabaseConfigured()) return null;
   try {

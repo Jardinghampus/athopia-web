@@ -16,11 +16,11 @@ export const revalidate = 60;
 export const metadata: Metadata = {
   title: "Allsvenskan 2026 – Nyheter, Tabell, Resultat & Matcher",
   description: "Allsvenskan just nu: dagens nyheter, live-tabell, matchresultat och spelschema. Uppdateras löpande.",
-  alternates: { canonical: "https://athopia.se/allsvenskan" },
+  alternates: { canonical: "https://nanofotboll.se/allsvenskan" },
   openGraph: {
     type: "website",
     locale: "sv_SE",
-    url: "https://athopia.se/allsvenskan",
+    url: "https://nanofotboll.se/allsvenskan",
     title: "Allsvenskan 2026 – Nyheter, Tabell, Resultat & Matcher",
     description: "Allsvenskan just nu: dagens nyheter, live-tabell, matchresultat och spelschema.",
   },
@@ -37,10 +37,10 @@ function AllsvenskanJsonLd() {
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd({
       "@context": "https://schema.org",
       "@type": "SportsOrganization",
-      "@id": "https://athopia.se/allsvenskan#allsvenskan",
+      "@id": "https://nanofotboll.se/allsvenskan#allsvenskan",
       name: "Allsvenskan",
       sport: "Soccer",
-      url: "https://athopia.se/allsvenskan",
+      url: "https://nanofotboll.se/allsvenskan",
       description: "Allsvenskan är den högsta divisionen i svensk klubbfotboll för herrar.",
     })}} />
   );

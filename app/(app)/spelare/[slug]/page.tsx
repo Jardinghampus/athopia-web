@@ -82,17 +82,17 @@ async function getPlayerTwins(playerId: number) {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  if (!isSupabaseConfigured()) return { title: "Spelare | Athopia" };
+  if (!isSupabaseConfigured()) return { title: "Spelare | Nano Fotboll" };
   const profile = await buildPlayerProfile(createServerClient(), slug);
-  if (!profile.player) return { title: "Spelare | Athopia" };
+  if (!profile.player) return { title: "Spelare | Nano Fotboll" };
   return {
-    title: `${profile.player.fullname} | Athopia`,
-    description: `Statistik för ${profile.player.fullname} i Allsvenskan på Athopia.`,
+    title: `${profile.player.fullname} | Nano Fotboll`,
+    description: `Statistik för ${profile.player.fullname} i Allsvenskan på Nano Fotboll.`,
     alternates: { canonical: `${getSiteUrl()}/spelare/${slug}` },
     openGraph: {
       type: "profile",
-      title: `${profile.player.fullname} | Athopia`,
-      description: `Statistik för ${profile.player.fullname} i Allsvenskan på Athopia.`,
+      title: `${profile.player.fullname} | Nano Fotboll`,
+      description: `Statistik för ${profile.player.fullname} i Allsvenskan på Nano Fotboll.`,
     },
   };
 }

@@ -4,7 +4,7 @@ import { SignUp } from "@clerk/nextjs";
 
 export const metadata: Metadata = {
   title: "Skapa konto",
-  description: "Skapa konto på Athopia — Allsvenskans hemmaplan.",
+  description: "Skapa konto på Nano Fotboll — Allsvenskans hemmaplan.",
   robots: { index: false, follow: true },
 };
 
@@ -32,7 +32,7 @@ export default function SignUpPage() {
           className="underline underline-offset-4 hover:text-foreground hover:no-underline
             focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
-          Tillbaka till Athopia
+          Tillbaka till Nano Fotboll
         </Link>
       </p>
     </main>

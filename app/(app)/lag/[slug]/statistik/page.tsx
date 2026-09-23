@@ -171,7 +171,7 @@ async function getGoalTiming(smId: number) {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const { name } = await getTeamSmId(slug);
-  return { title: `${name} — Statistik | Athopia` };
+  return { title: `${name} — Statistik | Nano Fotboll` };
 }
 
 function StatCard({ label, value }: { label: string; value: string | number }) {

@@ -1,5 +1,5 @@
 /**
- * app/daily/page.tsx — Delbar Athopia Daily-landning (social / SEO)
+ * app/daily/page.tsx — Delbar Nano Fotboll Daily-landning (social / SEO)
  * ─────────────────────────────────────────────────────────────────────────────
  * Publik route: /daily och /daily?lag={slug}. PRO krävs för uppspelning (briefAudio).
  * ─────────────────────────────────────────────────────────────────────────────
@@ -22,7 +22,7 @@ import { jsonLd } from "@/lib/json-ld";
 
 export const revalidate = 60;
 
-const SITE = process.env.NEXT_PUBLIC_BASE_URL ?? "https://athopia.se";
+const SITE = process.env.NEXT_PUBLIC_BASE_URL ?? "https://nanofotboll.se";
 const DAILY_UPGRADE_URL = "/prenumerera?utm_source=daily&utm_medium=player&utm_campaign=daily_pro";
 
 function episodeDescription(title: string, episodeDate: string) {
@@ -33,7 +33,7 @@ function episodeDescription(title: string, episodeDate: string) {
         month: "long",
       })
     : "idag";
-  return `${title} — 7 minuters morgonbrief om Allsvenskan (${when}). Lyssna på Athopia Daily.`;
+  return `${title} — 7 minuters morgonbrief om Allsvenskan (${when}). Lyssna på Nano Fotboll Daily.`;
 }
 
 export async function generateMetadata({
@@ -43,10 +43,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { lag } = await searchParams;
   const episode = await getDailyEpisodeForShareCached(lag);
-  const title = episode?.title ?? "Athopia Daily — Allsvenskan idag";
+  const title = episode?.title ?? "Nano Fotboll Daily — Allsvenskan idag";
   const description = episode
     ? episodeDescription(episode.title, episode.episode_date)
-    : "Daglig 7-minuters brief om Allsvenskan — transfers, xG och det som betyder något. Original från Athopia.";
+    : "Daglig 7-minuters brief om Allsvenskan — transfers, xG och det som betyder något. Original från Nano Fotboll.";
   const url = lag ? `${SITE}/daily?lag=${encodeURIComponent(lag)}` : `${SITE}/daily`;
 
   return {
@@ -59,7 +59,7 @@ export async function generateMetadata({
       url,
       title,
       description,
-      siteName: "Athopia",
+      siteName: "Nano Fotboll",
     },
     twitter: {
       card: "summary_large_image",
@@ -84,7 +84,7 @@ function DailyEpisodeJsonLd({
     url: pageUrl,
     partOfSeries: {
       "@type": "PodcastSeries",
-      name: "Athopia Daily",
+      name: "Nano Fotboll Daily",
       url: `${SITE}/daily`,
     },
     ...(episode.has_audio
@@ -136,8 +136,8 @@ async function DailyAuthArea({
           <h2 className="text-lg font-semibold text-foreground text-balance">Första avsnittet kommer snart</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             {userId
-              ? "Athopia Daily publiceras varje morgon efter granskning. Du får den här så snart första avsnittet är ute."
-              : "Athopia Daily publiceras varje morgon efter granskning. Skapa konto så får du briefen direkt i appen."}
+              ? "Nano Fotboll Daily publiceras varje morgon efter granskning. Du får den här så snart första avsnittet är ute."
+              : "Nano Fotboll Daily publiceras varje morgon efter granskning. Skapa konto så får du briefen direkt i appen."}
           </p>
         </section>
       )}
@@ -221,7 +221,7 @@ export default async function DailyPage({
       <header className="mb-8 text-center">
         <p className="inline-flex items-center gap-2 rounded-full border border-pitch/30 bg-pitch/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-pitch-ink">
           <Headphones className="h-3.5 w-3.5" aria-hidden />
-          Athopia Daily
+          Nano Fotboll Daily
         </p>
         <h1 className="mt-4 text-3xl sm:text-4xl font-bold tracking-tight text-foreground text-balance">
           {teamLabel ? `Ditt lag · ${teamLabel}` : "Allsvenskan på 7 minuter"}

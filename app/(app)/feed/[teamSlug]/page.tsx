@@ -28,10 +28,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { teamSlug } = await params;
   const name = await getTeamName(teamSlug);
-  if (!name) return { title: "Feed | Athopia" };
+  if (!name) return { title: "Feed | Nano Fotboll" };
   return {
-    title: `${name} — Feed | Athopia`,
-    description: `Senaste nyheter och uppdateringar för ${name} på Athopia.`,
+    title: `${name} — Feed | Nano Fotboll`,
+    description: `Senaste nyheter och uppdateringar för ${name} på Nano Fotboll.`,
   };
 }
 

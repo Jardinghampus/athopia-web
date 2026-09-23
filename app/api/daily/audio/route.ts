@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
   if (!canAccess("briefAudio", plan)) {
     return NextResponse.json(
       {
-        error: "PRO krävs för Athopia Daily.",
+        error: "PRO krävs för Nano Fotboll Daily.",
         code: "plan_required",
         feature: "briefAudio",
         requiredPlan: "pro",

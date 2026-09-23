@@ -49,7 +49,7 @@ export async function getTeamAISummaries(teamName: string): Promise<Article[]> {
     const { data } = await supabase
       .from("articles")
       .select("*")
-      .eq("source_name", "Athopia AI")
+      .eq("source_name", "Nano Fotboll AI")
       .eq("status", "published")
       .ilike("metadata->>team_name", `%${teamName}%`)
       .order("created_at", { ascending: false })

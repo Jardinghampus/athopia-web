@@ -47,11 +47,11 @@ export async function generateMetadata({
   return {
     title: `${a.name} – ${b.name}: Inbördes möten, statistik & H2H`,
     description: `Alla inbördes möten mellan ${a.name} och ${b.name} i Allsvenskan — resultat, statistik och nästa match.`,
-    alternates: { canonical: `https://athopia.se/allsvenskan/moten/${matchup}` },
+    alternates: { canonical: `https://nanofotboll.se/allsvenskan/moten/${matchup}` },
     openGraph: {
       type: "website",
       locale: "sv_SE",
-      url: `https://athopia.se/allsvenskan/moten/${matchup}`,
+      url: `https://nanofotboll.se/allsvenskan/moten/${matchup}`,
       title: `${a.name} – ${b.name} | Inbördes möten`,
       description: `H2H-statistik och alla möten mellan ${a.name} och ${b.name}.`,
     },

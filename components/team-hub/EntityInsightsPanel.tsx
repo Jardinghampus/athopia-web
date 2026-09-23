@@ -47,7 +47,7 @@ export function EntityInsightsPanel({
       <CardHeader className="flex-row items-center gap-2 space-y-0 pb-3">
         <Brain className="h-4 w-4 text-pitch-ink" />
         <div className="min-w-0 flex-1">
-          <CardTitle className="text-base">Athopia Brain</CardTitle>
+          <CardTitle className="text-base">Nano Fotboll Brain</CardTitle>
           <p className="text-xs text-muted-foreground">Precomputad fusion av statistik och nyhetsläge</p>
         </div>
         {teamSlug && (

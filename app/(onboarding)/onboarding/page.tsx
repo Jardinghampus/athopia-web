@@ -7,8 +7,8 @@ import { recordUtmMilestone } from "@/lib/utm-attribution";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Välkommen | Athopia",
-  description: "Välj ditt lag och anpassa Athopia efter dig.",
+  title: "Välkommen | Nano Fotboll",
+  description: "Välj ditt lag och anpassa Nano Fotboll efter dig.",
   robots: { index: false, follow: false },
 };
 

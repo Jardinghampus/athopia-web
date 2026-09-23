@@ -162,8 +162,8 @@ export function NewsletterSignupForm({
           className="mt-1 h-4 w-4 rounded border-border accent-[var(--color-pitch)]"
         />
         <span className="text-xs leading-relaxed text-muted-foreground">
-          Jag vill få Athopia Lagbrief om {teamName} via e-post och godkänner
-          att Athopia behandlar min e-postadress för utskicket. Jag kan avsluta
+          Jag vill få Nano Fotboll Lagbrief om {teamName} via e-post och godkänner
+          att Nano Fotboll behandlar min e-postadress för utskicket. Jag kan avsluta
           när som helst.
         </span>
       </label>
