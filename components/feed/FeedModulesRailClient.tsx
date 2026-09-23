@@ -203,7 +203,7 @@ export function FeedModulesRailClient({ modules }: { modules: FeedModule[] }) {
                 className="block rounded-xl border border-pitch/30 bg-card px-4 py-3 hover:bg-muted/40 transition-colors"
               >
                 <p className="text-xs font-bold tracking-wide text-pitch-ink">
-                  ATHOPIA
+                  NANO FOTBOLL
                 </p>
                 <p className="mt-1 font-semibold text-foreground line-clamp-2">
                   {title}

@@ -6,6 +6,7 @@ import { Menu, ArrowRight } from "lucide-react";
 import { motion, useScroll, useMotionValueEvent } from "motion/react";
 import { Container } from "./primitives";
 import { BottomSheet } from "./BottomSheet";
+import { NanoLogo } from "@/components/brand/NanoLogo";
 
 const NAV_LINKS = [
   { href: "#upplevelsen", label: "Upplevelsen" },
@@ -37,7 +38,8 @@ export function LandingNav() {
               href="/"
               className="flex h-12 items-center font-heading text-2xl tracking-widest text-white transition-colors duration-200 hover:text-pitch-ink"
             >
-              ATHOPIA
+              <NanoLogo size="lg" decorative />
+              <span className="ml-2">NANO FOTBOLL</span>
             </Link>
 
             <div className="hidden items-center gap-2 md:flex">

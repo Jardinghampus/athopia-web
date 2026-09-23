@@ -175,7 +175,7 @@ export default async function SpelarePage({ params }: { params: Promise<{ slug: 
       {athopiaRatings && (
         <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
           <div className="flex items-baseline justify-between">
-            <h2 className="font-semibold text-sm text-foreground text-balance">ATHOPIA AI-BETYG</h2>
+            <h2 className="font-semibold text-sm text-foreground text-balance">NANO FOTBOLL AI-BETYG</h2>
             {athopiaRatings.athopia_rating != null && (
               <span className="font-bold text-2xl text-pitch-ink">{Number(athopiaRatings.athopia_rating).toFixed(1)}</span>
             )}

@@ -391,7 +391,7 @@ export default async function LagStatistikPage({ params }: { params: Promise<{ s
       {athopiaRatings.length > 0 && (
         <div className="bg-card border border-border rounded-xl overflow-hidden">
           <div className="px-4 py-3 border-b border-border">
-            <h2 className="font-semibold text-sm text-foreground text-balance">ATHOPIA-BETYG</h2>
+            <h2 className="font-semibold text-sm text-foreground text-balance">NANO FOTBOLL-BETYG</h2>
           </div>
           <div className="divide-y divide-border/50">
             {athopiaRatings.map((row, i) => (

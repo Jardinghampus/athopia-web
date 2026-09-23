@@ -8,7 +8,7 @@ export function LandingFooter() {
     <footer className="border-t border-white/[0.06] py-6 pb-[max(env(safe-area-inset-bottom),24px)]">
       <Container>
         <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
-          <span className="font-heading text-lg tracking-widest text-white/60">ATHOPIA</span>
+          <span className="font-heading text-lg tracking-widest text-white/60">NANO FOTBOLL</span>
 
           <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-white/55">
             <a

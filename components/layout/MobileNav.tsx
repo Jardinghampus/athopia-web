@@ -61,7 +61,7 @@ export function MobileNav() {
             className="fixed inset-y-0 left-0 z-[100] w-72 bg-background border-r border-border/50 flex flex-col pt-safe md:hidden focus:outline-none"
           >
             <div className="flex items-center justify-between px-5 h-14 border-b border-border/40 shrink-0">
-              <span className="font-heading text-lg text-foreground">ATHOPIA</span>
+              <span className="font-heading text-lg text-foreground">NANO FOTBOLL</span>
               <button
                 aria-label="Stäng meny"
                 onClick={() => setOpen(false)}

@@ -5,6 +5,7 @@ import { Menu, Search } from "lucide-react";
 import { openSearchPalette, SEARCH_HREF } from "@/hooks/useCommandPalette";
 import { NavAuth } from "@/components/ui/NavAuth";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { NanoLogo } from "@/components/brand/NanoLogo";
 
 function openSearch(e: React.MouseEvent) {
   // Direkt mot den delade storen: ett window-event når bara lyssnare som redan
@@ -35,7 +36,10 @@ export function Header({ clerkEnabled }: { clerkEnabled: boolean }) {
             className="inline-flex h-11 shrink-0 items-center rounded-md font-heading text-lg sm:text-xl text-foreground hover:text-pitch-ink transition-colors duration-150
               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
-            ATHOPIA
+            {/* Märket ärver textfärgen via currentColor — ett ljust/mörkt-läge
+                behöver ingen andra fil och ingen bildväxling. */}
+            <NanoLogo size="md" decorative />
+            <span className="ml-2 tracking-widest">NANO FOTBOLL</span>
           </Link>
         </div>
 

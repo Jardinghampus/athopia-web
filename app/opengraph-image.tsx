@@ -25,7 +25,7 @@ export default function OgImage() {
         }}
       >
         <div style={{ fontSize: 96, fontWeight: 800, letterSpacing: -2, display: "flex" }}>
-          ATHOPIA
+          NANO FOTBOLL
         </div>
         <div style={{ fontSize: 34, color: "#5FA98C", marginTop: 12, display: "flex" }}>
           Allsvenskans digitala hemmaplan
