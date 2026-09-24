@@ -1,4 +1,4 @@
-# PROGRESS.md — Athopia Web
+# PROGRESS.md — Nano Fotboll Web
 
 Senast uppdaterad: 2026-08-05
 
@@ -101,7 +101,7 @@ ALTER TABLE forum_threads ADD COLUMN IF NOT EXISTS hot_score float DEFAULT 0;
 |------|-------------|--------|
 | WEB-30 | Enhanced nyheter feed — NyheterRealtimeBanner (Supabase Realtime) | ✅ 2026-05-31 |
 | WEB-31 | Podcast filterview — team/show/visa-filter + entity chips | ✅ 2026-05-31 |
-| WEB-32 | Lag-sammanfattning AI-hero — hämtar från articles WHERE source_name='Athopia AI' | ✅ 2026-05-31 |
+| WEB-32 | Lag-sammanfattning AI-hero — hämtar från articles WHERE source_name='Nano Fotboll AI' | ✅ 2026-05-31 |
 | WEB-33 | PWA setup — manifest.json + sw.js + PwaInstallBanner (redan klar från WEB-26) | ✅ 2026-05-31 |
 
 Nya filer:
@@ -182,11 +182,11 @@ OBS: Sheet/Card ligger i TactileSheet/TactileCard pga Windows case-krock med sha
 | /mitt-lag hela hubben | GET /api/team/[slug]/hub ← lib/team-hub/queries.ts | Sportmonks-sync (fixtures, team_season_stats, player_season_stats) + RSS→content_queue | Mock-fallback lib/team-hub/mock.ts |
 | /mitt-lag radar | team_season_stats (alla lag, season_id=26806) | syncResults → Milo | "visas när säsongsstatistik finns" |
 | /mitt-lag nyheter | articles via hub-payload | RSS-pipeline + Echo | "Inga artiklar ännu" |
-| /statistik tabell/skytte/assist/form | lib/statistik.ts → Supabase (team_season_stats, player_season_stats) | athopia-os sync-jobb | EmptyState |
-| /statistik xG-flik | Supabase (xg-kolumn i team_season_stats) | athopia-os sync-jobb | platshållare |
-| /statistik/scout + /spelare (jämför) | scout-pool ← player_season_stats | athopia-os player-sync | tom pool |
+| /statistik tabell/skytte/assist/form | lib/statistik.ts → Supabase (team_season_stats, player_season_stats) | nano-os sync-jobb | EmptyState |
+| /statistik xG-flik | Supabase (xg-kolumn i team_season_stats) | nano-os sync-jobb | platshållare |
+| /statistik/scout + /spelare (jämför) | scout-pool ← player_season_stats | nano-os player-sync | tom pool |
 | /statistik/jamfor | match_stats + entities + content_queue(comparison-digest) | OS-17 match-collector + AI-digest | "Kör OS-17" |
-| /spelare/[slug] | players, player_season_stats, player_match_stats, fixtures | athopia-os player/fixture-sync | mock-spelare + "Ingen statistik" |
+| /spelare/[slug] | players, player_season_stats, player_match_stats, fixtures | nano-os player/fixture-sync | mock-spelare + "Ingen statistik" |
 | /match/[id] | fixtures, team_match_stats, fixture_events, fixture_lineups, match_summaries | Hetzner-agent efter matchslut | "Ingen data för match" |
 | /forum | forum_threads, entities + /api/forum/posts | användargenererat (Clerk-auth) | "Inga lag/inlägg" |
 | LIVE-lägen (puls, live_scores) | live_scores + fixtures.status='LIVE' | syncLive (30–60s, endast vid LIVE) | visas ej |
@@ -196,8 +196,8 @@ OBS: Sheet/Card ligger i TactileSheet/TactileCard pga Windows case-krock med sha
 1. Lokal `pnpm build` failar på prerender: hooks/useFavoriteTeam.ts kräver
    ClerkProvider men .env.local saknas lokalt. Vercel (env finns) bygger OK.
    Fix: villkora useUser-anropet eller lägg Clerk-nycklar i .env.local.
-2. Två lokala kloner: C:\Users\jardi\athopia-web och
-   C:\Users\jardi\Athopia Build\athopia-web — synka båda via git pull.
+2. Två lokala kloner: C:\Users\jardi\nano-fotboll och
+   C:\Users\jardi\Athopia Build\nano-fotboll — synka båda via git pull.
 
 ### Verifieringsprotokoll per fas
 
@@ -249,12 +249,12 @@ rtk tsc (0 fel) → pnpm build (Compiled successfully; prerender-felet ovan är 
 - Statistik: säsongsväljaren = 2026 (default) + 2025. SEASON_IDS i lib/statistik.ts:
   2026=26806, 2025=24943 (env-overridebara via SPORTSMONKS_SEASON_ID_2026/2025).
 
-### Tillägg 2026-06-12 (kväll): statistik läser Supabase (athopia-os synkar)
+### Tillägg 2026-06-12 (kväll): statistik läser Supabase (nano-os synkar)
 - Datalager lib/statistik.ts mot tabellerna: teams, players, fixtures,
   team_season_stats, player_season_stats.
 - Tabellen härleds ur fixtures (status=FT): W/D/L, GF/GA, poäng, form, position.
 - Skytteliga/assistligan: player_season_stats JOIN players + teams.
-- athopia-web läser ENBART från Supabase — lib/sportsmonks.ts är borttagen.
+- nano-fotboll läser ENBART från Supabase — lib/sportsmonks.ts är borttagen.
 - OBS vid verifiering: Supabase REST + MCP svarade 522/timeout vid implementations-
   tillfället — datan kunde inte rad-räknas. Kontrollera projektet i dashboarden
   och verifiera /statistik?sasong=2025 mot riktiga rader.
@@ -285,7 +285,7 @@ Auditerad av Opus 5, exekverad av Sonnet-agenter, ett paket i taget.
   openGraph på spelarsidan, via `getSiteUrl()`.
 - **WP4** 28 nya `loading.tsx` vars skelett speglar sidans faktiska layout,
   6 nya `error.tsx` nära de tunga träden, och empty states som säger vad ytan
-  gör och vad som händer härnäst. H2H-vyn slutade läcka "athopia-os" till
+  gör och vad som händer härnäst. H2H-vyn slutade läcka "nano-os" till
   användaren.
 - **WP5** Mätt med Playwright mot prodbygge i 390×844 + 1440×900, ljust och
   mörkt. /prenumerera scrollade i sidled på mobil (390→483px) — rättat och

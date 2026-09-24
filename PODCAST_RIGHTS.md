@@ -4,7 +4,7 @@ Uppdaterad: 2026-07-06
 
 ## Princip
 
-Poddar är **referens och kontext** i Athopia — inte innehåll vi återpublicerar. Samma logik som RSS-signaler i `AGENTS.md`.
+Poddar är **referens och kontext** i Nano Fotboll — inte innehåll vi återpublicerar. Samma logik som RSS-signaler i `AGENTS.md`.
 
 ## Tillåtet i publik produkt (web/iOS)
 
@@ -13,7 +13,7 @@ Poddar är **referens och kontext** i Athopia — inte innehåll vi återpublice
 | Episodtitel + show-namn | "Fotbollspodden — Avsnitt 412" |
 | Spotify Embed (official iframe) | `open.spotify.com/embed/episode/...` |
 | Outbound-länk till avsnitt | Spotify, Apple Podcasts, poddarens webb |
-| Athopia topic-taggar | "Transfer · Hammarby" (från os metadata, ej citat) |
+| Nano Fotboll topic-taggar | "Transfer · Hammarby" (från os metadata, ej citat) |
 | PRO: kuraterad lista | "Relevant för ditt lag denna vecka" |
 
 ## Förbjudet i publik produkt
@@ -22,10 +22,10 @@ Poddar är **referens och kontext** i Athopia — inte innehåll vi återpublice
 |----|--------|
 | `<audio src={enclosure}>` | Hotlink/republishing av ljudfil; bryter oftast podd-TOS |
 | Transkript (även trunkerat PRO) | Upphovsrätt + AGENTS.md: "Podcasttranskript återgivet i detalj" |
-| `podcast_chunks.text` i API/UI | Samma — chunks är **intern RAG** i athopia-os |
+| `podcast_chunks.text` i API/UI | Samma — chunks är **intern RAG** i nano-os |
 | RSS show notes ordagrant | Parafras/citat-risk |
 
-## Intern användning (athopia-os)
+## Intern användning (nano-os)
 
 - Deepgram-transkription → `podcast_chunks` + embeddings
 - Entity extraction → `entity_ids`, `mentioned_teams`

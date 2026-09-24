@@ -1,13 +1,13 @@
-# Athopia — Executive Launch & World-Class Build Plan
+# Nano Fotboll — Executive Launch & World-Class Build Plan
 
 > **Daglig körning:** börja i [`LAUNCH-PLAN.md`](./LAUNCH-PLAN.md) (kort checklista + startprompt för ny chatt).  
-> Beslutad plan 2026-07-13. Tvärrepo: `athopia-web`, `athopia-os`, `athopia-admin`.  
+> Beslutad plan 2026-07-13. Tvärrepo: `nano-fotboll`, `nano-os`, `nano-admin`.  
 > Detta dokument är full spec. Gamla A–H-/native-feel-planer är bakgrund.  
 > Bocka bara `[x]` med commit + verifieringsbevis.
 
 ## 1. Executive call
 
-Athopia ska lanseras som:
+Nano Fotboll ska lanseras som:
 
 > **Allsvenskans dagliga intelligenslager för mitt lag — snabbt att överblicka,
 > trovärdigt nog att dela och djupt nog att betala för.**
@@ -32,10 +32,10 @@ grundens säkerhet och mätbarhet är på plats.
 - [x] Prisstory: Gratis 0 / PRO 89 / Elite 169, founder PRO 69 när aktiv,
   sju dagars trial.
 - [x] Betalt innehåll ska aldrig skickas i free DOM och bara döljas med CSS.
-- [ ] “The Athletic DNA” översätts till **Athopia Editorial Standard**:
+- [ ] “The Athletic DNA” översätts till **Nano Fotboll Editorial Standard**:
   evidensdriven, lugn, analytisk, svensk och original — aldrig imitation av
   formuleringar eller named-style prompting.
-- [ ] Redaktionell publisher byggs i `athopia-admin`, inte i `athopia-web`.
+- [ ] Redaktionell publisher byggs i `nano-admin`, inte i `nano-fotboll`.
 - [ ] `/skriv` blir contributor/krönikörsflöde tills admin har full paritet;
   därefter redirect/deprecation. Direkt publiceringsrätt ska inte dupliceras.
 - [ ] Externa källartiklar delar en source-first Athopia-sida; originalkällan
@@ -123,12 +123,12 @@ grundens säkerhet och mätbarhet är på plats.
 
 ## 4. Wave 0 — launch blockers (gör först)
 
-### W0.1 Innehållsrättigheter och provenance — `athopia-os` + `athopia-web`
+### W0.1 Innehållsrättigheter och provenance — `nano-os` + `nano-fotboll`
 
 **Varför:** systemet sparar scrapad tredjepartstext i `articles.content`, medan
 webben kan rendera `article.content` för PRO. Slug är inte bevis på ägarskap.
 
-- [x] Migration i `athopia-os/supabase/migrations`:
+- [x] Migration i `nano-os/supabase/migrations`:
   - `articles.content_origin`: `athopia_original | third_party_signal | licensed`;
   - `articles.rights_status`: `owned | link_only | licensed`;
   - `article_sources(article_id, source_name, original_url, domain, is_primary, published_at)`.
@@ -156,12 +156,12 @@ nås i ett klick utan auth/fördröjning; inga tredjepartsbrödtexter publiceras
 - [ ] Adminens faktiska skydd verifieras innan Publisher byggs:
   Vercel SSO/shared secret räcker inte för aktörsbaserad editorial audit.
 
-### W0.3 Data freshness & team coverage — `athopia-os` + admin
+### W0.3 Data freshness & team coverage — `nano-os` + admin
 
 - [ ] Verifiera `syncStatic`, fixtures, teams/players freshness och Milo 400-fix i drift.
 - [x] `team_coverage_dashboard` view live (16 lag, article/pulse/signal + stale-36h).
 - [ ] Slack-alert endast när lag är tyst >36h på relevant match-/nyhetsdag.
-- [ ] Athopia Daily producerar dagens episode eller visar mätbart fel/skipped reason.
+- [ ] Nano Fotboll Daily producerar dagens episode eller visar mätbart fel/skipped reason.
 - [ ] Coverage SLO:
   - 16/16 lag har färsk datastatus;
   - matchdag <15 min signal freshness;
@@ -205,7 +205,7 @@ Kör små PR/commits i denna ordning:
 När samtliga är gröna: **lansera**. Publisher/AI Djup ska inte blockera första
 betalande användaren om de ligger bakom korrekt feature flag.
 
-## 6. Wave 2 — Publisher newsroom (`athopia-admin`)
+## 6. Wave 2 — Publisher newsroom (`nano-admin`)
 
 ### Arkitektur
 
@@ -228,19 +228,19 @@ betalande användaren om de ligger bakom korrekt feature flag.
 - [ ] Dag 23: “raderas om 7 dagar”; dag 29: sista varning.
 - [ ] Dag 30: flytta endast `status=draft` till trash.
 - [ ] Dag 37: hard-delete trash (sju dagars recovery). Aldrig pending/published.
-- [ ] Cron ägs av `athopia-os`; admin har loggad manuell founder-action.
+- [ ] Cron ägs av `nano-os`; admin har loggad manuell founder-action.
 - [ ] Cursorpagination, bodylimit och cap på aktiva drafts per författare.
 
 ### Web entry
 
 - [ ] Server-resolved editorial role i app-layout.
-- [ ] Hamburger visar extern “Redaktion” → `os.athopia.se/admin/publisher`.
+- [ ] Hamburger visar extern “Redaktion” → `os.nanofotboll.se/admin/publisher`.
 - [ ] Icke-behörig ser ingen länk och får 403 på målet.
 - [ ] När admin når paritet: `/skriv` redirectas eller begränsas till submission.
 
-## 7. Wave 3 — Newsroom intelligence (`athopia-os`)
+## 7. Wave 3 — Newsroom intelligence (`nano-os`)
 
-### Athopia Editorial Standard
+### Nano Fotboll Editorial Standard
 
 - [ ] Ta bort “skriv som The Athletic” ur prompts. Behåll egenskaper:
   kontext först, konkret tes, källstödda fakta, data som förklaras, premiumlugn.
@@ -305,7 +305,7 @@ Rekommendation:
 - **Grassroot** — Djup: jämför statistik och verifierade källor.
 
 Versionerna `2.5`/`3.5` får vara interna promptversioner, inte UI-copy. De antyder
-annars att Athopia tränat egna grundmodeller. Full transparens:
+annars att Nano Fotboll tränat egna grundmodeller. Full transparens:
 
 > “Athopia-lägen använder externa språkmodeller tillsammans med verifierad
 > Athopia-data. AI kan göra fel — kontrollera källorna.”
@@ -344,7 +344,7 @@ annars att Athopia tränat egna grundmodeller. Full transparens:
 - [ ] Internal original share → `/artikel/[slug]`.
 - [ ] Link-only share → `/nyhet/[slug]`, source-first enligt W0.1.
 - [ ] Copy:
-  “Delad via Athopia” är okej.
+  “Delad via Nano Fotboll” är okej.
   “Läs originalet hos {källa}” är primär handling.
   “Samla nyheter om ditt lag — se Free och PRO” är sekundär handling.
 - [ ] Ingen forced signup, countdown, fördröjd redirect eller dold destination.

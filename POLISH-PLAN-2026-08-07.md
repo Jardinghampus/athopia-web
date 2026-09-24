@@ -1,4 +1,4 @@
-# POLISH-PLAN 2026-08-07 — athopia-web
+# POLISH-PLAN 2026-08-07 — nano-fotboll
 
 > Full audit (impeccable) + exekveringsplan för billiga Sonnet-agenter.
 > Mandat: **enbart polish**. Designen är älskad som den är — inga omgörningar,
@@ -61,7 +61,7 @@ GlassNav med etiketter, skip-link, spring-motion-tokens, `getTeamInk()`-mönstre
 Regler för VARJE paket (klistra in i agent-prompten):
 
 ```
-Du polerar athopia-web. Läs CLAUDE.md + DESIGN.md först. ENDAST polish —
+Du polerar nano-fotboll. Läs CLAUDE.md + DESIGN.md först. ENDAST polish —
 ändra aldrig layout, IA, komponentval eller copy-ton. Minsta möjliga diff.
 Yta vs bläck: text på bakgrund = *-ink-tokens, aldrig text-pitch/text-pitch-dark.
 Inga nya beroenden. Ingen mock-data. Verifiera: pnpm typecheck && pnpm build.
@@ -159,7 +159,7 @@ PRODUCT.md-princip 4) → `/forum/*` → resten.
 
 **Slutverifiering (en agent):** `pnpm typecheck && pnpm build && pnpm test:e2e`,
 kör om Playwright-svepet, diffa mot denna fil, uppdatera PROGRESS.md.
-Commit per paket, push till `Jardinghampus/athopia-web`.
+Commit per paket, push till `Jardinghampus/nano-fotboll`.
 
 ## Får INTE göras
 - Byta fonter, färgskala, radie, IA, komponentbibliotek.

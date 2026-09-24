@@ -1,4 +1,4 @@
-# Site-Wide Design Critique — Athopia Web
+# Site-Wide Design Critique — Nano Fotboll Web
 Date: 2026-06-24
 Reviewer: impeccable critique (fork run)
 
@@ -32,10 +32,10 @@ This is the tabloid-sport tell in the anti-references. Sportbladet uses all-caps
 Table header uppercase is a data-table convention (acceptable); h2 section labels are the ban. Fix the h2s; leave the thead.
 
 ### Pattern 3 — Internal system names exposed in user-facing error copy
-- `statistik/page.tsx:77–79`: "Data synkroniseras via athopia-os. Kontrollera att sync-jobbet är igång." — users see "athopia-os" and "sync-jobb"
-- `match/page.tsx:35`: "Data synkroniseras från Supabase via athopia-os." — users see "Supabase" and "athopia-os"
+- `statistik/page.tsx:77–79`: "Data synkroniseras via nano-os. Kontrollera att sync-jobbet är igång." — users see "nano-os" and "sync-jobb"
+- `match/page.tsx:35`: "Data synkroniseras från Supabase via nano-os." — users see "Supabase" and "nano-os"
 
-Both are operator messages accidentally left as user-facing copy. A supporter doesn't know what athopia-os is. Fix: "Data laddas in — kom tillbaka om en liten stund." or just remove the second paragraph entirely.
+Both are operator messages accidentally left as user-facing copy. A supporter doesn't know what nano-os is. Fix: "Data laddas in — kom tillbaka om en liten stund." or just remove the second paragraph entirely.
 
 ### Pattern 4 — Fluid type scale on product surfaces
 `hem/page.tsx:89`: `text-4xl sm:text-6xl` on HeroNarrative h1 (48px → 96px fluid).
@@ -118,7 +118,7 @@ Per `reference/product.md`: "Fixed rem scale, not fluid. Clamp-sized headings do
 - Fix: Group by date using `<ListGroup header="Idag" />` pattern. At minimum separate LIVE / upcoming / finished.
 
 **[P1] Internal copy in empty/error state**
-- `match/page.tsx:35` — "Data synkroniseras från Supabase via athopia-os." visible to users
+- `match/page.tsx:35` — "Data synkroniseras från Supabase via nano-os." visible to users
 - Fix: "Matchdata laddas in — kom tillbaka om en liten stund."
 
 ---
@@ -154,7 +154,7 @@ Every page title. Do it in one pass. Title-case, `text-3xl` max, no SHOUTING. Th
 Command: `/impeccable typeset app/(app)`
 
 **2. Audit every user-facing error/empty state and remove internal system names (1 hour)**
-Search `athopia-os`, `Supabase`, `sync-jobb`, `sync-jobbet` in app/ — remove or rewrite every hit. Replace with plain Swedish user copy.
+Search `nano-os`, `Supabase`, `sync-jobb`, `sync-jobbet` in app/ — remove or rewrite every hit. Replace with plain Swedish user copy.
 Command: `/impeccable clarify app/(app)`
 
 **3. Remove `/analys` from nav or replace with a real coming-soon (30 minutes)**

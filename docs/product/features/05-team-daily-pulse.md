@@ -1,7 +1,7 @@
 # Feature: Dagens brief (Team Daily Pulse)
 
 ## Användarvärde
-"Athopia idag" på lag-hub — AI-sammanfattning inför/efter match.
+"Nano Fotboll idag" på lag-hub — AI-sammanfattning inför/efter match.
 
 ## Dataflöde
 ```

@@ -1,4 +1,4 @@
-# Athopia Sync — self-heal & learning protocol
+# Nano Fotboll Sync — self-heal & learning protocol
 
 Load this file only when healing, documenting, or writing improvements.
 

@@ -1,4 +1,4 @@
-# iOS Mac Handoff — Athopia
+# iOS Mac Handoff — Nano Fotboll
 
 > **Senast uppdaterad:** 2026-07-14  
 > **Mål:** Ship iOS-app med **web-paritet** (ej pixel-kopia) enligt vision.  
@@ -19,16 +19,16 @@
 ```text
 STEG 1 — Läs regler (5 min, skippa aldrig)
   Athopia Build/CLAUDE.md
-  athopia-web/CLAUDE.md
-  athopia-web/WEB-IA-STRUKTUR.md
+  nano-fotboll/CLAUDE.md
+  nano-fotboll/WEB-IA-STRUKTUR.md
   docs/brand/BRAND.md
-  athopia-ios/CLAUDE.md
+  nano-ios/CLAUDE.md
 
 STEG 2 — Verifiera PC-status (Windows/Linux OK)
-  cd "Athopia Build/athopia-web"
+  cd "Athopia Build/nano-fotboll"
   rtk pnpm typecheck
   rtk pnpm test:parity
-  cd "../athopia-ios"
+  cd "../nano-ios"
   rtk pwsh -File scripts/verify-pc-handoff.ps1
 
 STEG 3 — Mac-only (kräver Xcode)
@@ -41,7 +41,7 @@ STEG 3 — Mac-only (kräver Xcode)
 
 STEG 4 — Ship
   Fixa P0 från gap-tabellen nedan
-  Side-by-side mot athopia.se (5 flikar + overflow)
+  Side-by-side mot nanofotboll.se (5 flikar + overflow)
   Tag build → TestFlight → App Store Connect
 ```
 
@@ -54,20 +54,20 @@ STEG 4 — Ship
 | Vad | Path |
 |-----|------|
 | **Detta dokument** | `Athopia Build/IOS-MAC-HANDOFF.md` |
-| Web-konstitution | `athopia-web/CLAUDE.md` |
-| iOS-konstitution | `athopia-ios/CLAUDE.md` |
-| Nav single source | `athopia-web/lib/nav.ts` |
-| Access / paywall | `athopia-web/lib/access-rules.ts` |
-| Parity-kontrakt (genererat) | `athopia-web/contracts/generated/*.json` |
-| iOS kontrakt (genererat) | `athopia-ios/.../GeneratedProductContracts.swift` |
+| Web-konstitution | `nano-fotboll/CLAUDE.md` |
+| iOS-konstitution | `nano-ios/CLAUDE.md` |
+| Nav single source | `nano-fotboll/lib/nav.ts` |
+| Access / paywall | `nano-fotboll/lib/access-rules.ts` |
+| Parity-kontrakt (genererat) | `nano-fotboll/contracts/generated/*.json` |
+| iOS kontrakt (genererat) | `nano-ios/.../GeneratedProductContracts.swift` |
 | Brand | `docs/brand/BRAND.md` + `tokens.json` |
-| PC-verifiering | `athopia-ios/scripts/verify-pc-handoff.ps1` |
-| iOS app-kod | `athopia-ios/AthopiaApp/AthopiaApp/` |
-| Web API | `athopia-web/app/api/` |
+| PC-verifiering | `nano-ios/scripts/verify-pc-handoff.ps1` |
+| iOS app-kod | `nano-ios/AthopiaApp/AthopiaApp/` |
+| Web API | `nano-fotboll/app/api/` |
 
 **Regenerera kontrakt efter nav/access-ändring:**
 ```bash
-cd athopia-web && rtk pnpm contracts:generate
+cd nano-fotboll && rtk pnpm contracts:generate
 ```
 
 ---
@@ -145,7 +145,7 @@ cd athopia-web && rtk pnpm contracts:generate
 | Web läser, OS producerar | ✅ |
 | Generic dashboard / gaming UI | ✅ undviks |
 
-**Athopia ska vara:** lugnt, datadrivet hem för Allsvenskan-supportern — **inte** FotMob. iOS-appen matchar det för kärnflöden.
+**Nano Fotboll ska vara:** lugnt, datadrivet hem för Allsvenskan-supportern — **inte** FotMob. iOS-appen matchar det för kärnflöden.
 
 ---
 
@@ -205,17 +205,17 @@ cd athopia-web && rtk pnpm contracts:generate
 
 ```powershell
 # Web
-cd "C:\Users\jardi\Athopia Build\athopia-web"
+cd "C:\Users\jardi\Athopia Build\nano-fotboll"
 rtk pnpm typecheck
 rtk pnpm test:parity
 rtk pnpm contracts:check
 
 # iOS PC gate
-cd "C:\Users\jardi\Athopia Build\athopia-ios"
+cd "C:\Users\jardi\Athopia Build\nano-ios"
 rtk pwsh -File scripts/verify-pc-handoff.ps1
 
 # Mac (efter clone)
-cd athopia-ios/AthopiaApp
+cd nano-ios/AthopiaApp
 xcodebuild -scheme AthopiaApp -destination 'platform=iOS Simulator,name=iPhone 16' build
 ```
 
@@ -249,7 +249,7 @@ xcodebuild -scheme AthopiaApp -destination 'platform=iOS Simulator,name=iPhone 1
 
 ## 12. Wave 1-kontrakt (2026-07-14) — vad Mac måste verifiera
 
-Branch `wave1-contracts` i både athopia-web och athopia-ios. Allt nedan är
+Branch `wave1-contracts` i både nano-fotboll och nano-ios. Allt nedan är
 verifierat på Windows (typecheck, build, `pnpm test:parity`) men **aldrig
 kompilerat i Xcode**.
 
@@ -292,11 +292,11 @@ Notera stavningen: DB har både `sportmonks_id` (fixtures) och `sportsmonks_id`
 
 ### 13.1 Vad som redan är byggt (Windows, ocommittat push)
 
-- `athopia-web/app/api/widget/route.ts` — publikt, ett anrop, ingen auth.
+- `nano-fotboll/app/api/widget/route.ts` — publikt, ett anrop, ingen auth.
   Live-match → annars nästa match inom 24h → annars viktigaste nyheterna
   (rankade på `importance_score` + `push_priority`, samma signal som pushen).
-- `athopia-ios/AthopiaWidget/WidgetSnapshot.swift` — modell + egen fetch.
-- `athopia-ios/AthopiaWidget/AthopiaWidget.swift` — hemskärm (small/medium) +
+- `nano-ios/AthopiaWidget/WidgetSnapshot.swift` — modell + egen fetch.
+- `nano-ios/AthopiaWidget/AthopiaWidget.swift` — hemskärm (small/medium) +
   **låsskärm** (`accessoryRectangular`, `accessoryInline`, `accessoryCircular`),
   genvägar till forum/matcher/nyheter och en "Fråga AI"-teaser.
 
@@ -309,7 +309,7 @@ Notera stavningen: DB har både `sportmonks_id` (fixtures) och `sportsmonks_id`
    att tyst inte kompileras.
 2. Signing & Capabilities:
      - App Group `group.se.athopia.app` på BÅDA targets
-     - Associated Domains: applinks:athopia.se (krävs för widget-genvägarna)
+     - Associated Domains: applinks:nanofotboll.se (krävs för widget-genvägarna)
      - Push Notifications (för live, se 13.4)
 3. Sätt APPLE_TEAM_ID i Vercel → AASA-routen svarar tomt utan den.
 4. Product → Build (Cmd+B). Fixa ev. compile-fel.
@@ -343,18 +343,18 @@ Vill du ha en verklig live-känsla finns två vägar, och de utesluter inte vara
    push-to-Activity**, inte via timeline-budget. Kräver:
    - `NSSupportsLiveActivities` i Info.plist,
    - ett Widget-extension-mål med `ActivityConfiguration`,
-   - att `athopia-os` skickar en push per målhändelse/minutuppdatering.
+   - att `nano-os` skickar en push per målhändelse/minutuppdatering.
 2. **Push-driven widget-reload** — APNs background push → appen skriver ny
    snapshot → `WidgetCenter.reloadAllTimelines()`. Billigare, men fortfarande
    inte sekundsnabbt.
 
 Rekommendation: bygg Live Activity för live-matcher (det är den upplevelsen du
 beskriver), och låt widget-timelinen sköta nyheter/nästa match. **Blockerare för
-båda: APNs-sändaren i `athopia-os` är fortfarande inte byggd.**
+båda: APNs-sändaren i `nano-os` är fortfarande inte byggd.**
 
 ### 13.5 Kvar efter detta
 
-- ~~APNs-sändare i `athopia-os`~~ **BYGGD 2026-07-14** (`packages/notifications/src/apns.ts`).
+- ~~APNs-sändare i `nano-os`~~ **BYGGD 2026-07-14** (`packages/notifications/src/apns.ts`).
   Kräver env i produktion, annars loggas och hoppas iOS-push:
   `APNS_KEY_P8` (.p8-nyckelns PEM eller base64), `APNS_KEY_ID`, `APPLE_TEAM_ID`,
   `APNS_BUNDLE_ID` (se.athopia.app), `APNS_ENV` (sandbox i TestFlight).

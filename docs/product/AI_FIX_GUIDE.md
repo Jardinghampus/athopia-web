@@ -7,7 +7,7 @@ Snabb routing när något AI-relaterat är fel.
 ```
 Symptom?
 ├─ Nyheter saknas / fel tier / ingen signal_score
-│  └─ athopia-os → Echo → packages/ai-core/src/agents/echo.ts
+│  └─ nano-os → Echo → packages/ai-core/src/agents/echo.ts
 ├─ Samma story 3 gånger i feed
 │  └─ clustering.ts + news_feed_clustered view
 ├─ "X källor" visar alltid 1
@@ -15,7 +15,7 @@ Symptom?
 ├─ Brief tom / gammal
 │  └─ team-daily-pulse.ts + team_daily_pulses status
 ├─ Match-chat svarar fel / 403 / 429
-│  └─ athopia-web → app/api/match/chat + lib/ai/tools.ts
+│  └─ nano-fotboll → app/api/match/chat + lib/ai/tools.ts
 ├─ Elite-chat / budget
 │  └─ app/api/elite/chat + chat_usage tabell
 ├─ Podcast entity_ids = 0
@@ -29,7 +29,7 @@ Symptom?
 
 ## Per repo — första filer att öppna
 
-### athopia-os
+### nano-os
 
 | Problem | Filer |
 |---------|-------|
@@ -43,7 +43,7 @@ Symptom?
 | Orchestration | `apps/agents/src/index.ts` |
 | Budget | `packages/ai-core` → `withBudget` |
 
-### athopia-web
+### nano-fotboll
 
 | Problem | Filer |
 |---------|-------|
@@ -55,7 +55,7 @@ Symptom?
 | Access / PRO | `lib/access-rules.ts`, `lib/user-plan.ts` |
 | Podcast policy | `PODCAST_RIGHTS.md`, `PodcastSignalsPanel.tsx` |
 
-### athopia-admin
+### nano-admin
 
 | Problem | Filer |
 |---------|-------|

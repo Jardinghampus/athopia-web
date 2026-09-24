@@ -1,11 +1,11 @@
 # Feature: Admin & ops
 
 ## Användarvärde
-Kontrollrum på os.athopia.se — sync, Echo backfill, editorial.
+Kontrollrum på os.nanofotboll.se — sync, Echo backfill, editorial.
 
 ## Dataflöde
 ```
-athopia-admin → API på Hetzner/Vercel → Supabase / agents
+nano-admin → API på Hetzner/Vercel → Supabase / agents
 ```
 
 ## Byggt i
@@ -14,7 +14,7 @@ athopia-admin → API på Hetzner/Vercel → Supabase / agents
 |-------|-------|
 | admin | `/admin/sync` — Echo rolling + backfill |
 | os | HTTP `:3001` — `/api/echo/backfill`, `/api/sync/*`, `/health` |
-| admin | docs i `athopia-admin/docs/` |
+| admin | docs i `nano-admin/docs/` |
 
 ## AI fix från admin
 | Knapp | Endpoint |

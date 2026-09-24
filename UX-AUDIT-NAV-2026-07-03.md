@@ -1,4 +1,4 @@
-# UX-audit + nav-omdesign — athopia-web (2026-07-03)
+# UX-audit + nav-omdesign — nano-fotboll (2026-07-03)
 
 > Audit av samtliga routes i `app/` med förslag på ny IA enligt prioritet:
 > **1. Mitt lag (primär) · 2. Allsvenskan (sekundär) · 3. Andra lag (tertiär, 1–2 klick).**
@@ -154,7 +154,7 @@ Build grön (`next build` efter `.next`-rensning). Ej pushad — väntar på fri
 
 ## Fas 2.1 — Live-verifiering 2026-07-03 (DB frisk, första riktiga genomgången)
 
-Kört mot lokal dev-server + produktions-Supabase (curl-baserat — gstacks bundlade Playwright-binär matchar inte installerad version på denna maskin, känd begränsning, se athopia-os CLAUDE.md). Alla huvudrutter, TeamSwitcher, tabell/skytteliga/resultat/spelschema, matchcenter, spelarsidor, statistik-verktyg, priser. Tre produktionsbuggar hittade och fixade samma pass:
+Kört mot lokal dev-server + produktions-Supabase (curl-baserat — gstacks bundlade Playwright-binär matchar inte installerad version på denna maskin, känd begränsning, se nano-os CLAUDE.md). Alla huvudrutter, TeamSwitcher, tabell/skytteliga/resultat/spelschema, matchcenter, spelarsidor, statistik-verktyg, priser. Tre produktionsbuggar hittade och fixade samma pass:
 
 1. **`next.config.ts` saknade `cdn.sportmonks.com`** i `images.remotePatterns` → varje sida som renderade en lagbild (`/allsvenskan`, `/match`) kraschade med 500. Commit `afc6a61`.
 2. **`/mitt-lag`s `getTeams()` injicerade "Demo IF" ovillkorligt** (separat kodväg från `/api/team/list`, missad i tidigare fix) — syntes för alla riktiga användare i den nya TeamSwitcher-listan. Samtidigt: lagbilder lästes från `entities.metadata.logo_url` som bara var delvis synkad (5+ lag null) — lades till join mot `teams.logo` via `sportmonks_id`. Commit `04ee10e`.

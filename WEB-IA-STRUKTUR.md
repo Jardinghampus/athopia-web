@@ -1,4 +1,4 @@
-# Athopia — kanonisk navigationsstruktur (2026-07-14)
+# Nano Fotboll — kanonisk navigationsstruktur (2026-07-14)
 
 Kodens enda källa för top-level-IA är `lib/nav.ts`. Det versionsmärkta
 cross-platform-kontraktet genereras till `contracts/generated/navigation.json`.

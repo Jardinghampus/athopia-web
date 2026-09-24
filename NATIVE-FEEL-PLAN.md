@@ -1,4 +1,4 @@
-# Native-Feel Plan — Athopia web
+# Native-Feel Plan — Nano Fotboll web
 
 Mål: iOS-grade fysik & hierarki på en **web-native** yta (inte iOS-klon; app
 byggs separat senare). Revolut-kvalitet, enkelt. Läs PRODUCT.md + DESIGN.md.
@@ -14,7 +14,7 @@ Opus.
 4. `/impeccable critique <sida>` → hitta gap.
 5. `/impeccable polish <sida>` → finputs.
 6. `/impeccable audit <sida>` → a11y/perf/responsive före ship.
-7. Commit `feel(<sida>): …` → push athopia-web → deploy.
+7. Commit `feel(<sida>): …` → push nano-fotboll → deploy.
 
 ## Definition of Done (per sida)
 - 60 fps, CLS 0. Spring-rörelse; tap-scale-feedback.

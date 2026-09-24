@@ -48,7 +48,7 @@ Entity-resolve (lib/ai/resolve.ts):
 | `lib/ai/tools.ts` | 5 AI SDK tools (searchNews, getStandings, getTeamStats, getPlayerStats, getMatch) |
 | `app/api/elite/chat/route.ts` | POST — auth, limits, streamText, onFinish |
 | `app/api/elite/usage/route.ts` | GET — dagens msg_count för UI-visning |
-| `app/api/admin/embed-article/route.ts` | POST — embedda en artikel (write-time hook från athopia-os) |
+| `app/api/admin/embed-article/route.ts` | POST — embedda en artikel (write-time hook från nano-os) |
 | `scripts/embed-articles.ts` | Backfill: embeddar alla artiklar som saknas i embeddings |
 | `app/elite/chat/page.tsx` | UI — useChat, verktygsindikator, usage-display |
 

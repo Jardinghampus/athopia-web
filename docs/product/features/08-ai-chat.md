@@ -5,7 +5,7 @@ Fråga om Allsvenskan — tabell, nyheter, matcher. PRO+ (Elite för full chat).
 
 ## Dataflöde
 ```
-User → athopia-web POST /api/elite/chat | /api/match/chat
+User → nano-fotboll POST /api/elite/chat | /api/match/chat
   → Claude Haiku + lib/ai/tools.ts → Supabase
   → bump_chat_usage RPC
 ```

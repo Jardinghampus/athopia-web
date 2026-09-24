@@ -1,4 +1,4 @@
-# MANUAL.md — Athopia Web driftshandbok
+# MANUAL.md — Nano Fotboll Web driftshandbok
 
 ## Kommandon
 
@@ -32,8 +32,8 @@ STRIPE_WEBHOOK_SECRET=
 STRIPE_PRICE_ID=
 
 ```
-# Sportmonks-synkronisering hanteras av athopia-os (separat repo).
-# athopia-web läser enbart från Supabase.
+# Sportmonks-synkronisering hanteras av nano-os (separat repo).
+# nano-fotboll läser enbart från Supabase.
 
 ## Projektstruktur
 
@@ -42,7 +42,7 @@ app/
   page.tsx              — startsida (ISR 60s)
   layout.tsx            — root layout + Clerk + fonts
   artikel/[slug]/       — artikeldetaljsida + JSON-LD
-  lag/[slug]/           — lagprofil + Supabase-statistik (synkad via athopia-os)
+  lag/[slug]/           — lagprofil + Supabase-statistik (synkad via nano-os)
   podcast/              — lista + [id]/episod
   prenumerera/          — Stripe Checkout (39 SEK/mån)
   konto/                — PRO-gate, Stripe Portal
@@ -116,4 +116,4 @@ await clerkClient.users.updateUserMetadata(userId, {
 1. `vercel env pull` — hämta env-variabler
 2. `pnpm build` — verifiera lokalt
 3. `git push` → auto-deploy på Vercel
-4. Stripe webhook-URL: `https://athopia.se/api/webhooks/stripe`
+4. Stripe webhook-URL: `https://nanofotboll.se/api/webhooks/stripe`

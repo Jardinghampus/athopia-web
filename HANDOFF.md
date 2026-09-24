@@ -51,7 +51,7 @@ Sidan byggdes om från grunden med:
 ## För att få /ai live med riktig AI (BLOCK-lista)
 
 ### BLOCK A — Env-variabler i Vercel (gör detta först)
-Vercel → athopia-web → Settings → Environment Variables:
+Vercel → nano-fotboll → Settings → Environment Variables:
 ```
 ANTHROPIC_API_KEY=...        # console.anthropic.com
 OPENAI_API_KEY=...           # platform.openai.com (embeddings)
@@ -72,7 +72,7 @@ pnpm embed:articles
 ```
 ~5 min, embeddar ~1 060 artiklar. Idempotent.
 
-### BLOCK D — Write-time hook i athopia-os
+### BLOCK D — Write-time hook i nano-os
 När ny artikel sparas, posta till `/api/admin/embed-article` så RAG hålls uppdaterat.
 Se föregående HANDOFF för exakt kodsnippet.
 

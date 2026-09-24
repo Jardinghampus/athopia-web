@@ -1,19 +1,24 @@
 @AGENTS.md
+> **Namnbyte 2026-09-23: Athopia → Nano Fotboll** (moderbolag Nano Sports Group,
+> domän `nanofotboll.se`; repot hette tidigare `athopia-web`). Kod-identifierare som
+> medvetet behåller athopia-namnet — `/opt/athopia-os`, `@athopia/*`, `ATHOPIA_*`-env,
+> `athopia_*`-kolumner, `x-athopia-os-secret`, `athopia://` — är listade i
+> workspace-filen `docs/NAMNBYTE-2026-09-23.md`. Byt dem inte i förbifarten.
 
-# ATHOPIA WEB — operativ konstitution
+# NANO FOTBOLL WEB — operativ konstitution
 
-> Uppdaterad 2026-07-10. Detta är den enda regel-filen för athopia-web.
+> Uppdaterad 2026-07-10. Detta är den enda regel-filen för nano-fotboll.
 > Läs den innan du ändrar produktbeteende. AGENTS.md kompletterar med data-regler.
 
-**Athopia Sync v2:** säg `Athopia Sync` (warm) / `Athopia Sync cold`. Brain:
+**Nano Fotboll Sync v2:** säg `Nano Fotboll Sync` (warm) / `Nano Fotboll Sync cold`. Brain:
 `../.athopia-sync/` (cache, LEARNINGS, FINDINGS, IMPROVEMENTS). Kontrakt:
 `contracts/` + `pnpm test:parity`.
 
 ## 1. Vad detta repo är
 
-Publik produkt på **athopia.se** — premium svensk fotbollsplattform (nyhetsfeed,
+Publik produkt på **nanofotboll.se** — premium svensk fotbollsplattform (nyhetsfeed,
 lag-hubbar, statistik, matchsidor, forum, podcast, AI-funktioner, prenumerationer).
-All data kommer från Supabase, producerad av `athopia-os`. Web läser, visar och
+All data kommer från Supabase, producerad av `nano-os`. Web läser, visar och
 monetiserar — den ingesterar aldrig.
 
 Kvalitetsbar: snabb, mobil-först, redaktionellt trovärdig, premium men inte
@@ -56,7 +61,7 @@ Ny kod läggs i befintlig feature-mapp. Skapa inte parallella mönster —
 
 ## 4. Hårda regler (bryt aldrig)
 
-- **LLM-nycklar hör hemma i athopia-os, ALDRIG i web** (founderbeslut 2026-09-17).
+- **LLM-nycklar hör hemma i nano-os, ALDRIG i web** (founderbeslut 2026-09-17).
   Web får inte generera innehåll — den läser det os skrivit till Supabase. Ny
   AI-funktion = agent/skript i os som skriver till en tabell eller kolumn, plus en
   läsväg här. `ANTHROPIC_API_KEY` är tom i alla Vercel-miljöer med flit, så en
@@ -64,8 +69,8 @@ Ny kod läggs i befintlig feature-mapp. Skapa inte parallella mönster —
   Kvar att flytta (streamande chattar, kräver en autentiserad os-endpoint):
   `app/api/elite/chat`, `app/api/elite/podcast-chat`, `app/api/match/chat`,
   `app/api/forum/summarize`.
-- **INGEN admin i athopia-web.** Admin = athopia-admin (os.athopia.se). Backend
-  (RSS, agenter, Sportmonks-sync) = athopia-os. Web = publik visning enbart.
+- **INGEN admin i nano-fotboll.** Admin = nano-admin (os.nanofotboll.se). Backend
+  (RSS, agenter, Sportmonks-sync) = nano-os. Web = publik visning enbart.
 - **proxy.ts, inte middleware.ts.**
 - **Lazy init** för Stripe, Clerk och Supabase i function bodies — ALDRIG module-level.
 - **Service-role-klienten aldrig i client components.** Client components använder
@@ -73,6 +78,9 @@ Ny kod läggs i befintlig feature-mapp. Skapa inte parallella mönster —
 - **`getUserPlan()` körs alltid på servern.** Paywall-beslut aldrig client-side;
   `PaywallGate` används i server components.
 - **Sport-separation:** `.eq('sport', SPORT)`-filtret på alla Supabase-queries.
+  `SPORT` kommer från `lib/vertical.ts`. Odefinierad `NEXT_PUBLIC_VERTICAL` är
+  fotboll. Hockey är samma app med `NEXT_PUBLIC_VERTICAL=hockey`, ligaväg `/shl`,
+  och intaget pausat (`context/verticals/hockey.md`).
 - **Anropa aldrig Sportmonks direkt.** Konsumera normaliserad data via Supabase.
 - **xG/pressure visas bara när riktiga syncade värden finns.** Aldrig placeholder
   `0.00 xG`, aldrig påhittad xA — dölj fältet i stället.

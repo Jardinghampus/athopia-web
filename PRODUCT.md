@@ -1,4 +1,4 @@
-# PRODUCT.md — Athopia
+# PRODUCT.md — Nano Fotboll
 
 > Läses automatiskt av alla `/impeccable`-kommandon. Strategi: vem, vad, varför.
 > Uppdaterad 2026-06-24. Justera fritt.

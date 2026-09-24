@@ -6,7 +6,7 @@ Personligt nyhetsflöde för Allsvenskan — free: 20/dag, PRO: smart ranking + 
 ## Dataflöde
 ```
 RSS → content_queue → Echo → articles → news_feed_clustered (VIEW)
-  → athopia-web GET /api/feed → FeedClient
+  → nano-fotboll GET /api/feed → FeedClient
 ```
 
 ## Byggt i

@@ -1,4 +1,4 @@
-# Fortsättningsprompt — athopia-web efter UX/a11y-auditen (uppdaterad 2026-08-06)
+# Fortsättningsprompt — nano-fotboll efter UX/a11y-auditen (uppdaterad 2026-08-06)
 
 Klistra in avsnittet under linjen som första meddelande i nästa session.
 
@@ -6,7 +6,7 @@ Klistra in avsnittet under linjen som första meddelande i nästa session.
 
 ## Prompt
 
-Vi fortsätter på athopia-web. Läs `UX-AUDIT-2026-08-03.md` innan du börjar —
+Vi fortsätter på nano-fotboll. Läs `UX-AUDIT-2026-08-03.md` innan du börjar —
 särskilt §2, §3b.3, §3c.4 och §3d.5, som listar hypoteser som visade sig vara
 **mätfel**. Jaga dem inte igen. §3e beskriver senaste omgången: kontrastmätaren
 fick alfakomposition och 229 dittills dolda brott stängdes.
@@ -38,7 +38,7 @@ människa:
   footern, som blir tydligt ljusare), och telefonmockupens `text-zinc-400` gick
   till `zinc-600`.
 
-Gå igenom athopia.se i båda teman och säg till om något ser fel ut.
+Gå igenom nanofotboll.se i båda teman och säg till om något ser fel ut.
 
 **2. `pnpm test:e2e` avslutas med kod 1**
 Inte ett testfel — 228 passerar, 0 failar. En worker-process avslutas inte och

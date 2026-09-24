@@ -5,7 +5,7 @@ Tabell, matcher, spelarstats, xG — trusted data från sync, aldrig fabricerad.
 
 ## Dataflöde
 ```
-Sportmonks API → athopia-os sync jobs → fixtures, team_match_stats,
+Sportmonks API → nano-os sync jobs → fixtures, team_match_stats,
   player_match_stats, team_season_stats → web läser Supabase
 ```
 

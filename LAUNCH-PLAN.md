@@ -1,7 +1,7 @@
-# Athopia — Launch Plan (kör härifrån)
+# Nano Fotboll — Launch Plan (kör härifrån)
 
 > **En fil att öppna i ny chatt.** Full spec: [`EXECUTIVE-LAUNCH-PLAN-2026-07-13.md`](./EXECUTIVE-LAUNCH-PLAN-2026-07-13.md)  
-> Audit: [`docs/audits/ATHOPIA-WEB-FULL-AUDIT-2026-07-13.md`](./docs/audits/ATHOPIA-WEB-FULL-AUDIT-2026-07-13.md)  
+> Audit: [`docs/audits/nano-fotboll-FULL-AUDIT-2026-07-13.md`](./docs/audits/nano-fotboll-FULL-AUDIT-2026-07-13.md)  
 > Modell: **Composer 2.5** (implementation) · Sol endast vid arkitekturblocker.
 
 ## North star
@@ -77,7 +77,7 @@ Kärnloop: **Mitt lag → Flöde → Forum → (PRO) destillat.**
 1. Läs `CLAUDE.md` + denna fil + en task (LAUNCH-XX) i taget.  
 2. En task = en commit. Uppdatera `[ ]` → `[x]` med hash + tester.  
 3. Rör inte filer utanför tasken. Committa/pusha bara på begäran.  
-4. Ingen admin/publisher i `athopia-web`. Ingen mockdata. Ingen tredjepartstext publikt.
+4. Ingen admin/publisher i `nano-fotboll`. Ingen mockdata. Ingen tredjepartstext publikt.
 
 ---
 
@@ -85,9 +85,9 @@ Kärnloop: **Mitt lag → Flöde → Forum → (PRO) destillat.**
 
 ```
 Du är implementation-agent för Athopia. Läs:
-- athopia-web/LAUNCH-PLAN.md
-- athopia-web/EXECUTIVE-LAUNCH-PLAN-2026-07-13.md (vid behov)
-- athopia-web/CLAUDE.md
+- nano-fotboll/LAUNCH-PLAN.md
+- nano-fotboll/EXECUTIVE-LAUNCH-PLAN-2026-07-13.md (vid behov)
+- nano-fotboll/CLAUDE.md
 
 Kör LAUNCH-01 (provenance) först om inte redan grönt. En task i taget.
 Efter varje task: typecheck, relevant test, uppdatera checklistor, rapportera filer + blockerare.

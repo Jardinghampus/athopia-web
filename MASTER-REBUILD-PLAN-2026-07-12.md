@@ -111,5 +111,5 @@ och CLAUDE.md gäller oavkortat.
 
 ## Mätbart mål (besatthet ≠ tycke)
 - Time-to-content < 1s på 4G (LCP), 60fps scroll.
-- D1-retention och forum-svar/DAU som KPI:er för "väljer Athopia först".
+- D1-retention och forum-svar/DAU som KPI:er för "väljer Nano Fotboll först".
 - Varje fas shippas separat till prod — ingen big-bang.

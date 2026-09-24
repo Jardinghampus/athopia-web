@@ -17,8 +17,8 @@
 
 | Punkt | Åtgärd |
 |-------|--------|
-| **athopia.se → Vercel** | `vercel domains ls` visar 0 under team — domänen kan ligga på annat Vercel-konto eller extern DNS. Dashboard → Project → Domains → lägg till `athopia.se` + `www`. |
-| Clerk webhook endpoint | Dashboard → Webhooks → peka på `https://athopia.se/api/webhooks/clerk` |
+| **nanofotboll.se → Vercel** | `vercel domains ls` visar 0 under team — domänen kan ligga på annat Vercel-konto eller extern DNS. Dashboard → Project → Domains → lägg till `nanofotboll.se` + `www`. |
+| Clerk webhook endpoint | Dashboard → Webhooks → peka på `https://nanofotboll.se/api/webhooks/clerk` |
 | PITR backup | Supabase Dashboard → Settings → Backups |
 
 ## Skript (Hetzner)

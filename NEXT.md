@@ -1,4 +1,4 @@
-# NEXT.md — Athopia Web jobblista
+# NEXT.md — Nano Fotboll Web jobblista
 
 ## VISION: Allsvenskan one-stop platform
 Allsvenskan-versionen av The Athletic. Web → PWA → React Native.
@@ -67,7 +67,7 @@ Jobb körs i ordning. Markera ✅ när klart.
   - Klart: app/podcast/page.tsx
 
 - [x] **WEB-32** — Lag-sammanfattningssida + homepage AI-hero (2026-05-31)
-  - lag/[slug]/sammanfattning/page.tsx hämtar från articles WHERE source_name='Athopia AI'
+  - lag/[slug]/sammanfattning/page.tsx hämtar från articles WHERE source_name='Nano Fotboll AI'
   - Homepage visar "Allsvenskan idag" AI-artikel som hero (Brain-ikon, pitch/5 bg)
   - Klart: app/lag/[slug]/sammanfattning/page.tsx + app/page.tsx
 

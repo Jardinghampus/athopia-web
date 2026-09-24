@@ -1,6 +1,6 @@
-# Athopia — produkt- & arkitekturdokumentation
+# Nano Fotboll — produkt- & arkitekturdokumentation
 
-Ritningar för hela stacken: **athopia-os** (skriver) → **Supabase** (kontrakt) → **athopia-web** / **athopia-ios** (läser).
+Ritningar för hela stacken: **nano-os** (skriver) → **Supabase** (kontrakt) → **nano-fotboll** / **nano-ios** (läser).
 
 ## Start här
 
@@ -11,7 +11,7 @@ Ritningar för hela stacken: **athopia-os** (skriver) → **Supabase** (kontrakt
 
 ## Interaktiv karta (webb)
 
-Öppna **[athopia.se/system](https://athopia.se/system)** — signaler animeras mellan RSS, Echo, Supabase och UI.
+Öppna **[nanofotboll.se/system](https://nanofotboll.se/system)** — signaler animeras mellan RSS, Echo, Supabase och UI.
 
 ## Feature-katalog (en fil per funktion)
 
@@ -33,10 +33,10 @@ Ritningar för hela stacken: **athopia-os** (skriver) → **Supabase** (kontrakt
 ## Repo-regler (kort)
 
 ```
-athopia-os     → ingest, agenter, normalisering, Supabase-skriv
-athopia-web    → produkt-UI, läser Supabase, user-facing AI (begränsat)
-athopia-admin  → kontrollrum, editorial, sync-knappar
-athopia-ios    → speglar web-kontrakt
+nano-os     → ingest, agenter, normalisering, Supabase-skriv
+nano-fotboll    → produkt-UI, läser Supabase, user-facing AI (begränsat)
+nano-admin  → kontrollrum, editorial, sync-knappar
+nano-ios    → speglar web-kontrakt
 ```
 
 Läs alltid `AGENTS.md` i workspace-roten före cross-repo-ändringar.

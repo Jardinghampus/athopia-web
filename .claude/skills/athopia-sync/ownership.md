@@ -1,13 +1,13 @@
-# Athopia Sync — ownership & file map
+# Nano Fotboll Sync — ownership & file map
 
 ## Repo roles
 
 | Repo | Role | Publishes to |
 |------|------|----------------|
-| **athopia-os** | AI factory, Sportmonks sync, RSS→queue, agents, APNs, migrations | Supabase |
-| **athopia-web** | Public product + HTTP API for iOS | Vercel |
-| **athopia-admin** | Ops / Command OS | Vercel |
-| **athopia-ios** | Native SwiftUI client | TestFlight / App Store |
+| **nano-os** | AI factory, Sportmonks sync, RSS→queue, agents, APNs, migrations | Supabase |
+| **nano-fotboll** | Public product + HTTP API for iOS | Vercel |
+| **nano-admin** | Ops / Command OS | Vercel |
+| **nano-ios** | Native SwiftUI client | TestFlight / App Store |
 
 ## Cascade
 
@@ -26,14 +26,14 @@
 | Concern | Path |
 |---------|------|
 | **Brain (memory)** | `Athopia Build/.athopia-sync/` |
-| Human STATE | `Athopia Build/ATHOPIA-SYNC-STATE.md` |
+| Human STATE | `Athopia Build/NANO FOTBOLL-SYNC-STATE.md` |
 | Brand | `docs/brand/BRAND.md`, `tokens.json` |
-| Nav / access / deep links | `athopia-web/lib/{nav,access-rules,deep-links}.ts` |
-| API schemas | `athopia-web/lib/api-schemas.ts` |
-| Contracts | `athopia-web/contracts/generated/*` |
-| iOS generated | `athopia-ios/.../GeneratedProductContracts.swift` |
+| Nav / access / deep links | `nano-fotboll/lib/{nav,access-rules,deep-links}.ts` |
+| API schemas | `nano-fotboll/lib/api-schemas.ts` |
+| Contracts | `nano-fotboll/contracts/generated/*` |
+| iOS generated | `nano-ios/.../GeneratedProductContracts.swift` |
 | iOS routing / API / tokens | `ContentView.swift`, `APIClient.swift`, `DesignTokens.swift` |
-| PC iOS verify | `athopia-ios/scripts/verify-pc-handoff.ps1` |
+| PC iOS verify | `nano-ios/scripts/verify-pc-handoff.ps1` |
 | Fingerprint | `.athopia-sync/scripts/fingerprint.ps1` |
 
 ## Parity meaning

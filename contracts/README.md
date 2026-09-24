@@ -1,4 +1,4 @@
-# Athopia cross-platform contracts
+# Nano Fotboll cross-platform contracts
 
 Version 1 establishes the shared product contract for web and iOS:
 
@@ -7,7 +7,7 @@ Version 1 establishes the shared product contract for web and iOS:
 - `generated/design-tokens.json` — exact copy of workspace brand tokens
 - `generated/storekit.json` — canonical App Store product IDs and plans
 - `generated/openapi.json` — response contracts for the endpoints iOS decodes
-- `athopia-ios/.../GeneratedProductContracts.swift` — generated native types
+- `nano-ios/.../GeneratedProductContracts.swift` — generated native types
 
 Sources of truth remain `lib/nav.ts`, `lib/access-rules.ts`,
 `lib/product-contract.ts`, `lib/deep-links.ts`, `lib/api-schemas.ts`, and
@@ -32,7 +32,7 @@ forum/posts, forum/summary, profile, widget, storekit/entitlements,
 push/apns-subscribe.
 
 **iOS product reads:** leaderboard, match timeline, and player profile go through
-athopia.se APIs (no Supabase-direct StatsRepository queries for those surfaces).
+nanofotboll.se APIs (no Supabase-direct StatsRepository queries for those surfaces).
 
 Note: several legacy routes may still answer with raw DB rows (snake_case) and
 iOS decodes them with `.convertFromSnakeCase`. Newer gated routes use camelCase

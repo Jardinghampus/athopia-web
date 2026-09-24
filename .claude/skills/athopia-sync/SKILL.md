@@ -1,20 +1,20 @@
 ---
 name: athopia-sync
 description: >-
-  Athopia Sync — self-healing, self-learning cross-repo sync for Athopia football
-  (athopia-os, athopia-web, athopia-admin, athopia-ios). Fingerprint-cached warm
+  Nano Fotboll Sync — self-healing, self-learning cross-repo sync for Nano Fotboll football
+  (nano-os, nano-fotboll, nano-admin, nano-ios). Fingerprint-cached warm
   starts; audits UI/UX + API + paywalls + schema; heals drift; journals findings;
-  proposes improvements after every build. Use when the user says "Athopia Sync",
+  proposes improvements after every build. Use when the user says "Nano Fotboll Sync",
   "synka", parity, after a feature in one repo, or before ship/PR across platforms.
 ---
 
-# Athopia Sync (v2 — self-heal)
+# Nano Fotboll Sync (v2 — self-heal)
 
-Cross-repo parity **engine** for Athopia fotboll. Not a checklist — a loop that
+Cross-repo parity **engine** for Nano Fotboll fotboll. Not a checklist — a loop that
 **detects → heals → verifies → learns → improves**, with a persistent brain.
 
-**In scope:** `athopia-os` · `athopia-web` · `athopia-admin` · `athopia-ios`  
-**Out:** `athopia-golf`, gamification, speculative redesigns
+**In scope:** `nano-os` · `nano-fotboll` · `nano-admin` · `nano-ios`  
+**Out:** `nano-golf`, gamification, speculative redesigns
 
 **Build root:** `C:\Users\jardi\Athopia Build` (Mac: `~/Athopia Build`)  
 **Brain:** `Athopia Build/.athopia-sync/` ← **always read/write this**
@@ -28,7 +28,7 @@ Cross-repo parity **engine** for Athopia fotboll. Not a checklist — a loop tha
 | `STRUCTURE.md` | Compact SoT map |
 | `scripts/fingerprint.ps1` | Cheap dirty-layer scan |
 
-Human summary: `Athopia Build/ATHOPIA-SYNC-STATE.md`
+Human summary: `Athopia Build/NANO FOTBOLL-SYNC-STATE.md`
 
 ---
 
@@ -57,10 +57,10 @@ Human summary: `Athopia Build/ATHOPIA-SYNC-STATE.md`
 
 | Trigger | Mode |
 |---------|------|
-| `Athopia Sync` / synka / parity | Heal open STATE gaps → dirty-layer audit → improve |
+| `Nano Fotboll Sync` / synka / parity | Heal open STATE gaps → dirty-layer audit → improve |
 | Feature just shipped in one repo | Feature-wave cascade only |
 | Before PR/ship | Gates + delta inventory |
-| `Athopia Sync cold` / full audit | Ignore warm shortcuts; full layers |
+| `Nano Fotboll Sync cold` / full audit | Ignore warm shortcuts; full layers |
 | After failed fix | Self-heal using LEARNINGS; stop after 2 failures |
 
 ---
@@ -82,7 +82,7 @@ Details: [ownership.md](ownership.md) · live map: `.athopia-sync/STRUCTURE.md`
 ## Protocol (always)
 
 ```
-Athopia Sync Progress:
+Nano Fotboll Sync Progress:
 - [ ] 0. Fingerprint + load brain (STATE, LEARNINGS, cache)
 - [ ] 1. Heal known gaps (self-heal loop)
 - [ ] 2. Inventory dirty layers only (or full if cold)
@@ -90,7 +90,7 @@ Athopia Sync Progress:
 - [ ] 4. Fix + verify (minimal gates)
 - [ ] 5. Document FINDINGS + LEARNINGS + STRUCTURE
 - [ ] 6. Rewrite IMPROVEMENTS + refresh cache -RunGates
-- [ ] 7. Update ATHOPIA-SYNC-STATE.md
+- [ ] 7. Update NANO FOTBOLL-SYNC-STATE.md
 - [ ] 8. Report (verdict + improvements)
 ```
 
@@ -101,7 +101,7 @@ cd "C:\Users\jardi\Athopia Build"
 pwsh -File ".athopia-sync/scripts/fingerprint.ps1"
 ```
 
-Read `cache.json` → `layersDirty`. Read `ATHOPIA-SYNC-STATE.md` Open gaps.  
+Read `cache.json` → `layersDirty`. Read `NANO FOTBOLL-SYNC-STATE.md` Open gaps.  
 Skim LEARNINGS matching those gap symptoms (L-IDs).
 
 ### 1. Self-heal known gaps
@@ -135,7 +135,7 @@ ios-only → usually wrong; add web API first
 ### 3. Plan (user-visible, short)
 
 ```markdown
-## Athopia Sync Plan — YYYY-MM-DD
+## Nano Fotboll Sync Plan — YYYY-MM-DD
 Mode: warm|cold · Dirty: …
 ### P0 …  ### P1 …  ### P2 …
 ### Heal from LEARNINGS: L-…
@@ -148,7 +148,7 @@ Mode: warm|cold · Dirty: …
 |-------|-----|
 | api / access / nav / contracts | `pnpm contracts:generate && contracts:check && test:parity` |
 | any web TS | `pnpm typecheck` |
-| ios | `pwsh -File athopia-ios/scripts/verify-pc-handoff.ps1` |
+| ios | `pwsh -File nano-ios/scripts/verify-pc-handoff.ps1` |
 | docs-only | fingerprint only — skip typecheck |
 
 Never hand-edit `contracts/generated/*` or `GeneratedProductContracts.swift`.
@@ -165,14 +165,14 @@ Templates: [self-heal.md](self-heal.md) · [checklists.md](checklists.md)
 
 ### 7. STATE
 
-Overwrite `ATHOPIA-SYNC-STATE.md` (verdict, done, open gaps, skips, next).
+Overwrite `NANO FOTBOLL-SYNC-STATE.md` (verdict, done, open gaps, skips, next).
 
 ### 8. Report to user (keep short)
 
 1. Verdict + warm/cold + dirty layers  
 2. Healed vs still open (Mac/founder called out)  
 3. **Improvement potential** — top 3 from IMPROVEMENTS.md with why  
-4. Next phrase: `Athopia Sync` · `Athopia Sync cold` · or one gap ID  
+4. Next phrase: `Nano Fotboll Sync` · `Nano Fotboll Sync cold` · or one gap ID  
 
 ---
 
@@ -218,4 +218,4 @@ Parent synthesizes — never paste raw sub-agent dumps to the user.
 - [checklists.md](checklists.md) — feature-wave + STATE template  
 - [examples.md](examples.md) — prompts  
 - Brain: `Athopia Build/.athopia-sync/*`  
-- Handoffs: `IOS-MAC-HANDOFF.md`, `athopia-web/contracts/README.md`
+- Handoffs: `IOS-MAC-HANDOFF.md`, `nano-fotboll/contracts/README.md`

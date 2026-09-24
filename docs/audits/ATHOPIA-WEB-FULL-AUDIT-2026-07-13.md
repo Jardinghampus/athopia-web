@@ -1,21 +1,21 @@
-# Athopia Web — full produkt-, UX-, teknik- och affärsaudit
+# Nano Fotboll Web — full produkt-, UX-, teknik- och affärsaudit
 
 Datum: 13 juli 2026  
-Produktionsmål: https://athopia-web.vercel.app  
-Kodbas: `athopia-web`  
+Produktionsmål: https://nano-fotboll.vercel.app  
+Kodbas: `nano-fotboll`  
 Status: rapport-only — inga produktions- eller kodändringar gjordes i denna audit
 
 ## Sammanfattning
 
-Athopia har en bra och försvarbar produktidé: **den bästa dagliga intelligensen om mitt allsvenska lag**, inte ännu en generell livescore-app. Kombinationen av klubbanpassat flöde, källsammanvägning, matchdata, forum, poddintelligens och en kort daglig brief är en tydlig svensk nisch som Forza Football, FotMob, Bolldata och Google News inte löser tillsammans.
+Nano Fotboll har en bra och försvarbar produktidé: **den bästa dagliga intelligensen om mitt allsvenska lag**, inte ännu en generell livescore-app. Kombinationen av klubbanpassat flöde, källsammanvägning, matchdata, forum, poddintelligens och en kort daglig brief är en tydlig svensk nisch som Forza Football, FotMob, Bolldata och Google News inte löser tillsammans.
 
-Produkten är däremot inte redo att konkurrera brett i nuvarande skick. Den tekniska omfattningen är hög — över 150 komponenter, 55 API-routes och 223 genererade sidor — men de viktigaste förtroende- och konverteringsdelarna är inte lika stabila som funktionsbredden. Liveversionen visar privat beta, Clerks `Development mode`, tre olika PRO-priser på olika ytor och en cookie-banner som täcker primära flöden på mobil. Dessutom pekar cirka 70 SEO-/checkout-referenser mot `athopia.se`, som inte är den verifierade produktionsdomänen.
+Produkten är däremot inte redo att konkurrera brett i nuvarande skick. Den tekniska omfattningen är hög — över 150 komponenter, 55 API-routes och 223 genererade sidor — men de viktigaste förtroende- och konverteringsdelarna är inte lika stabila som funktionsbredden. Liveversionen visar privat beta, Clerks `Development mode`, tre olika PRO-priser på olika ytor och en cookie-banner som täcker primära flöden på mobil. Dessutom pekar cirka 70 SEO-/checkout-referenser mot `nanofotboll.se`, som inte är den verifierade produktionsdomänen.
 
 Min helhetsbedömning är **56/100**. Konceptet är starkare än utförandets nuvarande lanseringsmognad.
 
 ### Rekommenderad position
 
-> Athopia är den dagliga kontrollcentralen för allsvenska supportrar: vad som hände, vad det betyder och vad som är värt att följa — för just ditt lag.
+> Nano Fotboll är den dagliga kontrollcentralen för allsvenska supportrar: vad som hände, vad det betyder och vad som är värt att följa — för just ditt lag.
 
 Försök inte vinna på flest ligor, snabbast målnotiser eller mest rådata. Vinn på **svensk kontext, källtillit, förklaring och vana**.
 
@@ -74,7 +74,7 @@ Detta är ett direkt konverterings- och förtroendefel. Den lokala worktreen inn
 
 ### 3. Primär domän och canonical-strategi är inte samordnade
 
-29 filer innehåller sammanlagt cirka 70 hårdkodade `https://athopia.se`-referenser för canonical, sitemap, JSON-LD, delning, Stripe-returer och billing portal. Den verifierade produktionen är `athopia-web.vercel.app`.
+29 filer innehåller sammanlagt cirka 70 hårdkodade `https://nanofotboll.se`-referenser för canonical, sitemap, JSON-LD, delning, Stripe-returer och billing portal. Den verifierade produktionen är `nano-fotboll.vercel.app`.
 
 Risker:
 
@@ -82,7 +82,7 @@ Risker:
 - Stripe kan skicka användaren till fel host om `NEXT_PUBLIC_BASE_URL` saknas/felkonfigureras.
 - Checkout-success går till `/konto`; ett domän- eller authfel här upplevs som att betalningen misslyckats.
 
-Åtgärd: välj en officiell produktiondomän. Antingen kopplas `athopia.se` korrekt och blir enda canonical, eller så används Vercel-domänen tills dess. Introducera `SITE_URL` på serversidan och ta bort hårdkodade domäner.
+Åtgärd: välj en officiell produktiondomän. Antingen kopplas `nanofotboll.se` korrekt och blir enda canonical, eller så används Vercel-domänen tills dess. Introducera `SITE_URL` på serversidan och ta bort hårdkodade domäner.
 
 ### 4. Lanseringsläget är motsägelsefullt
 
@@ -155,7 +155,7 @@ Detta kan vara rätt som acquisition-strategi, men då måste priset sälja någ
 
 ### SEO och innehållsstruktur
 
-24. **Dubbla titelsuffix.** Flera sidor deklarerar redan `| Athopia` samtidigt som root-layouten använder template `%s | Athopia`, vilket skapar `| Athopia | Athopia`.
+24. **Dubbla titelsuffix.** Flera sidor deklarerar redan `| Nano Fotboll` samtidigt som root-layouten använder template `%s | Nano Fotboll`, vilket skapar `| Nano Fotboll | Nano Fotboll`.
 25. **Team-hubbar saknar riktig H1 när `titleContent` används.** Teamnamnet renderas visuellt i `LargeTitleHeader`, men inte semantiskt som H1. Underflikar använder ibland H2 som sidrubrik.
 26. **Sitemap/canonical måste följa vald domän.** Generera från samma `SITE_URL`, inte hårdkodat på 29 ställen.
 27. **Schema.org-data är ambitiös men riskerar att signalera fel host.** Validera Organization, SportsEvent, Breadcrumb och Product efter domänfix.
@@ -184,7 +184,7 @@ Detta kan vara rätt som acquisition-strategi, men då måste priset sälja någ
 ### Brister och rekommendationer
 
 33. **Checkout läcker leverantörsdetalj.** Vid Stripe-fel returneras `detail: msg` till klienten. Logga detaljen server-side/Sentry och returnera en stabil felkod.
-34. **Checkout bas-URL har farlig fallback.** Om env saknas används `https://athopia.se`. Fail fast i production i stället för fallback.
+34. **Checkout bas-URL har farlig fallback.** Om env saknas används `https://nanofotboll.se`. Fail fast i production i stället för fallback.
 35. **Match- och Elite-chat accepterar ovalidierade message-arrays.** Lägg Zod-schema, max antal meddelanden, max tecken och tillåtna roller.
 36. **Match-chat interpolerar klientstyrda fixture/lagfält i systemprompt.** Hämta matchkontext server-side från fixture-id och behandla all extern text som data, inte instruktion.
 37. **Forum-summarizer interpolerar användarinnehåll i prompt och publicerar resultat.** Lägg tydlig prompt boundary, output-schema, moderation och “AI-sammanfattning”-etikett.
@@ -272,7 +272,7 @@ De är bra differentierare men bör inte alla vara top-level-produktlöften samt
 
 ## Vad som saknas
 
-1. Tydlig källa- och metodsida: hur Athopia väljer, sammanfattar och rättar.
+1. Tydlig källa- och metodsida: hur Nano Fotboll väljer, sammanfattar och rättar.
 2. “Senast uppdaterad” på statistik och nyhetssignaler.
 3. Feedback: mer/mindre av detta, dölj källa, rapportera felaktighet.
 4. Redaktionspolicy, AI-policy och rättelseflöde.
@@ -296,35 +296,35 @@ De är bra differentierare men bör inte alla vara top-level-produktlöften samt
 - All-caps som standardrubrik.
 - Claims om “hundratals källor varje dygn” utan synligt bevis.
 
-## Kan Athopia konkurrera?
+## Kan Nano Fotboll konkurrera?
 
 ### Forza Football
 
-Forza uppger 1 450+ tävlingar, snabba anpassningsbara pushnotiser, händelseflöde, highlights, startelvor, TV-guide och spelarstatistik. Athopia ska inte försöka matcha den globala infrastrukturen. [Forza Football på Google Play](https://play.google.com/store/apps/details?id=se.footballaddicts.livescore)
+Forza uppger 1 450+ tävlingar, snabba anpassningsbara pushnotiser, händelseflöde, highlights, startelvor, TV-guide och spelarstatistik. Nano Fotboll ska inte försöka matcha den globala infrastrukturen. [Forza Football på Google Play](https://play.google.com/store/apps/details?id=se.footballaddicts.livescore)
 
-Athopias vinstyta: mycket djupare Allsvenskan, svensk källkontext, vad en händelse betyder för mitt lag och en daglig supporterbrief.
+Nano Fotbolls vinstyta: mycket djupare Allsvenskan, svensk källkontext, vad en händelse betyder för mitt lag och en daglig supporterbrief.
 
 ### FotMob
 
 FotMob positionerar sig på live scores, detaljerad statistik och breaking news från 500+ ligor; appbeskrivningen lyfter även personliga alerts, xG, shot maps, highlights, livekommentar och TV-schema. [FotMob](https://www.fotmob.com/en/download)
 
-Athopia ska använda livescore som hygienfaktor, inte huvudsakligt skäl att byta. “Jag förstår mitt lag snabbare” är bättre än “vi har också matcher”.
+Nano Fotboll ska använda livescore som hygienfaktor, inte huvudsakligt skäl att byta. “Jag förstår mitt lag snabbare” är bättre än “vi har också matcher”.
 
 ### Bolldata
 
 Bolldata är redan starkt på Allsvenskan: tabell/xP över många säsonger, xG/xA/xP, spelarfiilter, diagram och lagjämförelser. [Bolldata](https://bolldata.se/)
 
-Athopia kan vinna på begriplighet och personalisering, men inte om statistik visar tom data, mockfallback eller saknar uppdateringstid. Bolldata är riktmärket för datadjup; Athopia bör lägga ett narrativt lager ovanpå.
+Nano Fotboll kan vinna på begriplighet och personalisering, men inte om statistik visar tom data, mockfallback eller saknar uppdateringstid. Bolldata är riktmärket för datadjup; Nano Fotboll bör lägga ett narrativt lager ovanpå.
 
 ### Google News
 
 Google News låter användaren följa lag/ämnen/källor, visa mer eller mindre av en typ och dölja källor. [Google News personalisering](https://support.google.com/googlenews/answer/9010862?hl=en)
 
-Athopia kan vinna eftersom Google inte är byggt för allsvensk matchkontext, xG, supporterforum och poddintelligens i en klubbloop. Men Athopia behöver motsvarande användarkontroll och källtransparens.
+Nano Fotboll kan vinna eftersom Google inte är byggt för allsvensk matchkontext, xG, supporterforum och poddintelligens i en klubbloop. Men Nano Fotboll behöver motsvarande användarkontroll och källtransparens.
 
 ### Slutsats
 
-**Ja, Athopia kan konkurrera som den bästa Allsvenskan-produkten för daglig klubbintelligens. Nej, Athopia bör inte konkurrera head-on som global livescore- eller generell nyhetsaggregator.**
+**Ja, Nano Fotboll kan konkurrera som den bästa Allsvenskan-produkten för daglig klubbintelligens. Nej, Nano Fotboll bör inte konkurrera head-on som global livescore- eller generell nyhetsaggregator.**
 
 Den smalaste vinnande wedgen är:
 
@@ -415,4 +415,4 @@ Pausa ny featureutveckling i två sprintar. Lägg allt fokus på:
 4. Mitt lag som daglig vana,
 5. mätbar retention.
 
-Athopia behöver inte fler sidor för att bli konkurrenskraftigt. Det behöver en kortare väg till ett ögonblick där användaren tänker: **“Nu vet jag allt viktigt om mitt lag, och jag behövde inte öppna nio andra appar.”**
+Nano Fotboll behöver inte fler sidor för att bli konkurrenskraftigt. Det behöver en kortare väg till ett ögonblick där användaren tänker: **“Nu vet jag allt viktigt om mitt lag, och jag behövde inte öppna nio andra appar.”**

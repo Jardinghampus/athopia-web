@@ -1,4 +1,4 @@
-# Athopia — arkitekturritning
+# Nano Fotboll — arkitekturritning
 
 > **Princip:** Write-time intelligence (os), read-time presentation (web). Inga Sportmonks- eller RSS-anrop från klienter.
 
@@ -6,7 +6,7 @@
 
 ```mermaid
 flowchart TB
-  subgraph ingest [Ingest — athopia-os]
+  subgraph ingest [Ingest — nano-os]
     RSS[RSS / Podcast feeds]
     SM[Sportmonks API]
   end
@@ -31,7 +31,7 @@ flowchart TB
     POD[(podcasts)]
   end
 
-  subgraph web [athopia-web — Vercel]
+  subgraph web [nano-fotboll — Vercel]
     Feed[Mitt feed / API]
     Hub[Lag-hub / brief]
     MatchUI[Matchsida]
@@ -62,11 +62,11 @@ flowchart TB
 
 | Lager | Äger | Får inte |
 |-------|------|----------|
-| **Ingest** | athopia-os | Publicera rå RSS-text |
-| **Intelligence** | athopia-os (Echo, Milo, Pulse) | Köra LLM i page requests |
+| **Ingest** | nano-os | Publicera rå RSS-text |
+| **Intelligence** | nano-os (Echo, Milo, Pulse) | Köra LLM i page requests |
 | **Data** | Supabase | — |
-| **Product** | athopia-web | Skriva Sportmonks, fabricera stats |
-| **Control** | athopia-admin | Exponeras publikt utan auth |
+| **Product** | nano-fotboll | Skriva Sportmonks, fabricera stats |
+| **Control** | nano-admin | Exponeras publikt utan auth |
 
 ## Kärntabeller & views
 
@@ -100,8 +100,8 @@ flowchart TB
 
 | Spår | Budget | Plats |
 |------|--------|-------|
-| **Pipeline AI** | `withBudget()`, `agent_logs` | athopia-os |
-| **User-facing chat** | `chat_usage`, $50/mån cap | athopia-web `/api/*/chat` |
+| **Pipeline AI** | `withBudget()`, `agent_logs` | nano-os |
+| **User-facing chat** | `chat_usage`, $50/mån cap | nano-fotboll `/api/*/chat` |
 
 → Se [AI_FIX_GUIDE.md](./AI_FIX_GUIDE.md) för felsökning.
 
@@ -109,7 +109,7 @@ flowchart TB
 
 | Yta | Host | Repo |
 |-----|------|------|
-| athopia.se | Vercel | athopia-web |
-| os.athopia.se | Vercel | athopia-admin |
-| Agenter | Hetzner 135.181.107.47 | athopia-os Docker |
+| nanofotboll.se | Vercel | nano-fotboll |
+| os.nanofotboll.se | Vercel | nano-admin |
+| Agenter | Hetzner 135.181.107.47 | nano-os Docker |
 | DB | Supabase fmwjmrtqvdxswlimroqx | migrations i os |

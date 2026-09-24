@@ -1,4 +1,4 @@
-# DESIGN.md — Athopia visuella system
+# DESIGN.md — Nano Fotboll visuella system
 
 > Läses av alla `/impeccable`-kommandon. Visuell sanning: färg, typografi,
 > komponenter, rörelse. Regenererad 2026-08-07 direkt ur koden (`app/layout.tsx`,

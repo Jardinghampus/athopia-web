@@ -1,4 +1,4 @@
-# UX-audit athopia-web — sportmedia-perspektiv, 2026-08-07
+# UX-audit nano-fotboll — sportmedia-perspektiv, 2026-08-07
 
 Genomgång i Chrome som **inloggad Elite-användare** (så inget är paywall-dolt),
 plus ett mätande mobilsvep (390×844) över 14 ytor. Bedömd mot hur en supporter
@@ -33,12 +33,12 @@ Verifierat i databasen:
 | 19635933 | IFK Göteborg–Degerfors | `LIVE` | 2026-08-02 12:00Z | 2026-08-02 14:07Z |
 
 Sync:en slutade skriva till dem två timmar efter avspark och markerade dem
-aldrig som spelade. Rotorsaken ligger i `athopia-os`, men **web bör inte lita
+aldrig som spelade. Rotorsaken ligger i `nano-os`, men **web bör inte lita
 blint på fältet**: en matchdagsprodukt som säger "pågår nu" om en match från
 förra söndagen har förlorat läsaren. Lägg en visningsvakt — rendera aldrig
 LIVE när avsparken är mer än ~3 timmar gammal, oavsett status.
 
-Sidoeffekt att kontrollera: enligt `athopia-os/CLAUDE.md` pollas live-data bara
+Sidoeffekt att kontrollera: enligt `nano-os/CLAUDE.md` pollas live-data bara
 när det finns LIVE-fixtures. Två permanent låsta LIVE-rader kan alltså hålla
 live-pollaren igång i onödan.
 
@@ -194,11 +194,11 @@ scroll — den delen är ren.
   "Premiumlugn" enligt brandboken tål inte emoji i navigationen.
 - `/allsvenskan/tabell` har **dubblerad breadcrumb** — "Allsvenskan › Tabell"
   två gånger under varandra.
-- `/analys` har en orange eyebrow ("ATHOPIA AI") i en annars grön palett.
+- `/analys` har en orange eyebrow ("NANO FOTBOLL AI") i en annars grön palett.
 - `xG-tabell` (på `/statistik`) och `xP-tabell` (på `/allsvenskan`) — två namn
   som ser ut som stavfel av varandra. Om de är olika saker behöver de förklaras;
   om de är samma sak behöver de heta samma.
-- `/daily` visar "Dela länken: athopia-web.vercel.app /daily" — vercel-domänen
+- `/daily` visar "Dela länken: nano-fotboll.vercel.app /daily" — vercel-domänen
   som delningslänk.
 
 ---
@@ -310,7 +310,7 @@ Kvar är brödsmulor och "Läs mer"-länkar, som är inline-text.
   som läsaren ser.
 
 **Kvar, medvetet inte åtgärdat:** de två identiska analysrubrikerna
-("matchen som vände på små marginaler") kommer ur generatorn i `athopia-os`,
+("matchen som vände på små marginaler") kommer ur generatorn i `nano-os`,
 inte ur web. Densiteten på `/mitt-lag` och `/lag/[slug]` är en layoutomgörning,
 inte polish — den ligger kvar på listan.
 
@@ -333,7 +333,7 @@ inte polish — den ligger kvar på listan.
 - **`/mitt-lag` låg i en 768px-kolumn** med ~340px tomt på varje sida vid
   1440px. Från `xl` två spalter: daglig ritual till vänster, stödytor till
   höger. Under `xl` oförändrad.
-- **Laghubben visade samma analys två gånger.** Generatorn i `athopia-os`
+- **Laghubben visade samma analys två gånger.** Generatorn i `nano-os`
   skriver en ny rad varje dygn även när slutsatsen är oförändrad — tre rader
   med identisk rubrik och identisk konfidens (0.950). Eftersom urvalet sorterar
   på confidence först hamnade tre exemplar överst. Web dedupar nu på rubrik.

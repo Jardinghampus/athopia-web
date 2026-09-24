@@ -2,13 +2,13 @@
 
 ## Uppdrag till Claude Code
 
-Ta över granskningen och förbättringsarbetet i `athopia-web`. Börja med att förstå befintligt arbete och den fullständiga auditen. Åtgärda sedan problemen i prioriterad ordning, utan att skriva över de lokala ändringar som redan finns.
+Ta över granskningen och förbättringsarbetet i `nano-fotboll`. Börja med att förstå befintligt arbete och den fullständiga auditen. Åtgärda sedan problemen i prioriterad ordning, utan att skriva över de lokala ändringar som redan finns.
 
 Målet är inte bara att få gröna tester. Målet är en trovärdig, begriplig och säker produkt där en ny användare snabbt förstår värdet, väljer sitt lag, kommer in i sin dagliga fotbollsupplevelse och kan uppgradera utan motsägelser eller tekniska risker.
 
-Produktionsadress som granskades: <https://athopia-web.vercel.app>
+Produktionsadress som granskades: <https://nano-fotboll.vercel.app>
 
-Fullständig audit: [`docs/audits/ATHOPIA-WEB-FULL-AUDIT-2026-07-13.md`](docs/audits/ATHOPIA-WEB-FULL-AUDIT-2026-07-13.md)
+Fullständig audit: [`docs/audits/nano-fotboll-FULL-AUDIT-2026-07-13.md`](docs/audits/nano-fotboll-FULL-AUDIT-2026-07-13.md)
 
 Auditens nulägesbetyg: **56/100**.
 
@@ -20,7 +20,7 @@ Läs följande filer helt innan du ändrar kod:
 2. `CLAUDE.md`
 3. `PRODUCT.md`
 4. `DESIGN.md`
-5. `docs/audits/ATHOPIA-WEB-FULL-AUDIT-2026-07-13.md`
+5. `docs/audits/nano-fotboll-FULL-AUDIT-2026-07-13.md`
 6. Denna hand-over
 
 Gör därefter detta innan första ändringen:
@@ -88,7 +88,7 @@ Den lokala diffen ser ut att vara en pågående monetiserings- och behörighetso
 
 - centraliserar priser och lägger till sju dagars trial i `lib/pricing.ts`;
 - ändrar landningssidans pris- och trial-copy;
-- lägger PRO-gating på AI-sammanfattningar och Athopia AI-innehåll;
+- lägger PRO-gating på AI-sammanfattningar och Nano Fotboll AI-innehåll;
 - lägger PRO-gating på forumets AI-sammanfattning;
 - lägger PRO-gating på Transfer Radar;
 - gate:ar den globala forum-popupen genom `ForumSummaryPopupGate`;
@@ -101,11 +101,11 @@ Detta är **inte verifierat eller färdigt bara för att diffen finns**. Särski
 - Kontrollera att befintliga betalande användare behåller rätt åtkomst.
 - Kontrollera `free`, `pro` och `elite` separat.
 - Kontrollera att den nya paketeringen stämmer med `PRODUCT.md` och faktisk Stripe-konfiguration.
-- Kontrollera att Athopia inte tar bort för mycket gratisvärde och därmed dödar vanebyggandet.
+- Kontrollera att Nano Fotboll inte tar bort för mycket gratisvärde och därmed dödar vanebyggandet.
 
 ## Produktbedömning att utgå från
 
-Athopias starkaste möjliga position är inte att vara ännu en livescore-app. Den trovärdiga kilen är:
+Nano Fotbolls starkaste möjliga position är inte att vara ännu en livescore-app. Den trovärdiga kilen är:
 
 > **Allsvenskans dagliga intelligenslager för mitt lag — sammanfattat, personligt och snabbare att förstå.**
 
@@ -114,7 +114,7 @@ Det kan konkurrera med större aktörer genom fokus, inte genom bredd:
 - Forza/FotMob: starkare på livescore, matchdata och generell täckning.
 - Google News: starkare på generell aggregation och distribution.
 - Bolldata och statistikprodukter: starkare inom vissa datadjup.
-- Athopia kan vinna på team-first onboarding, svensk kontext, källsammanvägning, AI-brief, supportersamtal och ett tydligt dagligt beteende.
+- Nano Fotboll kan vinna på team-first onboarding, svensk kontext, källsammanvägning, AI-brief, supportersamtal och ett tydligt dagligt beteende.
 
 Prioritera därför kärnloopen:
 
@@ -124,7 +124,7 @@ Prioritera därför kärnloopen:
 4. Fördjupa sig i nyheter, match, forum eller podd.
 5. Få anledning att komma tillbaka via relevanta notifieringar och nästa brief.
 
-Bygg inte bredd bara för att efterlikna en stor app. Förstärk det Athopia kan vara bäst på.
+Bygg inte bredd bara för att efterlikna en stor app. Förstärk det Nano Fotboll kan vara bäst på.
 
 ## Åtgärdsordning
 
@@ -206,7 +206,7 @@ Om produkten ska vara öppen:
 
 #### 4. Centralisera publik bas-URL och canonical
 
-Auditen hittade cirka 70 förekomster i 29 filer av hårdkodade `https://athopia.se`, medan den verifierade live-adressen var `https://athopia-web.vercel.app`.
+Auditen hittade cirka 70 förekomster i 29 filer av hårdkodade `https://nanofotboll.se`, medan den verifierade live-adressen var `https://nano-fotboll.vercel.app`.
 
 Det påverkar bland annat:
 
@@ -222,7 +222,7 @@ Det påverkar bland annat:
 - validera URL:en server-side;
 - använd Vercel-preview-URL endast för previews;
 - sätt produktionens canonical till den domän som faktiskt är kopplad och fungerar;
-- behåll en framtida `athopia.se`-växling som konfiguration, inte hårdkodning.
+- behåll en framtida `nanofotboll.se`-växling som konfiguration, inte hårdkodning.
 
 Acceptans:
 
@@ -517,7 +517,7 @@ Varje grupp ska ha:
 - live Supabase RLS/policies direkt mot produktionsprojektet;
 - planövergång free → pro → elite → nedgraderad;
 - riktig pushnotis på fysisk enhet;
-- faktisk DNS/custom domain-status för `athopia.se`;
+- faktisk DNS/custom domain-status för `nanofotboll.se`;
 - Lighthouse/Core Web Vitals under kontrollerade produktionsförhållanden.
 
 Gör inga antaganden om dessa. Testa eller märk dem uttryckligen som blockerade av extern åtkomst.

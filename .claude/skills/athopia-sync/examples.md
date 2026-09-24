@@ -1,8 +1,8 @@
-# Athopia Sync — examples
+# Nano Fotboll Sync — examples
 
 ## Warm Sync (default)
 
-User: `Athopia Sync`
+User: `Nano Fotboll Sync`
 
 1. `fingerprint.ps1` → dirty = `api` only  
 2. Read STATE gaps + L-004  
@@ -13,7 +13,7 @@ User: `Athopia Sync`
 
 ## Cold Sync
 
-User: `Athopia Sync cold`
+User: `Nano Fotboll Sync cold`
 
 Full layer inventory; re-skim constitutions; rewrite STRUCTURE if needed.
 

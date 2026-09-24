@@ -1,4 +1,4 @@
-# Athopia Sync — checklists
+# Nano Fotboll Sync — checklists
 
 ## Feature-wave (copy per feature)
 
@@ -42,16 +42,16 @@ Source: <os|web|admin|ios> · Supporter question: <one line>
 - [ ] STRUCTURE.md if SoT/IA changed
 - [ ] IMPROVEMENTS.md rewritten (top ideas + ≥1 efficiency)
 - [ ] fingerprint.ps1 -RunGates
-- [ ] ATHOPIA-SYNC-STATE.md overwritten
+- [ ] NANO FOTBOLL-SYNC-STATE.md overwritten
 - [ ] User report includes top 3 improvements
 ```
 
 ## STATE template
 
-Write `Athopia Build/ATHOPIA-SYNC-STATE.md`:
+Write `Athopia Build/NANO FOTBOLL-SYNC-STATE.md`:
 
 ```markdown
-# ATHOPIA-SYNC-STATE
+# NANO FOTBOLL-SYNC-STATE
 > Updated: … · Trigger: … · Mode: warm|cold · Dirty: …
 
 ## Verdict

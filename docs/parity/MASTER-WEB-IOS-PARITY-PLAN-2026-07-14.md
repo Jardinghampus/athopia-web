@@ -1,8 +1,8 @@
-# Athopia Masterbuild: Web ↔ iOS Parity
+# Nano Fotboll Masterbuild: Web ↔ iOS Parity
 
 > Datum: 2026-07-14  
 > Status: besluts- och exekveringsplan  
-> Omfattning: `athopia-web`, `athopia-ios` samt nödvändiga API-/pushkontrakt  
+> Omfattning: `nano-fotboll`, `nano-ios` samt nödvändiga API-/pushkontrakt  
 > Mål: användaren ska känna igen samma Athopia-produkt, konto, rättigheter,
 > innehåll och navigationslogik på webb och iOS. Presentationen ska vara
 > pixelnära inom respektive plattform och följa plattformens egna idiom.
@@ -25,7 +25,7 @@ font rendering, safe areas och native kontroller skiljer sig. Cross-platform-gat
 
 ### 1.2 Rekommenderad kanonisk toppnavigation
 
-Utgå från faktisk produktkod i `athopia-web/lib/nav.ts`:
+Utgå från faktisk produktkod i `nano-fotboll/lib/nav.ts`:
 
 1. Mitt lag
 2. Flöde
@@ -70,7 +70,7 @@ Funktionsrättigheter ska vara identiska, men betaltransporten är plattformsspe
 - Webb: Stripe Checkout + Clerk webhook (alltid, oberoende av iOS-path).
 - **FOUNDERBESLUT 2026-07-14 — D3 = C:** ingen iOS-commerce skeppas förrän
   Apple svarat på reader-app / External Link Account. Mål: undvik Apple-skatt
-  (15–30 %) om Athopia kvalificerar som reader.
+  (15–30 %) om Nano Fotboll kvalificerar som reader.
 - Fram till svar: iOS kan vara **login + läs redan köpt plan** (konto skapas på web),
   men **ingen StoreKit-köpknapp och ingen Stripe-länk i appen**.
 - Om Apple **godkänner** reader: Stripe via External Link Account API
@@ -91,14 +91,14 @@ Genomförd PC-slice:
 - Native system-`TabView` med fem destinationer, sidebar-anpassning och
   `tabBarMinimizeBehavior(.onScrollDown)` på iOS 26. Custom tab bar och
   navigationens materialöverskrivningar är borttagna.
-- Native Athopia AI och native artikelreader. `/api/articles/[slug]` levererar
+- Native Nano Fotboll AI och native artikelreader. `/api/articles/[slug]` levererar
   rättighetsrensad, plan-gatead artikeldata; externa källor lämnar aldrig
   tredjepartsbrödtext till appen.
-- Native Allsvenskan-hub, Athopia Daily med PRO-gateat signerat ljud,
+- Native Allsvenskan-hub, Nano Fotboll Daily med PRO-gateat signerat ljud,
   matchanalyser, poddindex/episodmetadata och djupa forumtrådar. Nya BFF-kontrakt
   är rättighets- och planrensade på servern.
 - APNs device-token API, datamodell och iOS-sync efter login samt cleanup vid
-  logout. Själva APNs-sändaren hör hemma i `athopia-os` och återstår.
+  logout. Själva APNs-sändaren hör hemma i `nano-os` och återstår.
 - Officiella ClerkKit/ClerkKitUI ersätter det tidigare ofullständiga
   webcallback-flödet. Session-token förnyas inför autentiserade API-anrop och
   profil/plan läses serververifierat.
@@ -161,7 +161,7 @@ Kvarvarande releasegates:
 - Universal Links/AASA-route, associated domains och native route-dispatch är
   implementerade; `APPLE_TEAM_ID` och Apple-capabilities återstår i deployment.
 - Slutlig feature/API-audit för sekundära statistik- och gamificationflöden.
-- `athopia-os` APNs-sändare och fysisk device-test.
+- `nano-os` APNs-sändare och fysisk device-test.
 - Snapshot/XCUITest, StoreKit sandbox/TestFlight och slutlig visuell pixeljustering.
 
 ### 2.1 Web — baseline före exekveringen
@@ -204,7 +204,7 @@ implementation och kvarvarande gates står i 2.0 ovan.
 
 ## 3. Gemensamt produktkontrakt
 
-Skapa `contracts/` på workspace-nivå eller i `athopia-web` med publicerade,
+Skapa `contracts/` på workspace-nivå eller i `nano-fotboll` med publicerade,
 versionsmärkta artefakter. Webben äger serverkontrakten; båda klienterna konsumerar.
 
 ### 3.1 Artefakter
