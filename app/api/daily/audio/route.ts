@@ -1,3 +1,4 @@
+import { SPORT } from "@/lib/vertical";
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import { canAccess } from "@/lib/access-rules";
@@ -35,7 +36,7 @@ export async function GET(req: NextRequest) {
     .from("generated_episodes" as never)
     .select("audio_storage_path, audio_url, status")
     .eq("slug", slug)
-    .eq("sport", "football")
+    .eq("sport", SPORT)
     .eq("status", "published")
     .maybeSingle();
 

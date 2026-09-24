@@ -1,3 +1,4 @@
+import { SPORT, vertical } from "@/lib/vertical";
 import { NextResponse } from "next/server";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import { enforceRateLimit } from "@/lib/ratelimit";
@@ -22,7 +23,7 @@ export async function GET(req: Request) {
         supabase
           .from("articles")
           .select("id,slug,title")
-          .eq("sport", "football")
+          .eq("sport", SPORT)
           .eq("status", "published")
           .not("slug", "is", null)
           .neq("slug", "")
@@ -32,19 +33,20 @@ export async function GET(req: Request) {
           .from("entities")
           .select("id,slug,name")
           .eq("type", "team")
-          .eq("metadata->>league", "Allsvenskan")
+          .eq("sport", SPORT)
+          .eq("metadata->>league", vertical.leagueEntity)
           .ilike("name", `%${q}%`)
           .limit(6),
         supabase
           .from("players")
           .select("sportmonks_id,slug,fullname")
-          .eq("sport", "football")
+          .eq("sport", SPORT)
           .ilike("fullname", `%${q}%`)
           .limit(6),
         supabase
           .from("podcasts")
           .select("id,title,rss_sources!inner(sport)")
-          .eq("rss_sources.sport", "football")
+          .eq("rss_sources.sport", SPORT)
           .ilike("title", `%${q}%`)
           .limit(6),
       ]);

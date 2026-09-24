@@ -1,4 +1,5 @@
 import "server-only";
+import { SPORT } from "@/lib/vertical";
 
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import {
@@ -34,7 +35,7 @@ export async function getTransferRadar(teamSlug: string): Promise<TransferRadarI
     const { data } = await db
       .from("articles")
       .select("id, slug, title, source_name, published_at, source_count, duplicate_sources")
-      .eq("sport", "football")
+      .eq("sport", SPORT)
       .eq("status", "published")
       .eq("event_type", "transfer")
       .contains("entity_ids", [entity.id])

@@ -1,3 +1,4 @@
+import { SPORT } from "@/lib/vertical";
 import { NextResponse } from "next/server";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 
@@ -17,6 +18,7 @@ export async function GET() {
       .from("articles")
       .select("published_at", { count: "exact" })
       .eq("status", "published")
+      .eq("sport", SPORT)
       .gte("published_at", since)
       .order("published_at", { ascending: false })
       .limit(1);

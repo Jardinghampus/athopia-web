@@ -1,3 +1,4 @@
+import { SPORT } from "@/lib/vertical";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import type { Narrative, Entity, Article } from "@/lib/types";
 
@@ -74,7 +75,7 @@ export async function getTeamNarratives(teamEntityId: string): Promise<Narrative
     const { data, error } = await supabase
       .from("narratives")
       .select("*")
-      .eq("sport", "football")
+      .eq("sport", SPORT)
       .contains("entity_ids", [teamEntityId])
       .order("importance_score", { ascending: false })
       .limit(8);

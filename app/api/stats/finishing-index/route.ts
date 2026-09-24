@@ -1,3 +1,4 @@
+import { SPORT } from "@/lib/vertical";
 import { NextResponse } from "next/server";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 
@@ -12,7 +13,7 @@ export async function GET() {
   const { data } = await db
     .from("stats_finishing_index")
     .select("player_id,goals,xg,overperf,ratio,goals_p90,xg_p90,overperf_percentile,regression_warning,computed_at")
-    .eq("sport", "football")
+    .eq("sport", SPORT)
     .eq("season_id", seasonId)
     .order("overperf", { ascending: false })
     .limit(25);

@@ -2,8 +2,9 @@
 
 import { auth } from '@clerk/nextjs/server'
 import { createServerClient, isSupabaseConfigured } from '@/lib/supabase'
+import { SPORT } from '@/lib/vertical'
 
-export async function toggleFollow(entityId: string, sport = 'football') {
+export async function toggleFollow(entityId: string, sport: string = SPORT) {
   const { userId } = await auth()
   if (!userId) return { error: 'not_authenticated' }
   if (!isSupabaseConfigured()) return { error: 'db_not_configured' }

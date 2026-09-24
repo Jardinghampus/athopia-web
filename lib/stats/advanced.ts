@@ -1,3 +1,4 @@
+import { SPORT } from "@/lib/vertical";
 /**
  * lib/stats/advanced.ts — delade queries för projektion/luck/clutch (audit T5).
  * Konsumeras av både API-routes (iOS-kontrakt, oförändrade) och
@@ -40,7 +41,7 @@ export const getProjectionRows = unstable_cache(
     const { data } = await db
       .from("stats_season_projection")
       .select("team_id,current_points,elo,p_champion,p_top3,p_relegation,p_playoff,n_sims,computed_at")
-      .eq("sport", "football")
+      .eq("sport", SPORT)
       .eq("season_id", seasonId())
       .order("p_champion", { ascending: false });
     if (!data?.length) return [];
@@ -69,7 +70,7 @@ export const getScheduleFormRows = unstable_cache(
     const { data } = await db
       .from("stats_schedule_form")
       .select("team_id,actual_points,xpts,luck,sos,computed_at")
-      .eq("sport", "football")
+      .eq("sport", SPORT)
       .eq("season_id", seasonId())
       .order("luck", { ascending: false });
     if (!data?.length) return [];
@@ -96,7 +97,7 @@ export const getClutchRows = unstable_cache(
     const { data } = await db
       .from("stats_clutch")
       .select("player_id,goals,clutch_score,trailing_goals,level_goals,leading_goals,computed_at")
-      .eq("sport", "football")
+      .eq("sport", SPORT)
       .eq("season_id", seasonId())
       .order("clutch_score", { ascending: false })
       .limit(25);

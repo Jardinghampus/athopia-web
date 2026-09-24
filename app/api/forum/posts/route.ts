@@ -1,3 +1,4 @@
+import { SPORT } from "@/lib/vertical";
 import { NextRequest, NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
@@ -13,7 +14,7 @@ const ForumPostSchema = z.object({
   root_id: z.string().uuid().optional(),
   quoted_post_id: z.string().uuid().optional(),
   team_slug: z.string().max(100).optional(),
-  sport: z.enum(["football", "golf"]).default("football"),
+  sport: z.enum(["football", "hockey", "golf"]).default(SPORT),
   label: z.enum(["transfer", "taktik", "match", "rykte", "diskussion"]).nullable().optional(),
   article_id: z.string().uuid().nullable().optional(),
 });
@@ -27,7 +28,7 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const teamSlug = searchParams.get("teamSlug");
-    const sport = searchParams.get("sport") ?? "football";
+    const sport = searchParams.get("sport") ?? SPORT;
     const sort = searchParams.get("sort") ?? "hot";
     const rootId = searchParams.get("rootId");
     const postId = searchParams.get("postId");

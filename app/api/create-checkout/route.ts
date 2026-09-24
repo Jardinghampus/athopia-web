@@ -51,6 +51,7 @@ import {
   reserveFounderSeat,
 } from "@/lib/waitlist/cohort";
 import { getSiteUrl } from "@/lib/site-url";
+import { VERTICAL, vertical } from "@/lib/vertical";
 
 export async function POST(req: Request & { headers: Headers }) {
   // Lazy-init Stripe för att undvika build-time env-krav
@@ -89,7 +90,8 @@ export async function POST(req: Request & { headers: Headers }) {
   // faktiskt gick att reservera.
   let founder = false;
   let claimedPot = false;
-  if (plan === "pro") {
+  // Hockey får inte ta en plats i fotbollens Founder-pott.
+  if (VERTICAL !== "hockey" && plan === "pro") {
     const [waitlist, publicFounder] = await Promise.all([
       loadWaitlistByClerkUser(userId),
       isFounderOfferPublic(),
@@ -124,7 +126,7 @@ export async function POST(req: Request & { headers: Headers }) {
           price_data: {
             currency: "sek",
             product_data: {
-              name: `Nano Fotboll ${planMeta.label}`,
+              name: `${vertical.productName} ${planMeta.label}`,
               description:
                 interval === "year"
                   ? `${planMeta.label}-prenumeration, årsvis (${discountPct} % rabatt)`
@@ -137,12 +139,12 @@ export async function POST(req: Request & { headers: Headers }) {
         },
       ],
       client_reference_id: userId,
-      metadata: { clerkUserId: userId, plan, interval, founder: founderFlag, founderClaimedPot: String(claimedPot) },
+      metadata: { clerkUserId: userId, plan, interval, founder: founderFlag, founderClaimedPot: String(claimedPot), vertical: VERTICAL },
       success_url: `${base}/konto?checkout=success`,
       cancel_url: `${base}/prenumerera`,
       subscription_data: {
         trial_period_days: TRIAL_DAYS,
-        metadata: { clerkUserId: userId, plan, interval, founder: founderFlag, founderClaimedPot: String(claimedPot) },
+        metadata: { clerkUserId: userId, plan, interval, founder: founderFlag, founderClaimedPot: String(claimedPot), vertical: VERTICAL },
       },
     });
 

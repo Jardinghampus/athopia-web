@@ -1,3 +1,4 @@
+import { SPORT } from "@/lib/vertical";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -14,7 +15,6 @@ import { PlayerAvatar } from "@/components/ui/PlayerAvatar";
 export const revalidate = 60;
 
 const SEASON_2026 = 26806;
-const SPORT = "football";
 
 const POS_SV: Record<string, string> = {
   goalkeeper: "Målvakt", defender: "Försvarare",

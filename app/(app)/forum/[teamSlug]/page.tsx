@@ -1,3 +1,4 @@
+import { SPORT } from "@/lib/vertical";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { TeamNav } from "@/components/team-hub/TeamNav";
@@ -30,7 +31,7 @@ async function getPosts(teamSlug: string): Promise<ForumPost[]> {
       .from("forum_posts")
       .select("*")
       .eq("team_slug", teamSlug)
-      .eq("sport", "football")
+      .eq("sport", SPORT)
       .eq("status", "published")
       .is("parent_id", null)
       .order("hot_score", { ascending: false })
@@ -78,6 +79,7 @@ export default async function ForumTeamPage({
         .from("articles")
         .select("id, title, slug")
         .eq("id", artikel)
+        .eq("sport", SPORT)
         .maybeSingle();
       if (data) articlePrefill = data as { id: string; title: string; slug: string };
     } catch {
@@ -174,7 +176,7 @@ export default async function ForumTeamPage({
               {/* Feed — no horizontal padding, posts use full-bleed border-b style */}
               <ForumClient
                 teamSlug={teamSlug}
-                sport="football"
+                sport={SPORT}
                 initialPosts={posts}
                 articlePrefill={articlePrefill}
               />

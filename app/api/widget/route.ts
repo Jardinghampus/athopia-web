@@ -1,3 +1,4 @@
+import { SPORT } from "@/lib/vertical";
 import { createClient } from "@supabase/supabase-js";
 import {
   fetchAllsvenskanFixtures,
@@ -117,7 +118,7 @@ export async function GET(req: Request) {
     .select(
       "id, title, source_name, url, published_at, summary, importance_score, entity_ids, news_tag, source_count, story_cluster_id, push_priority, slug, rights_status, is_athopia_generated",
     )
-    .eq("sport", "football")
+    .eq("sport", SPORT)
     .order("importance_score", { ascending: false, nullsFirst: false })
     .order("published_at", { ascending: false })
     .limit(NEWS_LIMIT);

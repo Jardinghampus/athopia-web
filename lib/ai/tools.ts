@@ -1,3 +1,4 @@
+import { SPORT } from "@/lib/vertical";
 import type { Tool } from 'ai'
 import { z } from 'zod'
 import { createClient } from '@supabase/supabase-js'
@@ -28,7 +29,7 @@ export const tools: Record<string, Tool> = {
         let q = db
           .from('content_queue')
           .select('title,source_name,source_url,published_at')
-          .eq('sport', 'football')
+          .eq('sport', SPORT)
           .gte('published_at', since.toISOString())
           .order('published_at', { ascending: false })
           .limit(15)
@@ -39,7 +40,7 @@ export const tools: Record<string, Tool> = {
           const { data: fallback } = await db
             .from('content_queue')
             .select('title,source_name,source_url,published_at')
-            .eq('sport', 'football')
+            .eq('sport', SPORT)
             .ilike('title', keyword ? `%${keyword}%` : '%')
             .order('published_at', { ascending: false })
             .limit(10)
@@ -210,7 +211,7 @@ export const tools: Record<string, Tool> = {
         let q = db
           .from('fixtures')
           .select('home_team,away_team,home_score,away_score,kickoff_at,status')
-          .eq('sport', 'football')
+          .eq('sport', SPORT)
           .order('kickoff_at', { ascending: false })
           .limit(10)
 

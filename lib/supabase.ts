@@ -1,3 +1,4 @@
+import { SPORT } from "@/lib/vertical";
 /**
  * lib/supabase.ts
  * ─────────────────────────────────────────────────────────────────────────────
@@ -289,6 +290,7 @@ export async function getArticles(
     let q = supabase
       .from("articles")
       .select("*")
+      .eq("sport", SPORT)
       .order("published_at", { ascending: false })
       .range(offset, offset + limit - 1);
     if (teamSlug) q = q.ilike("title", `%${teamSlug}%`);
@@ -370,7 +372,7 @@ export const getHotArticles = unstable_cache(
       const { data: rows } = await supabase
         .from("news_feed")
         .select("*")
-        .eq("sport", "football")
+        .eq("sport", SPORT)
         .gte("published_at", new Date(Date.now() - 36 * 3600_000).toISOString())
         .order("feed_score", { ascending: false, nullsFirst: false })
         .limit(40);
@@ -432,7 +434,7 @@ export async function getFilteredArticles(
   });
   return unstable_cache(
     () => fetchFilteredArticles(filters),
-    ["filtered-articles", nyckel],
+    ["filtered-articles", SPORT, nyckel],
     { revalidate: 30, tags: ["news"] },
   )();
 }
@@ -448,7 +450,7 @@ async function fetchFilteredArticles(filters: ArticleFilters = {}): Promise<{ ar
     let q = supabase
       .from("news_feed")
       .select("*", { count: "exact" })
-      .eq("sport", "football")
+      .eq("sport", SPORT)
       .range(offset, offset + limit - 1);
 
     if (sort === "latest") {
@@ -543,7 +545,7 @@ export async function getActiveSources(): Promise<{ name: string; id: string }[]
       .from("rss_sources")
       .select("id, name")
       .eq("active", true)
-      .eq("sport", "football")
+      .eq("sport", SPORT)
       .in("category", ["news"])
       .order("name", { ascending: true })
       .limit(100);
@@ -557,7 +559,7 @@ export async function getArticle(slug: string): Promise<Article | null> {
   if (!isSupabaseConfigured()) return null;
   try {
     const supabase = createServerClient();
-    const { data } = await supabase.from("articles").select("*").eq("slug", slug).maybeSingle();
+    const { data } = await supabase.from("articles").select("*").eq("slug", slug).eq("sport", SPORT).maybeSingle();
     return data ? mapArticle(data) : null;
   } catch (e) { captureDbError(e);
     return null;
@@ -645,7 +647,7 @@ export async function getPostMatchAnalysis(id: string): Promise<PostMatchAnalysi
       .from("articles")
       .select("id,title,summary,content,source_name,published_at,metadata,sport,status")
       .eq("id", id)
-      .eq("sport", "football")
+      .eq("sport", SPORT)
       .eq("status", "published")
       .filter("metadata->>type", "eq", "post_match_analysis")
       .maybeSingle();
@@ -663,7 +665,7 @@ export async function getPostMatchAnalyses(limit = 20): Promise<PostMatchAnalysi
     const { data } = await supabase
       .from("articles")
       .select("id,title,summary,content,source_name,published_at,metadata,sport,status")
-      .eq("sport", "football")
+      .eq("sport", SPORT)
       .eq("status", "published")
       .filter("metadata->>type", "eq", "post_match_analysis")
       .order("published_at", { ascending: false })
@@ -692,6 +694,7 @@ export const getNarratives = unstable_cache(
       const { data } = await supabase
         .from("narratives")
         .select("*")
+        .eq("sport", SPORT)
         .order("importance_score", { ascending: false, nullsFirst: false })
         .limit(limit);
       return (data ?? []).map(mapNarrative);
@@ -699,7 +702,7 @@ export const getNarratives = unstable_cache(
       return [];
     }
   },
-  ["narratives"],
+  ["narratives", SPORT],
   { revalidate: 300, tags: ["narratives"] }
 );
 
@@ -864,6 +867,7 @@ export async function searchEmbeddings(query: string, sourceType?: string): Prom
     let q = supabase
       .from("articles")
       .select("*")
+      .eq("sport", SPORT)
       .ilike("title", `%${query}%`)
       .order("published_at", { ascending: false })
       .limit(20);
@@ -931,7 +935,7 @@ export async function getTeamPushPopups(teamEntityIds: string[], limit = 5): Pro
       id: String(row.id),
       articleId: row.article_id ?? null,
       storyKey: String(row.story_key ?? ""),
-      sport: String(row.sport ?? "football"),
+      sport: String(row.sport ?? SPORT),
       teamEntityId: row.team_entity_id ?? null,
       title: String(row.title ?? ""),
       body: String(row.body ?? ""),
@@ -956,7 +960,7 @@ async function fetchTeamEntityInsights(teamEntityId: string, limit = 3): Promise
       .from("published_entity_insights")
       .select("*")
       .eq("entity_id", teamEntityId)
-      .eq("sport", "football")
+      .eq("sport", SPORT)
       .order("confidence", { ascending: false, nullsFirst: false })
       .order("generated_at", { ascending: false })
       // Se dedupeInsightsByTitle: generatorn skriver identiska rader dagligen.
@@ -987,7 +991,7 @@ async function fetchTeamAnalysis(teamEntityId: string, limit: number): Promise<E
       .from("published_entity_insights")
       .select("*")
       .eq("entity_id", teamEntityId)
-      .eq("sport", "football")
+      .eq("sport", SPORT)
       // Kronologiskt, till skillnad från getTeamEntityInsights som sorterar på
       // confidence. Analysytan är en tidslinje — "senaste analyserna" måste vara
       // senaste, annars ligger en gammal högkonfidensanalys kvar i toppen.
@@ -1038,6 +1042,7 @@ async function fetchArticleRefs(
     const { data } = await supabase
       .from("articles")
       .select("id, title, slug, source_name")
+      .eq("sport", SPORT)
       .in("id", ids.slice(0, 20));
 
     return (data ?? []).map((r: Record<string, unknown>) => ({
@@ -1069,7 +1074,7 @@ async function fetchTeamDailyPulse(teamEntityId: string): Promise<TeamDailyPulse
       .from("published_team_daily_pulses")
       .select("*")
       .eq("team_entity_id", teamEntityId)
-      .eq("sport", "football")
+      .eq("sport", SPORT)
       .order("pulse_date", { ascending: false })
       .order("generated_at", { ascending: false })
       .limit(1)

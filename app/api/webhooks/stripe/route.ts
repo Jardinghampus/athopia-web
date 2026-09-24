@@ -29,6 +29,7 @@ import {
   subscriptionFromInvoice,
   subscriptionIdFrom,
 } from "@/lib/waitlist/invoice-clerk";
+import { writeHockeyPlan } from "@/lib/hockey-plan";
 
 // Lazy — initieras i POST() för att undvika build-time env-fel;
 
@@ -82,6 +83,16 @@ export async function POST(req: Request) {
         break;
       }
 
+      if (session.metadata?.vertical === "hockey") {
+        const hockeyPlan = session.metadata?.plan === "elite" ? "elite" : "pro";
+        await writeHockeyPlan(clerk, clerkUserId, hockeyPlan, {
+          customerId: typeof session.customer === "string" ? session.customer : null,
+          subscriptionId: typeof session.subscription === "string" ? session.subscription : null,
+        });
+        console.log(`[stripe-webhook] Hockey ${hockeyPlan.toUpperCase()} för ${clerkUserId}`);
+        break;
+      }
+
       if (!session.metadata?.plan) {
         console.warn("[stripe-webhook] Saknar plan i session.metadata", session.id);
       }
@@ -125,6 +136,16 @@ export async function POST(req: Request) {
       const subscription = event.data.object as Stripe.Subscription;
       const clerkUserId = subscription.metadata?.clerkUserId;
       if (!clerkUserId) break;
+
+      if (subscription.metadata?.vertical === "hockey") {
+        const alive = subscription.status === "active" || subscription.status === "trialing";
+        const hockeyPlan = !alive ? "free" : subscription.metadata?.plan === "elite" ? "elite" : "pro";
+        await writeHockeyPlan(clerk, clerkUserId, hockeyPlan, {
+          customerId: typeof subscription.customer === "string" ? subscription.customer : null,
+          subscriptionId: subscription.id,
+        });
+        break;
+      }
 
       const periodEndTs = (subscription as unknown as { current_period_end?: number }).current_period_end;
       const currentPeriodEnd = periodEndTs
@@ -194,6 +215,14 @@ export async function POST(req: Request) {
         break;
       }
 
+      if (subscription.metadata?.vertical === "hockey") {
+        await writeHockeyPlan(clerk, clerkUserId, "free", {
+          subscriptionId: null,
+        });
+        console.log(`[stripe-webhook] Hockey-prenumeration avbruten för ${clerkUserId}`);
+        break;
+      }
+
       const effectivePlan = await updatePlanSource(clerkUserId, "stripe", "free");
       await clerk.users.updateUserMetadata(clerkUserId, {
         privateMetadata: {
@@ -238,6 +267,16 @@ export async function POST(req: Request) {
         }
       }
       if (!userId) break;
+
+      const paidSubscriptionId = subscriptionIdFrom(subRef);
+      if (paidSubscriptionId) {
+        try {
+          const paidSub = await stripe.subscriptions.retrieve(paidSubscriptionId);
+          if (paidSub.metadata?.vertical === "hockey") break;
+        } catch {
+          // Fotbollens värvningskredit får inte blockeras av ett misslyckat uppslag.
+        }
+      }
 
       await grantReferralCreditsOnFirstPayment({
         stripe,

@@ -1,10 +1,10 @@
 'use server'
 
+import { SPORT } from "@/lib/vertical";
 import { auth } from '@clerk/nextjs/server'
 import { revalidatePath } from 'next/cache'
 import { createServerClient, isSupabaseConfigured } from '@/lib/supabase'
 
-const SPORT = 'football'
 
 type Result = { ok: boolean; following?: boolean; error?: string }
 

@@ -3,19 +3,33 @@ import Link from "next/link";
 import { fetchAllsvenskanFixtures } from "@/lib/db/fixtures";
 import type { SMFixture } from "@/lib/db/fixtures";
 import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
+import { VERTICAL, leagueHref, vertical } from "@/lib/vertical";
+import { getSiteUrl } from "@/lib/site-url";
 
 export const revalidate = 1800;
 
+const TITLE =
+  VERTICAL === "hockey"
+    ? "SHL Spelschema 2026/27 – Alla Omgångar & Datum"
+    : "Allsvenskan Spelschema 2026 – Alla Omgångar & Datum";
+const CANONICAL =
+  VERTICAL === "hockey"
+    ? `${getSiteUrl()}${leagueHref("/spelschema")}`
+    : "https://nanofotboll.se/allsvenskan/spelschema";
+
 export const metadata: Metadata = {
-  title: "Allsvenskan Spelschema 2026 – Alla Omgångar & Datum",
-  description: "Komplett spelschema för Allsvenskan 2026 med datum och tider. Hitta din lags nästa match.",
-  alternates: { canonical: "https://nanofotboll.se/allsvenskan/spelschema" },
+  title: TITLE,
+  description:
+    VERTICAL === "hockey"
+      ? "Spelschema för SHL 2026/27 med datum och tider. Visas när matcherna finns."
+      : "Komplett spelschema för Allsvenskan 2026 med datum och tider. Hitta din lags nästa match.",
+  alternates: { canonical: CANONICAL },
   openGraph: {
     type: "website",
     locale: "sv_SE",
-    url: "https://nanofotboll.se/allsvenskan/spelschema",
-    title: "Allsvenskan Spelschema 2026 – Alla Omgångar & Datum",
-    description: "Komplett spelschema för Allsvenskan 2026.",
+    url: CANONICAL,
+    title: TITLE,
+    description: VERTICAL === "hockey" ? "Spelschema för SHL 2026/27." : "Komplett spelschema för Allsvenskan 2026.",
   },
 };
 
@@ -37,14 +51,14 @@ export default async function AllsvenskanSpelschemePage() {
       <div className="mb-6">
         <AppBreadcrumbs
           items={[
-            { label: "Allsvenskan", href: "/allsvenskan" },
+            { label: vertical.leagueName, href: vertical.leaguePath },
             { label: "Spelschema" },
           ]}
         />
       </div>
 
-      <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2 text-balance">ALLSVENSKAN SPELSCHEMA 2026</h1>
-      <p className="text-muted-foreground mb-8">Nästa omgångar i Allsvenskan 2026.</p>
+      <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2 text-balance">{VERTICAL === "hockey" ? "SHL SPELSCHEMA 2026/27" : "ALLSVENSKAN SPELSCHEMA 2026"}</h1>
+      <p className="text-muted-foreground mb-8">{VERTICAL === "hockey" ? "Nästa omgångar i SHL 2026/27." : "Nästa omgångar i Allsvenskan 2026."}</p>
 
       {upcoming.length === 0 ? (
         <p className="text-muted-foreground">Inga kommande matcher just nu.</p>

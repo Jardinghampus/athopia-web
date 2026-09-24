@@ -1,3 +1,5 @@
+import { SPORT, VERTICAL, leagueHref, vertical } from "@/lib/vertical";
+import { getSiteUrl } from "@/lib/site-url";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { unstable_cache } from "next/cache";
@@ -6,17 +8,29 @@ import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
 
 export const revalidate = 3600;
 
+const TITLE =
+  VERTICAL === "hockey"
+    ? "SHL U21 2026/27 – speltid och poäng"
+    : "Allsvenskans främsta U21-talanger 2026 – speltid & poäng";
+const CANONICAL =
+  VERTICAL === "hockey" ? `${getSiteUrl()}${leagueHref("/talanger")}` : "https://nanofotboll.se/allsvenskan/talanger";
+
 export const metadata: Metadata = {
-  title: "Allsvenskans främsta U21-talanger 2026 – speltid & poäng",
+  title: TITLE,
   description:
-    "De mest tongivande unga spelarna i Allsvenskan 2026: U21-spelare rankade på speltid, mål och assist. Vem är ligans nästa stjärna?",
-  alternates: { canonical: "https://nanofotboll.se/allsvenskan/talanger" },
+    VERTICAL === "hockey"
+      ? "Unga spelare i SHL visas när statistiken finns. Inga utfyllnadssiffror."
+      : "De mest tongivande unga spelarna i Allsvenskan 2026: U21-spelare rankade på speltid, mål och assist. Vem är ligans nästa stjärna?",
+  alternates: { canonical: CANONICAL },
   openGraph: {
     type: "website",
     locale: "sv_SE",
-    url: "https://nanofotboll.se/allsvenskan/talanger",
-    title: "Allsvenskans främsta U21-talanger 2026",
-    description: "Unga spelare rankade på speltid, mål och assist i Allsvenskan 2026.",
+    url: CANONICAL,
+    title: VERTICAL === "hockey" ? "SHL U21 2026/27" : "Allsvenskans främsta U21-talanger 2026",
+    description:
+      VERTICAL === "hockey"
+        ? "U21 i SHL när underlaget finns."
+        : "Unga spelare rankade på speltid, mål och assist i Allsvenskan 2026.",
   },
 };
 
@@ -38,7 +52,7 @@ const fetchTalents = unstable_cache(
     try {
       const db = createServerClient();
       const { data: season } = await db
-        .from("seasons").select("sportmonks_id").eq("sport", "football").eq("is_current", true).maybeSingle();
+        .from("seasons").select("sportmonks_id").eq("sport", SPORT).eq("is_current", true).maybeSingle();
       if (!season?.sportmonks_id) return [];
 
       const { data: rows } = await db
@@ -88,7 +102,7 @@ const fetchTalents = unstable_cache(
       return [];
     }
   },
-  ["u21-talents"],
+  ["u21-talents", SPORT],
   { revalidate: 3600, tags: ["statistik"] }
 );
 
@@ -100,7 +114,7 @@ export default async function TalangerPage() {
       <div className="mb-6">
         <AppBreadcrumbs
           items={[
-            { label: "Allsvenskan", href: "/allsvenskan" },
+            { label: vertical.leagueName, href: vertical.leaguePath },
             { label: "Talanger" },
           ]}
         />
@@ -108,7 +122,9 @@ export default async function TalangerPage() {
 
       <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2 text-balance">U21-TALANGERNA</h1>
       <p className="text-muted-foreground mb-8 max-w-xl">
-        Allsvenskans mest tongivande unga spelare 2026, rankade på mål + assist och speltid.
+        {VERTICAL === "hockey"
+          ? "Unga spelare i SHL, när statistiken finns."
+          : "Allsvenskans mest tongivande unga spelare 2026, rankade på mål + assist och speltid."}
         Alla 21 år eller yngre med minst 150 spelade minuter.
       </p>
 

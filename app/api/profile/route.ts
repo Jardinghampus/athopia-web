@@ -1,3 +1,4 @@
+import { SPORT } from "@/lib/vertical";
 import { auth, currentUser, clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
@@ -184,7 +185,7 @@ export async function PATCH(req: Request) {
       .upsert(
         {
           clerk_user_id: userId,
-          sport: "football",
+          sport: SPORT,
           followed_team_ids: favouriteTeam ? [favouriteTeam.id] : [],
         },
         { onConflict: "clerk_user_id" },

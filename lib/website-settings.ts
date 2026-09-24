@@ -96,6 +96,36 @@ export const DEFAULT_WEBSITE_SETTINGS: WebsiteSettings = {
   },
 };
 
+export const HOCKEY_DEFAULT_WEBSITE_SETTINGS: WebsiteSettings = {
+  ...DEFAULT_WEBSITE_SETTINGS,
+  identity: {
+    ...DEFAULT_WEBSITE_SETTINGS.identity,
+    siteName: "Nano Hockey",
+    tagline: "SHL, varje dag.",
+    titleTemplate: "%s | Nano Hockey",
+    contactEmail: "hej@nanohockey.se",
+  },
+  seo: {
+    defaultTitle: "Nano Hockey — SHL 2026/27: tabell, resultat och statistik",
+    defaultDescription:
+      "SHL 2026/27 — tabell, resultat, spelschema och nyheter för alla 14 lag. Samma supporter-yta som Nano Fotboll, med hockeyns egna siffror när de finns.",
+    homeTitle: "SHL 2026/27 – Tabell, Resultat, Matcher och Statistik | Nano Hockey",
+    homeDescription:
+      "SHL 2026/27: tabell, resultat, spelschema och nyhetsflöde för alla 14 lag. Intaget är pausat tills datan är på.",
+  },
+  sharing: {
+    ...DEFAULT_WEBSITE_SETTINGS.sharing,
+    homeOgTitle: "SHL 2026/27 – Tabell, Resultat, Matcher och Statistik | Nano Hockey",
+    homeOgDescription:
+      "Tabell, resultat, spelschema och nyheter för SHL. Matchsidor och forum för ditt lag.",
+    nyhetDescriptionTemplate: "Nano Hockey följer händelsen. Originalet hos {source}.",
+    teamTitleTemplate: "{team} – SHL 2026/27: Nyheter, Statistik och Matcher",
+    teamDescriptionTemplate:
+      "Allt om {team} i SHL — senaste nyheter, matchresultat, trupp, statistik och lagforum.",
+    matchDescriptionTemplate: "Matchen mellan {home} och {away} i SHL.",
+  },
+};
+
 export type ShareContext =
   | { kind: "home" }
   | { kind: "default" }
@@ -160,8 +190,11 @@ function ogImageUrl(value: unknown, fallback: string): string {
   return fallback;
 }
 
-export function parseWebsiteSettings(raw: unknown): WebsiteSettings {
-  const d = DEFAULT_WEBSITE_SETTINGS;
+export function parseWebsiteSettings(
+  raw: unknown,
+  defaults: WebsiteSettings = DEFAULT_WEBSITE_SETTINGS,
+): WebsiteSettings {
+  const d = defaults;
   const root = asRecord(raw);
   const identity = asRecord(root.identity);
   const seo = asRecord(root.seo);

@@ -1,3 +1,4 @@
+import { SPORT } from "@/lib/vertical";
 /**
  * lib/waitlist/link-user.ts — kopplar ihop waitlist-raden med Clerk-kontot.
  *
@@ -15,7 +16,6 @@
 import "server-only";
 import { createServiceClient, isSupabaseConfigured } from "@/lib/supabase";
 
-const SPORT = "football";
 
 interface LinkedWaitlist {
   favoriteTeam: string | null;

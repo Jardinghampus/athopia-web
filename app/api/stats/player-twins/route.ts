@@ -1,3 +1,4 @@
+import { SPORT } from "@/lib/vertical";
 import { NextResponse } from "next/server";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 
@@ -15,7 +16,7 @@ export async function GET(request: Request) {
   let query = db
     .from("stats_player_twins")
     .select("player_id,twin_player_id,similarity,rank,computed_at")
-    .eq("sport", "football")
+    .eq("sport", SPORT)
     .eq("season_id", seasonId)
     .order("similarity", { ascending: false });
 

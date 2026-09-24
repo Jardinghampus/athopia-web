@@ -1,4 +1,5 @@
 "use client";
+import { SPORT } from "@/lib/vertical";
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
@@ -48,7 +49,7 @@ export function MatchForum({ fixtureId, homeName, awayName }: {
       await fetch("/api/forum/posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: text.trim(), team_slug: teamSlug, sport: "football", label: "match" }),
+        body: JSON.stringify({ content: text.trim(), team_slug: teamSlug, sport: SPORT, label: "match" }),
       });
       setText("");
       await fetchPosts();

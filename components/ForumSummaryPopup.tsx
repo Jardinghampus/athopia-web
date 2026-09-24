@@ -1,4 +1,5 @@
 "use client";
+import { SPORT } from "@/lib/vertical";
 
 import { useEffect, useState, useCallback } from "react";
 import { usePathname } from "next/navigation";
@@ -41,7 +42,7 @@ export function ForumSummaryPopup() {
       .eq("type", "digest")
       .eq("subtype", "forum_digest")
       .eq("status", "approved")
-      .eq("sport", "football")
+      .eq("sport", SPORT)
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();

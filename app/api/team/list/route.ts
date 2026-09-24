@@ -1,3 +1,4 @@
+import { SPORT } from "@/lib/vertical";
 import { NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
@@ -13,7 +14,7 @@ export async function GET() {
     const { data } = await db
       .from("entities")
       .select("id,name,slug,metadata")
-      .eq("sport", "football")
+      .eq("sport", SPORT)
       .eq("type", "team")
       .eq("metadata->>league", "Allsvenskan")
       .order("name");

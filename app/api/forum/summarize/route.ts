@@ -1,3 +1,4 @@
+import { SPORT } from "@/lib/vertical";
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient, isSupabaseConfigured } from "@/lib/supabase";
 import { secretsEqual } from "@/lib/secrets";
@@ -57,7 +58,7 @@ export async function POST(req: NextRequest) {
       .from("forum_posts")
       .select("content, author_name, like_count, reply_count, label, created_at")
       .eq("team_slug", teamSlug)
-      .eq("sport", "football")
+      .eq("sport", SPORT)
       .eq("status", "published")
       .is("parent_id", null)
       .gte("created_at", since)

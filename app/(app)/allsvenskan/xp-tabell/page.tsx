@@ -1,3 +1,5 @@
+import { SPORT, VERTICAL, leagueHref, vertical } from "@/lib/vertical";
+import { getSiteUrl } from "@/lib/site-url";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { unstable_cache } from "next/cache";
@@ -7,17 +9,29 @@ import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
 
 export const revalidate = 3600;
 
+const TITLE =
+  VERTICAL === "hockey"
+    ? "SHL xP-tabell 2026/27 – Förväntade poäng"
+    : "Allsvenskan xP-tabell 2026 – Förväntade poäng utifrån xG";
+const CANONICAL =
+  VERTICAL === "hockey" ? `${getSiteUrl()}${leagueHref("/xp-tabell")}` : "https://nanofotboll.se/allsvenskan/xp-tabell";
+
 export const metadata: Metadata = {
-  title: "Allsvenskan xP-tabell 2026 – Förväntade poäng utifrån xG",
+  title: TITLE,
   description:
-    "Vilka lag över- och underpresterar? xP-tabellen räknar förväntade poäng per match utifrån expected goals (xG) för hela Allsvenskan 2026.",
-  alternates: { canonical: "https://nanofotboll.se/allsvenskan/xp-tabell" },
+    VERTICAL === "hockey"
+      ? "xP-tabellen för SHL visas när matchdata finns. Inga utfyllnadssiffror."
+      : "Vilka lag över- och underpresterar? xP-tabellen räknar förväntade poäng per match utifrån expected goals (xG) för hela Allsvenskan 2026.",
+  alternates: { canonical: CANONICAL },
   openGraph: {
     type: "website",
     locale: "sv_SE",
-    url: "https://nanofotboll.se/allsvenskan/xp-tabell",
-    title: "Allsvenskan xP-tabell 2026 – Förväntade poäng",
-    description: "Förväntade poäng per lag utifrån xG — vem över- och underpresterar i Allsvenskan?",
+    url: CANONICAL,
+    title: VERTICAL === "hockey" ? "SHL xP-tabell 2026/27" : "Allsvenskan xP-tabell 2026 – Förväntade poäng",
+    description:
+      VERTICAL === "hockey"
+        ? "Förväntade poäng i SHL när underlaget finns."
+        : "Förväntade poäng per lag utifrån xG — vem över- och underpresterar i Allsvenskan?",
   },
 };
 
@@ -55,13 +69,13 @@ const fetchXpTable = unstable_cache(
     try {
       const db = createServerClient();
       const { data: season } = await db
-        .from("seasons").select("sportmonks_id").eq("sport", "football").eq("is_current", true).maybeSingle();
+        .from("seasons").select("sportmonks_id").eq("sport", SPORT).eq("is_current", true).maybeSingle();
       if (!season?.sportmonks_id) return [];
 
       const { data: fixtures } = await db
         .from("fixtures")
         .select("sportmonks_id, home_team_id, away_team_id")
-        .eq("sport", "football")
+        .eq("sport", SPORT)
         .eq("season_id", season.sportmonks_id)
         .eq("status", "FT");
       if (!fixtures?.length) return [];
@@ -99,7 +113,7 @@ const fetchXpTable = unstable_cache(
       return [];
     }
   },
-  ["xp-table"],
+  ["xp-table", SPORT],
   { revalidate: 3600, tags: ["standings"] }
 );
 
@@ -119,7 +133,7 @@ export default async function XpTabellPage() {
       <div className="mb-6">
         <AppBreadcrumbs
           items={[
-            { label: "Allsvenskan", href: "/allsvenskan" },
+            { label: vertical.leagueName, href: vertical.leaguePath },
             { label: "xP-tabell" },
           ]}
         />

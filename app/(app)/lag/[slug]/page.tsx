@@ -10,6 +10,7 @@
 
 import type { Metadata } from "next";
 import { auth } from "@clerk/nextjs/server";
+import { SPORT } from "@/lib/vertical";
 import { isFollowing } from "@/app/actions/follows";
 import {
   createServerClient,
@@ -54,6 +55,7 @@ async function getTeamMeta(slug: string): Promise<TeamMeta | null> {
       .from("entities")
       .select("name,slug,metadata")
       .eq("type", "team")
+      .eq("sport", SPORT)
       .eq("slug", slug)
       .maybeSingle();
     if (!data) return null;
@@ -92,6 +94,7 @@ async function getTeams(): Promise<SwitcherTeam[]> {
       .from("entities")
       .select("name,slug,sportmonks_id,metadata")
       .eq("type", "team")
+      .eq("sport", SPORT)
       .order("name");
     const smIds = (data ?? []).map((t) => t.sportmonks_id).filter((id): id is number => id != null);
     const { data: teamsData } = smIds.length

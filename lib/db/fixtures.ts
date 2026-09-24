@@ -1,3 +1,4 @@
+import { SPORT, vertical } from "@/lib/vertical";
 /**
  * lib/db/fixtures.ts
  * ─────────────────────────────────────────────────────────────────────────────
@@ -115,6 +116,7 @@ export const getTeamSlugMap = unstable_cache(
         .from("entities")
         .select("sportmonks_id,slug")
         .eq("type", "team")
+        .eq("sport", SPORT)
         .not("sportmonks_id", "is", null)
         .not("slug", "is", null);
       const map: Record<number, string> = {};
@@ -127,7 +129,7 @@ export const getTeamSlugMap = unstable_cache(
       return {};
     }
   },
-  ["team-slug-map"],
+  ["team-slug-map", SPORT],
   { revalidate: 3600, tags: ["teams"] }
 );
 
@@ -179,7 +181,7 @@ function fixtureToSMFixture(row: any, slugMap: Record<number, string> = {}): SMF
       ...(row.away_score != null ? [{ score: { goals: Number(row.away_score), participant: "away" as const } }] : []),
     ],
     league: {
-      name: row.league?.name ?? "Allsvenskan",
+      name: row.league?.name ?? vertical.leagueName,
       image_path: row.league?.logo ?? "",
     },
     ...(isLive ? {
@@ -212,7 +214,7 @@ export const fetchLiveScores = unstable_cache(
         db
           .from("fixtures")
           .select("*, home_team:teams!fixtures_home_team_id_fkey(*), away_team:teams!fixtures_away_team_id_fkey(*), league:leagues(*)")
-          .eq("sport", "football")
+          .eq("sport", SPORT)
           .eq("status", "LIVE")
           .order("kickoff", { ascending: true }),
         getTeamSlugMap(),
@@ -227,7 +229,7 @@ export const fetchLiveScores = unstable_cache(
       return [];
     }
   },
-  ["live-scores"],
+  ["live-scores", SPORT],
   { revalidate: 30, tags: ["fixtures", "live"] }
 );
 
@@ -247,7 +249,7 @@ export const fetchUpcomingFixtures = unstable_cache(
           .select(
             "*, home_team:teams!fixtures_home_team_id_fkey(*), away_team:teams!fixtures_away_team_id_fkey(*), league:leagues(*)",
           )
-          .eq("sport", "football")
+          .eq("sport", SPORT)
           .eq("status", "NS")
           .gte("kickoff", now)
           .lte("kickoff", until)
@@ -261,7 +263,7 @@ export const fetchUpcomingFixtures = unstable_cache(
       return [];
     }
   },
-  ["upcoming-fixtures-feed"],
+  ["upcoming-fixtures-feed", SPORT],
   { revalidate: 60, tags: ["fixtures"] },
 );
 
@@ -276,14 +278,14 @@ export const fetchAllsvenskanFixtures = unstable_cache(
       const { data: season } = await db
         .from("seasons")
         .select("sportmonks_id")
-        .eq("sport", "football")
+        .eq("sport", SPORT)
         .eq("is_current", true)
         .maybeSingle();
 
       let q = db
         .from("fixtures")
         .select("*, home_team:teams!fixtures_home_team_id_fkey(*), away_team:teams!fixtures_away_team_id_fkey(*), league:leagues(*)")
-        .eq("sport", "football")
+        .eq("sport", SPORT)
         .order("kickoff", { ascending: true })
         .limit(200);
 
@@ -298,7 +300,7 @@ export const fetchAllsvenskanFixtures = unstable_cache(
       return [];
     }
   },
-  ["allsvenskan-fixtures"],
+  ["allsvenskan-fixtures", SPORT],
   { revalidate: 60, tags: ["fixtures"] }
 );
 
@@ -325,7 +327,7 @@ export const fetchTeamStats = unstable_cache(
       return null;
     }
   },
-  ["team-stats"],
+  ["team-stats", SPORT],
   { revalidate: 3600, tags: ["standings"] }
 );
 
@@ -345,7 +347,7 @@ export const fetchStandings = unstable_cache(
       form: r.form,
     }));
   },
-  ["standings-simple"],
+  ["standings-simple", SPORT],
   { revalidate: 3600, tags: ["standings"] }
 );
 
@@ -375,7 +377,7 @@ export const fetchTeamsWithSlugs = unstable_cache(
       return [];
     }
   },
-  ["teams-with-slugs"],
+  ["teams-with-slugs", SPORT],
   { revalidate: 3600, tags: ["teams"] }
 );
 
@@ -383,7 +385,7 @@ async function getCurrentSeasonId(db: ReturnType<typeof createServerClient>): Pr
   const { data } = await db
     .from("seasons")
     .select("sportmonks_id")
-    .eq("sport", "football")
+    .eq("sport", SPORT)
     .eq("is_current", true)
     .maybeSingle();
   return Number(data?.sportmonks_id ?? 0);
@@ -401,7 +403,7 @@ export const fetchRoundFixtures = unstable_cache(
         db
           .from("fixtures")
           .select("*, home_team:teams!fixtures_home_team_id_fkey(*), away_team:teams!fixtures_away_team_id_fkey(*), league:leagues(*)")
-          .eq("sport", "football")
+          .eq("sport", SPORT)
           .eq("season_id", seasonId)
           .eq("round", round)
           .order("kickoff", { ascending: true }),
@@ -413,7 +415,7 @@ export const fetchRoundFixtures = unstable_cache(
       return [];
     }
   },
-  ["round-fixtures"],
+  ["round-fixtures", SPORT],
   { revalidate: 300, tags: ["fixtures"] }
 );
 
@@ -427,7 +429,7 @@ export const fetchH2HFixtures = unstable_cache(
         db
           .from("fixtures")
           .select("*, home_team:teams!fixtures_home_team_id_fkey(*), away_team:teams!fixtures_away_team_id_fkey(*), league:leagues(*)")
-          .eq("sport", "football")
+          .eq("sport", SPORT)
           .or(
             `and(home_team_id.eq.${teamAId},away_team_id.eq.${teamBId}),and(home_team_id.eq.${teamBId},away_team_id.eq.${teamAId})`
           )
@@ -441,7 +443,7 @@ export const fetchH2HFixtures = unstable_cache(
       return [];
     }
   },
-  ["h2h-fixtures"],
+  ["h2h-fixtures", SPORT],
   { revalidate: 3600, tags: ["fixtures"] }
 );
 
@@ -455,7 +457,7 @@ async function fetchPreviousPositions(
     const { data: latest } = await db
       .from("standings_snapshots")
       .select("snapshot_date")
-      .eq("sport", "football")
+      .eq("sport", SPORT)
       .eq("season_id", seasonId)
       .lt("snapshot_date", new Date().toISOString().slice(0, 10))
       .order("snapshot_date", { ascending: false })
@@ -484,7 +486,7 @@ export const fetchStandingsFull = unstable_cache(
       const { data: season } = await db
         .from("seasons")
         .select("sportmonks_id")
-        .eq("sport", "football")
+        .eq("sport", SPORT)
         .eq("is_current", true)
         .maybeSingle();
 
@@ -533,7 +535,7 @@ export const fetchStandingsFull = unstable_cache(
       return [];
     }
   },
-  ["standings-full"],
+  ["standings-full", SPORT],
   { revalidate: 3600, tags: ["standings"] }
 );
 
@@ -552,7 +554,7 @@ export const fetchStandingsCoveredThrough = unstable_cache(
       const { data } = await db
         .from("fixtures")
         .select("kickoff_at")
-        .eq("sport", "football")
+        .eq("sport", SPORT)
         .not("home_score", "is", null)
         .order("kickoff_at", { ascending: false })
         .limit(1)
@@ -563,7 +565,7 @@ export const fetchStandingsCoveredThrough = unstable_cache(
       return null;
     }
   },
-  ["standings-covered-through"],
+  ["standings-covered-through", SPORT],
   { revalidate: 3600, tags: ["standings"] }
 );
 
@@ -577,7 +579,7 @@ export const fetchTopScorers = unstable_cache(
       const { data: season } = await db
         .from("seasons")
         .select("sportmonks_id")
-        .eq("sport", "football")
+        .eq("sport", SPORT)
         .eq("is_current", true)
         .maybeSingle();
 
@@ -612,7 +614,7 @@ export const fetchTopScorers = unstable_cache(
       return [];
     }
   },
-  ["top-scorers"],
+  ["top-scorers", SPORT],
   { revalidate: 3600, tags: ["stats"] }
 );
 
@@ -626,7 +628,7 @@ export const fetchTopAssists = unstable_cache(
       const { data: season } = await db
         .from("seasons")
         .select("sportmonks_id")
-        .eq("sport", "football")
+        .eq("sport", SPORT)
         .eq("is_current", true)
         .maybeSingle();
 
@@ -660,7 +662,7 @@ export const fetchTopAssists = unstable_cache(
       return [];
     }
   },
-  ["top-assists"],
+  ["top-assists", SPORT],
   { revalidate: 3600, tags: ["stats"] }
 );
 
@@ -670,7 +672,7 @@ export async function searchTeams(query: string): Promise<SMTeam[]> {
   try {
     const db = createServerClient();
     const [{ data }, slugMap] = await Promise.all([
-      db.from("teams").select("*").eq("sport", "football").ilike("name", `%${query}%`).limit(20),
+      db.from("teams").select("*").eq("sport", SPORT).ilike("name", `%${query}%`).limit(20),
       getTeamSlugMap(),
     ]);
     return (data ?? []).map((row) => teamToSMTeam(row, slugMap));

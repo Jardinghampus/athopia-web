@@ -1,3 +1,4 @@
+import { SPORT } from "@/lib/vertical";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { enforceRateLimit } from "@/lib/ratelimit";
@@ -6,7 +7,6 @@ import { parseBody, z } from "@/lib/validation";
 import { jsonContract } from "@/lib/api-contract";
 import { APNSSubscriptionResponseSchema } from "@/lib/api-schemas";
 
-const SPORT = "football";
 
 const SubscribeSchema = z.object({
   deviceToken: z.string().regex(/^[a-fA-F0-9]{64}$/),

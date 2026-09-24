@@ -22,6 +22,7 @@ import { filterStateToParams } from "@/lib/filters";
 import { ActiveFilterChips, type FilterChip } from "@/components/feed/ActiveFilterChips";
 import { getUserFeedPreferences } from "@/lib/feed/getUserFeedPreferences";
 import { absoluteUrl } from "@/lib/site-url";
+import { VERTICAL } from "@/lib/vertical";
 import { buildFeedModules } from "@/lib/feed/build-feed-modules";
 import { getFeedFilterOptions } from "@/lib/feed/get-allsvenskan-teams";
 import {
@@ -34,18 +35,23 @@ import type { FeedModule } from "@/lib/feed/build-feed-modules";
 
 export const dynamic = "force-dynamic";
 
+const NYHETER_TITLE =
+  VERTICAL === "hockey" ? "Flöde — SHL-nyheter 2026/27" : "Flöde — Allsvenskan-nyheter 2026";
+const NYHETER_DESCRIPTION =
+  VERTICAL === "hockey"
+    ? "Dagens SHL-flöde — signalscorerat, AI-kurerat och kopplat till diskussion."
+    : "Dagens Allsvenskan-flöde — signalscorerat, AI-kurerat och kopplat till diskussion.";
+
 export const metadata: Metadata = {
-  title: "Flöde — Allsvenskan-nyheter 2026",
-  description:
-    "Dagens Allsvenskan-flöde — signalscorerat, AI-kurerat och kopplat till diskussion.",
+  title: NYHETER_TITLE,
+  description: NYHETER_DESCRIPTION,
   alternates: { canonical: absoluteUrl("/nyheter") },
   openGraph: {
     type: "website",
     locale: "sv_SE",
     url: absoluteUrl("/nyheter"),
-    title: "Flöde — Allsvenskan-nyheter 2026",
-    description:
-      "Dagens Allsvenskan-flöde — signalscorerat, AI-kurerat och kopplat till diskussion.",
+    title: NYHETER_TITLE,
+    description: NYHETER_DESCRIPTION,
   },
 };
 

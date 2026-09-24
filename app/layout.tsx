@@ -14,6 +14,7 @@ import { getWebsiteSettings } from "@/lib/website-settings.server";
 import { rootMetadataFromSettings } from "@/lib/website-settings";
 import "./globals.css";
 import { jsonLd } from "@/lib/json-ld";
+import { vertical } from "@/lib/vertical";
 
 const SITE = getSiteUrl();
 
@@ -29,17 +30,13 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
-const SEO_KEYWORDS = [
-  "Allsvenskan", "Allsvenskan 2026", "Allsvenskan tabell", "Allsvenskan resultat",
-  "Allsvenskan matcher", "Allsvenskan statistik", "Allsvenskan live", "Allsvenskan spelschema",
-  "Allsvenskan skytteliga", "svensk fotboll", "fotboll Allsvenskan", "Allsvenskan statistik",
-];
+const SEO_KEYWORDS = vertical.seoKeywords;
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getWebsiteSettings();
   return {
     ...rootMetadataFromSettings(settings, SITE),
-    keywords: SEO_KEYWORDS,
+    keywords: [...SEO_KEYWORDS],
   };
 }
 

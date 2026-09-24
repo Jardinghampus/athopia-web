@@ -3,6 +3,7 @@ import { PodcastCard } from "@/components/ui/PodcastCard";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import type { Podcast } from "@/lib/types";
 import { Mic } from "lucide-react";
+import { SPORT } from "@/lib/vertical";
 
 export const dynamic = 'force-dynamic';
 
@@ -29,6 +30,7 @@ async function getTeamName(slug: string): Promise<string> {
       .select("name")
       .eq("slug", slug)
       .eq("type", "team")
+      .eq("sport", SPORT)
       .maybeSingle();
     return data?.name ?? slug;
   } catch {

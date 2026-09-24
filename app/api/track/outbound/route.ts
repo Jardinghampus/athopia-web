@@ -1,3 +1,4 @@
+import { SPORT } from "@/lib/vertical";
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import { enforceRateLimit } from "@/lib/ratelimit";
@@ -20,7 +21,7 @@ export async function POST(req: NextRequest) {
 
     const url = typeof body?.url === "string" ? body.url.slice(0, 1000) : null;
     const kind = body?.kind === "podcast" ? "podcast" : "article";
-    const sport = body?.sport === "golf" ? "golf" : "football";
+    const sport = body?.sport === "golf" ? "golf" : SPORT;
 
     await createServerClient().from("source_clicks").insert({ source_name: source, url, kind, sport });
     return NextResponse.json({ ok: true });

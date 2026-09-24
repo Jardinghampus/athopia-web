@@ -1,3 +1,4 @@
+import { SPORT } from "@/lib/vertical";
 import { Webhook } from "svix";
 import { NextResponse } from "next/server";
 import type { WebhookEvent } from "@clerk/nextjs/server";
@@ -119,7 +120,7 @@ export async function POST(req: Request) {
     const { error } = await supabase.from("user_feed_config").upsert(
       {
         clerk_user_id:   clerkUserId,
-        sport:           "football",
+        sport:           SPORT,
         followed_team_ids: [],
         followed_leagues:  [],
         content_types:     [],

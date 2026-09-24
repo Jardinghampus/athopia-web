@@ -1,4 +1,5 @@
 "use client";
+import { SPORT } from "@/lib/vertical";
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -101,7 +102,7 @@ export function ProfilePageClient({
     void db
       .from("entities")
       .select("id,name,slug,metadata")
-      .eq("sport", "football")
+      .eq("sport", SPORT)
       .eq("type", "team")
       .order("name")
       .then(({ data }) => {

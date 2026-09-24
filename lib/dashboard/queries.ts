@@ -1,9 +1,9 @@
+import { SPORT } from "@/lib/vertical";
 import { unstable_cache } from 'next/cache'
 import { createServerClient, isSupabaseConfigured } from '@/lib/supabase'
 import { fetchStandingsFull } from '@/lib/db/fixtures'
 import type { DashTeam, DashArticle, DashThread, DashStanding, DashStatPoint } from './types'
 
-const SPORT = 'football'
 
 // ── User-specifik (färsk per request) ─────────────────────────────────────────
 
@@ -96,6 +96,7 @@ async function fetchTeamNews(teamSlug: string): Promise<DashArticle[]> {
       .from('entities')
       .select('id')
       .eq('type', 'team')
+      .eq('sport', SPORT)
       .eq('slug', teamSlug)
       .maybeSingle()
     if (!team?.id) return []

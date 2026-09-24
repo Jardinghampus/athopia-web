@@ -10,19 +10,24 @@ import { fetchAllsvenskanFixtures, fetchStandingsFull } from "@/lib/db/fixtures"
 import { getTopScorersFromDb, SEASON_IDS } from "@/lib/statistik";
 import { FixturesTicker } from "@/components/ui/FixturesTicker";
 import { jsonLd } from "@/lib/json-ld";
+import { leagueHref, VERTICAL, vertical } from "@/lib/vertical";
+import { getSiteUrl } from "@/lib/site-url";
 
 export const revalidate = 60;
 
+const LEAGUE_CANONICAL =
+  VERTICAL === "hockey" ? `${getSiteUrl()}${leagueHref()}` : "https://nanofotboll.se/allsvenskan";
+
 export const metadata: Metadata = {
-  title: "Allsvenskan 2026 – Nyheter, Tabell, Resultat & Matcher",
-  description: "Allsvenskan just nu: dagens nyheter, live-tabell, matchresultat och spelschema. Uppdateras löpande.",
-  alternates: { canonical: "https://nanofotboll.se/allsvenskan" },
+  title: vertical.leagueTitle,
+  description: vertical.leagueDescription,
+  alternates: { canonical: LEAGUE_CANONICAL },
   openGraph: {
     type: "website",
     locale: "sv_SE",
-    url: "https://nanofotboll.se/allsvenskan",
-    title: "Allsvenskan 2026 – Nyheter, Tabell, Resultat & Matcher",
-    description: "Allsvenskan just nu: dagens nyheter, live-tabell, matchresultat och spelschema.",
+    url: LEAGUE_CANONICAL,
+    title: vertical.leagueTitle,
+    description: vertical.leagueShareDescription,
   },
 };
 
@@ -37,11 +42,11 @@ function AllsvenskanJsonLd() {
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd({
       "@context": "https://schema.org",
       "@type": "SportsOrganization",
-      "@id": "https://nanofotboll.se/allsvenskan#allsvenskan",
-      name: "Allsvenskan",
-      sport: "Soccer",
-      url: "https://nanofotboll.se/allsvenskan",
-      description: "Allsvenskan är den högsta divisionen i svensk klubbfotboll för herrar.",
+      "@id": `${LEAGUE_CANONICAL}#${vertical.leagueName.toLowerCase()}`,
+      name: vertical.leagueName,
+      sport: vertical.schemaSport,
+      url: LEAGUE_CANONICAL,
+      description: vertical.leagueJsonLdDescription,
     })}} />
   );
 }
@@ -52,7 +57,9 @@ export default async function AllsvenskanPage() {
     getFilteredArticles({ visa: "all", limit: NEWS_PREVIEW_LIMIT + NEWS_MORE_LIMIT }).catch(() => ({ articles: [], total: 0 })),
     fetchStandingsFull().catch(() => []),
     fetchAllsvenskanFixtures().catch(() => []),
-    getTopScorersFromDb(SEASON_IDS["2026"] ?? "").catch(() => []),
+    vertical.id === "football"
+      ? getTopScorersFromDb(SEASON_IDS["2026"] ?? "").catch(() => [])
+      : Promise.resolve([]),
   ]);
 
   const topStory = narratives[0] ?? null;
@@ -68,14 +75,19 @@ export default async function AllsvenskanPage() {
         <FixturesTicker />
       </div>
       <div className="mb-8">
-        <h1 className="font-bold text-5xl text-foreground text-balance">ALLSVENSKAN</h1>
-        <p className="text-muted-foreground mt-2">Nyheter, tabell och matcher — uppdateras löpande.</p>
+        <h1 className="font-bold text-5xl text-foreground text-balance">{vertical.leagueHeading}</h1>
+        <p className="text-muted-foreground mt-2">{vertical.leagueSubtitle}</p>
+        {vertical.paused ? (
+          <p className="text-muted-foreground mt-2 max-w-xl">
+            Intaget är pausat. Tabell, matcher och artiklar visas när de finns — inga utfyllnadssiffror.
+          </p>
+        ) : null}
         <div className="flex gap-2 flex-wrap mt-4">
           {[
-            { href: "/allsvenskan/tabell", label: "Tabell" },
-            { href: "/allsvenskan/spelschema", label: "Spelschema" },
-            { href: "/allsvenskan/skytteliga", label: "Skytteliga" },
-            { href: "/allsvenskan/resultat", label: "Resultat" },
+            { href: leagueHref("/tabell"), label: "Tabell" },
+            { href: leagueHref("/spelschema"), label: "Spelschema" },
+            { href: leagueHref("/skytteliga"), label: vertical.id === "hockey" ? "Poängliga" : "Skytteliga" },
+            { href: leagueHref("/resultat"), label: "Resultat" },
             { href: "/statistik", label: "Statistik" },
           ].map(({ href, label }) => (
             <Link
@@ -161,7 +173,7 @@ export default async function AllsvenskanPage() {
           <div>
             <div className="mb-4 flex items-center justify-between">
               <h2 className="font-semibold text-2xl text-foreground text-balance">TABELL</h2>
-              <Link href="/allsvenskan/tabell" className="text-sm text-pitch-ink hover:underline">
+              <Link href={leagueHref("/tabell")} className="text-sm text-pitch-ink hover:underline">
                 Hela tabellen →
               </Link>
             </div>
@@ -237,7 +249,7 @@ export default async function AllsvenskanPage() {
             <div>
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="font-semibold text-2xl text-foreground text-balance">SKYTTELIGA</h2>
-                <Link href="/allsvenskan/skytteliga" className="text-sm text-pitch-ink hover:underline">
+                <Link href={leagueHref("/skytteliga")} className="text-sm text-pitch-ink hover:underline">
                   Hela skytteligan →
                 </Link>
               </div>

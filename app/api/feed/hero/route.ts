@@ -1,3 +1,5 @@
+import { planForVertical } from "@/lib/plan-for-vertical";
+import { SPORT, VERTICAL } from "@/lib/vertical";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { createServiceClient, isSupabaseConfigured } from "@/lib/supabase";
@@ -34,7 +36,7 @@ export async function GET(req: Request) {
   let isPro = false;
   try {
     const user = await currentUser();
-    const plan = (user?.publicMetadata?.plan as string | undefined) ?? "free";
+    const plan = planForVertical(VERTICAL, user?.publicMetadata as { plan?: unknown; plans?: unknown } | undefined);
     isPro = plan === "pro" || plan === "elite";
   } catch { /* ignorera */ }
 
@@ -50,6 +52,7 @@ export async function GET(req: Request) {
       .from("entities")
       .select("id")
       .eq("type", "team")
+      .eq("sport", SPORT)
       .eq("slug", team)
       .maybeSingle();
     teamEntityId = (entity?.id as string | undefined) ?? null;
@@ -65,7 +68,7 @@ export async function GET(req: Request) {
     .from("articles")
     .select(ARTICLE_SELECT)
     .eq("status", "published")
-    .eq("sport", "football")
+    .eq("sport", SPORT)
     .eq("is_athopia_generated", true)
     .order("published_at", { ascending: false })
     .limit(1);
@@ -76,7 +79,7 @@ export async function GET(req: Request) {
   let newsQ: any = db
     .from("news_feed_clustered")
     .select(CLUSTER_SELECT)
-    .eq("sport", "football")
+    .eq("sport", SPORT)
     .order("feed_score", { ascending: false, nullsFirst: false })
     .limit(5);
   if (teamEntityId) newsQ = newsQ.contains("entity_ids", [teamEntityId]);

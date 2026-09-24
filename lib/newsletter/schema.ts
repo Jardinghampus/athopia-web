@@ -1,7 +1,8 @@
+import { SPORT } from "@/lib/vertical";
 import { z } from "zod";
 
 export const NEWSLETTER_POLICY_VERSION = "lagbrief-v1";
-export const NEWSLETTER_SPORT = "football" as const;
+export const NEWSLETTER_SPORT = SPORT;
 
 export const CadenceSchema = z.enum(["quiet", "standard", "max"]);
 export type NewsletterCadence = z.infer<typeof CadenceSchema>;

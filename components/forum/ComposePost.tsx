@@ -1,4 +1,5 @@
 "use client";
+import { SPORT } from "@/lib/vertical";
 
 import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
@@ -46,7 +47,7 @@ export default function ComposePost({
   parentId,
   rootId,
   teamSlug,
-  sport = "football",
+  sport = SPORT,
   onPost,
   placeholder = "Vad tänker du?",
   showLabel = !parentId, // only show label picker for root posts

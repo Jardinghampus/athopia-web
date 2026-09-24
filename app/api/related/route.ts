@@ -14,6 +14,7 @@
 
 import { NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase";
+import { SPORT } from "@/lib/vertical";
 import type { Article } from "@/lib/types";
 
 export async function GET(req: Request) {
@@ -32,6 +33,7 @@ export async function GET(req: Request) {
       .from("articles")
       .select("embedding")
       .eq("id", id)
+      .eq("sport", SPORT)
       .single();
 
     if (sourceError || !source?.embedding) {

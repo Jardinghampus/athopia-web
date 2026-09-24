@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
+import { SPORT } from "@/lib/vertical";
 import type { Narrative } from "@/lib/types";
 import { TrendBadge } from "@/components/ui/TrendBadge";
 import { SentimentBar } from "@/components/ui/SentimentBar";
@@ -13,7 +14,7 @@ async function getNarrative(id: string): Promise<(Narrative & { articleIds: stri
   if (!isSupabaseConfigured()) return null;
   try {
     const supabase = createServerClient();
-    const { data } = await supabase.from("narratives").select("*").eq("id", id).maybeSingle();
+    const { data } = await supabase.from("narratives").select("*").eq("id", id).eq("sport", SPORT).maybeSingle();
     if (!data) return null;
     const row = data as any;
     const score = Number(row.score ?? row.importance_score ?? 0);
@@ -51,6 +52,7 @@ async function getSourceArticles(articleIds: string[]): Promise<SourceArticle[]>
     const { data } = await supabase
       .from("articles")
       .select("id, title, slug, source_name, published_at")
+      .eq("sport", SPORT)
       .in("id", articleIds.slice(0, 20))
       .order("published_at", { ascending: false });
     return (data ?? []) as SourceArticle[];

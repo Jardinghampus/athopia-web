@@ -1,3 +1,4 @@
+import { SPORT } from "@/lib/vertical";
 /**
  * PositionTrend — lagets tabellplacering omgång för omgång.
  * Server component. Läser standings_snapshots (backfyllda per omgång 2026-07-06).
@@ -27,7 +28,7 @@ async function getHistory(teamSlug: string): Promise<{ points: Point[]; teamCoun
     if (smId == null) return null;
 
     const { data: season } = await db
-      .from("seasons").select("sportmonks_id").eq("sport", "football").eq("is_current", true).maybeSingle();
+      .from("seasons").select("sportmonks_id").eq("sport", SPORT).eq("is_current", true).maybeSingle();
     if (!season?.sportmonks_id) return null;
 
     const { data } = await db

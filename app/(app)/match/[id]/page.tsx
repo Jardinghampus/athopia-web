@@ -1,3 +1,4 @@
+import { SPORT } from "@/lib/vertical";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
@@ -76,7 +77,7 @@ async function getData(fixtureId: number) {
     const { data: relatedPlayers } = await db
       .from("players")
       .select("sportmonks_id,fullname,image,position,slug")
-      .eq("sport", "football")
+      .eq("sport", SPORT)
       .in("sportmonks_id", missingRelatedIds);
     for (const p of relatedPlayers ?? []) {
       const id = Number(p.sportmonks_id);
@@ -115,7 +116,7 @@ async function getData(fixtureId: number) {
       const { data: arts } = await db
         .from("articles")
         .select("id,title,slug,source_name,published_at")
-        .eq("sport", "football")
+        .eq("sport", SPORT)
         .overlaps("entity_ids", entityIds)
         .order("published_at", { ascending: false })
         .limit(3);

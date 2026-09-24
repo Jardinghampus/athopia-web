@@ -4,7 +4,10 @@
  * Never trust client-supplied hosts for redirects.
  */
 
-const FALLBACK = "https://nanofotboll.se";
+const FALLBACK =
+  process.env.NEXT_PUBLIC_VERTICAL === "hockey"
+    ? "https://nanohockey.se"
+    : "https://nanofotboll.se";
 
 function normalize(raw: string): string {
   const trimmed = raw.trim().replace(/\/$/, "");

@@ -1,3 +1,4 @@
+import { SPORT, vertical } from "@/lib/vertical";
 import { unstable_cache } from "next/cache";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 
@@ -50,7 +51,8 @@ async function fetchAllsvenskanTeams(): Promise<FeedTeamOption[]> {
       .from("entities")
       .select("name, slug")
       .eq("type", "team")
-      .eq("metadata->>league", "Allsvenskan")
+      .eq("sport", SPORT)
+      .eq("metadata->>league", vertical.leagueEntity)
       .not("slug", "is", null)
       .order("name", { ascending: true });
     return (data ?? [])
@@ -93,7 +95,7 @@ async function fetchFeedFilterOptions(): Promise<FeedFilterOptions> {
     const { data } = await db
       .from("news_feed")
       .select("source_name, news_tag")
-      .eq("sport", "football")
+      .eq("sport", SPORT)
       .order("published_at", { ascending: false })
       .limit(2000);
 

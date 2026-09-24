@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import AthopiaLanding, { type LandingArticle } from "@/components/landing/AthopiaLanding";
 import { SportFront } from "@/components/landing/SportFront";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
@@ -9,6 +10,7 @@ import { jsonLd } from "@/lib/json-ld";
 import { isWaitlistMode } from "@/lib/waitlist/mode";
 import { getWebsiteSettings } from "@/lib/website-settings.server";
 import { resolveShareMetadata, toNextMetadata } from "@/lib/website-settings";
+import { SPORT, VERTICAL, vertical } from "@/lib/vertical";
 
 // ISR: servera cachad HTML direkt (snabb laddning), regenerera i bakgrunden.
 // Tidigare 'force-dynamic' gjorde att varje besök blockerade på en Supabase-query
@@ -30,7 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const resolved = resolveShareMetadata(settings, { kind: "home" });
   return {
     ...toNextMetadata(settings, resolved),
-    keywords: SEO_KEYWORDS,
+    keywords: VERTICAL === "hockey" ? [...vertical.seoKeywords] : SEO_KEYWORDS,
   };
 }
 
@@ -43,6 +45,7 @@ async function getLatestArticles(): Promise<LandingArticle[]> {
       .select("*")
       .eq("status", "published")
       .eq("is_processed", true)
+      .eq("sport", SPORT)
       .order("published_at", { ascending: false })
       .limit(6);
 
@@ -52,7 +55,7 @@ async function getLatestArticles(): Promise<LandingArticle[]> {
         slug: String(row.slug ?? ""),
         title: String(row.title ?? ""),
         summary: String(row.summary ?? row.ai_summary ?? ""),
-        sourceName: String(row.source_name ?? row.sourceName ?? "Nano Fotboll"),
+        sourceName: String(row.source_name ?? row.sourceName ?? vertical.productName),
         publishedAt: String(row.published_at ?? row.publishedAt ?? row.created_at ?? ""),
       }))
       .filter((a) => a.slug && a.title);
@@ -68,11 +71,13 @@ function LandingJsonLd() {
       {
         "@type": "WebSite",
         "@id": `${SITE}/#website`,
-        name: "Nano Fotboll",
+        name: vertical.productName,
         url: SITE,
         inLanguage: "sv-SE",
         description:
-          "Allsvenskan 2026 — tabell, resultat, matcher, skytteliga, statistik, matchanalyser och forum för alla 16 lag.",
+          VERTICAL === "hockey"
+            ? vertical.leagueDescription
+            : "Allsvenskan 2026 — tabell, resultat, matcher, skytteliga, statistik, matchanalyser och forum för alla 16 lag.",
         potentialAction: {
           "@type": "SearchAction",
           target: { "@type": "EntryPoint", urlTemplate: absoluteUrl("/nyheter?q={search_term_string}") },
@@ -81,10 +86,10 @@ function LandingJsonLd() {
       },
       {
         "@type": "SportsOrganization",
-        "@id": `${SITE}/#allsvenskan`,
-        name: "Allsvenskan",
-        sport: "Soccer",
-        url: absoluteUrl("/allsvenskan"),
+        "@id": `${SITE}/#${vertical.leaguePath.slice(1)}`,
+        name: vertical.leagueEntity,
+        sport: vertical.schemaSport,
+        url: absoluteUrl(vertical.leaguePath),
       },
     ],
   };
@@ -92,6 +97,7 @@ function LandingJsonLd() {
 }
 
 export default async function LandingPage() {
+  if (VERTICAL === "hockey") redirect(vertical.leaguePath);
   // Inloggad-redirect hanteras i proxy.ts (edge, ingen currentUser()-call här)
   // så denna route förblir statisk/ISR-cachebar (revalidate=120) för alla
   // utloggade besökare — se LCP-utredning i proxy.ts.
@@ -122,6 +128,9 @@ export default async function LandingPage() {
 
 /** Riktig sportpuls i heron: live-match eller nästa avspark + serieledaren. */
 async function getHeroPulse() {
+  if (VERTICAL === "hockey") {
+    return { live: false, matchName: null, matchId: null, kickoff: null, leaderName: null, leaderPoints: null };
+  }
   try {
     const [{ fetchLiveScores, fetchAllsvenskanFixtures, fetchStandingsFull }] = await Promise.all([
       import("@/lib/db/fixtures"),
@@ -152,6 +161,7 @@ async function getHeroPulse() {
 
 /** Alla 16 klubbar för hero-klubbväljaren. */
 async function getClubChips() {
+  if (VERTICAL === "hockey") return [];
   try {
     const { fetchTeamsWithSlugs } = await import("@/lib/db/fixtures");
     const teams = await fetchTeamsWithSlugs();

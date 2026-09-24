@@ -1,3 +1,4 @@
+import { SPORT, leagueHref } from "@/lib/vertical";
 import type { MetadataRoute } from "next";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import { getSiteUrl } from "@/lib/site-url";
@@ -10,13 +11,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: BASE, lastModified: new Date(), changeFrequency: "daily", priority: 1 },
     { url: `${BASE}/nyheter`, lastModified: new Date(), changeFrequency: "daily", priority: 0.9 },
-    { url: `${BASE}/allsvenskan`, lastModified: new Date(), changeFrequency: "hourly", priority: 0.85 },
-    { url: `${BASE}/allsvenskan/tabell`, lastModified: new Date(), changeFrequency: "daily", priority: 0.85 },
-    { url: `${BASE}/allsvenskan/skytteliga`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
-    { url: `${BASE}/allsvenskan/xp-tabell`, lastModified: new Date(), changeFrequency: "daily", priority: 0.75 },
-    { url: `${BASE}/allsvenskan/talanger`, lastModified: new Date(), changeFrequency: "daily", priority: 0.7 },
-    { url: `${BASE}/allsvenskan/spelschema`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.75 },
-    { url: `${BASE}/allsvenskan/resultat`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
+    { url: `${BASE}${leagueHref()}`, lastModified: new Date(), changeFrequency: "hourly", priority: 0.85 },
+    { url: `${BASE}${leagueHref("/tabell")}`, lastModified: new Date(), changeFrequency: "daily", priority: 0.85 },
+    { url: `${BASE}${leagueHref("/skytteliga")}`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
+    { url: `${BASE}${leagueHref("/xp-tabell")}`, lastModified: new Date(), changeFrequency: "daily", priority: 0.75 },
+    { url: `${BASE}${leagueHref("/talanger")}`, lastModified: new Date(), changeFrequency: "daily", priority: 0.7 },
+    { url: `${BASE}${leagueHref("/spelschema")}`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.75 },
+    { url: `${BASE}${leagueHref("/resultat")}`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
     { url: `${BASE}/match`, lastModified: new Date(), changeFrequency: "hourly", priority: 0.85 },
     { url: `${BASE}/statistik`, lastModified: new Date(), changeFrequency: "daily", priority: 0.75 },
     { url: `${BASE}/forum`, lastModified: new Date(), changeFrequency: "daily", priority: 0.7 },
@@ -25,7 +26,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/prenumerera`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.6 },
     // Omgångssidor (programmatisk SEO)
     ...Array.from({ length: 30 }, (_, i) => ({
-      url: `${BASE}/allsvenskan/omgang/${i + 1}`,
+      url: `${BASE}${leagueHref(`/omgang/${i + 1}`)}`,
       lastModified: new Date(),
       changeFrequency: "daily" as const,
       priority: 0.65,
@@ -49,6 +50,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .from("articles")
       .select("slug, published_at, rights_status, is_athopia_generated")
       .eq("status", "published")
+      .eq("sport", SPORT)
       .order("published_at", { ascending: false })
       .limit(1000);
     // Sitemap only indexes owned/licensed Nano Fotboll pages — link_only is noindex /nyhet.
@@ -70,6 +72,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .from("entities")
       .select("slug, updated_at")
       .eq("type", "team")
+      .eq("sport", SPORT)
       .not("sportmonks_id", "is", null)
       .not("slug", "is", null);
     teamRoutes = (teams ?? []).map((t) => ({
@@ -79,7 +82,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.6,
     }));
 
-    const { data: players } = await supabase.from("players").select("slug, updated_at");
+    const { data: players } = await supabase.from("players").select("slug, updated_at").eq("sport", SPORT);
     playerRoutes = (players ?? []).map((p) => ({
       url: `${BASE}/spelare/${p.slug}`,
       lastModified: p.updated_at ? new Date(p.updated_at) : new Date(),
@@ -91,7 +94,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const { data: fixtures } = await supabase
       .from("fixtures")
       .select("sportmonks_id, kickoff_at, status, updated_at")
-      .eq("sport", "football")
+      .eq("sport", SPORT)
       .in("status", ["FT", "NS", "LIVE"])
       .order("kickoff_at", { ascending: false })
       .limit(500);

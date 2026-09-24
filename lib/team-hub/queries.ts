@@ -1,3 +1,4 @@
+import { SPORT } from "@/lib/vertical";
 /**
  * lib/team-hub/queries.ts — Team Hub aggregeringslager
  * ─────────────────────────────────────────────────────────────────────────────
@@ -16,7 +17,6 @@ import type { DashArticle, DashThread } from "@/lib/dashboard/types";
 import type { PodcastEpisodeSignal } from "@/lib/types";
 
 export const SEASON_2026 = 26806;
-const SPORT = "football";
 
 export interface TeamSeasonRow {
   team_id: number;
@@ -290,6 +290,7 @@ export async function getDailyEpisodeForShare(teamSlug?: string | null): Promise
       .from("entities")
       .select("id")
       .eq("type", "team")
+      .eq("sport", SPORT)
       .eq("slug", slug)
       .maybeSingle();
     const entityId = data?.id ? String(data.id) : null;
@@ -319,7 +320,7 @@ export async function getTeamPulse(teamEntityId: string): Promise<TeamPulse | nu
       .from("published_team_daily_pulses")
       .select("headline,dek,body,match_context_label,pulse_date")
       .eq("team_entity_id", teamEntityId)
-      .eq("sport", "football")
+      .eq("sport", SPORT)
       .order("pulse_date", { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -410,6 +411,7 @@ export async function getTeamNewsPersonalized(
       .from("entities")
       .select("id")
       .eq("type", "team")
+      .eq("sport", SPORT)
       .eq("slug", teamSlug)
       .maybeSingle();
     if (!team?.id) return [];
@@ -442,7 +444,7 @@ export async function getTeamHub(
   // Ingen mock-/demodata på publika ytor (CLAUDE.md / LAUNCH).
   if (!isSupabaseConfigured()) return null;
   const db = createServerClient();
-  const { data } = await db.from("entities").select("*").eq("type", "team").eq("slug", slug).maybeSingle();
+  const { data } = await db.from("entities").select("*").eq("type", "team").eq("sport", SPORT).eq("slug", slug).maybeSingle();
   if (!data) return null;
   const meta = (data.metadata ?? {}) as Record<string, unknown>;
   const smId = (meta.sportsmonks_id as number | null) ?? null;

@@ -7,6 +7,9 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
+const isHockey = process.env.NEXT_PUBLIC_VERTICAL === "hockey";
+const leagueHome = isHockey ? "/shl" : "/allsvenskan";
+
 const nextConfig: NextConfig = {
   // Turbopack root — fix för pnpm workspace med mehrere lockfiles
   turbopack: {
@@ -17,7 +20,13 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       { source: "/priser", destination: "/prenumerera", permanent: true },
-      { source: "/hem", destination: "/allsvenskan", permanent: true },
+      { source: "/hem", destination: leagueHome, permanent: true },
+      ...(isHockey
+        ? [
+            { source: "/allsvenskan", destination: "/shl", permanent: false },
+            { source: "/allsvenskan/:path*", destination: "/shl/:path*", permanent: false },
+          ]
+        : []),
       { source: "/sammanfattning", destination: "/mitt-lag", permanent: true },
       { source: "/feed", destination: "/mitt-lag", permanent: true },
       // Lagsektionerna bytte namn nar `?tab=` blev riktiga routes. Redirecten
@@ -34,6 +43,13 @@ const nextConfig: NextConfig = {
         destination: "/lag/:slug/analys",
         permanent: true,
       },
+    ];
+  },
+  async rewrites() {
+    if (!isHockey) return [];
+    return [
+      { source: "/shl", destination: "/allsvenskan" },
+      { source: "/shl/:path*", destination: "/allsvenskan/:path*" },
     ];
   },
   experimental: {

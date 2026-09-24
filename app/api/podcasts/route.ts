@@ -1,10 +1,10 @@
+import { SPORT } from "@/lib/vertical";
 import { NextRequest, NextResponse } from "next/server";
 import { listenMetaFromRow } from "@/lib/podcast/spotify";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import { jsonContract } from "@/lib/api-contract";
 import { PodcastListResponseSchema, PodcastEpisodeResponseSchema } from "@/lib/api-schemas";
 
-const SPORT = "football";
 
 type PodcastRow = {
   id: string;

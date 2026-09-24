@@ -9,6 +9,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ExternalLink } from "lucide-react";
 import { createServerClient } from "@/lib/supabase";
+import { SPORT } from "@/lib/vertical";
 import {
   canPublishBody,
   resolveRightsStatus,
@@ -43,6 +44,7 @@ async function getNyhet(slug: string): Promise<NyhetRow | null> {
         "id, slug, title, url, source_name, published_at, rights_status, content_origin, is_athopia_generated, status",
       )
       .eq("slug", slug)
+      .eq("sport", SPORT)
       .eq("status", "published")
       .maybeSingle();
     if (error || !data) return null;

@@ -1,3 +1,4 @@
+import { SPORT } from "@/lib/vertical";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
@@ -10,7 +11,6 @@ import { PlayerAvatar } from "@/components/ui/PlayerAvatar";
 export const revalidate = 60;
 
 const SEASON_2026 = 26806;
-const SPORT = "football";
 
 type PlayerStatRow = Record<string, unknown> & {
   player: Record<string, unknown> | null;
@@ -19,7 +19,7 @@ type PlayerStatRow = Record<string, unknown> & {
 async function getTeamSmId(slug: string): Promise<{ name: string; smId: number | null }> {
   if (!isSupabaseConfigured()) return { name: slug, smId: null };
   const db = createServerClient();
-  const { data } = await db.from("entities").select("name,metadata").eq("type", "team").eq("slug", slug).maybeSingle();
+  const { data } = await db.from("entities").select("name,metadata").eq("type", "team").eq("sport", SPORT).eq("slug", slug).maybeSingle();
   const meta = (data?.metadata ?? {}) as Record<string, unknown>;
   return { name: (data?.name as string) ?? slug, smId: (meta.sportsmonks_id as number | null) ?? null };
 }

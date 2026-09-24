@@ -2,20 +2,34 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getTopScorersFromDb, SEASON_IDS } from "@/lib/statistik";
 import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
+import { VERTICAL, leagueHref, vertical } from "@/lib/vertical";
+import { getSiteUrl } from "@/lib/site-url";
 import { PlayerAvatar } from "@/components/ui/PlayerAvatar";
 
 export const revalidate = 300;
 
+const TITLE =
+  VERTICAL === "hockey"
+    ? "SHL Poängliga 2026/27"
+    : "Allsvenskan Skytteliga 2026 – Toppskytt & Målkung";
+const CANONICAL =
+  VERTICAL === "hockey"
+    ? `${getSiteUrl()}${leagueHref("/skytteliga")}`
+    : "https://nanofotboll.se/allsvenskan/skytteliga";
+
 export const metadata: Metadata = {
-  title: "Allsvenskan Skytteliga 2026 – Toppskytt & Målkung",
-  description: "Aktuell skytteliga för Allsvenskan 2026. Se vilken spelare som leder jakten på titeln som toppskytt med flest mål.",
-  alternates: { canonical: "https://nanofotboll.se/allsvenskan/skytteliga" },
+  title: TITLE,
+  description:
+    VERTICAL === "hockey"
+      ? "Poängligan i SHL 2026/27. Visas när statistiken finns — inga utfyllnadssiffror."
+      : "Aktuell skytteliga för Allsvenskan 2026. Se vilken spelare som leder jakten på titeln som toppskytt med flest mål.",
+  alternates: { canonical: CANONICAL },
   openGraph: {
     type: "website",
     locale: "sv_SE",
-    url: "https://nanofotboll.se/allsvenskan/skytteliga",
-    title: "Allsvenskan Skytteliga 2026 – Toppskytt & Målkung",
-    description: "Vem leder skytteligan i Allsvenskan 2026?",
+    url: CANONICAL,
+    title: TITLE,
+    description: VERTICAL === "hockey" ? "Vem leder poängligan i SHL 2026/27?" : "Vem leder skytteligan i Allsvenskan 2026?",
   },
 };
 
@@ -25,21 +39,21 @@ export default async function AllsvenskanSkytteligaPage() {
   // insättningsordning) — gav en tom skytteliga i produktion 2026-07-03.
   // Explicit nyckel = korrekt oavsett hur SEASON_IDS-objektet är skrivet.
   const seasonId = SEASON_IDS["2026"] ?? "";
-  const scorers = await getTopScorersFromDb(seasonId).catch(() => []);
+  const scorers = VERTICAL === "hockey" ? [] : await getTopScorersFromDb(seasonId).catch(() => []);
 
   return (
     <div className="w-full px-4 sm:px-8 py-10 max-w-3xl mx-auto">
       <div className="mb-6">
         <AppBreadcrumbs
           items={[
-            { label: "Allsvenskan", href: "/allsvenskan" },
-            { label: "Skytteliga" },
+            { label: vertical.leagueName, href: vertical.leaguePath },
+            { label: VERTICAL === "hockey" ? "Poängliga" : "Skytteliga" },
           ]}
         />
       </div>
 
-      <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2 text-balance">ALLSVENSKAN SKYTTELIGA 2026</h1>
-      <p className="text-muted-foreground mb-8">Vem leder skytteligan just nu?</p>
+      <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2 text-balance">{VERTICAL === "hockey" ? "SHL POÄNGLIGA 2026/27" : "ALLSVENSKAN SKYTTELIGA 2026"}</h1>
+      <p className="text-muted-foreground mb-8">{VERTICAL === "hockey" ? "Poängligan visas när statistiken finns." : "Vem leder skytteligan just nu?"}</p>
 
       <div className="rounded-2xl border border-border overflow-hidden">
         <table className="w-full text-sm">

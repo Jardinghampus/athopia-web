@@ -1,3 +1,4 @@
+import { SPORT } from "@/lib/vertical";
 /**
  * Player profile snapshot for iOS/web (closes StatsRepository Supabase-direct).
  */
@@ -7,7 +8,6 @@ import { SEASON_IDS } from "@/lib/statistik";
 import { getTeamNameMap } from "@/lib/team-names";
 
 const QUALIFYING_MINUTES = 300;
-const SPORT = "football";
 
 export type PlayerProfilePlayer = {
   sportmonksId: number;

@@ -1,3 +1,4 @@
+import { SPORT, vertical } from "@/lib/vertical";
 /**
  * lib/waitlist/teams.ts — lagvalidering för waitlist-formuläret.
  *
@@ -9,7 +10,6 @@
 import "server-only";
 import { createServiceClient, isSupabaseConfigured } from "@/lib/supabase";
 
-const SPORT = "football";
 
 export interface WaitlistTeam {
   slug: string;
@@ -29,7 +29,7 @@ export async function listWaitlistTeams(): Promise<WaitlistTeam[]> {
       .select("name, slug")
       .eq("sport", SPORT)
       .eq("type", "team")
-      .eq("metadata->>league", "Allsvenskan")
+      .eq("metadata->>league", vertical.leagueEntity)
       .order("name");
 
     if (error || !data) return [];

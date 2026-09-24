@@ -1,3 +1,4 @@
+import { SPORT } from "@/lib/vertical";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -116,7 +117,7 @@ export default async function ThreadPage({
             root={root}
             replies={replies}
             teamSlug={teamSlug}
-            sport={root.sport ?? "football"}
+            sport={root.sport ?? SPORT}
           />
         </div>
       </div>

@@ -1,3 +1,4 @@
+import { SPORT } from "@/lib/vertical";
 /**
  * Server-directed Home feed modules (B-05).
  * Client owns rendering; server owns type/order/content.
@@ -23,7 +24,6 @@ import { getDailyEpisodeForShareCached } from "@/lib/team-hub/queries";
 
 export type FeedModule = z.infer<typeof FeedModuleSchema>;
 
-const SPORT = "football";
 
 export type BuildFeedModulesOptions = {
   /** Effective plan for access flags (never include signed audio URLs). */

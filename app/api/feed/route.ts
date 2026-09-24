@@ -1,3 +1,4 @@
+import { SPORT } from "@/lib/vertical";
 import { auth } from "@clerk/nextjs/server";
 import { createClient } from "@supabase/supabase-js";
 import { jsonContract } from "@/lib/api-contract";
@@ -120,7 +121,7 @@ export async function GET(req: Request) {
       .select(
         "id, title, source_name, url, published_at, summary, importance_score, feed_score, entity_ids, news_tag, source_count, story_cluster_id, push_priority, slug, rights_status, is_athopia_generated",
       )
-      .eq("sport", "football")
+      .eq("sport", SPORT)
       .order(isPro ? "feed_score" : "published_at", { ascending: false, nullsFirst: false })
       .range(offset, offset + effectiveLimit - 1);
 
@@ -144,7 +145,7 @@ export async function GET(req: Request) {
         .select(
           "id, title, source_name, url, published_at, summary, importance_score, feed_score, entity_ids, news_tag, source_count, story_cluster_id, push_priority",
         )
-        .eq("sport", "football")
+        .eq("sport", SPORT)
         .order(isPro ? "feed_score" : "published_at", { ascending: false, nullsFirst: false })
         .range(offset, offset + effectiveLimit - 1);
       if (filterTeamIds.length === 1) {

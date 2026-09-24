@@ -1,6 +1,6 @@
+import { SPORT } from "@/lib/vertical";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 
-const SPORT = "football";
 
 export interface Highlight {
   id: string;

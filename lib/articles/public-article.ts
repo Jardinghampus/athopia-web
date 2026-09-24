@@ -1,4 +1,5 @@
 import "server-only";
+import { SPORT } from "@/lib/vertical";
 
 import { createServerClient } from "@/lib/supabase";
 import type { Article } from "@/lib/types";
@@ -7,7 +8,6 @@ import {
   sanitizeArticleForPublic,
 } from "@/lib/provenance";
 
-const SPORT = "football";
 
 export async function getPublicArticleBySlug(slug: string): Promise<Article | null> {
   const supabase = createServerClient();

@@ -1,4 +1,5 @@
 import "server-only";
+import { SPORT } from "@/lib/vertical";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import type { Plan } from "@/lib/access-rules";
 
@@ -45,7 +46,7 @@ export async function getLatestTeamBrief(
   const { data, error } = await db
     .from("team_briefings" as never)
     .select("brief_date, moment, status, free_edition, pro_edition, generated_at")
-    .eq("sport", "football")
+    .eq("sport", SPORT)
     .eq("team_slug", teamSlug)
     .in("status", ["preview_ready", "approved", "scheduled", "sent"])
     .order("generated_at", { ascending: false })

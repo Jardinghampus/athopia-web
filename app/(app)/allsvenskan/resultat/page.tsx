@@ -4,19 +4,33 @@ import { fetchAllsvenskanFixtures } from "@/lib/db/fixtures";
 import type { SMFixture } from "@/lib/db/fixtures";
 import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
 import { jsonLd } from "@/lib/json-ld";
+import { VERTICAL, leagueHref, vertical } from "@/lib/vertical";
+import { getSiteUrl } from "@/lib/site-url";
 
 export const revalidate = 60;
 
+const TITLE =
+  VERTICAL === "hockey"
+    ? "SHL Resultat 2026/27 – Alla Matchresultat"
+    : "Allsvenskan Resultat 2026 – Alla Matchresultat";
+const CANONICAL =
+  VERTICAL === "hockey"
+    ? `${getSiteUrl()}${leagueHref("/resultat")}`
+    : "https://nanofotboll.se/allsvenskan/resultat";
+
 export const metadata: Metadata = {
-  title: "Allsvenskan Resultat 2026 – Alla Matchresultat",
-  description: "Samtliga matchresultat från Allsvenskan 2026, omgång för omgång. Live-uppdaterat.",
-  alternates: { canonical: "https://nanofotboll.se/allsvenskan/resultat" },
+  title: TITLE,
+  description:
+    VERTICAL === "hockey"
+      ? "Matchresultat från SHL 2026/27. Visas när de finns."
+      : "Samtliga matchresultat från Allsvenskan 2026, omgång för omgång. Live-uppdaterat.",
+  alternates: { canonical: CANONICAL },
   openGraph: {
     type: "website",
     locale: "sv_SE",
-    url: "https://nanofotboll.se/allsvenskan/resultat",
-    title: "Allsvenskan Resultat 2026 – Alla Matchresultat",
-    description: "Samtliga matchresultat från Allsvenskan 2026.",
+    url: CANONICAL,
+    title: TITLE,
+    description: VERTICAL === "hockey" ? "Matchresultat från SHL 2026/27." : "Samtliga matchresultat från Allsvenskan 2026.",
   },
 };
 
@@ -45,7 +59,7 @@ export default async function AllsvenskanResultatPage() {
       <div className="mb-4">
         <AppBreadcrumbs
           items={[
-            { label: "Allsvenskan", href: "/allsvenskan" },
+            { label: vertical.leagueName, href: vertical.leaguePath },
             { label: "Resultat" },
           ]}
         />
@@ -54,18 +68,18 @@ export default async function AllsvenskanResultatPage() {
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
         itemListElement: [
-          { "@type": "ListItem", position: 1, name: "Allsvenskan", item: "https://nanofotboll.se/allsvenskan" },
-          { "@type": "ListItem", position: 2, name: "Resultat", item: "https://nanofotboll.se/allsvenskan/resultat" },
+          { "@type": "ListItem", position: 1, name: vertical.leagueName, item: VERTICAL === "hockey" ? `${getSiteUrl()}${vertical.leaguePath}` : "https://nanofotboll.se/allsvenskan" },
+          { "@type": "ListItem", position: 2, name: "Resultat", item: CANONICAL },
         ],
       })}} />
 
-      <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2 text-balance">ALLSVENSKAN RESULTAT 2026</h1>
+      <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2 text-balance">{VERTICAL === "hockey" ? "SHL RESULTAT 2026/27" : "ALLSVENSKAN RESULTAT 2026"}</h1>
       <p className="text-muted-foreground mb-8">Alla matchresultat — senaste matchen visas först.</p>
 
       {finished.length === 0 ? (
         <div className="rounded-2xl border border-border bg-card px-4 py-10 text-center text-muted-foreground">
           <p>Säsongen har inte sparkat igång än — inga matcher är spelade.</p>
-          <Link href="/allsvenskan/spelschema" className="mt-2 inline-block text-sm text-pitch-ink hover:underline">
+          <Link href={leagueHref("/spelschema")} className="mt-2 inline-block text-sm text-pitch-ink hover:underline">
             Se spelschemat →
           </Link>
         </div>

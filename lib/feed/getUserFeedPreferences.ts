@@ -1,3 +1,4 @@
+import { SPORT } from "@/lib/vertical";
 import { auth } from "@clerk/nextjs/server";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import { getPrimaryTeam } from "@/lib/team/getPrimaryTeam";
@@ -28,7 +29,7 @@ export async function getUserFeedPreferences(): Promise<UserFeedPreferences> {
       .from("user_feed_config")
       .select("content_types")
       .eq("clerk_user_id", userId)
-      .eq("sport", "football")
+      .eq("sport", SPORT)
       .maybeSingle(),
   ]);
 

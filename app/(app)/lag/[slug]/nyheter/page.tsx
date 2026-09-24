@@ -4,6 +4,7 @@ import { ArticleCard } from "@/components/ui/ArticleCard";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase";
 import type { Article } from "@/lib/types";
 import { Newspaper } from "lucide-react";
+import { SPORT } from "@/lib/vertical";
 
 export const dynamic = 'force-dynamic';
 
@@ -35,6 +36,7 @@ async function getTeam(slug: string): Promise<{ id: string; name: string } | nul
       .select("id,name")
       .eq("slug", slug)
       .eq("type", "team")
+      .eq("sport", SPORT)
       .maybeSingle();
     return data ? { id: String(data.id), name: String(data.name) } : null;
   } catch {
@@ -50,6 +52,7 @@ async function getTeamArticles(teamId: string): Promise<Article[]> {
       .from("articles")
       .select("*")
       .eq("status", "published")
+      .eq("sport", SPORT)
       .contains("entity_ids", [teamId])
       .order("published_at", { ascending: false })
       .limit(24);

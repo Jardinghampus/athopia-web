@@ -6,6 +6,8 @@ import type { SMStandingRow } from "@/lib/db/fixtures";
 import { AppBreadcrumbs } from "@/components/ui/AppBreadcrumbs";
 import { Target, CalendarDays, Flag, BarChart3, Sparkles } from "lucide-react";
 import { jsonLd } from "@/lib/json-ld";
+import { VERTICAL, leagueHref, vertical } from "@/lib/vertical";
+import { getSiteUrl } from "@/lib/site-url";
 
 export const revalidate = 60;
 
@@ -13,6 +15,7 @@ export const revalidate = 60;
 // zon-flagga i vår standings-vy, så den härleds från placering (stabil regel).
 type Zone = "cl" | "el" | "playoff" | "relegation" | null;
 function zoneFor(position: number): Zone {
+  if (VERTICAL === "hockey") return null;
   if (position === 1) return "cl";
   if (position === 2 || position === 3) return "el";
   if (position === 14) return "playoff";
@@ -32,16 +35,32 @@ const ZONE_LABEL: Record<Exclude<Zone, null>, string> = {
   relegation: "Nedflyttning",
 };
 
+const TABELL_TITLE =
+  VERTICAL === "hockey"
+    ? "SHL Tabell 2026/27 – Poängtabell & Ställning"
+    : "Allsvenskan Tabell 2026 – Poängtabell & Ställning";
+const TABELL_DESCRIPTION =
+  VERTICAL === "hockey"
+    ? "Aktuell SHL-tabell 2026/27 med poäng, målskillnad och form. Uppdateras när intaget är på."
+    : "Aktuell Allsvenskan-tabell 2026 med poäng, målskillnad och form för alla 16 lag. Uppdateras automatiskt efter varje match.";
+const TABELL_CANONICAL =
+  VERTICAL === "hockey"
+    ? `${getSiteUrl()}${leagueHref("/tabell")}`
+    : "https://nanofotboll.se/allsvenskan/tabell";
+
 export const metadata: Metadata = {
-  title: "Allsvenskan Tabell 2026 – Poängtabell & Ställning",
-  description: "Aktuell Allsvenskan-tabell 2026 med poäng, målskillnad och form för alla 16 lag. Uppdateras automatiskt efter varje match.",
-  alternates: { canonical: "https://nanofotboll.se/allsvenskan/tabell" },
+  title: TABELL_TITLE,
+  description: TABELL_DESCRIPTION,
+  alternates: { canonical: TABELL_CANONICAL },
   openGraph: {
     type: "website",
     locale: "sv_SE",
-    url: "https://nanofotboll.se/allsvenskan/tabell",
-    title: "Allsvenskan Tabell 2026 – Poängtabell & Ställning",
-    description: "Aktuell Allsvenskan-tabell 2026 med poäng, målskillnad och form.",
+    url: TABELL_CANONICAL,
+    title: TABELL_TITLE,
+    description:
+      VERTICAL === "hockey"
+        ? "Aktuell SHL-tabell 2026/27 med poäng, målskillnad och form."
+        : "Aktuell Allsvenskan-tabell 2026 med poäng, målskillnad och form.",
   },
 };
 
@@ -61,7 +80,7 @@ export default async function AllsvenskanTabellPage() {
       <div className="mb-4">
         <AppBreadcrumbs
           items={[
-            { label: "Allsvenskan", href: "/allsvenskan" },
+            { label: vertical.leagueName, href: vertical.leaguePath },
             { label: "Tabell" },
           ]}
         />
@@ -69,11 +88,13 @@ export default async function AllsvenskanTabellPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd({
         "@context": "https://schema.org",
         "@type": "Table",
-        about: { "@type": "SportsOrganization", name: "Allsvenskan 2026", sport: "Soccer", url: "https://nanofotboll.se/allsvenskan" },
-        description: standings[0] ? `Allsvenskan-tabell 2026. Ledare: ${standings[0].team.name}` : "Allsvenskan-tabell 2026",
+        about: { "@type": "SportsOrganization", name: VERTICAL === "hockey" ? "SHL 2026/27" : "Allsvenskan 2026", sport: vertical.schemaSport, url: TABELL_CANONICAL.replace(/\/tabell$/, "") },
+        description: standings[0]
+          ? `${VERTICAL === "hockey" ? "SHL-tabell 2026/27" : "Allsvenskan-tabell 2026"}. Ledare: ${standings[0].team.name}`
+          : VERTICAL === "hockey" ? "SHL-tabell 2026/27" : "Allsvenskan-tabell 2026",
       })}} />
 
-      <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2 text-balance">ALLSVENSKAN TABELL 2026</h1>
+      <h1 className="font-bold text-4xl sm:text-5xl text-foreground mb-2 text-balance">{VERTICAL === "hockey" ? "SHL TABELL 2026/27" : "ALLSVENSKAN TABELL 2026"}</h1>
       {notice ? (
         <p
           data-testid="standings-staleness"
@@ -85,16 +106,16 @@ export default async function AllsvenskanTabellPage() {
         <p className="text-muted-foreground mb-6">Uppdateras löpande under säsongen.</p>
       )}
 
-      <nav aria-label="Allsvenskan-sidor" className="mb-8 flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
+      <nav aria-label={VERTICAL === "hockey" ? "SHL-sidor" : "Allsvenskan-sidor"} className="mb-8 flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
         {/* Lucide-ikoner, inte emoji. Emoji renderas i systemets egen stil och
             bryter mot ikonspråket i resten av appen — och jordgloben som stod
             för Skytteliga betydde ingenting. */}
         {[
-          { href: "/allsvenskan/skytteliga", Icon: Target, label: "Skytteliga" },
-          { href: "/allsvenskan/spelschema", Icon: CalendarDays, label: "Spelschema" },
-          { href: "/allsvenskan/resultat", Icon: Flag, label: "Resultat" },
-          { href: "/allsvenskan/xp-tabell", Icon: BarChart3, label: "xP-tabell" },
-          { href: "/allsvenskan/talanger", Icon: Sparkles, label: "Talanger" },
+          { href: leagueHref("/skytteliga"), Icon: Target, label: VERTICAL === "hockey" ? "Poängliga" : "Skytteliga" },
+          { href: leagueHref("/spelschema"), Icon: CalendarDays, label: "Spelschema" },
+          { href: leagueHref("/resultat"), Icon: Flag, label: "Resultat" },
+          { href: leagueHref("/xp-tabell"), Icon: BarChart3, label: "xP-tabell" },
+          { href: leagueHref("/talanger"), Icon: Sparkles, label: "Talanger" },
         ].map((l) => (
           <Link
             key={l.href}

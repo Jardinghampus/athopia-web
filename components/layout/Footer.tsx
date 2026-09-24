@@ -2,6 +2,7 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { leagueHref, vertical } from "@/lib/vertical";
 
 export function Footer() {
   const pathname = usePathname();
@@ -10,8 +11,8 @@ export function Footer() {
     <footer className="hidden md:block border-t border-border/50 mt-24 py-12 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-4 gap-10 text-sm">
         <div className="md:col-span-1">
-          <div className="font-heading text-2xl text-gradient">NANO FOTBOLL</div>
-          <p className="mt-2 text-muted-foreground">Svensk fotbollsintelligens</p>
+          <div className="font-heading text-2xl text-gradient">{vertical.wordmark}</div>
+          <p className="mt-2 text-muted-foreground">{vertical.tagline}</p>
           <div className="mt-4">
             <Badge variant="outline" className="bg-white/5 border-white/10 text-foreground/80">
               Byggd med AI
@@ -28,8 +29,8 @@ export function Footer() {
               </Link>
             </li>
             <li>
-              <Link href="/allsvenskan" className="hover:text-foreground transition-colors">
-                Allsvenskan
+              <Link href={leagueHref()} className="hover:text-foreground transition-colors">
+                {vertical.leagueName}
               </Link>
             </li>
             <li>
@@ -43,21 +44,16 @@ export function Footer() {
         <div>
           <div className="font-medium text-foreground mb-3">Lag</div>
           <ul className="space-y-2 text-muted-foreground">
-            <li>
-              <Link href="/lag/aik" className="hover:text-foreground transition-colors">
-                AIK
-              </Link>
-            </li>
-            <li>
-              <Link href="/lag/djurgarden" className="hover:text-foreground transition-colors">
-                DIF
-              </Link>
-            </li>
-            <li>
-              <Link href="/lag/malmo-ff" className="hover:text-foreground transition-colors">
-                Malmö
-              </Link>
-            </li>
+            {vertical.featuredTeams.map((team) => (
+              <li key={team.href}>
+                <Link href={team.href} className="hover:text-foreground transition-colors">
+                  {team.label}
+                </Link>
+              </li>
+            ))}
+            {vertical.featuredTeams.length === 0 ? (
+              <li>Lagen visas när intaget är på.</li>
+            ) : null}
           </ul>
         </div>
 
@@ -83,7 +79,7 @@ export function Footer() {
         </div>
       </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-10 text-xs text-muted-foreground">
-        © {new Date().getFullYear()} Nano Fotboll.
+        © {new Date().getFullYear()} {vertical.productName}.
       </div>
     </footer>
   );

@@ -1,3 +1,4 @@
+import { SPORT } from "@/lib/vertical";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { currentUser } from "@clerk/nextjs/server";
@@ -46,7 +47,7 @@ async function getTeamStats(): Promise<Map<string, TeamStats>> {
     const { data } = await supabase
       .from("forum_posts")
       .select("team_slug, created_at, hot_score")
-      .eq("sport", "football")
+      .eq("sport", SPORT)
       .eq("status", "published")
       .is("parent_id", null)
       .order("created_at", { ascending: false })
