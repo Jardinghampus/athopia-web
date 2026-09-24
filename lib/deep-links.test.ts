@@ -9,7 +9,7 @@ const contentView = readFileSync(
   path.resolve(
     process.cwd(),
     "..",
-    "athopia-ios",
+    "nano-ios",
     "AthopiaApp",
     "AthopiaApp",
     "ContentView.swift",

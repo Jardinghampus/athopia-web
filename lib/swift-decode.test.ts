@@ -8,13 +8,13 @@ import { SWIFT_MODEL_CONTRACTS } from "./api-schemas";
 const modelsDir = path.resolve(
   process.cwd(),
   "..",
-  "athopia-ios",
+  "nano-ios",
   "AthopiaApp",
   "AthopiaApp",
   "Models",
 );
 
-const widgetDir = path.resolve(process.cwd(), "..", "athopia-ios", "AthopiaWidget");
+const widgetDir = path.resolve(process.cwd(), "..", "nano-ios", "AthopiaWidget");
 
 // Widget-extensionen avkodar samma kontrakt och gate:as likadant.
 const swiftSource = [
