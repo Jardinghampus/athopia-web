@@ -14,7 +14,7 @@ const generatedDir = path.join(root, "contracts", "generated");
 const iosGeneratedFile = path.resolve(
   root,
   "..",
-  "athopia-ios",
+  "nano-ios",
   "AthopiaApp",
   "AthopiaApp",
   "GeneratedProductContracts.swift",
@@ -270,7 +270,8 @@ async function assertOrWrite(file: string, content: string): Promise<void> {
     return;
   }
 
-  const current = await readFile(file, "utf8").catch(() => "");
+  // CRLF i en Windows-utcheckning är inte ett inaktuellt kontrakt.
+  const current = (await readFile(file, "utf8").catch(() => "")).replace(/\r\n/g, "\n");
   if (current !== content) {
     throw new Error(`Generated contract is stale: ${file}`);
   }
